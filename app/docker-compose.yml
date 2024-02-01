@@ -1,0 +1,35 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres
+    container_name: postgres
+    user: postgres
+    env_file: .env
+    expose:
+      - "5432"
+    networks:
+      - transcendence
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 10s
+    restart: always
+
+  django-backend:
+    build: django-backend
+    container_name: backend
+    env_file: .env
+    expose:
+      - "8000"
+    networks:
+      - transcendence
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: on-failure
+
+networks:
+  transcendence:
+    driver: bridge
