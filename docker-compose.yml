@@ -1,8 +1,8 @@
 version: '3.8'
 services:
   postgres:
-    image: postgres
     container_name: postgres
+    image: postgres:13-alpine
     user: postgres
     env_file: .env
     expose:
@@ -10,19 +10,20 @@ services:
     networks:
       - transcendence
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
-      interval: 30s
-      timeout: 60s
-      retries: 5
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      interval: 10s
       start_period: 10s
+      retries: 5
     restart: always
 
   django-backend:
-    build: django-backend
-    container_name: backend
+    container_name: app
+    build: app/
     env_file: .env
-    expose:
-      - "8000"
+    ports:
+      - "8000:8000"
+#    expose:
+#      - "8000"
     networks:
       - transcendence
     depends_on:
