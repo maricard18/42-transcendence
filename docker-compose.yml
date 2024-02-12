@@ -1,5 +1,6 @@
 version: '3.8'
 services:
+  ############# PROD #############
   postgres:
     container_name: postgres
     image: postgres:13-alpine
@@ -14,23 +15,83 @@ services:
       interval: 10s
       start_period: 10s
       retries: 5
+    profiles: [""]
     restart: always
 
   django-backend:
-    container_name: app
-    build: app/
+    container_name: django-backend
+    build:
+      context: app/
+      target: prod
     env_file: .env
     ports:
       - "8000:8000"
-#    expose:
-#      - "8000"
     networks:
       - transcendence
     depends_on:
       postgres:
         condition: service_healthy
+    profiles: [""]
+    restart: on-failure
+
+  ############# DEV #############
+  postgres-dev:
+    container_name: postgres-dev
+    image: postgres:13-alpine
+    user: postgres
+    env_file: .env
+    ports:
+      - "5432:5432"
+    networks:
+      - transcendence-dev
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      interval: 10s
+      start_period: 10s
+      retries: 5
+    profiles: ["dev"]
+    restart: always
+
+  django-backend-dev:
+    container_name: django-backend-dev
+    build:
+      context: app/
+      target: dev
+    env_file: .env
+    environment:
+      - POSTGRES_HOST=postgres-dev
+    ports:
+      - "8000:8000"
+    networks:
+      - transcendence-dev
+    depends_on:
+      postgres-dev:
+        condition: service_healthy
+    volumes:
+      - ./app/:/app/
+    profiles: ["dev"]
+
+  ############# TOOLS #############
+  ############# PROD #############
+  db-migrations:
+    container_name: db-migrations
+    build:
+      context: app/
+      target: tools
+    env_file: .env
+    entrypoint: ["bash", "/app/tools/db-migrations.sh"]
+    networks:
+      - transcendence
+    depends_on:
+      postgres:
+        condition: service_healthy
+      django-backend:
+        condition: service_started
+    profiles: ["tools"]
     restart: on-failure
 
 networks:
   transcendence:
+    driver: bridge
+  transcendence-dev:
     driver: bridge
