@@ -1,15 +1,24 @@
 import React, { Component } from "react";
 import { NormalForm } from "../components/Form";
 import { PasswordForm } from "../components/Form";
-import Button from "../components/Button";
+import { FormButton } from "../components/Buttons";
+import Avatar from "../components/Avatar";
 
 const LoginPage = () => {
     return (
         <div className="center mb-3">
-            <form action="/test" method="get">
-                <NormalForm>enter username or email</NormalForm>
-                <PasswordForm>enter password</PasswordForm>
-                <Button type="submit" template="secondary-button">Next</Button>
+            <form action="/api/users" method="post">
+                <div className="avatar">
+                    <input type="file" id="actual-btn" hidden />
+                    <label htmlFor="actual-btn">
+                        <Avatar color="white"></Avatar>
+                    </label>
+                </div>
+                <NormalForm id="user">enter username or email</NormalForm>
+                <PasswordForm id="password">enter password</PasswordForm>
+                <FormButton template="secondary-button" form="login">
+                    Next
+                </FormButton>
             </form>
         </div>
     );

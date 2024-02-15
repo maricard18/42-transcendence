@@ -1,5 +1,5 @@
 import React from "react";
-import Button from "../components/Button";
+import { NavButton } from "../components/Buttons";
 import { Link } from "react-router-dom";
 
 export default function HomePage() {
@@ -10,11 +10,11 @@ export default function HomePage() {
                 Play Beyond Your Limits, Play Transcendence
             </h6>
             <div>
-                <Button template="primary-button" page="sign-up/">
+                <NavButton template="primary-button" page="sign-up/">
                     Sign up
-                </Button>
+                </NavButton>
                 <br></br>
-                <Button template="secondary-button">Sign up with 42</Button>
+                <NavButton template="secondary-button">Sign up with 42</NavButton>
             </div>
             <p>
                 Already have an account?{" "}

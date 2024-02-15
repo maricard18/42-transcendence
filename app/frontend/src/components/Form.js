@@ -1,30 +1,30 @@
-import React, { Children } from "react";
+import React from "react";
 import "bootstrap/dist/css/bootstrap.css";
 import "../../static/css/Form.css";
 
-export function NormalForm({ typeName, children }) {
+export function NormalForm({ type, id, children }) {
     return (
         <div className="mb-3">
-                <input
-                    type={typeName}
-                    className="form-control primary-form"
-                    id="exampleFormControlInput1"
-                    placeholder={children}
-                ></input>
+            <input
+                type={type}
+                className="form-control primary-form"
+                id={id}
+                placeholder={children}
+            ></input>
         </div>
     );
 }
 
-export function PasswordForm({ children }) {
+export function PasswordForm({ id, children }) {
     return (
         <div className="mb-3">
-                <input
-                    type="password"
-                    className="form-control primary-form"
-                    id="inputPassword2"
-                    autocomplete="new-password"
-                    placeholder={children}
-                ></input>
+            <input
+                type="password"
+                className="form-control primary-form"
+                id={id}
+                autoComplete="new-password"
+                placeholder={children}
+            ></input>
         </div>
     );
 }
