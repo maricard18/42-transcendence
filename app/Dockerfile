@@ -15,6 +15,7 @@ LABEL authors="bsilva-c"
 EXPOSE 8000
 
 ENV PYTHONPATH="/site-packages/"
+ENV DEBUG=True
 
 COPY --from=build /usr/local/lib/python3.11/site-packages/ /site-packages/
 
@@ -30,6 +31,7 @@ EXPOSE 8000
 
 USER nonroot
 ENV PYTHONPATH="/site-packages/"
+ENV DEBUG=False
 
 COPY --from=build /usr/local/lib/python3.11/site-packages/ /site-packages/
 COPY --from=build /usr/src/app/ /app/
