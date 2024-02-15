@@ -10,6 +10,8 @@ services:
       - "5432"
     networks:
       - transcendence
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
       interval: 5s
@@ -29,10 +31,12 @@ services:
     networks:
       - transcendence
     volumes:
-      - frontend:/app/frontend
+      - frontend_data:/app/frontend
     depends_on:
       postgres:
         condition: service_healthy
+      db-migrations:
+        condition: service_completed_successfully
       webpack-build:
         condition: service_completed_successfully
     profiles: [""]
@@ -65,9 +69,6 @@ services:
       - transcendence-dev
     volumes:
       - ./app/frontend/:/app/frontend/
-    depends_on:
-      postgres-dev:
-        condition: service_healthy
     profiles: ["dev"]
     restart: on-failure
 
@@ -88,6 +89,8 @@ services:
     depends_on:
       postgres-dev:
         condition: service_healthy
+      db-migrations-dev:
+        condition: service_completed_successfully
       webpack-dev:
         condition: service_started
     profiles: ["dev"]
@@ -107,9 +110,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      django-backend:
-        condition: service_started
-    profiles: ["tools"]
+    profiles: ["", "tools"]
     restart: on-failure
 
   webpack-build:
@@ -120,10 +121,7 @@ services:
     networks:
       - transcendence
     volumes:
-      - frontend:/app/frontend
-    depends_on:
-      postgres:
-        condition: service_healthy
+      - frontend_data:/app/frontend
     profiles: [""]
 
   ############# DEV #############
@@ -139,11 +137,9 @@ services:
     networks:
       - transcendence-dev
     depends_on:
-      postgres:
+      postgres-dev:
         condition: service_healthy
-      django-backend:
-        condition: service_started
-    profiles: [ "tools" ]
+    profiles: ["dev", "tools"]
     restart: on-failure
 
 networks:
@@ -153,4 +149,5 @@ networks:
     driver: bridge
 
 volumes:
-  frontend:
+  frontend_data:
+  postgres_data:
