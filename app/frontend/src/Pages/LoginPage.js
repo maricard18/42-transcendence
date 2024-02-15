@@ -14,8 +14,8 @@ const LoginPage = () => {
                         <Avatar color="white"></Avatar>
                     </label>
                 </div>
-                <NormalForm id="user">enter username or email</NormalForm>
-                <PasswordForm id="password">enter password</PasswordForm>
+                <NormalForm id="user">username or email</NormalForm>
+                <PasswordForm id="password">password</PasswordForm>
                 <FormButton template="secondary-button" form="login">
                     Next
                 </FormButton>
