@@ -1,12 +1,17 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import HomePage from "./HomePage";
+import SignUpPage from "./SignUpPage";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 const router = createBrowserRouter([
     {
         path: "/",
         element: <HomePage />,
+    },
+	{
+        path: "sign-up/",
+        element: <SignUpPage />,
     },
 ]);
 
