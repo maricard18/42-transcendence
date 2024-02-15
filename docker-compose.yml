@@ -12,8 +12,8 @@ services:
       - transcendence
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
-      interval: 10s
-      start_period: 10s
+      interval: 5s
+      start_period: 5s
       retries: 5
     profiles: [""]
     restart: always
@@ -28,9 +28,13 @@ services:
       - "8000:8000"
     networks:
       - transcendence
+    volumes:
+      - frontend:/app/frontend
     depends_on:
       postgres:
         condition: service_healthy
+      webpack-build:
+        condition: service_completed_successfully
     profiles: [""]
     restart: on-failure
 
@@ -46,11 +50,26 @@ services:
       - transcendence-dev
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
-      interval: 10s
-      start_period: 10s
+      interval: 5s
+      start_period: 5s
       retries: 5
     profiles: ["dev"]
     restart: always
+
+  webpack-dev:
+    container_name: webpack-dev
+    build:
+      context: app/frontend/
+      target: dev
+    networks:
+      - transcendence-dev
+    volumes:
+      - ./app/frontend/:/app/frontend/
+    depends_on:
+      postgres-dev:
+        condition: service_healthy
+    profiles: ["dev"]
+    restart: on-failure
 
   django-backend-dev:
     container_name: django-backend-dev
@@ -64,12 +83,15 @@ services:
       - "8000:8000"
     networks:
       - transcendence-dev
+    volumes:
+      - ./app/:/app/:ro
     depends_on:
       postgres-dev:
         condition: service_healthy
-    volumes:
-      - ./app/:/app/
+      webpack-dev:
+        condition: service_started
     profiles: ["dev"]
+    restart: on-failure
 
   ############# TOOLS #############
   ############# PROD #############
@@ -90,8 +112,45 @@ services:
     profiles: ["tools"]
     restart: on-failure
 
+  webpack-build:
+    container_name: webpack-build
+    build:
+      context: app/frontend/
+      target: prod
+    networks:
+      - transcendence
+    volumes:
+      - frontend:/app/frontend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles: [""]
+
+  ############# DEV #############
+  db-migrations-dev:
+    container_name: db-migrations-dev
+    build:
+      context: app/
+      target: tools
+    env_file: .env
+    environment:
+      - POSTGRES_HOST=postgres-dev
+    entrypoint: [ "bash", "/app/tools/db-migrations.sh" ]
+    networks:
+      - transcendence-dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+      django-backend:
+        condition: service_started
+    profiles: [ "tools" ]
+    restart: on-failure
+
 networks:
   transcendence:
     driver: bridge
   transcendence-dev:
     driver: bridge
+
+volumes:
+  frontend:
