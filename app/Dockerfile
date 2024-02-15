@@ -16,7 +16,6 @@ EXPOSE 8000
 
 ENV PYTHONPATH="/site-packages/"
 
-# COPY PYTHON PACKAGES && APPLICATION FILES
 COPY --from=build /usr/local/lib/python3.11/site-packages/ /site-packages/
 
 WORKDIR /app/
@@ -32,7 +31,6 @@ EXPOSE 8000
 USER nonroot
 ENV PYTHONPATH="/site-packages/"
 
-# COPY PYTHON PACKAGES && APPLICATION FILES
 COPY --from=build /usr/local/lib/python3.11/site-packages/ /site-packages/
 COPY --from=build /usr/src/app/ /app/
 
@@ -46,7 +44,6 @@ LABEL authors="bsilva-c"
 
 ENV PYTHONPATH="/site-packages/"
 
-# COPY PYTHON PACKAGES && APPLICATION FILES
 COPY --from=build /usr/local/lib/python3.11/site-packages/ /site-packages/
 COPY --from=build /usr/src/app/ /app/
 
