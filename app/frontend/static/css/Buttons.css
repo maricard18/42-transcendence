@@ -1,0 +1,44 @@
+.primary-button {
+    color: white;
+    background-color: #520dc2;
+    border-color: #520dc2;
+    margin-bottom: 10px;
+    width: 220px;
+	font-weight: bold;
+}
+
+.primary-button:hover {
+    color: white;
+    background-color: #520dc2;
+    border-color: #520dc2;
+}
+
+.secondary-button {
+    color: white;
+    background-color: #8540f5;
+    border-color: #8540f5;
+    margin-bottom: 10px;
+    width: 220px;
+	font-weight: bold;
+}
+
+.secondary-button:hover {
+    color: white;
+    background-color: #8540f5;
+    border-color: #8540f5;
+}
+
+.white-button {
+    color: #520dc2;
+    background-color: white;
+    border-color: white;
+    margin-bottom: 10px;
+    width: 220px;
+	font-weight: bold;
+}
+
+.white-button:hover {
+    color: #520dc2;
+    background-color: white;
+    border-color: white;
+}
