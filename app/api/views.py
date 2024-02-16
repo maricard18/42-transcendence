@@ -24,9 +24,10 @@ class UserViewSet(viewsets.ViewSet):
         serializer = serializer_class(data=request.data)
         if serializer.is_valid():
             username = serializer.data.get('username')
+            email = serializer.data.get('email')
             password = make_password(serializer.data.get('password'))
 
-            user = User(username=username, password=password)
+            user = User(username=username, email=email, password=password)
             user.save()
 
             return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
