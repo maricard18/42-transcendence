@@ -1,5 +1,6 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.css";
+import "../../static/css/Avatar.css"
 
 export default function Avatar() {
     return (
