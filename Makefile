@@ -10,6 +10,8 @@
 #                                                                              #
 # **************************************************************************** #
 
+PROJECT_NAME = ft_transcendence
+
 PROFILES = prod dev
 PROFILE ?= dev
 
@@ -42,7 +44,21 @@ rm:
 	@$(COMMAND) rm
 re: fclean all
 clean: stop rm
-fclean:
+fclean: confirm
 	@$(COMMAND) down --volumes
+	@images=$$(docker image ls -q "$(PROJECT_NAME)-*"); \
+	if [ -n "$$images" ]; then \
+		docker image rm $$images; \
+	fi
 
-.PHONY: all build up down start stop ps rm re clean fclean
+confirm:
+	@printf "\033[1;33m"  # Yellow color for the warning message
+	@printf "WARNING: This action will permanently remove images and associated volumes. Are you sure you want to proceed? "
+	@printf "\033[0m[y/N] "  # Reset color
+	@read response; \
+	if [ "$$response" != "y" ]; then \
+		printf "\033[0mAborted.\n"; \
+		exit 1; \
+	fi
+
+.PHONY: all build up down start stop ps rm re clean fclean confirm
