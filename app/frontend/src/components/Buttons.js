@@ -17,7 +17,7 @@ export function FormSubmitButton({ template, form, children }) {
 
     const handleSignUpForm = () => {
         const form = document.getElementById("sign-up-form");
-        const avatar = document.getElementById("avatar");
+        //const avatar = document.getElementById("avatar");
         const user = document.getElementById("user");
         const email = document.getElementById("email");
         const password = document.getElementById("password");
@@ -48,8 +48,13 @@ export function FormSubmitButton({ template, form, children }) {
 			body: JSON.stringify(input),
 		});
 
-		const data = await response.json();
-		console.log(data);
+		if (response.status === 201) {
+			// main menu page
+		} else if (response.status === 409) {
+			const user = document.getElementById("user");
+			user.setCustomValidity("user with that name already exists");
+			user.reportValidity();
+		}
 	};
 
     return (
