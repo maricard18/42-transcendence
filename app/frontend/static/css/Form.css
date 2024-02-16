@@ -4,8 +4,9 @@
     border-color: white;
 }
 
-.primary-form {
+.primary-form:user-invalid {
     color: #520dc2;
     background-color: white;
     border-color: white;
+	outline: 1px solid red;
 }

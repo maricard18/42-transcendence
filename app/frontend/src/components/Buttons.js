@@ -3,26 +3,44 @@ import "bootstrap/dist/css/bootstrap.css";
 import "../../static/css/Buttons.css";
 import { useNavigate } from "react-router-dom";
 
-export function FormButton({ template, form, children }) {
-    const handleLoginData = () => {
+export function FormSubmitButton({ template, form, children }) {
+    const handleLoginForm = () => {
+        const form = document.getElementById("login-form");
         const user = document.getElementById("user");
         const password = document.getElementById("password");
-        const data = { username: user.value, password: password.value };
-        console.log(data);
-        sendData(data);
+
+        if (form.reportValidity()) {
+            const data = { username: user.value, password: password.value };
+            console.log(data);
+            sendData(data);
+        }
     };
 
-    const handleSignUpData = () => {
+    const handleSignUpForm = () => {
+        const form = document.getElementById("sign-up-form");
         const user = document.getElementById("user");
         const email = document.getElementById("email");
         const password = document.getElementById("password");
-        const data = {
-            username: user.value,
-            email: email.value,
-            password: password.value,
-        };
-        console.log(data);
-        sendData(data);
+        const confirmPassword = document.getElementById("confirm-password");
+
+        if (password.value != confirmPassword.value) {
+            confirmPassword.setCustomValidity("Passwords don't match");
+            console.log("passwords don't match");
+        } else {
+            confirmPassword.setCustomValidity("");
+            console.log("passwords match");
+        }
+		confirmPassword.reportValidity();
+
+        if (password.value == confirmPassword.value && form.reportValidity()) {
+            const data = {
+                username: user.value,
+                email: email.value,
+                password: password.value,
+            };
+            console.log(data);
+            sendData(data);
+        }
     };
 
     const sendData = (jsonData) => {
@@ -39,7 +57,7 @@ export function FormButton({ template, form, children }) {
             type="button"
             className={`btn btn-primary ${template}`}
             onClick={() => {
-                form === "login" ? handleLoginData() : handleSignUpData();
+                form == "login" ? handleLoginForm() : handleSignUpForm();
             }}
         >
             {children}

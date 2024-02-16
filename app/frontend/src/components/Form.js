@@ -10,6 +10,7 @@ export function NormalForm({ type, id, children }) {
                 className="form-control primary-form"
                 id={id}
                 placeholder={children}
+				required
             ></input>
         </div>
     );
@@ -24,6 +25,7 @@ export function PasswordForm({ id, children }) {
                 id={id}
                 autoComplete="new-password"
                 placeholder={children}
+				required
             ></input>
         </div>
     );
