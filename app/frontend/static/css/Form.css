@@ -1,7 +1,0 @@
-.primary-form:user-invalid {
-	outline: 1px solid red;
-}
-
-input-box:focus-visible {
-	outline: none;
-}

@@ -1,6 +1,6 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.css";
-import "../../static/css/Form.css";
+import "../../static/css/Forms.css";
 
 export function NormalForm({ type, id, children }) {
     return (
