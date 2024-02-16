@@ -11,14 +11,13 @@ export function FormSubmitButton({ template, form, children }) {
 
         if (form.reportValidity()) {
             const input = { username: user.value, password: password.value };
-            console.log(input);
             sendData(input);
         }
     };
 
     const handleSignUpForm = () => {
         const form = document.getElementById("sign-up-form");
-		const avatar = document.getElementById("avatar");
+        const avatar = document.getElementById("avatar");
         const user = document.getElementById("user");
         const email = document.getElementById("email");
         const password = document.getElementById("password");
@@ -26,12 +25,10 @@ export function FormSubmitButton({ template, form, children }) {
 
         if (password.value != confirmPassword.value) {
             confirmPassword.setCustomValidity("Passwords don't match");
-            console.log("passwords don't match");
         } else {
             confirmPassword.setCustomValidity("");
-            console.log("passwords match");
         }
-		confirmPassword.reportValidity();
+        confirmPassword.reportValidity();
 
         if (password.value === confirmPassword.value && form.reportValidity()) {
             const input = {
@@ -39,23 +36,24 @@ export function FormSubmitButton({ template, form, children }) {
                 email: email.value,
                 password: password.value,
             };
-            console.log(input);
             sendData(input);
         }
     };
 
-    const sendData = (input) => {
-        fetch("http://localhost:8000/api/users", {
-            method: "POST",
-            headers: { "Content-type": "application/json" },
-            mode: "cors",
-            body: JSON.stringify(input),
-        });
-    };
+	const sendData = async (input) => {
+		const response = await fetch("http://localhost:8000/api/users", {
+			method: "POST",
+			headers: { "Content-type": "application/json" },
+			mode: "cors",
+			body: JSON.stringify(input),
+		});
+
+		console.log(await response.json());
+	};
 
     return (
         <button
-            type="submit"
+            type="button"
             className={`btn btn-primary ${template}`}
             onClick={() => {
                 form === "login" ? handleLoginForm() : handleSignUpForm();
