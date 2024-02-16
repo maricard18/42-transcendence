@@ -41,14 +41,15 @@ export function FormSubmitButton({ template, form, children }) {
     };
 
 	const sendData = async (input) => {
-		const response = await fetch("http://localhost:8000/api/users", {
+		const response = await fetch("http://localhost:8000/api/users/", {
 			method: "POST",
 			headers: { "Content-type": "application/json" },
 			mode: "cors",
 			body: JSON.stringify(input),
 		});
 
-		console.log(await response.json());
+		const data = await response.json();
+		console.log(data);
 	};
 
     return (
