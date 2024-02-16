@@ -52,6 +52,8 @@ services:
       - "5432:5432"
     networks:
       - transcendence-dev
+    volumes:
+      - postgres_data-dev:/var/lib/postgresql/data/
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
       interval: 5s
@@ -151,3 +153,4 @@ networks:
 volumes:
   frontend_data:
   postgres_data:
+  postgres_data-dev:
