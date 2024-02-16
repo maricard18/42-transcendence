@@ -10,14 +10,15 @@ export function FormSubmitButton({ template, form, children }) {
         const password = document.getElementById("password");
 
         if (form.reportValidity()) {
-            const data = { username: user.value, password: password.value };
-            console.log(data);
-            sendData(data);
+            const input = { username: user.value, password: password.value };
+            console.log(input);
+            sendData(input);
         }
     };
 
     const handleSignUpForm = () => {
         const form = document.getElementById("sign-up-form");
+		const avatar = document.getElementById("avatar");
         const user = document.getElementById("user");
         const email = document.getElementById("email");
         const password = document.getElementById("password");
@@ -32,32 +33,32 @@ export function FormSubmitButton({ template, form, children }) {
         }
 		confirmPassword.reportValidity();
 
-        if (password.value == confirmPassword.value && form.reportValidity()) {
-            const data = {
+        if (password.value === confirmPassword.value && form.reportValidity()) {
+            const input = {
                 username: user.value,
                 email: email.value,
                 password: password.value,
             };
-            console.log(data);
-            sendData(data);
+            console.log(input);
+            sendData(input);
         }
     };
 
-    const sendData = (jsonData) => {
+    const sendData = (input) => {
         fetch("http://localhost:8000/api/users", {
             method: "POST",
             headers: { "Content-type": "application/json" },
             mode: "cors",
-            body: JSON.stringify(jsonData),
+            body: JSON.stringify(input),
         });
     };
 
     return (
         <button
-            type="button"
+            type="submit"
             className={`btn btn-primary ${template}`}
             onClick={() => {
-                form == "login" ? handleLoginForm() : handleSignUpForm();
+                form === "login" ? handleLoginForm() : handleSignUpForm();
             }}
         >
             {children}

@@ -25,3 +25,10 @@
 	font-weight: bold;
 	color: inherit;
 }
+
+.login:hover {
+	text-decoration: underline;
+	font-weight: bold;
+	color: inherit;
+	transition: 0.5s;
+}

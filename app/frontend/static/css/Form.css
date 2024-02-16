@@ -1,12 +1,7 @@
-.primary-form {
-    color: #520dc2;
-    background-color: white;
-    border-color: white;
+.primary-form:user-invalid {
+	outline: 1px solid red;
 }
 
-.primary-form:user-invalid {
-    color: #520dc2;
-    background-color: white;
-    border-color: white;
-	outline: 1px solid red;
+input-box:focus-visible {
+	outline: none;
 }

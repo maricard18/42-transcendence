@@ -1,3 +1,7 @@
 .avatar {
-	margin-bottom: 32px;
+    margin-bottom: 24px;
+}
+
+.avatar:hover {
+    filter: drop-shadow(0 0 3px #ffffff);
 }

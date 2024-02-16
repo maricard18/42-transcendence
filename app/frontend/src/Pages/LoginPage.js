@@ -11,14 +11,12 @@ const LoginPage = () => {
                 <div className="avatar">
                     <input type="file" id="actual-btn" hidden />
                     <label htmlFor="actual-btn">
-                        <Avatar color="white"></Avatar>
+                        <Avatar color="white" />
                     </label>
                 </div>
                 <NormalForm id="user">username or email</NormalForm>
                 <PasswordForm id="password">password</PasswordForm>
-                <FormSubmitButton template="secondary-button" form="login">
-                    Next
-                </FormSubmitButton>
+                <FormSubmitButton template="secondary-button" form="login">Next</FormSubmitButton>
             </form>
         </div>
     );
