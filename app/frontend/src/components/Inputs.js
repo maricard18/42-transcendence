@@ -1,8 +1,8 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.css";
-import "../../static/css/Forms.css";
+import "../../static/css/Inputs.css";
 
-export function NormalForm({ type, id, children }) {
+export function NormalInput({ type, id, children }) {
     return (
         <div className="mb-3">
             <input
@@ -16,7 +16,7 @@ export function NormalForm({ type, id, children }) {
     );
 }
 
-export function PasswordForm({ id, children }) {
+export function PasswordInput({ id, children }) {
     return (
         <div className="mb-3">
             <input

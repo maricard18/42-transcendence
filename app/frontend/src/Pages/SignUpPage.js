@@ -1,24 +1,21 @@
-import React, { Component } from "react";
+import React from "react";
 import Avatar from "../components/Avatar";
-import { NormalForm } from "../components/Form";
-import { PasswordForm } from "../components/Form";
-import { FormSubmitButton } from "../components/Buttons";
-import { NavButton } from "../components/Buttons";
+import { NormalInput } from "../components/Inputs";
+import { PasswordInput } from "../components/Inputs";
+import FormButton from "../components/FormButton";
 import "../../static/css/index.css";
 
-const SignUpPage = () => {
+export default function SignUpPage() {
     return (
         <div className="center">
             <form id="sign-up-form" action="/api/users" method="post">
                 <Avatar />
-                <NormalForm type="text" id="user">username</NormalForm>
-                <NormalForm type="email" id="email">email</NormalForm>
-                <PasswordForm id="password">password</PasswordForm>
-                <PasswordForm id="confirm-password">confirm password</PasswordForm>
-                <FormSubmitButton template="secondary-button" form="signUp">Next</FormSubmitButton>
+                <NormalInput type="text" id="user">username</NormalInput>
+                <NormalInput type="email" id="email">email</NormalInput>
+                <PasswordInput id="password">password</PasswordInput>
+                <PasswordInput id="confirm-password">confirm password</PasswordInput>
+                <FormButton template="secondary-button" form="signUp">Next</FormButton>
             </form>
         </div>
     );
 };
-
-export default SignUpPage;

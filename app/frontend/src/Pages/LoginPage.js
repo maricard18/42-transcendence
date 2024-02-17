@@ -1,20 +1,17 @@
 import React, { Component } from "react";
-import { NormalForm } from "../components/Form";
-import { PasswordForm } from "../components/Form";
-import { FormSubmitButton } from "../components/Buttons";
-import Avatar from "../components/Avatar";
+import { NormalInput } from "../components/Inputs";
+import { PasswordInput } from "../components/Inputs";
+import FormButton from "../components/FormButton";
 
-const LoginPage = () => {
+export default function LoginPage() {
 	return (
 		<div className="center">
 			<h1 className="header" style={{marginBottom: "36px"}}>Welcome back</h1>
 			<form id="login-form" action="/api/users" method="post">
-				<NormalForm id="user">username or email</NormalForm>
-				<PasswordForm id="password">password</PasswordForm>
-				<FormSubmitButton template="secondary-button" form="login">Next</FormSubmitButton>
+				<NormalInput id="user">username or email</NormalInput>
+				<PasswordInput id="password">password</PasswordInput>
+				<FormButton template="secondary-button" form="login">Next</FormButton>
 			</form>
 		</div>
 	);
 };
-
-export default LoginPage;

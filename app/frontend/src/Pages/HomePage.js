@@ -1,5 +1,5 @@
 import React from "react";
-import { NavButton } from "../components/Buttons";
+import NavButton from "../components/NavButton";
 import { Link } from "react-router-dom";
 
 export default function HomePage() {

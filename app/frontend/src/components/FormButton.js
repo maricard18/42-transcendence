@@ -2,9 +2,8 @@ import React from "react";
 import "bootstrap/dist/css/bootstrap.css";
 import "../../static/css/Buttons.css";
 import { useNavigate } from "react-router-dom";
-import { redirect } from "react-router-dom";
 
-export function FormSubmitButton({ template, form, children }) {
+export default function FormSubmitButton({ template, form, children }) {
 	const navigate = useNavigate();
 
     const handleLoginForm = () => {
@@ -43,22 +42,22 @@ export function FormSubmitButton({ template, form, children }) {
         }
     };
 
-    const sendData = async (input) => {
-        const response = await fetch("http://localhost:8000/api/users/", {
-            method: "POST",
-            headers: { "Content-type": "application/json" },
-            mode: "cors",
-            body: JSON.stringify(input),
-        });
-
-        if (response.status === 201) {
-            navigate("/menu");
-        } else if (response.status === 409) {
-            const user = document.getElementById("user");
-            user.setCustomValidity("user with that name already exists");
-            user.reportValidity();
-        }
-    };
+	const sendData = async (input) => {
+		const response = await fetch("http://localhost:8000/api/users/", {
+			method: "POST",
+			headers: { "Content-type": "application/json" },
+			mode: "cors",
+			body: JSON.stringify(input),
+		});
+	
+		if (response.status === 201) {
+			navigate("/menu");
+		} else if (response.status === 409) {
+			const user = document.getElementById("user");
+			user.setCustomValidity("user with that name already exists");
+			user.reportValidity();
+		}
+	};
 
     return (
         <button
@@ -66,26 +65,6 @@ export function FormSubmitButton({ template, form, children }) {
             className={`btn btn-primary ${template}`}
             onClick={() => {
                 form === "login" ? handleLoginForm() : handleSignUpForm();
-            }}
-        >
-            {children}
-        </button>
-    );
-}
-
-export function NavButton({ template, page, children }) {
-    const navigate = useNavigate();
-
-    const handleClickTo = (path) => {
-        navigate(path);
-    };
-
-    return (
-        <button
-            type="button"
-            className={`btn btn-primary ${template}`}
-            onClick={() => {
-                handleClickTo(page);
             }}
         >
             {children}
