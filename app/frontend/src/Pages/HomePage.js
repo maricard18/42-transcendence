@@ -9,14 +9,14 @@ export default function HomePage() {
             <h6 className="subheader">
                 Play Beyond Your Limits, Play Transcendence
             </h6>
-            <NavButton template="primary-button" page="sign-up/">
+            <NavButton template="primary-button" page="/sign-up">
                 Sign up
             </NavButton>
             <br></br>
             <NavButton template="secondary-button">Sign up with 42</NavButton>
             <p>
                 Already have an account?{" "}
-                <Link to="login/" className="login">
+                <Link to="/login" className="login">
                     Log in
                 </Link>
             </p>

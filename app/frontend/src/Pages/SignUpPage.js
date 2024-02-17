@@ -3,6 +3,7 @@ import Avatar from "../components/Avatar";
 import { NormalForm } from "../components/Form";
 import { PasswordForm } from "../components/Form";
 import { FormSubmitButton } from "../components/Buttons";
+import { NavButton } from "../components/Buttons";
 import "../../static/css/index.css";
 
 const SignUpPage = () => {

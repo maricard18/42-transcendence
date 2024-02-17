@@ -2,8 +2,11 @@ import React from "react";
 import "bootstrap/dist/css/bootstrap.css";
 import "../../static/css/Buttons.css";
 import { useNavigate } from "react-router-dom";
+import { redirect } from "react-router-dom";
 
 export function FormSubmitButton({ template, form, children }) {
+	const navigate = useNavigate();
+
     const handleLoginForm = () => {
         const form = document.getElementById("login-form");
         const user = document.getElementById("user");
@@ -17,7 +20,7 @@ export function FormSubmitButton({ template, form, children }) {
 
     const handleSignUpForm = () => {
         const form = document.getElementById("sign-up-form");
-        //const avatar = document.getElementById("avatar");
+        // const avatar = document.getElementById("avatar");
         const user = document.getElementById("user");
         const email = document.getElementById("email");
         const password = document.getElementById("password");
@@ -40,22 +43,22 @@ export function FormSubmitButton({ template, form, children }) {
         }
     };
 
-	const sendData = async (input) => {
-		const response = await fetch("http://localhost:8000/api/users/", {
-			method: "POST",
-			headers: { "Content-type": "application/json" },
-			mode: "cors",
-			body: JSON.stringify(input),
-		});
+    const sendData = async (input) => {
+        const response = await fetch("http://localhost:8000/api/users/", {
+            method: "POST",
+            headers: { "Content-type": "application/json" },
+            mode: "cors",
+            body: JSON.stringify(input),
+        });
 
-		if (response.status === 201) {
-			// main menu page
-		} else if (response.status === 409) {
-			const user = document.getElementById("user");
-			user.setCustomValidity("user with that name already exists");
-			user.reportValidity();
-		}
-	};
+        if (response.status === 201) {
+            navigate("/menu");
+        } else if (response.status === 409) {
+            const user = document.getElementById("user");
+            user.setCustomValidity("user with that name already exists");
+            user.reportValidity();
+        }
+    };
 
     return (
         <button
