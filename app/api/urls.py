@@ -1,8 +1,9 @@
-# from django.urls import path
-from rest_framework.routers import DefaultRouter
-from .views import UserViewSet
+from .routers import APIRouter
+from .views import UserViewSet, TokenViewSet
 
-router = DefaultRouter()
-router.register(r'users', UserViewSet)
+router = APIRouter()
+
+router.register(r'tokens', TokenViewSet, basename='token')
+router.register(r'users', UserViewSet, basename='user')
 
 urlpatterns = router.urls
