@@ -51,6 +51,14 @@ fclean: confirm
 		docker image rm $$images; \
 	fi
 
+db-migrations:
+
+	ifeq ($(PROFILE),dev)
+		@$(COMMAND) run db-migrations-dev
+	else
+		@$(COMMAND) run db-migrations
+	endif
+
 confirm:
 	@printf "\033[1;33m"  # Yellow color for the warning message
 	@printf "WARNING: This action will permanently remove images and associated volumes. Are you sure you want to proceed? "
