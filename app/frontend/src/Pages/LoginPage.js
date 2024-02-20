@@ -12,7 +12,7 @@ export default function LoginPage() {
                 </h1>
                 <form id="login-form" action="/api/users" method="post">
                     <div className="row justify-content-center mb-1">
-                        <NormalInput id="user">username or email</NormalInput>
+                        <NormalInput id="username">username or email</NormalInput>
                     </div>
                     <div className="row justify-content-center mb-1">
                         <PasswordInput id="password">password</PasswordInput>

@@ -14,7 +14,7 @@ export default function SignUpPage() {
 					<Avatar />
 				</div>
 				<div className="row justify-content-center mb-1">
-					<NormalInput type="text" id="user">username</NormalInput>
+					<NormalInput type="text" id="username">username</NormalInput>
 				</div>
 				<div className="row justify-content-center mb-1">
 					<NormalInput type="email" id="email">email</NormalInput>
