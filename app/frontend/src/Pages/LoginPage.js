@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import sendRequest from "../functions/sendRequest";
 
 export default function LoginPage() {
-	const navigate = useNavigate();
+    const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
         username: "",
@@ -16,20 +16,26 @@ export default function LoginPage() {
     const [errors, setErrors] = useState({});
 
     const handleValidation = async (event) => {
-		const newErrors = validateLoginForm(formData, setFormData);
-		setErrors(newErrors);
-       
-		if (!newErrors.message) {
-			const input = {
-				username: formData.username,
-				password: formData.password,
-			};
+        const newErrors = validateLoginForm(formData, setFormData);
+        setErrors(newErrors);
 
-			const result = await sendRequest("/api/tokens/", input, setErrors, formData, setFormData);
-			if (result) {
-				navigate("/menu");
-			}
-		}
+        if (!newErrors.message) {
+            const input = {
+                username: formData.username,
+                password: formData.password,
+            };
+
+            const result = await sendRequest(
+                "/api/tokens/",
+                input,
+                setErrors,
+                formData,
+                setFormData
+            );
+            if (result) {
+                navigate("/menu");
+            }
+        }
     };
 
     return (
@@ -45,7 +51,7 @@ export default function LoginPage() {
                             <Input
                                 type="text"
                                 id="username"
-								template={errors.username ? 'input-error' : ''}
+                                template={errors.username ? "input-error" : ""}
                                 value={formData.username}
                                 setValue={(value) =>
                                     setFormData({
@@ -61,7 +67,7 @@ export default function LoginPage() {
                             <Input
                                 type="password"
                                 id="password"
-								template={errors.password ? 'input-error' : ''}
+                                template={errors.password ? "input-error" : ""}
                                 value={formData.password}
                                 setValue={(value) =>
                                     setFormData({
@@ -79,7 +85,7 @@ export default function LoginPage() {
                                 form="login"
                                 data={formData}
                                 setData={formData}
-								onClick={handleValidation}
+                                onClick={handleValidation}
                             >
                                 Next
                             </FormButton>

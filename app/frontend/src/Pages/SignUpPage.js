@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import sendRequest from "../functions/sendRequest";
 
 export default function SignUpPage() {
-	const navigate = useNavigate();
+    const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
         username: "",
@@ -19,21 +19,27 @@ export default function SignUpPage() {
     const [errors, setErrors] = useState({});
 
     const handleValidation = async (event) => {
-		const newErrors = validateSignUpForm(formData, setFormData);
-		setErrors(newErrors);
-       
-		if (!newErrors.message) {
-			const input = {
-				username: formData.username,
-				email: formData.email,
-				password: formData.password,
-			};
+        const newErrors = validateSignUpForm(formData, setFormData);
+        setErrors(newErrors);
 
-			const result = await sendRequest("/api/users/", input, setErrors, formData, setFormData);
-			if (result) {
-				navigate("/menu");
-			}
-		}
+        if (!newErrors.message) {
+            const input = {
+                username: formData.username,
+                email: formData.email,
+                password: formData.password,
+            };
+
+            const result = await sendRequest(
+                "/api/users/",
+                input,
+                setErrors,
+                formData,
+                setFormData
+            );
+            if (result) {
+                navigate("/menu");
+            }
+        }
     };
 
     return (
@@ -51,7 +57,7 @@ export default function SignUpPage() {
                             <Input
                                 type="text"
                                 id="username"
-								template={errors.username ? 'input-error' : ''}
+                                template={errors.username ? "input-error" : ""}
                                 value={formData.username}
                                 setValue={(value) =>
                                     setFormData({
@@ -67,7 +73,7 @@ export default function SignUpPage() {
                             <Input
                                 type="email"
                                 id="email"
-								template={errors.email ? 'input-error' : ''}
+                                template={errors.email ? "input-error" : ""}
                                 value={formData.email}
                                 setValue={(value) =>
                                     setFormData({ ...formData, email: value })
@@ -80,7 +86,7 @@ export default function SignUpPage() {
                             <Input
                                 type="password"
                                 id="password"
-								template={errors.password ? 'input-error' : ''}
+                                template={errors.password ? "input-error" : ""}
                                 value={formData.password}
                                 setValue={(value) =>
                                     setFormData({
@@ -96,7 +102,9 @@ export default function SignUpPage() {
                             <Input
                                 type="password"
                                 id="confirm-password"
-								template={errors.confirmPassword ? 'input-error' : ''}
+                                template={
+                                    errors.confirmPassword ? "input-error" : ""
+                                }
                                 value={formData.confirmPassword}
                                 setValue={(value) =>
                                     setFormData({

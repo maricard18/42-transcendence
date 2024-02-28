@@ -11,7 +11,9 @@ export default function Layout() {
                     </a>
                 </div>
             </nav>
-            <section><Outlet /></section>
+            <section>
+                <Outlet />
+            </section>
         </>
     );
 }

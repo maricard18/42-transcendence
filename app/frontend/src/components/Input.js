@@ -1,10 +1,17 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.css";
 
-export default function Input({ type, id, value, template, setValue, children }) {
-	const handleChange = (event) => {
-		setValue(event.target.value);
-	}
+export default function Input({
+    type,
+    id,
+    value,
+    template,
+    setValue,
+    children,
+}) {
+    const handleChange = (event) => {
+        setValue(event.target.value);
+    };
 
     return (
         <div className="mb-3">
@@ -13,8 +20,8 @@ export default function Input({ type, id, value, template, setValue, children })
                 className={`form-control primary-form ${template}`}
                 id={id}
                 placeholder={children}
-				onChange={handleChange}
-				value={value}
+                onChange={handleChange}
+                value={value}
             ></input>
         </div>
     );

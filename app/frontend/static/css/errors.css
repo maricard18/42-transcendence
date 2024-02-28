@@ -1,14 +1,14 @@
 .form-error {
     position: absolute;
     color: red;
-    font-size: 12px;
+    font-size: 13px;
 	font-weight: bold;
     font-family: "Source Sans 3", sans-serif;
-	top: -24px;
+	top: -25px;
 	text-align: center;
     width: 100%;
 }
 
 .input-error {
-    border: 1px solid red;
+    border: 2px solid red;
 }
