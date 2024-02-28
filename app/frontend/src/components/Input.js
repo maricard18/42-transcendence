@@ -1,6 +1,5 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.css";
-import "../../static/css/Inputs.css";
 
 export default function Input({ type, id, value, template, setValue, children }) {
 	const handleChange = (event) => {

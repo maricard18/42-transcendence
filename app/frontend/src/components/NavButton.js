@@ -1,7 +1,6 @@
 import React from "react";
-import "bootstrap/dist/css/bootstrap.css";
-import "../../static/css/Buttons.css";
 import { useNavigate } from "react-router-dom";
+import "bootstrap/dist/css/bootstrap.css";
 
 export default function NavButton({ template, page, children }) {
     const navigate = useNavigate();

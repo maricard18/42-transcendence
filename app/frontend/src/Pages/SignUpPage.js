@@ -5,8 +5,6 @@ import FormButton from "../components/FormButton";
 import { validateSignUpForm } from "../functions/validateForm";
 import { useNavigate } from "react-router-dom";
 import sendRequest from "../functions/sendRequest";
-import "../../static/css/index.css";
-import "../../static/css/errors.css";
 
 export default function SignUpPage() {
 	const navigate = useNavigate();

@@ -3,8 +3,11 @@ import { createRoot } from "react-dom/client";
 import HomePage from "./HomePage";
 import SignUpPage from "./SignUpPage";
 import LoginPage from "./LoginPage";
+import Layout from "./Layout";
 import MenuPage from "./MenuPage";
+import PongPage from "./PongPage";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import "../../static/css/index.css";
 
 const router = createBrowserRouter([
     {
@@ -12,16 +15,26 @@ const router = createBrowserRouter([
         element: <HomePage />,
     },
     {
-        path: "sign-up/",
+        path: "/sign-up",
         element: <SignUpPage />,
     },
     {
-        path: "login/",
+        path: "/login",
         element: <LoginPage />,
     },
     {
-        path: "menu/",
-        element: <MenuPage />,
+        path: "/menu",
+        element: <Layout />,
+        children: [
+        	{
+                path: "",
+                element: <MenuPage />,
+            },
+            {
+                path: "pong-game",
+                element: <PongPage />,
+            },
+        ],
     },
 ]);
 
