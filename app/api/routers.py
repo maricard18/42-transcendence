@@ -8,8 +8,7 @@ class APIRouter(DefaultRouter):
             url=r'^{prefix}{trailing_slash}$',
             mapping={
                 'get': 'list',
-                'post': 'create',
-                'delete': 'destroy_token'
+                'post': 'create'
             },
             name='{basename}-list',
             detail=False,

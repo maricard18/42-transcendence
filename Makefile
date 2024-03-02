@@ -53,11 +53,11 @@ fclean: confirm
 
 db-migrations:
 
-	ifeq ($(PROFILE),dev)
-		@$(COMMAND) run db-migrations-dev
-	else
-		@$(COMMAND) run db-migrations
-	endif
+ifeq ($(PROFILE),dev)
+	@$(COMMAND) run db-migrations-dev
+else
+	@$(COMMAND) run db-migrations
+endif
 
 confirm:
 	@printf "\033[1;33m"  # Yellow color for the warning message
@@ -69,4 +69,4 @@ confirm:
 		exit 1; \
 	fi
 
-.PHONY: all build up down start stop ps rm re clean fclean confirm
+.PHONY: all build up down start stop ps rm re clean fclean db-migrations confirm

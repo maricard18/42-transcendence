@@ -15,9 +15,7 @@ class UserPermission(permissions.BasePermission):
 class TokenPermission(permissions.BasePermission):
 
     def has_permission(self, request, view):
-        if view.action == 'destroy_token':
-            return request.auth
-        elif view.action == 'create':
+        if view.action == 'create':
             return True
         else:
             return False
