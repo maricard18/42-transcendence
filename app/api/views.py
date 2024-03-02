@@ -6,7 +6,7 @@ from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
 from .permissions import UserPermission, TokenPermission
 from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer, AuthUserSerializer, \
-    APITokenObtainPairSerializer, TokenSerializer, DestroyTokenSerializer
+    APITokenObtainPairSerializer, TokenSerializer
 
 
 ######################
@@ -72,7 +72,9 @@ class UserViewSet(viewsets.ViewSet):
         except User.DoesNotExist:
             return Response({'errors': {'message': 'User Not Found', 'code': 404}}, status=status.HTTP_404_NOT_FOUND)
         if int(request.auth.get('user_id')) == user.id:
-            user.delete()
+            user.is_active = False
+            user.save()
+            user.set_password(None)
             return Response(None, status=status.HTTP_204_NO_CONTENT)
         return Response({'errors': {'message': 'Unauthorized', 'code': 401}}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -120,13 +122,8 @@ class TokenViewSet(viewsets.ViewSet):
         try:
             refresh_token = RefreshToken(request.data.get('refresh_token'))
         except TokenError as e:
-            return_status = status.HTTP_400_BAD_REQUEST
-            if e.args[0] == 'Token is blacklisted':
-                return_status = status.HTTP_401_UNAUTHORIZED
-            return Response({'errors': {'message': e.args[0], 'code': return_status}}, status=return_status)
-        except Exception as e:
-            return Response({'errors': {'message': e.args[0], 'code': 500}},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'errors': {'message': e.args[0], 'code': status.HTTP_400_BAD_REQUEST}},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         return Response({
             'access_token': str(refresh_token.access_token),
@@ -144,21 +141,4 @@ class TokenViewSet(viewsets.ViewSet):
                 return self.new_token(request)
             elif request.data.get('grant_type') == 'refresh_token':
                 return self.refresh_token(request)
-        return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-    # DELETE /api/tokens/
-    def destroy_token(self, request):
-        serializer = DestroyTokenSerializer(data=request.data)
-        if serializer.is_valid():
-            try:
-                RefreshToken(serializer.validated_data.get('refresh_token')).blacklist()
-            except TokenError as e:
-                return_status = status.HTTP_400_BAD_REQUEST
-                if e.args[0] == 'Token is blacklisted':
-                    return_status = status.HTTP_401_UNAUTHORIZED
-                return Response({'errors': {'message': e.args[0], 'code': return_status}}, status=return_status)
-            except Exception as e:
-                return Response({'errors': {'message': e.args[0], 'code': 500}},
-                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            return Response(None, status=status.HTTP_204_NO_CONTENT)
         return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)

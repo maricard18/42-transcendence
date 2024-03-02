@@ -10,7 +10,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'date_joined')
+        fields = ('id', 'username', 'email', 'is_active', 'date_joined')
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
@@ -81,14 +81,5 @@ class TokenSerializer(serializers.Serializer):
         elif grant_type == 'refresh_token':
             if not data.get('refresh_token'):
                 raise serializers.ValidationError({"refresh_token": "This field is required."})
-
-        return data
-
-
-class DestroyTokenSerializer(serializers.Serializer):
-    refresh_token = serializers.CharField()
-
-    def validate(self, data):
-        data = super().validate(data)
 
         return data
