@@ -1,6 +1,11 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
+
+######################
+####  /api/users  ####
+######################
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -24,6 +29,10 @@ class UpdateUserSerializer(serializers.ModelSerializer):
         }
 
 
+#######################
+##### /api/tokens #####
+#######################
+
 class AuthUserSerializer(serializers.ModelSerializer):
     username = serializers.CharField(validators=[])
 
@@ -33,3 +42,53 @@ class AuthUserSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'username': {'required': False}
         }
+
+
+class APITokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        token['scope'] = 'public'
+
+        return token
+
+
+class TokenSerializer(serializers.Serializer):
+    grant_type = serializers.CharField()
+    password = serializers.CharField(required=False)
+    refresh_token = serializers.CharField(required=False)
+
+    def validate_grant_type(self, value):
+        """
+        Check if the grant_type is either 'password' or 'refresh_token'.
+        """
+        if value not in ['password', 'refresh_token']:
+            raise serializers.ValidationError("This field must be 'password' or 'refresh_token'.")
+        return value
+
+    def validate(self, data):
+        data = super().validate(data)
+
+        """
+        Validate fields based on the grant_type.
+        """
+        grant_type = data.get('grant_type')
+
+        if grant_type == 'password':
+            if not data.get('password'):
+                raise serializers.ValidationError({"password": "This field is required."})
+        elif grant_type == 'refresh_token':
+            if not data.get('refresh_token'):
+                raise serializers.ValidationError({"refresh_token": "This field is required."})
+
+        return data
+
+
+class DestroyTokenSerializer(serializers.Serializer):
+    refresh_token = serializers.CharField()
+
+    def validate(self, data):
+        data = super().validate(data)
+
+        return data
