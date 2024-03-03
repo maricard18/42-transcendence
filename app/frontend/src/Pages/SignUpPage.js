@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import Avatar from "../components/Avatar";
 import Input from "../components/Input";
 import FormButton from "../components/FormButton";
-import { validateSignUpForm } from "../functions/validateForm";
+import { validateSignUpForm } from "../functions/validateForms";
 import { useNavigate } from "react-router-dom";
-import sendRequest from "../functions/sendRequest";
+import fetchData from "../functions/fetchData";
+import handleResponse from "../functions/authenticationErrors";
+import { createToken } from "../functions/tokens";
 
 export default function SignUpPage() {
     const navigate = useNavigate();
@@ -19,7 +21,7 @@ export default function SignUpPage() {
     const [errors, setErrors] = useState({});
 
     const handleValidation = async (event) => {
-        const newErrors = validateSignUpForm(formData, setFormData);
+        let newErrors = validateSignUpForm(formData, setFormData);
         setErrors(newErrors);
 
         if (!newErrors.message) {
@@ -29,15 +31,14 @@ export default function SignUpPage() {
                 password: formData.password,
             };
 
-            const result = await sendRequest(
-                "/api/users/",
-                input,
-                setErrors,
-                formData,
-                setFormData
-            );
-            if (result) {
+            const response = await fetchData("/api/users/", "POST", input);
+
+            if (response.ok) {
+                createToken(formData);
                 navigate("/menu");
+            } else {
+                newErrors = await handleResponse(response, formData, setFormData);
+                setErrors(newErrors);
             }
         }
     };
@@ -102,9 +103,7 @@ export default function SignUpPage() {
                             <Input
                                 type="password"
                                 id="confirm-password"
-                                template={
-                                    errors.confirmPassword ? "input-error" : ""
-                                }
+                                template={errors.confirmPassword ? "input-error" : ""}
                                 value={formData.confirmPassword}
                                 setValue={(value) =>
                                     setFormData({

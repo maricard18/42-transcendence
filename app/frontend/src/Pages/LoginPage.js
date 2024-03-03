@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import Input from "../components/Input";
 import FormButton from "../components/FormButton";
-import { validateLoginForm } from "../functions/validateForm";
+import { validateLoginForm } from "../functions/validateForms";
 import { useNavigate } from "react-router-dom";
-import sendRequest from "../functions/sendRequest";
+import fetchData from "../functions/fetchData";
+import handleResponse from "../functions/authenticationErrors";
+import { setToken, getToken } from "../functions/tokens";
 
 export default function LoginPage() {
     const navigate = useNavigate();
@@ -16,24 +18,24 @@ export default function LoginPage() {
     const [errors, setErrors] = useState({});
 
     const handleValidation = async (event) => {
-        const newErrors = validateLoginForm(formData, setFormData);
+        let newErrors = validateLoginForm(formData, setFormData);
         setErrors(newErrors);
 
         if (!newErrors.message) {
             const input = {
+                grant_type: "password",
                 username: formData.username,
                 password: formData.password,
             };
 
-            const result = await sendRequest(
-                "/api/tokens/",
-                input,
-                setErrors,
-                formData,
-                setFormData
-            );
-            if (result) {
+            const response = await fetchData("/api/tokens/", "POST", input);
+
+            if (response.ok) {
+                setToken(response);
                 navigate("/menu");
+            } else {
+                newErrors = await handleResponse(response, formData, setFormData);
+                setErrors(newErrors);
             }
         }
     };
