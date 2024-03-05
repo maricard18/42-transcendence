@@ -1,7 +1,7 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.css";
 
-export default function FormSubmitButton({ template, onClick, children }) {
+export default function SubmitButton({ template, onClick, children }) {
     return (
         <button
             type="button"

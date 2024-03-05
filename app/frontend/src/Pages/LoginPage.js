@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Input from "../components/Input";
-import FormButton from "../components/FormButton";
+import SubmitButton from "../components/SubmitButton";
 import { validateLoginForm } from "../functions/validateForms";
 import { useNavigate } from "react-router-dom";
 import fetchData from "../functions/fetchData";
@@ -82,15 +82,12 @@ export default function LoginPage() {
                             </Input>
                         </div>
                         <div className="row justify-content-center mb-1">
-                            <FormButton
+                            <SubmitButton
                                 template="secondary-button"
-                                form="login"
-                                data={formData}
-                                setData={formData}
                                 onClick={handleValidation}
                             >
                                 Next
-                            </FormButton>
+                            </SubmitButton>
                         </div>
                     </div>
                 </form>
