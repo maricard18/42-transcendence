@@ -1,5 +1,6 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
+import { AuthProvider } from "../components/AuthContext";
 import IsAuthed from "../components/IsAuthed";
 import HomePage from "./HomePage";
 import SignUpPage from "./SignUpPage";
@@ -44,7 +45,11 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-    return <RouterProvider router={router} />;
+    return (
+        <AuthProvider>
+            <RouterProvider router={router} />
+        </AuthProvider>
+    );
 }
 
 const rootElement = document.getElementById("app");

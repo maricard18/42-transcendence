@@ -1,7 +1,7 @@
 import Cookies from "js-cookie";
 import fetchData from "./fetchData";
 
-export async function createToken(userData) {
+export async function createToken(userData, setAuthed) {
     const data = {
         grant_type: "password",
         username: userData.username,
@@ -9,10 +9,11 @@ export async function createToken(userData) {
     };
 
     const response = await fetchData("/api/tokens/", "POST", data);
-    setToken(response);
+    setToken(response, setAuthed);
 }
 
-export async function setToken(response) {
+export async function setToken(response, setAuthed) {
+	setAuthed(true);
     const jsonData = await response.json();
     const accessToken = jsonData["access_token"];
     const refreshToken = jsonData["refresh_token"];

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import Avatar from "../components/Avatar";
 import Input from "../components/Input";
 import SubmitButton from "../components/SubmitButton";
@@ -7,9 +7,12 @@ import { useNavigate } from "react-router-dom";
 import fetchData from "../functions/fetchData";
 import handleResponse from "../functions/authenticationErrors";
 import { createToken } from "../functions/tokens";
+import { AuthContext } from "../components/AuthContext";
 
 export default function SignUpPage() {
     const navigate = useNavigate();
+
+	const  { authed, setAuthed } = useContext(AuthContext);
 
     const [formData, setFormData] = useState({
         username: "",
@@ -34,7 +37,7 @@ export default function SignUpPage() {
             const response = await fetchData("/api/users/", "POST", input);
 
             if (response.ok) {
-                createToken(formData);
+                createToken(formData, setAuthed);
                 navigate("/menu");
             } else {
                 newErrors = await handleResponse(response, formData, setFormData);
