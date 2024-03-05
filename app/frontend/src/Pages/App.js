@@ -1,5 +1,6 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
+import IsAuthed from "../components/IsAuthed";
 import HomePage from "./HomePage";
 import SignUpPage from "./SignUpPage";
 import LoginPage from "./LoginPage";
@@ -24,7 +25,11 @@ const router = createBrowserRouter([
     },
     {
         path: "/menu",
-        element: <Layout />,
+        element: (
+            <IsAuthed>
+                <Layout />
+            </IsAuthed>
+        ),
         children: [
             {
                 path: "",
