@@ -5,6 +5,7 @@ import LandingPage from "./LandingPage";
 import SignUpPage from "./SignUpPage";
 import LoginPage from "./LoginPage";
 import HomePage from "./HomePage";
+import ProfilePage from "./ProfilePage";
 import PongPage from "./PongPage";
 import NavBar from "../components/NavBar";
 import IsAuthed from "../components/IsAuthed";
@@ -35,6 +36,10 @@ const router = createBrowserRouter([
             {
                 path: "",
                 element: <HomePage />,
+            },
+			{
+                path: "profile",
+                element: <ProfilePage />,
             },
             {
                 path: "pong-game",

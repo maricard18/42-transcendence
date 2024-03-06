@@ -1,7 +1,8 @@
 import React from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, Link } from "react-router-dom";
 import NavButton from "./NavButton";
 import "../../static/css/NavBar.css";
+import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.bundle.js";
 
@@ -10,9 +11,14 @@ export default function NavBar() {
         <>
             <nav className="navbar navbar-dark navbar-layout fixed-top">
                 <div className="container-fluid">
-                    <a className="navbar-brand navbar-text-layout ms-5">
-                        Transcendence
-                    </a>
+                    <p>
+                        <Link
+                            className="navbar-brand navbar-text-layout ms-5"
+                            to=""
+                        >
+                            Transcendence
+                        </Link>
+                    </p>
                     <div className="btn-group">
                         <button
                             type="button"
@@ -34,7 +40,10 @@ export default function NavBar() {
                                 </NavButton>
                             </li>
                             <li>
-                                <NavButton template="dropdown-item menu-text">
+                                <NavButton
+                                    template="dropdown-item menu-text"
+                                    page="profile"
+                                >
                                     Profile
                                 </NavButton>
                             </li>

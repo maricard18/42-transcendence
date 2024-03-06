@@ -6,5 +6,6 @@ urlpatterns = [
 	path('sign-up/', RenderIndex),
 	path('login/', RenderIndex),
 	path('menu/', RenderIndex),
+	path('menu/profile/', RenderIndex),
 	path('menu/pong-game/', RenderIndex),
 ]
