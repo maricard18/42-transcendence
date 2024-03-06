@@ -1,13 +1,13 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { AuthProvider } from "../components/AuthContext";
-import IsAuthed from "../components/IsAuthed";
 import HomePage from "./HomePage";
 import SignUpPage from "./SignUpPage";
 import LoginPage from "./LoginPage";
-import Layout from "./Layout";
 import MenuPage from "./MenuPage";
 import PongPage from "./PongPage";
+import NavBar from "../components/NavBar";
+import IsAuthed from "../components/IsAuthed";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "../../static/css/index.css";
 
@@ -28,7 +28,7 @@ const router = createBrowserRouter([
         path: "/menu",
         element: (
             <IsAuthed>
-                <Layout />
+                <NavBar />
             </IsAuthed>
         ),
         children: [

@@ -42,11 +42,10 @@ export async function refreshToken() {
     setToken(response);
 }
 
-export async function getToken() {
+export function getToken() {
     const accessToken = Cookies.get('access_token');
 
 	if (accessToken) {
-		console.log("token exists: ", accessToken);
 		return accessToken;
 	}
 	else {
@@ -54,4 +53,19 @@ export async function getToken() {
 		const newAccessToken = Cookies.get('access_token');
 		return newAccessToken;
 	}
+}
+
+export function hasToken() {
+    const accessToken = Cookies.get('access_token');
+
+	if (accessToken)
+		return true;
+	else
+		return false;
+}
+
+export function logout(setAuthed) {
+	setAuthed(false);
+	Cookies.remove('access_token');
+	Cookies.remove('refresh_token');
 }

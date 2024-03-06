@@ -1,0 +1,32 @@
+.navbar-layout {
+	background-color: rgba(0, 0, 0, 0.8);
+    font-family: "Source Sans 3", sans-serif;
+}
+
+.navbar-text-layout,
+.navbar-text-layout:hover {
+	color: white;
+	font-size: 24px;
+	font-weight: bold;
+}
+
+.navbar-icon,
+.navbar-icon:hover,
+.navbar-icon:active,
+.navbar-icon:not(.collapsed),
+.navbar-icon:not(.collapsed):hover,
+.navbar-icon:not(.collapsed):active {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.menu-text {
+	background-color: white;
+	color: black;
+	font-family: "Source Sans 3", sans-serif;
+}
+
+.menu-text:hover,
+.menu-text:active {
+	background-color: #520dc2;
+	color: white;
+}
