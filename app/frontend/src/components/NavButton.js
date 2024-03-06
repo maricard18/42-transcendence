@@ -10,7 +10,7 @@ export default function NavButton({ template, page, option=false, children }) {
 	const  { authed, setAuthed } = useContext(AuthContext);
 
     const handleClickTo = (path) => {
-		if (option)
+		if (page != "/menu" && option)
 			logout(setAuthed);
         navigate(path, {replace: option});
     };

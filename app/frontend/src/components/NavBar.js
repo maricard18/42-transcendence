@@ -35,7 +35,7 @@ export default function NavBar() {
                             </li>
                             <li>
                                 <NavButton template="dropdown-item menu-text">
-                                    Edit profile
+                                    Profile
                                 </NavButton>
                             </li>
                             <li>

@@ -1,5 +1,5 @@
 import React from "react";
-import SubmitButton from "../components/SubmitButton";
+import NavButton from "../components/NavButton";
 import "../../static/css/Images.css";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
@@ -23,12 +23,12 @@ export default function MenuPage() {
                         />
                     </div>
                     <div className="row justify-content-center">
-                        <SubmitButton
+                        <NavButton
                             template="primary-button btn-small"
-                            onClick={onClick}
+                            page="pong-game"
                         >
                             Play
-                        </SubmitButton>
+                        </NavButton>
                     </div>
                 </div>
                 <div className="col justify-content-center ms-5">
@@ -42,12 +42,12 @@ export default function MenuPage() {
                         />
                     </div>
                     <div className="row justify-content-center">
-                        <SubmitButton
+                        <NavButton
                             template="primary-button btn-small"
-                            onClick={onClick}
+                            page=""
                         >
                             Play
-                        </SubmitButton>
+                        </NavButton>
                     </div>
                 </div>
             </div>
