@@ -1,10 +1,10 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { AuthProvider } from "../components/AuthContext";
-import HomePage from "./HomePage";
+import LandingPage from "./LandingPage";
 import SignUpPage from "./SignUpPage";
 import LoginPage from "./LoginPage";
-import MenuPage from "./MenuPage";
+import HomePage from "./HomePage";
 import PongPage from "./PongPage";
 import NavBar from "../components/NavBar";
 import IsAuthed from "../components/IsAuthed";
@@ -14,7 +14,7 @@ import "../../static/css/index.css";
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <HomePage />,
+        element: <LandingPage />,
     },
     {
         path: "/sign-up",
@@ -34,7 +34,7 @@ const router = createBrowserRouter([
         children: [
             {
                 path: "",
-                element: <MenuPage />,
+                element: <HomePage />,
             },
             {
                 path: "pong-game",
