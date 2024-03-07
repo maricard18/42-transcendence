@@ -8,12 +8,17 @@ export async function createToken(userData, setAuthed) {
         password: userData.password,
     };
 
-    const response = await fetchData("/api/tokens/", "POST", data);
+    const response = await fetchData(
+        "/api/tokens/",
+        "POST",
+        { "Content-type": "application/json" },
+        data
+    );
     setToken(response, setAuthed);
 }
 
 export async function setToken(response, setAuthed) {
-	setAuthed(true);
+    setAuthed(true);
     const jsonData = await response.json();
     const accessToken = jsonData["access_token"];
     const refreshToken = jsonData["refresh_token"];
@@ -35,37 +40,39 @@ export async function setToken(response, setAuthed) {
 export async function refreshToken() {
     const data = {
         grant_type: "refresh_token",
-        refresh_token: Cookies.get('refresh_token'),
+        refresh_token: Cookies.get("refresh_token"),
     };
 
-    const response = await fetchData("/api/tokens/", "POST", data);
+    const response = await fetchData(
+        "/api/tokens/",
+        "POST",
+        { "Content-type": "application/json" },
+        data
+    );
     setToken(response);
 }
 
 export function getToken() {
-    const accessToken = Cookies.get('access_token');
+    const accessToken = Cookies.get("access_token");
 
-	if (accessToken) {
-		return accessToken;
-	}
-	else {
-		refreshToken();
-		const newAccessToken = Cookies.get('access_token');
-		return newAccessToken;
-	}
+    if (accessToken) {
+        return accessToken;
+    } else {
+        refreshToken();
+        const newAccessToken = Cookies.get("access_token");
+        return newAccessToken;
+    }
 }
 
 export function hasToken() {
-    const accessToken = Cookies.get('access_token');
+    const accessToken = Cookies.get("access_token");
 
-	if (accessToken)
-		return true;
-	else
-		return false;
+    if (accessToken) return true;
+    else return false;
 }
 
 export function logout(setAuthed) {
-	setAuthed(false);
-	Cookies.remove('access_token');
-	Cookies.remove('refresh_token');
+    setAuthed(false);
+    Cookies.remove("access_token");
+    Cookies.remove("refresh_token");
 }

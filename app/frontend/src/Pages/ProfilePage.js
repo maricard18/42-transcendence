@@ -36,7 +36,12 @@ export default function ProfilePage() {
                 password: formData.password,
             };
 
-            const response = await fetchData("/api/users/", "POST", input);
+            const response = await fetchData(
+                "/api/users/",
+                "POST",
+                { "Content-type": "application/json" },
+                input
+            );
 
             if (response.ok) {
                 createToken(formData, setAuthed);

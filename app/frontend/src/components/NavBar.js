@@ -19,7 +19,7 @@ export default function NavBar() {
                             Transcendence
                         </Link>
                     </p>
-                    <div className="btn-group">
+                    <div className="btn-group me-5">
                         <button
                             type="button"
                             className="btn btn-secondary dropdown-toggle navbar-icon"

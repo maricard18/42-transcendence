@@ -13,7 +13,7 @@ import "bootstrap/dist/css/bootstrap.css";
 export default function LoginPage() {
     const navigate = useNavigate();
 
-	const { authed, setAuthed } = useContext(AuthContext);
+    const { authed, setAuthed } = useContext(AuthContext);
 
     const [formData, setFormData] = useState({
         username: "",
@@ -33,13 +33,22 @@ export default function LoginPage() {
                 password: formData.password,
             };
 
-            const response = await fetchData("/api/tokens/", "POST", input);
+            const response = await fetchData(
+                "/api/tokens/",
+                "POST",
+                { "Content-type": "application/json" },
+                input
+            );
 
             if (response.ok) {
                 setToken(response, setAuthed);
                 navigate("/menu");
             } else {
-                newErrors = await handleResponse(response, formData, setFormData);
+                newErrors = await handleResponse(
+                    response,
+                    formData,
+                    setFormData
+                );
                 setErrors(newErrors);
             }
         }

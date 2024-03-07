@@ -36,7 +36,12 @@ export default function SignUpPage() {
                 password: formData.password,
             };
 
-            const response = await fetchData("/api/users/", "POST", input);
+            const response = await fetchData(
+                "/api/users/",
+                "POST",
+                { "Content-type": "application/json" },
+                input
+            );
 
             if (response.ok) {
                 createToken(formData, setAuthed);
@@ -109,7 +114,9 @@ export default function SignUpPage() {
                         <Input
                             type="password"
                             id="confirm-password"
-                            template={errors.confirmPassword ? "input-error" : ""}
+                            template={
+                                errors.confirmPassword ? "input-error" : ""
+                            }
                             value={formData.confirmPassword}
                             setValue={(value) =>
                                 setFormData({
