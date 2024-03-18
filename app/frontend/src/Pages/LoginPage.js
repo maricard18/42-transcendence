@@ -7,6 +7,7 @@ import fetchData from "../functions/fetchData";
 import handleResponse from "../functions/authenticationErrors";
 import { setToken } from "../functions/tokens";
 import { AuthContext } from "../components/AuthContext";
+import { checkEnterButton } from "../functions/fetchData";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
 
@@ -22,7 +23,7 @@ export default function LoginPage() {
 
     const [errors, setErrors] = useState({});
 
-    const handleValidation = async (event) => {
+    const handleValidation = async () => {
         let newErrors = validateLoginForm(formData, setFormData);
         setErrors(newErrors);
 
@@ -53,6 +54,8 @@ export default function LoginPage() {
             }
         }
     };
+
+	checkEnterButton(handleValidation);
 
     return (
         <section className="center">

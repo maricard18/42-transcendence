@@ -7,3 +7,11 @@ export default async function fetchData(endpoint, method, headers, body) {
 
 	return response;
 };
+
+export function checkEnterButton(functionToBeRun) {
+	document.onkeydown=function(event) {
+        var keyCode = event ? (event.which ? event.which : event.keyCode) : event.keyCode;
+        if(keyCode == 13)
+			functionToBeRun()
+    }
+}

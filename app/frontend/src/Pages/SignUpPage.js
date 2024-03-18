@@ -8,6 +8,7 @@ import fetchData from "../functions/fetchData";
 import handleResponse from "../functions/authenticationErrors";
 import { createToken } from "../functions/tokens";
 import { AuthContext } from "../components/AuthContext";
+import { checkEnterButton } from "../functions/fetchData";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
 
@@ -25,7 +26,7 @@ export default function SignUpPage() {
 
     const [errors, setErrors] = useState({});
 
-    const handleValidation = async (event) => {
+    const handleValidation = async () => {
         let newErrors = validateSignUpForm(formData, setFormData);
         setErrors(newErrors);
 
@@ -57,9 +58,11 @@ export default function SignUpPage() {
         }
     };
 
+	checkEnterButton(handleValidation);
+
     return (
         <div className="center">
-            <form id="sign-up-form" action="/api/users" method="post">
+            <form id="sign-up-form" action="/api/users/" method="post">
                 <div className="row justify-content-center mb-4">
                     <Avatar />
                 </div>

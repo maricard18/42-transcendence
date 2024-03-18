@@ -8,6 +8,7 @@ import fetchData from "../functions/fetchData";
 import handleResponse from "../functions/authenticationErrors";
 import { createToken } from "../functions/tokens";
 import { AuthContext } from "../components/AuthContext";
+import { checkEnterButton } from "../functions/fetchData";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
 
@@ -56,6 +57,8 @@ export default function ProfilePage() {
             }
         }
     };
+
+	enterButton(handleValidation);
 
     return (
         <div className="center">
