@@ -44,12 +44,17 @@ const router = createBrowserRouter([
                 element: <PongPage />,
             },
 			{
-                path: "profile/username",
-                element: <ProfilePage><ChangeUsername /></ProfilePage>,
-            },
-			{
-                path: "profile/password",
-                element: <ProfilePage><ChangePassword /></ProfilePage>,
+                path: "profile",
+                children: [
+					{
+						path: "username",
+						element: <ProfilePage><ChangeUsername /></ProfilePage>,
+					},
+					{
+						path: "password",
+						element: <ProfilePage><ChangePassword /></ProfilePage>,
+					},
+				],
             },
         ],
     },

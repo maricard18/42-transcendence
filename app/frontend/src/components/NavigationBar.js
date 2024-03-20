@@ -3,6 +3,8 @@ import { Outlet, Link } from "react-router-dom";
 import NavButton from "./NavButton";
 import "../../static/css/NavBar.css";
 import "../../static/css/Buttons.css";
+import "../../static/css/Menu.css";
+import "../../static/css/HomePage.css";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.bundle.js";
 
@@ -29,35 +31,29 @@ export default function NavigationBar() {
                         >
                             <span className="navbar-toggler-icon"></span>
                         </button>
-                        <ul className="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <NavButton
-                                    template="dropdown-item menu-text"
-                                    page="/menu"
-                                >
+                        <div className="dropdown-menu dropdown-menu-end menu-box">
+                            <div
+                                className="btn-group-vertical d-flex flex-column"
+                                role="group"
+                                aria-label="Vertical button group"
+                            >
+                                <h6 className="sub-header text-center">
+                                    <b>username</b>
+                                </h6>
+                                <NavButton template="white-button" page="/menu">
                                     Home
                                 </NavButton>
-                            </li>
-                            <li>
                                 <NavButton
-                                    template="dropdown-item menu-text"
+                                    template="white-button"
                                     page="profile/username"
                                 >
                                     Profile
                                 </NavButton>
-                            </li>
-                            <li>
-                                <hr className="dropdown-divider" />
-                            </li>
-                            <li>
-                                <NavButton
-                                    template="dropdown-item menu-text"
-                                    page="/"
-                                >
+                                <NavButton template="white-button" page="/">
                                     Logout
                                 </NavButton>
-                            </li>
-                        </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </nav>

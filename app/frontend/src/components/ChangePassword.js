@@ -1,7 +1,7 @@
 import React, { useState, useContext } from "react";
 import Input from "../components/Input";
 import SubmitButton from "../components/SubmitButton";
-import { validateSignUpForm } from "../functions/validateForms";
+import { validateProfilePasswordForm } from "../functions/validateForms";
 import { useNavigate } from "react-router-dom";
 import fetchData from "../functions/fetchData";
 import handleResponse from "../functions/authenticationErrors";
@@ -17,8 +17,6 @@ export default function ChangePassword() {
     const { authed, setAuthed } = useContext(AuthContext);
 
     const [formData, setFormData] = useState({
-        username: "",
-        email: "",
         password: "",
         confirmPassword: "",
     });
@@ -26,27 +24,23 @@ export default function ChangePassword() {
     const [errors, setErrors] = useState({});
 
     const handleValidation = async () => {
-        let newErrors = validateSignUpForm(formData, setFormData);
+        let newErrors = validateProfilePasswordForm(formData, setFormData);
         setErrors(newErrors);
 
         if (!newErrors.message) {
             const input = {
-                username: formData.username,
-                email: formData.email,
                 password: formData.password,
             };
 
             const response = await fetchData(
-                "/api/users/",
-                "POST",
-                { "Content-type": "application/json" },
+                '/api/users/',
+                'PUT',
+                { 'Content-type': 'application/json' },
+				{ 'Authorization': 'Bearer ' + await getToken() },
                 input
             );
 
-            if (response.ok) {
-                createToken(formData, setAuthed);
-                navigate("/menu");
-            } else {
+            if (!response.ok) {
                 newErrors = await handleResponse(
                     response,
                     formData,
@@ -60,8 +54,10 @@ export default function ChangePassword() {
     checkEnterButton(handleValidation);
 
     return (
-        <div className="row">
-            <h6 className="sub-text mb-5">Edit your password here</h6>
+        <div className="d-flex flex-column">
+            <h6 className="sub-text mb-5">
+                <b>Edit your password here</b>
+            </h6>
             <form id="sign-up-form" action="/api/users/" method="post">
                 <div className="position-relative">
                     {errors && <p className="form-error">{errors.message}</p>}

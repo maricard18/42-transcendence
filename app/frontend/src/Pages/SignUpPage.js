@@ -18,10 +18,10 @@ export default function SignUpPage() {
     const { authed, setAuthed } = useContext(AuthContext);
 
     const [formData, setFormData] = useState({
-        username: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
+        username: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
     });
 
     const [errors, setErrors] = useState({});
@@ -38,9 +38,9 @@ export default function SignUpPage() {
             };
 
             const response = await fetchData(
-                "/api/users/",
-                "POST",
-                { "Content-type": "application/json" },
+                '/api/users/',
+                'POST',
+                { 'Content-type': 'application/json' },
                 input
             );
 

@@ -37,6 +37,7 @@
     background-color: white;
     border-color: white;
     width: 220px;
+	font-weight: bold;
 }
 
 .white-button:hover,
@@ -52,8 +53,11 @@
 }
 
 .box {
-	display: inline-block;
 	padding: 10px;
 	background-color: #140330;
 	border-radius: 10px;
+}
+
+.full-width {
+    width: 100%;
 }

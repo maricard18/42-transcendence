@@ -12,9 +12,9 @@ export default function ProfilePage({ children }) {
 
     return (
         <div className="center">
-            <div className="row justify-content-center">
+            <div className="d-flex justify-content-center">
                 <div className="col justify-content-center me-5">
-                    <div className="row">
+                    <div className="d-flex flex-column">
                         <h1 className="header">Profile</h1>
                         <div className="box mt-3">
                             <div
@@ -41,8 +41,10 @@ export default function ProfilePage({ children }) {
                         </div>
                     </div>
                 </div>
-                <div className="col justify-content-center ms-5">
-                    <div className="row">{children}</div>
+                <div className="d-flex justify-content-center">
+                    <div className="col justify-content-center ms-5">
+                        {children}
+                    </div>
                 </div>
             </div>
         </div>

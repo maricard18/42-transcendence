@@ -17,8 +17,8 @@ export default function LoginPage() {
     const { authed, setAuthed } = useContext(AuthContext);
 
     const [formData, setFormData] = useState({
-        username: "",
-        password: "",
+        username: '',
+        password: '',
     });
 
     const [errors, setErrors] = useState({});
@@ -35,9 +35,9 @@ export default function LoginPage() {
             };
 
             const response = await fetchData(
-                "/api/tokens/",
-                "POST",
-                { "Content-type": "application/json" },
+                '/api/tokens/',
+                'POST',
+                { 'Content-type': 'application/json' },
                 input
             );
 
