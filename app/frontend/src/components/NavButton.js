@@ -4,15 +4,15 @@ import { logout } from "../functions/tokens";
 import { AuthContext } from "./AuthContext";
 import "bootstrap/dist/css/bootstrap.css";
 
-export default function NavButton({ template, page, option=false, children }) {
+export default function NavButton({ template, page, children }) {
     const navigate = useNavigate();
 
 	const  { authed, setAuthed } = useContext(AuthContext);
 
     const handleClickTo = (path) => {
-		if (page != "/menu" && option)
+		if (page == "/")
 			logout(setAuthed);
-        navigate(path, {replace: option});
+        navigate(path);
     };
 
     return (

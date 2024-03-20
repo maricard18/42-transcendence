@@ -7,8 +7,10 @@ import LoginPage from "./LoginPage";
 import HomePage from "./HomePage";
 import ProfilePage from "./ProfilePage";
 import PongPage from "./PongPage";
-import NavBar from "../components/NavBar";
+import NavigationBar from "../components/NavigationBar";
 import IsAuthed from "../components/IsAuthed";
+import ChangeUsername from "../components/ChangeUsername";
+import ChangePassword from "../components/ChangePassword";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "../../static/css/index.css";
 
@@ -29,7 +31,7 @@ const router = createBrowserRouter([
         path: "/menu",
         element: (
             <IsAuthed>
-                <NavBar />
+                <NavigationBar />
             </IsAuthed>
         ),
         children: [
@@ -37,13 +39,17 @@ const router = createBrowserRouter([
                 path: "",
                 element: <HomePage />,
             },
-			{
-                path: "profile",
-                element: <ProfilePage />,
-            },
             {
                 path: "pong-game",
                 element: <PongPage />,
+            },
+			{
+                path: "profile/username",
+                element: <ProfilePage><ChangeUsername /></ProfilePage>,
+            },
+			{
+                path: "profile/password",
+                element: <ProfilePage><ChangePassword /></ProfilePage>,
             },
         ],
     },

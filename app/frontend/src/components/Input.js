@@ -14,7 +14,7 @@ export default function Input({
     };
 
     return (
-        <div className="mb-3">
+        <div className="justify-content-center mb-3">
             <input
                 type={type}
                 className={`form-control primary-form ${template}`}

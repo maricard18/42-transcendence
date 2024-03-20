@@ -42,7 +42,7 @@ export default function LoginPage() {
             );
 
             if (response.ok) {
-                setToken(response, setAuthed);
+                await setToken(response, setAuthed);
                 navigate("/menu");
             } else {
                 newErrors = await handleResponse(
@@ -66,7 +66,7 @@ export default function LoginPage() {
                         {errors && (
                             <p className="form-error">{errors.message}</p>
                         )}
-                        <div className="row justify-content-center mb-1">
+                        <div className="d-flex justify-content-center mb-1">
                             <Input
                                 type="text"
                                 id="username"
@@ -82,7 +82,7 @@ export default function LoginPage() {
                                 username or email
                             </Input>
                         </div>
-                        <div className="row justify-content-center mb-1">
+                        <div className="d-flex justify-content-center mb-1">
                             <Input
                                 type="password"
                                 id="password"

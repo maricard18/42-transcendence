@@ -12,17 +12,17 @@ export default function LandingPage() {
                 <h6 className="sub-header mb-5">
                     Play Beyond Your Limits, Play Transcendence
                 </h6>
-                <div className="row justify-content-center mb-1">
+                <div className="d-flex justify-content-center mb-1">
                     <NavButton template="primary-button" page="/sign-up">
                         Sign up
                     </NavButton>
                 </div>
-                <div className="row justify-content-center mb-1">
+                <div className="d-flex justify-content-center mb-1">
                     <NavButton template="secondary-button">
                         Sign up with 42
                     </NavButton>
                 </div>
-                <div className="row justify-content-center mb-1">
+                <div className="d-flex justify-content-center mb-1">
                     <p>
                         Already have an account?{" "}
                         <Link to="/login" className="login">

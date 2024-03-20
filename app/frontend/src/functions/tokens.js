@@ -14,7 +14,8 @@ export async function createToken(userData, setAuthed) {
         { "Content-type": "application/json" },
         data
     );
-    setToken(response, setAuthed);
+
+    await setToken(response, setAuthed);
 }
 
 export async function setToken(response, setAuthed) {
@@ -49,16 +50,17 @@ export async function refreshToken() {
         { "Content-type": "application/json" },
         data
     );
-    setToken(response);
+
+    await setToken(response);
 }
 
-export function getToken() {
+export async function getToken() {
     const accessToken = Cookies.get("access_token");
 
     if (accessToken) {
         return accessToken;
     } else {
-        refreshToken();
+        await refreshToken();
         const newAccessToken = Cookies.get("access_token");
         return newAccessToken;
     }
@@ -67,8 +69,10 @@ export function getToken() {
 export function hasToken() {
     const accessToken = Cookies.get("access_token");
 
-    if (accessToken) return true;
-    else return false;
+    if (accessToken)
+		return true;
+    else
+		return false;
 }
 
 export function logout(setAuthed) {

@@ -33,22 +33,27 @@
 }
 
 .white-button {
-    color: #520dc2;
+    color: #343A40;
     background-color: white;
     border-color: white;
-    margin-bottom: 10px;
     width: 220px;
-	font-weight: bold;
 }
 
 .white-button:hover,
 .white-button:active {
-    color: #520dc2;
-    background-color: white !important;
-    border-color: white !important;
+    color: white;
+    background-color: #7439d2 !important;
+    border-color: #7439d2 !important;
 }
 
 .btn-small {
 	width: 100px;
 	margin-bottom: 10px;
+}
+
+.box {
+	display: inline-block;
+	padding: 10px;
+	background-color: #140330;
+	border-radius: 10px;
 }

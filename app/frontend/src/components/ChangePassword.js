@@ -1,5 +1,4 @@
 import React, { useState, useContext } from "react";
-import Avatar from "../components/Avatar";
 import Input from "../components/Input";
 import SubmitButton from "../components/SubmitButton";
 import { validateSignUpForm } from "../functions/validateForms";
@@ -12,7 +11,7 @@ import { checkEnterButton } from "../functions/fetchData";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
 
-export default function SignUpPage() {
+export default function ChangePassword() {
     const navigate = useNavigate();
 
     const { authed, setAuthed } = useContext(AuthContext);
@@ -45,7 +44,7 @@ export default function SignUpPage() {
             );
 
             if (response.ok) {
-                await createToken(formData, setAuthed);
+                createToken(formData, setAuthed);
                 navigate("/menu");
             } else {
                 newErrors = await handleResponse(
@@ -58,45 +57,14 @@ export default function SignUpPage() {
         }
     };
 
-	checkEnterButton(handleValidation);
+    checkEnterButton(handleValidation);
 
     return (
-        <div className="center">
+        <div className="row">
+            <h6 className="sub-text mb-5">Edit your password here</h6>
             <form id="sign-up-form" action="/api/users/" method="post">
-                <div className="row justify-content-center mb-4">
-                    <Avatar />
-                </div>
                 <div className="position-relative">
                     {errors && <p className="form-error">{errors.message}</p>}
-                    <div className="d-flex justify-content-center mb-1">
-                        <Input
-                            type="text"
-                            id="username"
-                            template={errors.username ? "input-error" : ""}
-                            value={formData.username}
-                            setValue={(value) =>
-                                setFormData({
-                                    ...formData,
-                                    username: value,
-                                })
-                            }
-                        >
-                            username
-                        </Input>
-                    </div>
-                    <div className="d-flex justify-content-center mb-1">
-                        <Input
-                            type="email"
-                            id="email"
-                            template={errors.email ? "input-error" : ""}
-                            value={formData.email}
-                            setValue={(value) =>
-                                setFormData({ ...formData, email: value })
-                            }
-                        >
-                            email
-                        </Input>
-                    </div>
                     <div className="d-flex justify-content-center mb-1">
                         <Input
                             type="password"
@@ -110,14 +78,16 @@ export default function SignUpPage() {
                                 })
                             }
                         >
-                            password
+                            new password
                         </Input>
                     </div>
                     <div className="d-flex justify-content-center mb-1">
                         <Input
                             type="password"
                             id="confirm-password"
-                            template={errors.confirmPassword ? "input-error" : ""}
+                            template={
+                                errors.confirmPassword ? "input-error" : ""
+                            }
                             value={formData.confirmPassword}
                             setValue={(value) =>
                                 setFormData({
@@ -126,7 +96,7 @@ export default function SignUpPage() {
                                 })
                             }
                         >
-                            confirm password
+                            confirm new password
                         </Input>
                     </div>
                     <div className="row justify-content-center mb-1">
@@ -134,7 +104,7 @@ export default function SignUpPage() {
                             template="secondary-button"
                             onClick={handleValidation}
                         >
-                            Next
+                            Save changes
                         </SubmitButton>
                     </div>
                 </div>

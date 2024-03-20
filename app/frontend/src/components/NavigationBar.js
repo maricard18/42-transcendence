@@ -6,7 +6,7 @@ import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.bundle.js";
 
-export default function NavBar() {
+export default function NavigationBar() {
     return (
         <>
             <nav className="navbar navbar-dark navbar-layout fixed-top">
@@ -34,7 +34,6 @@ export default function NavBar() {
                                 <NavButton
                                     template="dropdown-item menu-text"
                                     page="/menu"
-                                    option="true"
                                 >
                                     Home
                                 </NavButton>
@@ -42,7 +41,7 @@ export default function NavBar() {
                             <li>
                                 <NavButton
                                     template="dropdown-item menu-text"
-                                    page="profile"
+                                    page="profile/username"
                                 >
                                     Profile
                                 </NavButton>
@@ -54,7 +53,6 @@ export default function NavBar() {
                                 <NavButton
                                     template="dropdown-item menu-text"
                                     page="/"
-                                    option="true"
                                 >
                                     Logout
                                 </NavButton>
