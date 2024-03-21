@@ -1,5 +1,5 @@
 # FIRST STAGE -- BUILD
-FROM node:16-alpine as build
+FROM node:20.11.0-alpine3.18 as build
 LABEL authors="bsilva-c"
 
 WORKDIR /usr/local/lib/
@@ -10,7 +10,7 @@ RUN npm install
 COPY . /app/frontend/
 
 # SECOND STAGE -- DEV
-FROM node:16-alpine as dev
+FROM node:20.11.0-alpine3.18 as dev
 LABEL authors="bsilva-c"
 
 ENV NODE_PATH="/node_modules/"
@@ -23,7 +23,7 @@ WORKDIR /app/frontend/
 CMD ["npm", "run", "dev"]
 
 # SECOND STAGE -- WEBPACK BUILD
-FROM node:16-alpine as prod
+FROM node:20.11.0-alpine3.18 as prod
 LABEL authors="bsilva-c"
 
 ENV NODE_PATH="/node_modules/"
