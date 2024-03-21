@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import fetchData from "../functions/fetchData";
 import handleResponse from "../functions/authenticationErrors";
 import { checkEnterButton } from "../functions/fetchData";
+import { getToken } from "../functions/tokens";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
 
