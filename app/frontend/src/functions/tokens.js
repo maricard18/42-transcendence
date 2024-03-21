@@ -71,15 +71,15 @@ export function hasToken() {
     const refreshToken = Cookies.get("refresh_token");
 
     if (!accessToken) {
-		//TODO throw an error
-		if (refreshToken) {
-			// refreshToken();
-			return true;
-		}
-	}
-	
-	return true;
-	//! return false;
+        //TODO throw an error
+        if (refreshToken) {
+            // refreshToken();
+            return true;
+        }
+    }
+
+    return true;
+    //! return false;
 }
 
 export function logout(setAuthed) {

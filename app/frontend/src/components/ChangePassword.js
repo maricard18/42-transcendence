@@ -5,16 +5,12 @@ import { validateProfilePasswordForm } from "../functions/validateForms";
 import { useNavigate } from "react-router-dom";
 import fetchData from "../functions/fetchData";
 import handleResponse from "../functions/authenticationErrors";
-import { createToken } from "../functions/tokens";
-import { AuthContext } from "../components/AuthContext";
 import { checkEnterButton } from "../functions/fetchData";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
 
 export default function ChangePassword() {
     const navigate = useNavigate();
-
-    const { authed, setAuthed } = useContext(AuthContext);
 
     const [formData, setFormData] = useState({
         password: "",
@@ -33,11 +29,13 @@ export default function ChangePassword() {
             };
 
             const response = await fetchData(
-                '/api/users/',
-                'PUT',
-                { 'Content-type': 'application/json' },
-				{ 'Authorization': 'Bearer ' + await getToken() },
-                input
+                "/api/users/",
+                "PUT",
+                {
+					"Content-type": "application/json",
+					Authorization: "Bearer " + (await getToken()),
+				},
+                input,
             );
 
             if (!response.ok) {
@@ -58,7 +56,7 @@ export default function ChangePassword() {
             <h6 className="sub-text mb-5">
                 <b>Edit your password here</b>
             </h6>
-            <form id="sign-up-form" action="/api/users/" method="post">
+            <form>
                 <div className="position-relative">
                     {errors && <p className="form-error">{errors.message}</p>}
                     <div className="d-flex justify-content-center mb-1">

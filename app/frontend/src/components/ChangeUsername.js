@@ -1,12 +1,11 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import Input from "../components/Input";
 import SubmitButton from "../components/SubmitButton";
 import { validateProfileUserForm } from "../functions/validateForms";
 import { useNavigate } from "react-router-dom";
 import fetchData from "../functions/fetchData";
 import handleResponse from "../functions/authenticationErrors";
-import { createToken, getToken } from "../functions/tokens";
-import { AuthContext } from "../components/AuthContext";
+import { getToken } from "../functions/tokens";
 import { checkEnterButton } from "../functions/fetchData";
 import getUserInfo from "../functions/getUserInfo";
 import "../../static/css/Buttons.css";
@@ -15,14 +14,26 @@ import "bootstrap/dist/css/bootstrap.css";
 export default function ChangeUsername() {
     const navigate = useNavigate();
 
-    const { authed, setAuthed } = useContext(AuthContext);
-
     const [formData, setFormData] = useState({
-        username: '', //TODO username: getUserInfo()
-        email: '', //TODO email: getUserInfo()
+        username: "",
+        email: "",
     });
 
     const [errors, setErrors] = useState({});
+
+    useEffect(() => {
+        const fetchUserInfo = async () => {
+            const userInfo = await getUserInfo();
+
+            setFormData({
+                ...formData,
+                username: userInfo.name,
+                email: userInfo.email,
+            });
+        };
+
+        fetchUserInfo();
+    }, []);
 
     const handleValidation = async () => {
         let newErrors = validateProfileUserForm(formData, setFormData);
@@ -35,11 +46,13 @@ export default function ChangeUsername() {
             };
 
             const response = await fetchData(
-                '/api/users/',
-                'PUT',
-                { 'Content-type': 'application/json' },
-				{ 'Authorization': 'Bearer ' + await getToken() },
-                input
+                "/api/users/",
+                "PUT",
+                {
+					"Content-type": "application/json",
+					Authorization: "Bearer " + (await getToken()),
+				},
+                input,
             );
 
             if (!response.ok) {
@@ -60,7 +73,7 @@ export default function ChangeUsername() {
             <h6 className="sub-text mb-5">
                 <b>Edit your username here</b>
             </h6>
-            <form id="sign-up-form" action="/api/users/" method="post">
+            <form>
                 <div className="position-relative">
                     {errors && <p className="form-error">{errors.message}</p>}
                     <div className="d-flex justify-content-center mb-1">

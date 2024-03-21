@@ -30,5 +30,5 @@ module.exports = {
       "process.env": JSON.stringify("production"),
     }),
   ],
-  devtool: 'cheap-source-map',
+  devtool: 'inline-source-map',
 };

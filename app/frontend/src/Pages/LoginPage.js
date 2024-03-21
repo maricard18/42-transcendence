@@ -38,7 +38,7 @@ export default function LoginPage() {
                 '/api/tokens/',
                 'POST',
                 { 'Content-type': 'application/json' },
-                input
+                input,
             );
 
             if (response.ok) {
@@ -61,7 +61,7 @@ export default function LoginPage() {
         <section className="center">
             <div className="container">
                 <h1 className="header mb-5">Welcome back</h1>
-                <form id="login-form" action="/api/users" method="post">
+                <form>
                     <div className="position-relative">
                         {errors && (
                             <p className="form-error">{errors.message}</p>

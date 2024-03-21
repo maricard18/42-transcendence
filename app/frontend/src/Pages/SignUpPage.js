@@ -41,7 +41,7 @@ export default function SignUpPage() {
                 '/api/users/',
                 'POST',
                 { 'Content-type': 'application/json' },
-                input
+                input,
             );
 
             if (response.ok) {
@@ -62,7 +62,7 @@ export default function SignUpPage() {
 
     return (
         <div className="center">
-            <form id="sign-up-form" action="/api/users/" method="post">
+            <form>
                 <div className="row justify-content-center mb-4">
                     <Avatar />
                 </div>
