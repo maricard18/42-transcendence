@@ -15,7 +15,7 @@ def api_exception_handler(exc, context):
         return Response({'errors': {'message': response.data.get('detail'), 'code': response.status_code}},
                         status=response.status_code)
 
-def get_user(self, pk=None):
+def get_user(pk=None):
     try:
         user = User.objects.get(username=pk)
     except User.DoesNotExist:
