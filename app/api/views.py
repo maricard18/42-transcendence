@@ -7,6 +7,7 @@ from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from .permissions import UserPermission, TokenPermission
 from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer, AuthUserSerializer, \
     APITokenObtainPairSerializer, TokenSerializer
+from .utils import get_user
 
 
 ######################
@@ -17,7 +18,6 @@ class UserViewSet(viewsets.ViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [UserPermission]
-    lookup_field = 'username'
 
     # GET /api/users
     def list(self, request):
@@ -36,21 +36,22 @@ class UserViewSet(viewsets.ViewSet):
                 status=status.HTTP_201_CREATED)
         return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
+    # GET /api/users/:id
     # GET /api/users/:username
-    def retrieve(self, request, username=None):
-        try:
-            user = User.objects.get(username=username)
-        except User.DoesNotExist:
+    def retrieve(self, request, pk=None):
+        user = get_user(pk)
+        if not user:
             return Response({'errors': {'message': 'User Not Found', 'code': 404}}, status=status.HTTP_404_NOT_FOUND)
 
         return Response(UserSerializer(user).data)
 
+    # PUT /api/users/:id/
     # PUT /api/users/:username/
-    def update(self, request, username=None):
-        try:
-            user = User.objects.get(username=username)
-        except User.DoesNotExist:
+    def update(self, request, pk=None):
+        user = get_user(pk)
+        if not user:
             return Response({'errors': {'message': 'User Not Found', 'code': 404}}, status=status.HTTP_404_NOT_FOUND)
+
         if int(request.auth.get('user_id')) == user.id:
             serializer = UpdateUserSerializer(data=request.data, partial=True)
             if serializer.is_valid():
@@ -65,12 +66,13 @@ class UserViewSet(viewsets.ViewSet):
             return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         return Response({'errors': {'message': 'Unauthorized', 'code': 401}}, status=status.HTTP_401_UNAUTHORIZED)
 
+    # DELETE /api/users/:id/
     # DELETE /api/users/:username/
-    def destroy(self, request, username=None):
-        try:
-            user = User.objects.get(username=username)
-        except User.DoesNotExist:
+    def destroy(self, request, pk=None):
+        user = get_user(pk)
+        if not user:
             return Response({'errors': {'message': 'User Not Found', 'code': 404}}, status=status.HTTP_404_NOT_FOUND)
+
         if int(request.auth.get('user_id')) == user.id:
             user.is_active = False
             user.save()
