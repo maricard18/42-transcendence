@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../functions/tokens";
-import { AuthContext } from "./AuthContext";
+import { AuthContext } from "./Context";
 import "bootstrap/dist/css/bootstrap.css";
 
 export default function NavButton({ template, page, children }) {

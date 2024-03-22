@@ -1,15 +1,16 @@
 import { getToken } from "./tokens";
 import fetchData from "./fetchData";
 
-export default async function getUserInfo() {
-    const decodeToken = await decode();
+export default async function getUserInfo(setAuthed) {
+	const accessToken = await getToken(setAuthed);
+    const decodeToken = await decode(accessToken);
 
     const response = await fetchData(
         "/api/users/" + decodeToken["user_id"],
         "GET",
         {
             "Content-type": "application/json",
-            Authorization: "Bearer " + (await getToken()),
+            Authorization: "Bearer " + accessToken,
         },
     );
 
@@ -19,19 +20,15 @@ export default async function getUserInfo() {
     }
 
     const jsonData = await response.json();
-    console.log(jsonData);
     const data = {
         username: jsonData["username"],
         email: jsonData["email"],
+		id: decodeToken["user_id"],
     };
-
-    console.log(data.username, data.email);
 
     return data;
 }
 
-async function decode() {
-    const accessToken = await getToken();
-
+async function decode(accessToken) {
     return JSON.parse(atob(accessToken.split(".")[1]));
-}
+} 	 

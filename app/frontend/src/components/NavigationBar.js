@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Outlet, Link } from "react-router-dom";
 import NavButton from "./NavButton";
+import getUserInfo from "../functions/getUserInfo";
+import { AuthContext, UserInfoContext } from "./Context";
 import "../../static/css/NavBar.css";
 import "../../static/css/Buttons.css";
 import "../../static/css/Menu.css";
@@ -9,6 +11,24 @@ import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.bundle.js";
 
 export default function NavigationBar() {
+    const { authed, setAuthed } = useContext(AuthContext);
+    const { userInfo, setUserInfo } = useContext(UserInfoContext);
+
+    useEffect(() => {
+        const fetchUserInfo = async () => {
+            const userData = await getUserInfo(setAuthed);
+            
+			setUserInfo({
+                username: userData.username,
+                email: userData.email,
+                password: userData.password,
+                id: userData.id
+			});
+        };
+
+        fetchUserInfo();
+    }, [userInfo]);
+
     return (
         <>
             <nav className="navbar navbar-dark navbar-layout fixed-top">
@@ -38,7 +58,7 @@ export default function NavigationBar() {
                                 aria-label="Vertical button group"
                             >
                                 <h6 className="sub-header text-center">
-                                    <b>username</b>
+                                    <b>{userInfo.username}</b>
                                 </h6>
                                 <NavButton template="white-button" page="/menu">
                                     Home

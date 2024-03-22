@@ -1,6 +1,6 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import { AuthProvider } from "../components/AuthContext";
+import { AuthProvider, UserInfoProvider } from "../components/Context";
 import LandingPage from "./LandingPage";
 import SignUpPage from "./SignUpPage";
 import LoginPage from "./LoginPage";
@@ -31,7 +31,9 @@ const router = createBrowserRouter([
         path: "/menu",
         element: (
             <IsAuthed>
-                <NavigationBar />
+                <UserInfoProvider>
+                    <NavigationBar />
+                </UserInfoProvider>
             </IsAuthed>
         ),
         children: [
@@ -43,18 +45,26 @@ const router = createBrowserRouter([
                 path: "pong-game",
                 element: <PongPage />,
             },
-			{
+            {
                 path: "profile",
                 children: [
-					{
-						path: "username",
-						element: <ProfilePage><ChangeUsername /></ProfilePage>,
-					},
-					{
-						path: "password",
-						element: <ProfilePage><ChangePassword /></ProfilePage>,
-					},
-				],
+                    {
+                        path: "username",
+                        element: (
+                            <ProfilePage>
+                                <ChangeUsername />
+                            </ProfilePage>
+                        ),
+                    },
+                    {
+                        path: "password",
+                        element: (
+                            <ProfilePage>
+                                <ChangePassword />
+                            </ProfilePage>
+                        ),
+                    },
+                ],
             },
         ],
     },

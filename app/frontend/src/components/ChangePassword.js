@@ -1,24 +1,27 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import Input from "../components/Input";
 import SubmitButton from "../components/SubmitButton";
 import { validateProfilePasswordForm } from "../functions/validateForms";
-import { useNavigate } from "react-router-dom";
 import fetchData from "../functions/fetchData";
 import handleResponse from "../functions/authenticationErrors";
 import { checkEnterButton } from "../functions/fetchData";
 import { getToken } from "../functions/tokens";
+import { AuthContext, UserInfoContext } from "./Context";
+import getUserInfo from "../functions/getUserInfo";
 import "../../static/css/Buttons.css";
+import "../../static/css/errors.css";
 import "bootstrap/dist/css/bootstrap.css";
 
 export default function ChangePassword() {
-    const navigate = useNavigate();
-
+    const { authed, setAuthed } = useContext(AuthContext);
+    const { userInfo, setUserInfo } = useContext(UserInfoContext);
+    const [errors, setErrors] = useState({});
+    const [success, setSuccess] = useState({ message: "" });
+    const [userId, setUserId] = useState();
     const [formData, setFormData] = useState({
         password: "",
         confirmPassword: "",
     });
-
-    const [errors, setErrors] = useState({});
 
     const handleValidation = async () => {
         let newErrors = validateProfilePasswordForm(formData, setFormData);
@@ -30,13 +33,13 @@ export default function ChangePassword() {
             };
 
             const response = await fetchData(
-                "/api/users/",
+                "/api/users/" + userInfo.id + "/",
                 "PUT",
                 {
-					"Content-type": "application/json",
-					Authorization: "Bearer " + (await getToken()),
-				},
-                input,
+                    "Content-type": "application/json",
+                    Authorization: "Bearer " + (await getToken(setAuthed)),
+                },
+                input
             );
 
             if (!response.ok) {
@@ -47,6 +50,8 @@ export default function ChangePassword() {
                 );
                 setErrors(newErrors);
             }
+			else
+                setSuccess({ message: "Changes saved" });
         }
     };
 
@@ -60,6 +65,9 @@ export default function ChangePassword() {
             <form>
                 <div className="position-relative">
                     {errors && <p className="form-error">{errors.message}</p>}
+                    {success && (
+                        <p className="form-success">{success.message}</p>
+                    )}
                     <div className="d-flex justify-content-center mb-1">
                         <Input
                             type="password"

@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../components/AuthContext";
+import { AuthContext } from "../components/Context";
 import NavButton from "../components/NavButton";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";

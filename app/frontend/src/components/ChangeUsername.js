@@ -2,37 +2,31 @@ import React, { useState, useContext, useEffect } from "react";
 import Input from "../components/Input";
 import SubmitButton from "../components/SubmitButton";
 import { validateProfileUserForm } from "../functions/validateForms";
-import { useNavigate } from "react-router-dom";
 import fetchData from "../functions/fetchData";
 import handleResponse from "../functions/authenticationErrors";
 import { getToken } from "../functions/tokens";
 import { checkEnterButton } from "../functions/fetchData";
-import getUserInfo from "../functions/getUserInfo";
+import { AuthContext, UserInfoContext } from "./Context";
 import "../../static/css/Buttons.css";
+import "../../static/css/errors.css";
 import "bootstrap/dist/css/bootstrap.css";
 
 export default function ChangeUsername() {
-    const navigate = useNavigate();
-
+    const { authed, setAuthed } = useContext(AuthContext);
+    const { userInfo, setUserInfo } = useContext(UserInfoContext);
+    const [errors, setErrors] = useState({});
+    const [success, setSuccess] = useState({ message: "" });
     const [formData, setFormData] = useState({
         username: "",
         email: "",
     });
 
-    const [errors, setErrors] = useState({});
-
     useEffect(() => {
-        const fetchUserInfo = async () => {
-            const userInfo = await getUserInfo();
-
-            setFormData({
-                ...formData,
-                username: userInfo.name,
-                email: userInfo.email,
-            });
-        };
-
-        fetchUserInfo();
+        setFormData({
+            ...formData,
+            username: userInfo.username,
+            email: userInfo.email,
+        });
     }, []);
 
     const handleValidation = async () => {
@@ -46,13 +40,13 @@ export default function ChangeUsername() {
             };
 
             const response = await fetchData(
-                "/api/users/",
+                "/api/users/" + userInfo.id + "/",
                 "PUT",
                 {
-					"Content-type": "application/json",
-					Authorization: "Bearer " + (await getToken()),
-				},
-                input,
+                    "Content-type": "application/json",
+                    Authorization: "Bearer " + (await getToken(setAuthed)),
+                },
+                input
             );
 
             if (!response.ok) {
@@ -62,6 +56,13 @@ export default function ChangeUsername() {
                     setFormData
                 );
                 setErrors(newErrors);
+            } else {
+                setUserInfo({
+                    ...userInfo,
+                    username: formData.username,
+                    email: formData.email,
+                });
+                setSuccess({ message: "Changes saved" });
             }
         }
     };
@@ -76,6 +77,9 @@ export default function ChangeUsername() {
             <form>
                 <div className="position-relative">
                     {errors && <p className="form-error">{errors.message}</p>}
+                    {success && (
+                        <p className="form-success">{success.message}</p>
+                    )}
                     <div className="d-flex justify-content-center mb-1">
                         <Input
                             type="text"

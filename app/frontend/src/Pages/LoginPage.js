@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import fetchData from "../functions/fetchData";
 import handleResponse from "../functions/authenticationErrors";
 import { setToken } from "../functions/tokens";
-import { AuthContext } from "../components/AuthContext";
+import { AuthContext } from "../components/Context";
 import { checkEnterButton } from "../functions/fetchData";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
@@ -15,13 +15,12 @@ export default function LoginPage() {
     const navigate = useNavigate();
 
     const { authed, setAuthed } = useContext(AuthContext);
-
+	const [errors, setErrors] = useState({});
     const [formData, setFormData] = useState({
         username: '',
         password: '',
     });
 
-    const [errors, setErrors] = useState({});
 
     const handleValidation = async () => {
         let newErrors = validateLoginForm(formData, setFormData);

@@ -38,7 +38,7 @@ export async function setToken(response, setAuthed) {
     });
 }
 
-export async function refreshToken() {
+export async function refreshToken(setAuthed) {
     const data = {
         grant_type: "refresh_token",
         refresh_token: Cookies.get("refresh_token"),
@@ -51,16 +51,16 @@ export async function refreshToken() {
         data
     );
 
-    await setToken(response);
+    await setToken(response, setAuthed);
 }
 
-export async function getToken() {
+export async function getToken(setAuthed) {
     const accessToken = Cookies.get("access_token");
 
     if (accessToken) {
         return accessToken;
     } else {
-        await refreshToken();
+        await refreshToken(setAuthed);
         const newAccessToken = Cookies.get("access_token");
         return newAccessToken;
     }
