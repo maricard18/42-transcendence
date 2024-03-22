@@ -21,7 +21,6 @@ export default function NavigationBar() {
 			setUserInfo({
                 username: userData.username,
                 email: userData.email,
-                password: userData.password,
                 id: userData.id
 			});
         };
