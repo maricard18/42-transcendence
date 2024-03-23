@@ -10,8 +10,8 @@
 .primary-button:hover,
 .primary-button:active{
     color: white;
-    background-color: #4600b3 !important;
-    border-color: #4600b3 !important;
+    background-color: #3e0d8e !important;
+    border-color: #3e0d8e !important;
     transition: 0.5s;
 }
 

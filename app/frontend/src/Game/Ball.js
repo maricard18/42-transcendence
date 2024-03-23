@@ -1,4 +1,7 @@
-import { BallSpeed, BallColor, BallRadius } from "./variables";
+import { BallSpeed } from "./variables";
+
+let ballColor = "white";
+let ballRadius = 10;
 
 export class Ball {
 	constructor(x, y) {
@@ -8,8 +11,8 @@ export class Ball {
 
 	draw(ctx) {
 		ctx.beginPath();
-        ctx.arc(this.x, this.y, BallRadius, 0, 2 * Math.PI);
-        ctx.fillStyle = BallColor;
+        ctx.arc(this.x, this.y, ballRadius, 0, 2 * Math.PI);
+        ctx.fillStyle = ballColor;
         ctx.fill();
 	}
 
