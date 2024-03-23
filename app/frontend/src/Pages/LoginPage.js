@@ -14,7 +14,7 @@ import "bootstrap/dist/css/bootstrap.css";
 export default function LoginPage() {
     const navigate = useNavigate();
 
-    const { authed, setAuthed } = useContext(AuthContext);
+    const { setAuthed } = useContext(AuthContext);
 	const [errors, setErrors] = useState({});
     const [formData, setFormData] = useState({
         username: '',

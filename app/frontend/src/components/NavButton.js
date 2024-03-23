@@ -7,10 +7,11 @@ import "bootstrap/dist/css/bootstrap.css";
 export default function NavButton({ template, page, children }) {
     const navigate = useNavigate();
 
-    const { authed, setAuthed } = useContext(AuthContext);
+    const { setAuthed } = useContext(AuthContext);
 
     const handleClickTo = (path) => {
-        if (page == "/") logout(setAuthed);
+        if (page == "/")
+			logout(setAuthed);
         navigate(path);
     };
 

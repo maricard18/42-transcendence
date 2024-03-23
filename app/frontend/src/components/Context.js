@@ -5,7 +5,7 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
 	const value = hasToken();
-	
+	console.log("Context: " + value);
     const [authed, setAuthed] = useState(value);
 	
     return (

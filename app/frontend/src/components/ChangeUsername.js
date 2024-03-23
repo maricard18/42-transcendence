@@ -12,7 +12,7 @@ import "../../static/css/errors.css";
 import "bootstrap/dist/css/bootstrap.css";
 
 export default function ChangeUsername() {
-    const { authed, setAuthed } = useContext(AuthContext);
+    const { setAuthed } = useContext(AuthContext);
     const { userInfo, setUserInfo } = useContext(UserInfoContext);
     const [errors, setErrors] = useState({});
     const [success, setSuccess] = useState({ message: "" });
@@ -27,11 +27,12 @@ export default function ChangeUsername() {
             username: userInfo.username,
             email: userInfo.email,
         });
-    }, []);
+    }, [userInfo]);
 
     const handleValidation = async () => {
         let newErrors = validateProfileUserForm(formData, setFormData);
         setErrors(newErrors);
+		setSuccess({});
 
         if (!newErrors.message) {
             const input = {
@@ -56,6 +57,7 @@ export default function ChangeUsername() {
                     setFormData
                 );
                 setErrors(newErrors);
+				setSuccess({});
             } else {
                 setUserInfo({
                     ...userInfo,
@@ -77,9 +79,7 @@ export default function ChangeUsername() {
             <form>
                 <div className="position-relative">
                     {errors && <p className="form-error">{errors.message}</p>}
-                    {success && (
-                        <p className="form-success">{success.message}</p>
-                    )}
+                    {success && (<p className="form-success">{success.message}</p>)}
                     <div className="d-flex justify-content-center mb-1">
                         <Input
                             type="text"

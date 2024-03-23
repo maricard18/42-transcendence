@@ -7,17 +7,15 @@ import handleResponse from "../functions/authenticationErrors";
 import { checkEnterButton } from "../functions/fetchData";
 import { getToken } from "../functions/tokens";
 import { AuthContext, UserInfoContext } from "./Context";
-import getUserInfo from "../functions/getUserInfo";
 import "../../static/css/Buttons.css";
 import "../../static/css/errors.css";
 import "bootstrap/dist/css/bootstrap.css";
 
 export default function ChangePassword() {
-    const { authed, setAuthed } = useContext(AuthContext);
-    const { userInfo, setUserInfo } = useContext(UserInfoContext);
+    const { setAuthed } = useContext(AuthContext);
+    const { userInfo } = useContext(UserInfoContext);
     const [errors, setErrors] = useState({});
     const [success, setSuccess] = useState({ message: "" });
-    const [userId, setUserId] = useState();
     const [formData, setFormData] = useState({
         password: "",
         confirmPassword: "",
@@ -26,6 +24,7 @@ export default function ChangePassword() {
     const handleValidation = async () => {
         let newErrors = validateProfilePasswordForm(formData, setFormData);
         setErrors(newErrors);
+		setSuccess({});
 
         if (!newErrors.message) {
             const input = {
@@ -49,6 +48,7 @@ export default function ChangePassword() {
                     setFormData
                 );
                 setErrors(newErrors);
+				setSuccess({});
             }
 			else
                 setSuccess({ message: "Changes saved" });
@@ -65,9 +65,7 @@ export default function ChangePassword() {
             <form>
                 <div className="position-relative">
                     {errors && <p className="form-error">{errors.message}</p>}
-                    {success && (
-                        <p className="form-success">{success.message}</p>
-                    )}
+                    {success && (<p className="form-success">{success.message}</p>)}
                     <div className="d-flex justify-content-center mb-1">
                         <Input
                             type="password"

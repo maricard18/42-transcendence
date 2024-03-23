@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useContext } from "react";
 import { Outlet, Link } from "react-router-dom";
 import NavButton from "./NavButton";
 import getUserInfo from "../functions/getUserInfo";
@@ -11,7 +11,7 @@ import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.bundle.js";
 
 export default function NavigationBar() {
-    const { authed, setAuthed } = useContext(AuthContext);
+    const { setAuthed } = useContext(AuthContext);
     const { userInfo, setUserInfo } = useContext(UserInfoContext);
 
     useEffect(() => {
@@ -26,7 +26,7 @@ export default function NavigationBar() {
         };
 
         fetchUserInfo();
-    }, [userInfo]);
+    }, [userInfo.username]);
 
     return (
         <>
