@@ -1,15 +1,17 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useState, useEffect } from "react";
 import { hasToken } from "../functions/tokens";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-	const value = hasToken();
-	
-    const [authed, setAuthed] = useState(value);
-	
+    const [authed, setAuthed] = useState();
+
+    useEffect(() => {
+        setAuthed(hasToken);
+    }, []);
+
     return (
-		<AuthContext.Provider value={{ authed, setAuthed }}>
+        <AuthContext.Provider value={{ authed, setAuthed }}>
             {children}
         </AuthContext.Provider>
     );
@@ -18,11 +20,11 @@ export const AuthProvider = ({ children }) => {
 export const UserInfoContext = createContext();
 
 export const UserInfoProvider = ({ children }) => {
-	const [userInfo, setUserInfo] = useState({
-		username: "",
-		email: "",
-		id: "",
-	});
+    const [userInfo, setUserInfo] = useState({
+        username: "",
+        email: "",
+        id: "",
+    });
 
     return (
         <UserInfoContext.Provider value={{ userInfo, setUserInfo }}>

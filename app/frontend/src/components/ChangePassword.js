@@ -7,7 +7,6 @@ import handleResponse from "../functions/authenticationErrors";
 import { checkEnterButton } from "../functions/fetchData";
 import { getToken } from "../functions/tokens";
 import { AuthContext, UserInfoContext } from "./Context";
-import getUserInfo from "../functions/getUserInfo";
 import "../../static/css/Buttons.css";
 import "../../static/css/errors.css";
 import "bootstrap/dist/css/bootstrap.css";
