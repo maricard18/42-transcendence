@@ -26,7 +26,7 @@ export default function NavigationBar() {
         };
 
         fetchUserInfo();
-    }, [userInfo.username]);
+    }, [userInfo]);
 
     return (
         <>

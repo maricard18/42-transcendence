@@ -8,7 +8,7 @@ import HomePage from "./HomePage";
 import ProfilePage from "./ProfilePage";
 import PongPage from "./PongPage";
 import NavigationBar from "../components/NavigationBar";
-import { IsAuthed, IsNotAuthed } from "../components/Authed";
+import IsAuthed from "../components/IsAuthed";
 import ChangeUsername from "../components/ChangeUsername";
 import ChangePassword from "../components/ChangePassword";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
@@ -17,27 +17,15 @@ import "../../static/css/index.css";
 const router = createBrowserRouter([
     {
         path: "/",
-        element: (
-            <IsNotAuthed>
-                <LandingPage />,
-            </IsNotAuthed>
-        ),
+        element: <LandingPage />,
     },
     {
         path: "/sign-up",
-        element: (
-            <IsNotAuthed>
-                <SignUpPage />,
-            </IsNotAuthed>
-        ),
+        element: <SignUpPage />,
     },
     {
         path: "/login",
-        element: (
-            <IsNotAuthed>
-                <LoginPage />,
-            </IsNotAuthed>
-        ),
+        element: <LoginPage />,
     },
     {
         path: "/menu",

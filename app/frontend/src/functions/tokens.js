@@ -68,11 +68,18 @@ export async function getToken(setAuthed) {
 
 export function hasToken() {
     const accessToken = Cookies.get("access_token");
+    const refreshToken = Cookies.get("refresh_token");
 
-    if (accessToken)
-        return true;
+    if (!accessToken) {
+        //TODO throw an error
+        if (refreshToken) {
+            // refreshToken();
+            return true;
+        }
+    }
 
-    return false;
+    return true;
+    //! return false;
 }
 
 export function logout(setAuthed) {
