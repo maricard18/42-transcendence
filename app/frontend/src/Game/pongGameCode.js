@@ -1,6 +1,6 @@
 import { Ball } from "./Ball";
-import { Paddle, PaddleHeight } from "./Paddle";
-import { Width, Height, BackgroundColor, keys } from "./variables";
+import { Paddle } from "./Paddle";
+import { Width, Height, BackgroundColor, keys, PaddleHeight } from "./variables";
 
 function clearBackground(ctx) {
     ctx.fillStyle = BackgroundColor;
@@ -20,7 +20,7 @@ export function startGame(canvas) {
     });
 
     let ball = new Ball(Width / 2, Height / 2);
-    let paddle = new Paddle(50, Height / 2 - PaddleHeight / 2);
+    let paddle = new Paddle(20, Height / 2 - PaddleHeight / 2);
 
     gameLoop(ball, paddle, ctx, keys);
 }

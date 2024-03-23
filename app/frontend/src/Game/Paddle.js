@@ -1,8 +1,4 @@
-import { PaddleSpeed } from "./variables";
-
-let PaddleColor = "white";
-let PaddleWidth = 10;
-export let PaddleHeight = 60;
+import { PaddleSpeed, PaddleWidth, PaddleHeight, PaddleColor, Height } from "./variables";
 
 export class Paddle {
 	constructor(x, y) {
@@ -18,9 +14,9 @@ export class Paddle {
 	}
 
 	update(keys) {
-		if (keys.ArrowUp)
+		if (keys.ArrowUp && this.y > 0)
 			this.y -= PaddleSpeed;
-        if (keys.ArrowDown)
+        if (keys.ArrowDown && this.y + PaddleHeight < Height)
 			this.y += PaddleSpeed;
     }
 }
