@@ -1,25 +1,29 @@
-import { BallSpeed } from "./variables";
-
-let ballColor = "white";
-let ballRadius = 10;
+import { BallSpeedX, BallSpeedY, ScreenHeight, ScreenWidth, ballRadius } from "./variables";
 
 export class Ball {
-	constructor(x, y) {
+	constructor(x, y, color) {
 		this.x = x;
 		this.y = y;
+		this.radius = ballRadius;
+		this.color = color;
+		this.speed_x = BallSpeedX;
+		this.speed_y = BallSpeedY;
 	}
 
 	draw(ctx) {
 		ctx.beginPath();
-        ctx.arc(this.x, this.y, ballRadius, 0, 2 * Math.PI);
-        ctx.fillStyle = ballColor;
+        ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+        ctx.fillStyle = this.color;
         ctx.fill();
 	}
 
 	update() {
-		if (this.x > 0)
-        	this.x -= BallSpeed;
-		else
-			this.x += BallSpeed;
+		this.x += this.speed_x;
+		this.y += this.speed_y;
+
+		if (this.x - this.radius <= 0 || this.x + this.radius >= ScreenWidth)
+        	this.speed_x *= -1;
+		if (this.y - this.radius <= 0 || this.y + this.radius >= ScreenHeight)
+			this.speed_y *= -1;
     }
 }

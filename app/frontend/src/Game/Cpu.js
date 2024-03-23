@@ -1,19 +1,15 @@
 import { Paddle } from "./Paddle";
-import { PaddleSpeed } from "./variables";
-
-let PaddleColor = "white";
-let PaddleWidth = 10;
-export let PaddleHeight = 60;
+import { ScreenHeight, PaddleSpeed } from "./variables";
 
 export class Cpu extends Paddle {
-	constructor(x, y) {
-		super(x, y);
+	constructor(x, y, color) {
+		super(x, y, color);
 	}
 
-	update(x, y) {
-		if (keys.ArrowUp)
-			this.y -= PaddleSpeed;
-        if (keys.ArrowDown)
-			this.y += PaddleSpeed;
+	update(y) {
+		if (this.y > y && this.y >= 0)
+			this.y -= this.speed;
+		if (this.y < y && this.y + this.height <= ScreenHeight)
+			this.y += this.speed;
     }
 }
