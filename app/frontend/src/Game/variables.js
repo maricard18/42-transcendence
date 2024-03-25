@@ -2,12 +2,12 @@ export let BackgroundColor = "black";
 export let ScreenWidth = 1000;
 export let ScreenHeight = 600;
 
-export let PaddleSpeed = 5;
-export let PaddleWidth = 10;
+export let PaddleSpeed = 7;
+export let PaddleWidth = 15;
 export let PaddleHeight = 80;
 
-export let BallSpeedX = 3;
-export let BallSpeedY = 3;
+export let BallSpeedX = 5;
+export let BallSpeedY = 5;
 export let ballRadius = 10;
 
 export const keys = {

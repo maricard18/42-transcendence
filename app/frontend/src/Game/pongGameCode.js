@@ -1,8 +1,15 @@
+import { checkPlayerCoallision, checkCpuCoallision} from "./coallision";
 import { Ball } from "./Ball";
 import { Paddle } from "./Paddle";
 import { Cpu } from "./Cpu";
-import { ScreenWidth, ScreenHeight, BackgroundColor, keys, PaddleHeight } from "./variables";
-import checkCoallision from "./coallision";
+import {
+    ScreenWidth,
+    ScreenHeight,
+    BackgroundColor,
+    keys,
+    PaddleHeight,
+	PaddleWidth,
+} from "./variables";
 
 function clearBackground(ctx) {
     ctx.fillStyle = BackgroundColor;
@@ -15,17 +22,19 @@ export function startGame(canvas) {
     clearBackground(ctx);
 
     window.addEventListener("keydown", (event) => {
-        if (keys.hasOwnProperty(event.key)) 
-			keys[event.key] = true;
+        if (keys.hasOwnProperty(event.key)) keys[event.key] = true;
     });
     window.addEventListener("keyup", (event) => {
-        if (keys.hasOwnProperty(event.key)) 
-			keys[event.key] = false;
+        if (keys.hasOwnProperty(event.key)) keys[event.key] = false;
     });
 
     let ball = new Ball(ScreenWidth / 2, ScreenHeight / 2, "white");
-    let paddle = new Paddle(30, ScreenHeight / 2 - PaddleHeight / 2, "red");
-	let cpu = new Cpu(ScreenWidth - 30, ScreenHeight / 2 - PaddleHeight / 2, "blue");
+    let paddle = new Paddle(50, ScreenHeight / 2 - PaddleHeight / 2, "red");
+    let cpu = new Cpu(
+        ScreenWidth - 50 - PaddleWidth,
+        ScreenHeight / 2 - PaddleHeight / 2,
+        "blue"
+    );
 
     gameLoop(ball, paddle, cpu, ctx, keys);
 }
@@ -35,16 +44,14 @@ function gameLoop(ball, paddle, cpu, ctx, keys) {
 
     ball.update();
     paddle.update(keys);
-	cpu.update(ball.y);
+    cpu.update(ball.y);
 
-	checkCoallision(ball, paddle);
-	checkCoallision(ball, cpu);
+    checkPlayerCoallision(ball, paddle);
+    checkCpuCoallision(ball, cpu);
 
     ball.draw(ctx);
     paddle.draw(ctx);
-	cpu.draw(ctx);
+    cpu.draw(ctx);
 
-    window.requestAnimationFrame(() =>
-        gameLoop(ball, paddle, cpu, ctx, keys)
-    );
+    window.requestAnimationFrame(() => gameLoop(ball, paddle, cpu, ctx, keys));
 }
