@@ -29,7 +29,6 @@ export class Paddle {
 				this.speed = this.max_speed;
 
 			this.y -= this.speed * dt;
-			console.log(this.speed);
 		} 
 		
 		if (keys.ArrowDown && this.y + this.height <= ScreenHeight)
@@ -40,7 +39,6 @@ export class Paddle {
 				this.speed = this.max_speed;
 
 			this.y += this.speed * dt;
-			console.log(this.speed);
 		}
 		
 		if (!keys.ArrowUp && !keys.ArrowDown)

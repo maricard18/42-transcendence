@@ -1,5 +1,5 @@
 export let BackgroundColor = "black";
-export let ScreenWidth = 1000;
+export let ScreenWidth = 600;
 export let ScreenHeight = 600;
 
 export let PaddleSpeed = 500;
