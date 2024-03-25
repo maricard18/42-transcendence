@@ -6,10 +6,10 @@ export class Cpu extends Paddle {
 		super(x, y, color);
 	}
 
-	update(y) {
-		if (this.y > y && this.y >= 0)
-			this.y -= this.speed;
-		if (this.y < y && this.y + this.height <= ScreenHeight)
-			this.y += this.speed;
+	update(ball_y, speed, dt) {
+		if (this.y > ball_y && this.y >= 0 && speed > 0)
+			this.y -= this.max_speed * dt;
+		if (this.y < ball_y && this.y + this.height <= ScreenHeight && speed > 0)
+			this.y += this.max_speed * dt;
     }
 }

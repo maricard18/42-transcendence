@@ -7,7 +7,10 @@ export class Paddle {
         this.color = color;
 		this.width = PaddleWidth;
 		this.height = PaddleHeight;
-		this.speed = PaddleSpeed;
+		this.inital_speed = 200;
+		this.speed = this.inital_speed;
+		this.max_speed = PaddleSpeed;
+		this.acceleration = 1.1;
     }
 
     draw(ctx) {
@@ -17,10 +20,30 @@ export class Paddle {
         ctx.fill();
     }
 
-    update(keys) {
-        if (keys.ArrowUp && this.y >= 0) 
-			this.y -= this.speed;
-        if (keys.ArrowDown && this.y + this.height <= ScreenHeight)
-            this.y += this.speed;
+    update(keys, dt) {
+        if (keys.ArrowUp && this.y >= 0)
+		{
+			if (this.speed < this.max_speed)
+				this.speed *= this.acceleration;
+			else
+				this.speed = this.max_speed;
+
+			this.y -= this.speed * dt;
+			console.log(this.speed);
+		} 
+		
+		if (keys.ArrowDown && this.y + this.height <= ScreenHeight)
+		{
+			if (this.speed < this.max_speed)
+				this.speed *= this.acceleration;
+			else
+				this.speed = this.max_speed;
+
+			this.y += this.speed * dt;
+			console.log(this.speed);
+		}
+		
+		if (!keys.ArrowUp && !keys.ArrowDown)
+			this.speed = this.inital_speed;
     }
 }

@@ -73,7 +73,10 @@ export function hasToken() {
     if (accessToken)
 		return true;
 
-    return false;
+	//! handle refreshToken here
+
+	//! return false
+    return true;
 }
 
 export function logout(setAuthed) {
