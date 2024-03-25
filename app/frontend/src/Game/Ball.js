@@ -4,6 +4,7 @@ import {
     ScreenHeight,
     ScreenWidth,
     ballRadius,
+    pauseGame,
 } from "./variables";
 
 export class Ball {
@@ -12,8 +13,9 @@ export class Ball {
         this.y = y;
         this.radius = ballRadius;
         this.color = color;
-        this.speed_x = BallSpeedX;
-        this.speed_y = BallSpeedY;
+        this.speed_x = BallSpeedX * getRandomDirection();
+        this.speed_y = BallSpeedY * getRandomDirection();
+		this.acceleration = 1.1;
         this.last_time = Date.now();
     }
 
@@ -24,22 +26,34 @@ export class Ball {
         ctx.fill();
     }
 
-    update(dt) {
+    update(dt, player, cpu) {
         this.x += this.speed_x * dt;
         this.y += this.speed_y * dt;
-        
-		if (this.x - this.radius <= 0 || this.x + this.radius >= ScreenWidth)
+
+		if ((this.y - this.radius <= 0 && this.speed_y < 0)|| 
+			(this.y + this.radius >= ScreenHeight && this.speed_y > 0))
+			this.speed_y *= -1;
+        if (this.x - this.radius <= 0 && this.speed_x < 0) {
+			cpu.score += 1;
+			this.reset();
+		}
+		if (this.x + this.radius >= ScreenWidth && this.speed_x > 0) {
+			player.score += 1;
             this.reset();
-        if (this.y - this.radius <= 0 || this.y + this.radius >= ScreenHeight)
-            this.speed_y *= -1;
+		}
     }
 
     reset() {
-        this.speed_x = BallSpeedX;
-        this.speed_y = BallSpeedY;
         this.x = ScreenWidth / 2;
         this.y = ScreenHeight / 2;
 
-		// setTimeout(() => {}, 2000);
+        this.speed_y = BallSpeedY * getRandomDirection();
+        this.speed_x = BallSpeedX * getRandomDirection();
+
+        pauseGame(2);
     }
+}
+
+function getRandomDirection() {
+    return Math.random() < 0.5 ? -1 : 1;
 }

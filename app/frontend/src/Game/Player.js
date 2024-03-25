@@ -1,16 +1,17 @@
-import { PaddleSpeed, PaddleWidth, PaddleHeight, ScreenHeight } from "./variables";
+import { PlayerSpeed, PlayerWidth, PlayerHeight, ScreenHeight } from "./variables";
 
-export class Paddle {
+export class Player {
     constructor(x, y, color) {
         this.x = x;
         this.y = y;
         this.color = color;
-		this.width = PaddleWidth;
-		this.height = PaddleHeight;
+		this.width = PlayerWidth;
+		this.height = PlayerHeight;
 		this.inital_speed = 200;
 		this.speed = this.inital_speed;
-		this.max_speed = PaddleSpeed;
+		this.max_speed = PlayerSpeed;
 		this.acceleration = 1.1;
+		this.score = 0;
     }
 
     draw(ctx) {

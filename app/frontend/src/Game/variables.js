@@ -1,16 +1,25 @@
-export let BackgroundColor = "black";
-export let ScreenWidth = 600;
-export let ScreenHeight = 600;
+export var BackgroundColor = "black";
+export var ScreenWidth = 650;
+export var ScreenHeight = 600;
 
-export let PaddleSpeed = 500;
-export let PaddleWidth = 15;
-export let PaddleHeight = 80;
+export var PlayerSpeed = 500;
+export var PlayerWidth = 15;
+export var PlayerHeight = 80;
 
-export let BallSpeedX = 300;
-export let BallSpeedY = 300;
-export let ballRadius = 10;
+export var BallSpeedX = 200;
+export var BallSpeedY = 200;
+export var ballRadius = 10;
+
+export var paused = false;
 
 export const keys = {
-	ArrowUp: false,
-	ArrowDown: false,
+    ArrowUp: false,
+    ArrowDown: false,
 };
+
+export function pauseGame(duration) {
+    paused = true;
+    setTimeout(() => {
+        paused = false;
+    }, duration * 1000);
+}

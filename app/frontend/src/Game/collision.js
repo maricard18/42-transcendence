@@ -1,49 +1,50 @@
-export function checkPlayerCollision(ball, paddle)
+export function checkPlayerCollision(ball, player)
 {
 	if (ball.speed_x < 0 &&
-		ball.x - ball.radius <= paddle.x + paddle.width &&
-		ball.x + ball.radius >= paddle.x + paddle.width &&
-    	ball.y + ball.radius >= paddle.y && 
-		ball.y - ball.radius <= paddle.y + paddle.height) {
-			ball.speed_x *= -1.05;
+		ball.x - ball.radius <= player.x + player.width &&
+		ball.x + ball.radius >= player.x + player.width &&
+    	ball.y + ball.radius >= player.y && 
+		ball.y - ball.radius <= player.y + player.height) {
+			ball.speed_x *= -ball.acceleration;
 			
-			let distance = Math.abs(ball.y - (paddle.y + paddle.height / 2)) / (paddle.height / 2);
+			let distance = Math.abs(ball.y - (player.y + player.height / 2)) / (player.height / 2);
 			ball.speed_y += distance;
 		}	
 	else if (ball.speed_y > 0 && ball.speed_x < 0 &&
-		ball.x - ball.radius <= paddle.x + paddle.width &&
-		ball.y + ball.radius >= paddle.y &&
-		ball.y - ball.radius <= paddle.y)
-		ball.speed_y *= -1.05;
+		ball.x - ball.radius <= player.x + player.width &&
+		ball.y + ball.radius >= player.y &&
+		ball.y - ball.radius <= player.y)
+		ball.speed_y *= -ball.acceleration;
 	else if (ball.speed_y < 0 && ball.speed_x < 0 &&
-		ball.x - ball.radius <= paddle.x + paddle.width &&
-		ball.y - ball.radius <= paddle.y + paddle.height &&
-		ball.y + ball.radius >= paddle.y + paddle.height)
-		ball.speed_y *= -1.05;
+		ball.x - ball.radius <= player.x + player.width &&
+		ball.y - ball.radius <= player.y + player.height &&
+		ball.y + ball.radius >= player.y + player.height)
+		ball.speed_y *= -ball.acceleration;
 }
 
-export function checkCpuCollision(ball, paddle)
+export function checkCpuCollision(ball, player)
 {
 	if (ball.speed_x > 0 &&
-		ball.x + ball.radius >= paddle.x &&
-		ball.x - ball.radius <= paddle.x &&
-    	ball.y + ball.radius >= paddle.y && 
-		ball.y - ball.radius <= paddle.y + paddle.height) {
-			ball.speed_x *= -1.05;
+		ball.x + ball.radius >= player.x &&
+		ball.x - ball.radius <= player.x &&
+    	ball.y + ball.radius >= player.y && 
+		ball.y - ball.radius <= player.y + player.height) {
+			ball.speed_x *= -ball.acceleration;
 
-			let distance = Math.abs(ball.y - (paddle.y + paddle.height / 2)) / (paddle.height / 2);
+			let distance = Math.abs(ball.y - (player.y + player.height / 2)) / (player.height / 2);
         	ball.speed_y += distance;
+			console.log(distance);
 		}
 	else if (ball.speed_y > 0 && ball.speed_x > 0 &&
-		ball.x + ball.radius >= paddle.x &&
-		ball.y + ball.radius >= paddle.y &&
-		ball.y - ball.radius <= paddle.y)
-		ball.speed_y *= -1.05;
+		ball.x + ball.radius >= player.x &&
+		ball.y + ball.radius >= player.y &&
+		ball.y - ball.radius <= player.y)
+		ball.speed_y *= -ball.acceleration;
 	else if (ball.speed_y < 0 && ball.speed_x > 0 &&
-		ball.x + ball.radius >= paddle.x &&
-		ball.y - ball.radius <= paddle.y + paddle.height &&
-		ball.y + ball.radius >= paddle.y + paddle.height)
-		ball.speed_y *= -1.05;
+		ball.x + ball.radius >= player.x &&
+		ball.y - ball.radius <= player.y + player.height &&
+		ball.y + ball.radius >= player.y + player.height)
+		ball.speed_y *= -ball.acceleration;
 }
 
 

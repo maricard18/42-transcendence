@@ -12,7 +12,7 @@ export default function PongGame() {
 
     return (
         <canvas
-            width="600"
+            width="650"
             height="600"
             style={{ border: "3px solid #ffffff" }}
             ref={canvasRef}

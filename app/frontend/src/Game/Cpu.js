@@ -1,7 +1,7 @@
-import { Paddle } from "./Paddle";
-import { ScreenHeight, PaddleSpeed } from "./variables";
+import { Player } from "./Player";
+import { ScreenHeight, PlayerSpeed } from "./variables";
 
-export class Cpu extends Paddle {
+export class Cpu extends Player {
 	constructor(x, y, color) {
 		super(x, y, color);
 	}
