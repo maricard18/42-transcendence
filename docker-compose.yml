@@ -3,7 +3,7 @@ services:
   ############# PROD #############
   postgres:
     container_name: postgres
-    image: postgres:13-alpine
+    image: postgres:13-alpine3.18
     user: postgres
     env_file: .env
     expose:
@@ -17,8 +17,25 @@ services:
       interval: 5s
       start_period: 5s
       retries: 5
-    profiles: [""]
+    profiles: [ "" ]
     restart: always
+
+  redis:
+    container_name: redis
+    image: redis:7.2-alpine3.18
+    expose:
+      - "6379"
+    networks:
+      - transcendence
+    depends_on:
+      postgres:
+        condition: service_healthy
+      db-migrations:
+        condition: service_completed_successfully
+      webpack-build:
+        condition: service_completed_successfully
+    profiles: [ "" ]
+    restart: on-failure
 
   django-backend:
     container_name: django-backend
@@ -33,19 +50,15 @@ services:
     volumes:
       - frontend_data:/app/frontend
     depends_on:
-      postgres:
-        condition: service_healthy
-      db-migrations:
-        condition: service_completed_successfully
-      webpack-build:
-        condition: service_completed_successfully
-    profiles: [""]
+      redis-dev:
+        condition: service_started
+    profiles: [ "" ]
     restart: on-failure
 
   ############# DEV #############
   postgres-dev:
     container_name: postgres-dev
-    image: postgres:13-alpine
+    image: postgres:13-alpine3.18
     user: postgres
     env_file: .env
     ports:
@@ -59,7 +72,7 @@ services:
       interval: 5s
       start_period: 5s
       retries: 5
-    profiles: ["dev"]
+    profiles: [ "dev" ]
     restart: always
 
   webpack-dev:
@@ -71,7 +84,24 @@ services:
       - transcendence-dev
     volumes:
       - ./app/frontend/:/app/frontend/
-    profiles: ["dev"]
+    profiles: [ "dev" ]
+    restart: on-failure
+
+  redis-dev:
+    container_name: redis-dev
+    image: redis:7.2-alpine3.18
+    expose:
+      - "6379"
+    networks:
+      - transcendence-dev
+    depends_on:
+      postgres-dev:
+        condition: service_healthy
+      db-migrations-dev:
+        condition: service_completed_successfully
+      webpack-dev:
+        condition: service_started
+    profiles: [ "dev" ]
     restart: on-failure
 
   django-backend-dev:
@@ -89,13 +119,9 @@ services:
     volumes:
       - ./app/:/app/:ro
     depends_on:
-      postgres-dev:
-        condition: service_healthy
-      db-migrations-dev:
-        condition: service_completed_successfully
-      webpack-dev:
+      redis-dev:
         condition: service_started
-    profiles: ["dev"]
+    profiles: [ "dev" ]
     restart: on-failure
 
   ############# TOOLS #############
@@ -112,7 +138,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    profiles: ["", "tools"]
+    profiles: [ "", "tools" ]
     restart: on-failure
 
   webpack-build:
@@ -124,7 +150,7 @@ services:
       - transcendence
     volumes:
       - frontend_data:/app/frontend
-    profiles: [""]
+    profiles: [ "", "tools" ]
 
   ############# DEV #############
   db-migrations-dev:
@@ -141,7 +167,7 @@ services:
     depends_on:
       postgres-dev:
         condition: service_healthy
-    profiles: ["dev", "tools"]
+    profiles: [ "dev", "tools" ]
     restart: on-failure
 
 networks:
