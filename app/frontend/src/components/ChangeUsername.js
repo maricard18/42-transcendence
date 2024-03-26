@@ -80,7 +80,7 @@ export default function ChangeUsername() {
                 <div className="position-relative">
                     {errors && <p className="form-error">{errors.message}</p>}
                     {success && (<p className="form-success">{success.message}</p>)}
-                    <div className="d-flex justify-content-center mb-1">
+                    <div className="mb-1">
                         <Input
                             type="text"
                             id="username"
@@ -96,7 +96,7 @@ export default function ChangeUsername() {
                             username
                         </Input>
                     </div>
-                    <div className="d-flex justify-content-center mb-1">
+                    <div className="mb-1">
                         <Input
                             type="email"
                             id="email"
@@ -109,7 +109,7 @@ export default function ChangeUsername() {
                             email
                         </Input>
                     </div>
-                    <div className="row justify-content-center mb-1">
+                    <div>
                         <SubmitButton
                             template="secondary-button"
                             onClick={handleValidation}

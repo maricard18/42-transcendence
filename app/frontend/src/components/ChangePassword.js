@@ -66,7 +66,7 @@ export default function ChangePassword() {
                 <div className="position-relative">
                     {errors && <p className="form-error">{errors.message}</p>}
                     {success && (<p className="form-success">{success.message}</p>)}
-                    <div className="d-flex justify-content-center mb-1">
+                    <div className="mb-1">
                         <Input
                             type="password"
                             id="password"
@@ -82,7 +82,7 @@ export default function ChangePassword() {
                             new password
                         </Input>
                     </div>
-                    <div className="d-flex justify-content-center mb-1">
+                    <div className="mb-1">
                         <Input
                             type="password"
                             id="confirm-password"
@@ -100,7 +100,7 @@ export default function ChangePassword() {
                             confirm new password
                         </Input>
                     </div>
-                    <div className="row justify-content-center mb-1">
+                    <div>
                         <SubmitButton
                             template="secondary-button"
                             onClick={handleValidation}

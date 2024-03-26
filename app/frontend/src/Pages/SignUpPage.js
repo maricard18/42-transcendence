@@ -142,7 +142,7 @@ export default function SignUpPage() {
                                     confirm password
                                 </Input>
                             </div>
-                            <div className="mb-1">
+                            <div>
                                 <SubmitButton
                                     template="secondary-button"
                                     onClick={handleValidation}

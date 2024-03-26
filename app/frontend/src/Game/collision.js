@@ -33,7 +33,6 @@ export function checkCpuCollision(ball, player)
 
 			let distance = Math.abs(ball.y - (player.y + player.height / 2)) / (player.height / 2);
         	ball.speed_y += distance;
-			console.log(distance);
 		}
 	else if (ball.speed_y > 0 && ball.speed_x > 0 &&
 		ball.x + ball.radius >= player.x &&

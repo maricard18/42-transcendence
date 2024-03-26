@@ -7,7 +7,16 @@ import "bootstrap/dist/css/bootstrap.css";
 export default function HomePage() {
     return (
         <div className="container">
-            <div className="d-flex flex-column flex-md-row align-items-center justify-content-evenly vh-100">
+            <div
+                className="
+				d-flex 
+				flex-column 
+				flex-md-row 
+				align-items-center 
+				justify-content-center 
+				justify-content-md-evenly 
+				vh-100"
+            >
                 <Outlet />
             </div>
         </div>

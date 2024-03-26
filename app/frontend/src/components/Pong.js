@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { startGame } from "../Game/pongGameCode";
 import "bootstrap/dist/css/bootstrap.css";
 
