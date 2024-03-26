@@ -1,14 +1,11 @@
-import React, { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../components/Context";
+import React from "react";
+import { Outlet } from "react-router-dom";
 import NavButton from "../components/NavButton";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
 
 export default function ProfilePage({ children }) {
-    const navigate = useNavigate();
 
-    const { authed, setAuthed } = useContext(AuthContext);
 
     return (
         <div className="center">
@@ -43,7 +40,7 @@ export default function ProfilePage({ children }) {
                 </div>
                 <div className="d-flex justify-content-center">
                     <div className="col justify-content-center ms-5">
-                        {children}
+                        <Outlet />
                     </div>
                 </div>
             </div>

@@ -5,6 +5,8 @@ import LandingPage from "./LandingPage";
 import SignUpPage from "./SignUpPage";
 import LoginPage from "./LoginPage";
 import HomePage from "./HomePage";
+import { Game1, Game2 } from "../components/Games";
+import { MenuOptions } from "../components/Options";
 import ProfilePage from "./ProfilePage";
 import PongPage from "./PongPage";
 import NavigationBar from "../components/NavigationBar";
@@ -52,32 +54,45 @@ const router = createBrowserRouter([
             {
                 path: "",
                 element: <HomePage />,
-            },
-            {
-                path: "pong-game",
-                element: <PongPage />,
-            },
-            {
-                path: "profile",
                 children: [
                     {
-                        path: "username",
+                        path: "",
                         element: (
-                            <ProfilePage>
-                                <ChangeUsername />
-                            </ProfilePage>
+                            <>
+                                <Game1 />
+                                <Game2 />
+                            </>
                         ),
                     },
                     {
-                        path: "password",
+                        path: "pong-game/options",
                         element: (
-                            <ProfilePage>
-                                <ChangePassword />
-                            </ProfilePage>
+                            <>
+                                <Game1 />
+                                <MenuOptions />
+                            </>
                         ),
                     },
                 ],
             },
+            {
+                path: "profile",
+                element: <ProfilePage />,
+                children: [
+                    {
+                        path: "username",
+                        element: <ChangeUsername />,
+                    },
+                    {
+                        path: "password",
+                        element: <ChangePassword />,
+                    },
+                ],
+            },
+			{
+				path: "pong-game/play",
+				element: <PongPage />,
+			},
         ],
     },
 ]);
