@@ -1,5 +1,5 @@
 import React, { useEffect, useContext } from "react";
-import { Outlet, Link } from "react-router-dom";
+import { Outlet, Link, useLocation } from "react-router-dom";
 import NavButton from "../components/NavButton";
 import getUserInfo from "../functions/getUserInfo";
 import { AuthContext, UserInfoContext } from "../components/Context";
@@ -13,6 +13,12 @@ import "bootstrap/dist/js/bootstrap.bundle.js";
 export default function NavigationBar() {
     const { setAuthed } = useContext(AuthContext);
     const { userInfo, setUserInfo } = useContext(UserInfoContext);
+	const location = useLocation();
+	let template = "dropdown";
+
+	if (location.pathname == "/menu/profile/username" ||
+		location.pathname == "/menu/profile/username/")
+		template = "dropdown"
 
     useEffect(() => {
         const fetchUserInfo = async () => {
@@ -42,8 +48,9 @@ export default function NavigationBar() {
                 <div className="btn-group me-5">
                     <button
                         type="button"
-                        className="btn btn-secondary dropdown-toggle navbar-icon"
-                        data-bs-toggle="dropdown"
+						//className="btn btn-secondary dropdown-toggle navbar-icon"
+                        className="btn btn-secondary navbar-icon"
+                        data-bs-toggle={template}
                         data-bs-display="static"
                         aria-expanded="false"
                     >

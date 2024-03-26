@@ -40,6 +40,9 @@ export default function ProfilePage() {
                             <NavButton template="white-button" page="/menu/profile/username">
                                 Change Avatar
                             </NavButton>
+                            <NavButton template="primary-button" page="/">
+                                Logout
+                            </NavButton>
                         </div>
                     </div>
                 </div>

@@ -7,7 +7,7 @@ import "bootstrap/dist/css/bootstrap.css";
 export function GameMenuOptions() {
     return (
         <div className="d-flex flex-column">
-            <div className="mb-1">
+            <div className="mb-3">
                 <NavButton
                     template="primary-button"
                     page="/menu/pong-game/single-player"
@@ -15,7 +15,7 @@ export function GameMenuOptions() {
                     Single Player
                 </NavButton>
             </div>
-            <div className="mb-1">
+            <div className="mb-3">
                 <NavButton
                     template="primary-button"
                     page="/menu/pong-game/multiplayer"
@@ -35,7 +35,7 @@ export function GameMenuOptions() {
 export function SinglePlayerOptions() {
     return (
         <div className="d-flex flex-column">
-            <div className="mb-1">
+            <div className="mb-3">
                 <NavButton
                     template="primary-button"
                     page="/menu/pong-game/create-or-join"
@@ -43,7 +43,7 @@ export function SinglePlayerOptions() {
                     Computer
                 </NavButton>
             </div>
-            <div className="mb-1">
+            <div className="mb-3">
                 <NavButton
                     template="primary-button"
                     page="/menu/pong-game/create-or-join"
@@ -51,7 +51,7 @@ export function SinglePlayerOptions() {
                     2 Players
                 </NavButton>
             </div>
-            <div className="mb-1">
+            <div className="mb-3">
                 <NavButton
                     template="primary-button"
                     page="/menu/pong-game/create-or-join"
@@ -74,7 +74,7 @@ export function SinglePlayerOptions() {
 export function MultiplayerOptions() {
     return (
         <div className="d-flex flex-column">
-            <div className="mb-1">
+            <div className="mb-3">
                 <NavButton
                     template="primary-button"
                     page="/menu/pong-game/create-or-join"
@@ -82,7 +82,7 @@ export function MultiplayerOptions() {
                     2 Players
                 </NavButton>
             </div>
-            <div className="mb-1">
+            <div className="mb-3">
                 <NavButton
                     template="primary-button"
                     page="/menu/pong-game/create-or-join"
@@ -90,7 +90,7 @@ export function MultiplayerOptions() {
                     4 Players
                 </NavButton>
             </div>
-            <div className="mb-1">
+            <div className="mb-3">
                 <NavButton
                     template="primary-button"
                     page="/menu/pong-game/create-or-join"
@@ -113,7 +113,7 @@ export function MultiplayerOptions() {
 export function TournamentOptions() {
     return (
         <div className="d-flex flex-column">
-            <div className="mb-1">
+            <div className="mb-3">
                 <NavButton
                     template="primary-button"
                     page="/menu/pong-game/create-or-join"
@@ -121,7 +121,7 @@ export function TournamentOptions() {
                     2 Players
                 </NavButton>
             </div>
-            <div className="mb-1">
+            <div className="mb-3">
                 <NavButton
                     template="primary-button"
                     page="/menu/pong-game/create-or-join"
@@ -129,7 +129,7 @@ export function TournamentOptions() {
                     4 Players
                 </NavButton>
             </div>
-            <div className="mb-1">
+            <div className="mb-3">
                 <NavButton
                     template="primary-button"
                     page="/menu/pong-game/create-or-join"
@@ -152,7 +152,7 @@ export function TournamentOptions() {
 export function CreateJoinOptions() {
     return (
         <div className="d-flex flex-column">
-            <div className="mb-1">
+            <div className="mb-3">
                 <NavButton
                     template="primary-button"
                     page="/menu/pong-game/play"
@@ -160,7 +160,7 @@ export function CreateJoinOptions() {
                     Create Game
                 </NavButton>
             </div>
-            <div className="mb-1">
+            <div className="mb-3">
                 <NavButton template="primary-button">
                     Join Game
                 </NavButton>
