@@ -27,6 +27,8 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get('DEBUG', default=False))
 
+APPEND_SLASH = False
+
 ALLOWED_HOSTS = []
 
 env_hosts = os.environ.get('ALLOWED_HOSTS')
@@ -36,16 +38,26 @@ if env_hosts is not None:
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'frontend.apps.FrontendConfig',
+    'django.contrib.staticfiles'
+]
+
+# Django Addons
+INSTALLED_APPS += [
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
+    'channels'
+]
+
+# User-defined apps
+INSTALLED_APPS += [
+    'frontend.apps.FrontendConfig',
     'api.apps.ApiConfig'
 ]
 
@@ -77,7 +89,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'app.wsgi.application'
+ASGI_APPLICATION = "app.asgi.application"
+# WSGI_APPLICATION = 'app.wsgi.application'
 
 
 # Database
@@ -191,4 +204,13 @@ SIMPLE_JWT = {
     "TOKEN_BLACKLIST_SERIALIZER": "rest_framework_simplejwt.serializers.TokenBlacklistSerializer",
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
+}
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [(os.environ.get("REDIS_HOST"), os.environ.get("REDIS_PORT"))],
+        },
+    },
 }
