@@ -76,7 +76,7 @@ export function hasToken() {
 	//! handle refreshToken here
 
 	//! return false
-    return true;
+    return false;
 }
 
 export function logout(setAuthed) {

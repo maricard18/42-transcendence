@@ -19,12 +19,10 @@ body {
 }
 
 .center {
-    margin: 0;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    -ms-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
 }
 
 #main {
@@ -42,20 +40,16 @@ body {
     color: white;
     text-align: center;
     font-family: "Source Sans 3", sans-serif;
+	position: relative;
 }
 
-.h1 {
+h1 {
     color: white;
     font-size: 500px;
     font-family: "Source Sans 3", sans-serif;
     font-weight: bold;
 }
 
-@keyframes star-animation {
-    from {
-        transform: translateY(0px);
-    }
-    to {
-        transform: translateY(-2000px);
-    }
+#stars, #stars2 {
+	z-index: -1;
 }

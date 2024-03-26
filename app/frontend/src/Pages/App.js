@@ -6,10 +6,10 @@ import SignUpPage from "./SignUpPage";
 import LoginPage from "./LoginPage";
 import HomePage from "./HomePage";
 import { Game1, Game2 } from "../components/Games";
-import { MenuOptions } from "../components/Options";
+import { GameMenuOptions, SinglePlayerOptions, MultiplayerOptions, CreateJoinOptions } from "../components/Options";
 import ProfilePage from "./ProfilePage";
-import PongPage from "./PongPage";
-import NavigationBar from "../components/NavigationBar";
+import Pong from "../components/Pong";
+import NavigationBar from "./NavigationBar";
 import { IsAuthed, IsNotAuthed } from "../components/Authed";
 import ChangeUsername from "../components/ChangeUsername";
 import ChangePassword from "../components/ChangePassword";
@@ -69,7 +69,34 @@ const router = createBrowserRouter([
                         element: (
                             <>
                                 <Game1 />
-                                <MenuOptions />
+                                <GameMenuOptions />
+                            </>
+                        ),
+                    },
+					{
+                        path: "pong-game/single-player",
+                        element: (
+                            <>
+                                <Game1 />
+                                <SinglePlayerOptions />
+                            </>
+                        ),
+                    },
+					{
+                        path: "pong-game/multiplayer",
+                        element: (
+                            <>
+                                <Game1 />
+                                <MultiplayerOptions />
+                            </>
+                        ),
+                    },
+					{
+                        path: "pong-game/create-or-join",
+                        element: (
+                            <>
+                                <Game1 />
+                                <CreateJoinOptions />
                             </>
                         ),
                     },
@@ -91,7 +118,7 @@ const router = createBrowserRouter([
             },
 			{
 				path: "pong-game/play",
-				element: <PongPage />,
+				element: <Pong />,
 			},
         ],
     },

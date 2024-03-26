@@ -4,32 +4,125 @@ import "../../static/css/Images.css";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
 
-export function MenuOptions() {
+export function GameMenuOptions() {
     return (
         <div className="d-flex flex-column">
-            <div className="d-flex flex-row justify-content-center">
-                <NavButton template="primary-button btn-small full-width" page="/menu/pong-game/play">
+			<div className="mb-1">
+                <NavButton template="primary-button btn-small full-width" page="/menu/pong-game/single-player">
+                   Single Player
+                </NavButton>
+            </div>
+            <div className="mb-1">
+                <NavButton template="primary-button btn-small full-width" page="/menu/pong-game/multiplayer">
                     Multiplayer
                 </NavButton>
             </div>
-            <div className="d-flex flex-row justify-content-center">
-                <NavButton template="primary-button btn-small full-width">
+			<div className="mb-1">
+                <NavButton template="secondary-button btn-small full-width" page="/menu">
+                    Back
+                </NavButton>
+            </div>
+        </div>
+    );
+}
+
+export function SinglePlayerOptions() {
+    return (
+        <div className="d-flex flex-column">
+			<div className="mb-1">
+                <NavButton template="primary-button btn-small full-width" page="/menu/pong-game/create-or-join">
+                    Computer
+                </NavButton>
+            </div>
+            <div className="mb-1">
+                <NavButton template="primary-button btn-small full-width" page="/menu/pong-game/create-or-join">
+                    2 Players
+                </NavButton>
+            </div>
+            <div className="mb-1">
+                <NavButton template="primary-button btn-small full-width" page="/menu/pong-game/create-or-join">
                     Tournament
                 </NavButton>
             </div>
-			<div className="d-flex flex-row justify-content-center">
-                <NavButton template="primary-button btn-small full-width">
-                    Local Game
+			<div className="mb-1">
+                <NavButton template="secondary-button btn-small full-width" page="/menu/pong-game/options">
+                    Back
                 </NavButton>
             </div>
-			<div className="d-flex flex-row justify-content-center">
-                <NavButton template="primary-button btn-small full-width">
-                    Local Tournaments
+        </div>
+    );
+}
+
+export function MultiplayerOptions() {
+    return (
+        <div className="d-flex flex-column">
+            <div className="mb-1">
+                <NavButton template="primary-button btn-small full-width" page="/menu/pong-game/create-or-join">
+                    2 Players
                 </NavButton>
             </div>
-			<div className="d-flex flex-row justify-content-center">
-                <NavButton template="secondary-button btn-small full-width" page="/menu">
-                    Main Menu
+            <div className="mb-1">
+                <NavButton template="primary-button btn-small full-width" page="/menu/pong-game/create-or-join">
+                    4 Players
+                </NavButton>
+            </div>
+			<div className="mb-1">
+                <NavButton template="primary-button btn-small full-width" page="/menu/pong-game/create-or-join">
+                    Tournament
+                </NavButton>
+            </div>
+			<div className="mb-1">
+                <NavButton template="secondary-button btn-small full-width" page="/menu/pong-game/options">
+                    Back
+                </NavButton>
+            </div>
+        </div>
+    );
+}
+
+export function TournamentOptions() {
+    return (
+        <div className="d-flex flex-column">
+            <div className="mb-1">
+                <NavButton template="primary-button btn-small full-width" page="/menu/pong-game/create-or-join">
+                    2 Players
+                </NavButton>
+            </div>
+            <div className="mb-1">
+                <NavButton template="primary-button btn-small full-width" page="/menu/pong-game/create-or-join">
+                    4 Players
+                </NavButton>
+            </div>
+			<div className="mb-1">
+                <NavButton template="primary-button btn-small full-width" page="/menu/pong-game/create-or-join">
+                    Tournament
+                </NavButton>
+            </div>
+			<div className="mb-1">
+                <NavButton template="secondary-button btn-small full-width" page="/menu/pong-game/multiplayer">
+                    Back
+                </NavButton>
+            </div>
+        </div>
+    );
+}
+
+export function CreateJoinOptions() {
+    return (
+        <div className="d-flex flex-column">
+            <div className="mb-1">
+                <NavButton template="primary-button btn-small full-width" page="/menu/pong-game/play">
+                    Create Game
+                </NavButton>
+            </div>
+            <div className="mb-1">
+                <NavButton template="primary-button btn-small full-width">
+                    Join Game
+                </NavButton>
+            </div>
+			<div className="mb-1">
+                <NavButton template="secondary-button btn-small full-width" page="/menu/pong-game/single-player">
+                    Back
                 </NavButton>
             </div>
         </div>

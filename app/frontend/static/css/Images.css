@@ -1,3 +1,11 @@
 .square {
 	width: 300px;
 }
+
+.game {
+    border: solid 7px transparent;
+}
+
+.game:hover {
+    border-color: white;
+}

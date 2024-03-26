@@ -15,12 +15,11 @@ export default function LoginPage() {
     const navigate = useNavigate();
 
     const { setAuthed } = useContext(AuthContext);
-	const [errors, setErrors] = useState({});
+    const [errors, setErrors] = useState({});
     const [formData, setFormData] = useState({
-        username: '',
-        password: '',
+        username: "",
+        password: "",
     });
-
 
     const handleValidation = async () => {
         let newErrors = validateLoginForm(formData, setFormData);
@@ -34,10 +33,10 @@ export default function LoginPage() {
             };
 
             const response = await fetchData(
-                '/api/tokens/',
-                'POST',
-                { 'Content-type': 'application/json' },
-                input,
+                "/api/tokens/",
+                "POST",
+                { "Content-type": "application/json" },
+                input
             );
 
             if (response.ok) {
@@ -54,60 +53,66 @@ export default function LoginPage() {
         }
     };
 
-	checkEnterButton(handleValidation);
+    checkEnterButton(handleValidation);
 
     return (
-        <section className="center">
-            <div className="container">
-                <h1 className="header mb-5">Welcome back</h1>
-                <form>
-                    <div className="position-relative">
-                        {errors && (
-                            <p className="form-error">{errors.message}</p>
-                        )}
-                        <div className="d-flex justify-content-center mb-1">
-                            <Input
-                                type="text"
-                                id="username"
-                                template={errors.username ? "input-error" : ""}
-                                value={formData.username}
-                                setValue={(value) =>
-                                    setFormData({
-                                        ...formData,
-                                        username: value,
-                                    })
-                                }
-                            >
-                                username or email
-                            </Input>
+        <div className="container">
+            <div className="center">
+                <div className="d-flex flex-column justify-content-center">
+                    <h1 className="header mb-5">Welcome back</h1>
+                    <form>
+                        <div className="position-relative">
+                            {errors && (
+                                <p className="form-error">{errors.message}</p>
+                            )}
+                            <div className="mb-1">
+                                <Input
+                                    type="text"
+                                    id="username"
+                                    template={
+                                        errors.username ? "input-error" : ""
+                                    }
+                                    value={formData.username}
+                                    setValue={(value) =>
+                                        setFormData({
+                                            ...formData,
+                                            username: value,
+                                        })
+                                    }
+                                >
+                                    username or email
+                                </Input>
+                            </div>
+                            <div className="mb-1">
+                                <Input
+                                    type="password"
+                                    id="password"
+                                    template={
+                                        errors.password ? "input-error" : ""
+                                    }
+                                    value={formData.password}
+                                    setValue={(value) =>
+                                        setFormData({
+                                            ...formData,
+                                            password: value,
+                                        })
+                                    }
+                                >
+                                    password
+                                </Input>
+                            </div>
+                            <div className="mb-1">
+                                <SubmitButton
+                                    template="secondary-button"
+                                    onClick={handleValidation}
+                                >
+                                    Next
+                                </SubmitButton>
+                            </div>
                         </div>
-                        <div className="d-flex justify-content-center mb-1">
-                            <Input
-                                type="password"
-                                id="password"
-                                template={errors.password ? "input-error" : ""}
-                                value={formData.password}
-                                setValue={(value) =>
-                                    setFormData({
-                                        ...formData,
-                                        password: value,
-                                    })
-                                }
-                            >
-                                password
-                            </Input>
-                        </div>
-                        <div className="row justify-content-center mb-1">
-                            <SubmitButton
-                                template="secondary-button"
-                                onClick={handleValidation}
-                            >
-                                Next
-                            </SubmitButton>
-                        </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
-        </section>
+        </div>
     );
 }

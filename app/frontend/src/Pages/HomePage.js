@@ -5,10 +5,10 @@ import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
 
 export default function HomePage() {
- return (
-        <div className="center">
-            <div className="d-flex justify-content-evenly">
-				<Outlet />
+    return (
+        <div className="container">
+            <div className="d-flex flex-column flex-md-row align-items-center justify-content-evenly vh-100">
+                <Outlet />
             </div>
         </div>
     );
