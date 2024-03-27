@@ -11,10 +11,10 @@ class JWTAuthMiddleware(BaseMiddleware):
 
     async def __call__(self, scope, receive, send):
         headers = dict(scope['headers'])
-        if b'authorization' in headers:
+        if b'sec-websocket-protocol' in headers:
             try:
-                token_type, token_key = headers[b'authorization'].split()
-                if token_type.lower() == b'bearer':
+                token_type, token_key = headers[b'sec-websocket-protocol'].split(b", ")
+                if token_type == b'Authorization':
                     access_token = AccessToken(token_key)
                     scope['user'] = int(access_token.get('user_id'))
             except TokenError:

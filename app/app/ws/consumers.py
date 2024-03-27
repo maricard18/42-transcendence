@@ -59,7 +59,7 @@ class GameConsumer(JsonWebsocketConsumer):
                 self.room_group_name, self.channel_name
             )
 
-            self.accept()
+            self.accept("Authorization")
             self.check_queue()
         else:
             raise DenyConnection()
