@@ -3,9 +3,9 @@
 }
 
 .game {
-    border: solid 7px transparent;
+    outline: 3px solid transparent;
 }
 
 .game:hover {
-    border-color: white;
+    outline-color: white;
 }

@@ -15,7 +15,8 @@ export default function HomePage() {
 				align-items-center 
 				justify-content-center 
 				justify-content-md-evenly 
-				vh-100"
+				vh-100
+				row"
             >
                 <Outlet />
             </div>

@@ -73,9 +73,6 @@ export function hasToken() {
     if (accessToken)
 		return true;
 
-	//! handle refreshToken here
-
-	//! return false
     return false;
 }
 

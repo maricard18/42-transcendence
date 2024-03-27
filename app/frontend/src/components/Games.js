@@ -12,7 +12,7 @@ export function Game1() {
         gameSelected = true;
 
     return (
-        <div className="d-flex flex-column">
+        <div className="d-flex flex-column col-md-6">
             <div className="p-3 p-lg-5 pd-xl-0">
                 {gameSelected && (
                     <Link to="/menu/pong-game/options">
@@ -32,20 +32,25 @@ export function Game1() {
 
 export function Game2() {
     const location = useLocation();
-    let template = "";
+    let gameSelected = false;
 
     if (location.pathname == "/menu" || location.pathname == "/menu/")
-        template = "game";
+        gameSelected = true;
 
     return (
-        <div className="d-flex flex-column">
+        <div className="d-flex flex-column col-md-6">
             <div className="p-3 p-lg-5 pd-xl-0">
-                <Link to="">
-                    <img
-                        className={`square ${template}`}
-                        src="/static/images/pong.png"
-                    />
-                </Link>
+                {gameSelected && (
+                    <Link to="/menu/pong-game/options">
+                        <img
+                            className="square game"
+                            src="/static/images/pong.png"
+                        />
+                    </Link>
+                )}
+                {!gameSelected && (
+                    <img className="square" src="/static/images/pong.png" />
+                )}
             </div>
         </div>
     );

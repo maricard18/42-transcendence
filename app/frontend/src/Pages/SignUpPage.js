@@ -44,7 +44,7 @@ export default function SignUpPage() {
 
             if (response.ok) {
                 await createToken(formData, setAuthed);
-                navigate("/menu");
+				navigate("/menu");
             } else {
                 newErrors = await handleResponse(
                     response,
