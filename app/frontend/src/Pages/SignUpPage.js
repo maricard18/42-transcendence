@@ -36,7 +36,7 @@ export default function SignUpPage() {
             };
 
             const response = await fetchData(
-                "/api/users/",
+                "/api/users",
                 "POST",
                 { "Content-type": "application/json" },
                 input

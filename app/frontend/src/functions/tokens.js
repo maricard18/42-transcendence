@@ -9,7 +9,7 @@ export async function createToken(userData, setAuthed) {
     };
 
     const response = await fetchData(
-        "/api/tokens/",
+        "/api/tokens",
         "POST",
         { "Content-type": "application/json" },
         data
@@ -46,7 +46,7 @@ export async function refreshToken(setAuthed) {
     };
 
     const response = await fetchData(
-        "/api/tokens/",
+        "/api/tokens",
         "POST",
         { "Content-type": "application/json" },
         data

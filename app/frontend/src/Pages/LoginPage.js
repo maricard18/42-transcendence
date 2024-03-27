@@ -33,7 +33,7 @@ export default function LoginPage() {
             };
 
             const response = await fetchData(
-                "/api/tokens/",
+                "/api/tokens",
                 "POST",
                 { "Content-type": "application/json" },
                 input

@@ -35,38 +35,44 @@ export default function ChangeUsername() {
 		setSuccess({});
 
         if (!newErrors.message) {
-            const input = {
-                username: formData.username,
-                email: formData.email,
-            };
+			const input = {};
+			
+			if (formData.username != userInfo.username)
+				input.username = formData.username;
+			if (formData.email != userInfo.email)
+				input.email = formData.email;
+			if (Object.keys(input).length === 0) {
+				console.log("Here!");
+				return ;
+			}
 
-            const response = await fetchData(
-                "/api/users/" + userInfo.id + "/",
-                "PUT",
-                {
-                    "Content-type": "application/json",
-                    Authorization: "Bearer " + (await getToken(setAuthed)),
-                },
-                input
-            );
+			const response = await fetchData(
+					"/api/users/" + userInfo.id,
+					"PUT",
+					{
+						"Content-type": "application/json",
+						Authorization: "Bearer " + (await getToken(setAuthed)),
+					},
+					input
+				);
 
-            if (!response.ok) {
-                newErrors = await handleResponse(
-                    response,
-                    formData,
-                    setFormData
-                );
-                setErrors(newErrors);
+			if (!response.ok) {
+				newErrors = await handleResponse(
+					response,
+					formData,
+					setFormData
+				);
+				setErrors(newErrors);
 				setSuccess({});
-            } else {
-                setUserInfo({
-                    ...userInfo,
-                    username: formData.username,
-                    email: formData.email,
-                });
-                setSuccess({ message: "Changes saved" });
-            }
-        }
+			} else {
+				setUserInfo({
+					...userInfo,
+					username: formData.username,
+					email: formData.email,
+				});
+				setSuccess({ message: "Changes saved" });
+			}
+		}
     };
 
     checkEnterButton(handleValidation);

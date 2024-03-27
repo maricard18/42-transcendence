@@ -32,7 +32,7 @@ export default function ChangePassword() {
             };
 
             const response = await fetchData(
-                "/api/users/" + userInfo.id + "/",
+                "/api/users/" + userInfo.id,
                 "PUT",
                 {
                     "Content-type": "application/json",

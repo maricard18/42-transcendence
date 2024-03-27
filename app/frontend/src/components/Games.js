@@ -3,36 +3,41 @@ import { Link, useLocation } from "react-router-dom";
 import "../../static/css/Images.css";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
-	
-export function Game1() {
-	const location = useLocation();
-	let template = "";
 
-	if (location.pathname == "/menu" || location.pathname == "/menu/")
-		template = "game"
+export function Game1() {
+    const location = useLocation();
+    let gameSelected = false;
+
+    if (location.pathname == "/menu" || location.pathname == "/menu/")
+        gameSelected = true;
 
     return (
         <div className="d-flex flex-column">
             <div className="p-3 p-lg-5 pd-xl-0">
-                <Link to="/menu/pong-game/options">
-                    <img
-                        className={`square ${template}`}
-                        src="/static/images/pong.png"
-                    />
-                </Link>
+                {gameSelected && (
+                    <Link to="/menu/pong-game/options">
+                        <img
+                            className="square game"
+                            src="/static/images/pong.png"
+                        />
+                    </Link>
+                )}
+                {!gameSelected && (
+                    <img className="square" src="/static/images/pong.png" />
+                )}
             </div>
         </div>
     );
 }
 
 export function Game2() {
-	const location = useLocation();
-	let template = "";
+    const location = useLocation();
+    let template = "";
 
-	if (location.pathname == "/menu" || location.pathname == "/menu/")
-		template = "game"
+    if (location.pathname == "/menu" || location.pathname == "/menu/")
+        template = "game";
 
-	return (
+    return (
         <div className="d-flex flex-column">
             <div className="p-3 p-lg-5 pd-xl-0">
                 <Link to="">

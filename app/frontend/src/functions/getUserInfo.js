@@ -6,7 +6,7 @@ export default async function getUserInfo(setAuthed) {
     const decodeToken = await decode(accessToken);
 
     const response = await fetchData(
-        "/api/users/" + decodeToken["user_id"] + "/",
+        "/api/users/" + decodeToken["user_id"],
         "GET",
         {
             "Content-type": "application/json",
