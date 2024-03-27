@@ -5,7 +5,7 @@ class APIRouter(DefaultRouter):
     routes = [
         # List route.
         Route(
-            url=r'^{prefix}{trailing_slash}$',
+            url=r'^{prefix}$',
             mapping={
                 'get': 'list',
                 'post': 'create'
@@ -17,14 +17,14 @@ class APIRouter(DefaultRouter):
         # Dynamically generated list routes. Generated using
         # @action(detail=False) decorator on methods of the viewset.
         DynamicRoute(
-            url=r'^{prefix}/{url_path}{trailing_slash}$',
+            url=r'^{prefix}/{url_path}$',
             name='{basename}-{url_name}',
             detail=False,
             initkwargs={}
         ),
         # Detail route.
         Route(
-            url=r'^{prefix}/{lookup}{trailing_slash}$',
+            url=r'^{prefix}/{lookup}$',
             mapping={
                 'get': 'retrieve',
                 'put': 'update',
@@ -38,7 +38,7 @@ class APIRouter(DefaultRouter):
         # Dynamically generated detail routes. Generated using
         # @action(detail=True) decorator on methods of the viewset.
         DynamicRoute(
-            url=r'^{prefix}/{lookup}/{url_path}{trailing_slash}$',
+            url=r'^{prefix}/{lookup}/{url_path}$',
             name='{basename}-{url_name}',
             detail=True,
             initkwargs={}

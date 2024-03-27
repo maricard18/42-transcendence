@@ -23,7 +23,7 @@ class UserViewSet(viewsets.ViewSet):
     def list(self, request):
         return Response(UserSerializer(self.queryset, many=True).data)
 
-    # POST /api/users/
+    # POST /api/users
     def create(self, request):
         serializer = CreateUserSerializer(data=request.data)
         if serializer.is_valid():
@@ -45,8 +45,8 @@ class UserViewSet(viewsets.ViewSet):
 
         return Response(UserSerializer(user).data)
 
-    # PUT /api/users/:id/
-    # PUT /api/users/:username/
+    # PUT /api/users/:id
+    # PUT /api/users/:username
     def update(self, request, pk=None):
         user = get_user(pk)
         if not user:
@@ -66,8 +66,8 @@ class UserViewSet(viewsets.ViewSet):
             return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         return Response({'errors': {'message': 'Unauthorized', 'code': 401}}, status=status.HTTP_401_UNAUTHORIZED)
 
-    # DELETE /api/users/:id/
-    # DELETE /api/users/:username/
+    # DELETE /api/users/:id
+    # DELETE /api/users/:username
     def destroy(self, request, pk=None):
         user = get_user(pk)
         if not user:
@@ -135,7 +135,7 @@ class TokenViewSet(viewsets.ViewSet):
             'refresh_token': str(refresh_token)
         }, status=status.HTTP_200_OK)
 
-    # POST /api/tokens/
+    # POST /api/tokens
     def create(self, request):
         serializer = TokenSerializer(data=request.data)
         if serializer.is_valid():
