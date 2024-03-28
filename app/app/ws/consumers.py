@@ -2,9 +2,8 @@ import json
 import secrets
 
 from asgiref.sync import async_to_sync
-from channels.exceptions import DenyConnection, StopConsumer
+from channels.exceptions import StopConsumer
 from channels.generic.websocket import JsonWebsocketConsumer
-from django.contrib.auth.models import AnonymousUser
 
 from .middleware import GameMiddleware
 
@@ -14,19 +13,18 @@ class GameConsumer(JsonWebsocketConsumer):
         super().__init__(*args, **kwargs)
         self.room_group_name = None
         self.game_player_amount = None
+        self.queue = None
 
     def check_queue(self):
-        queue = GameMiddleware.user_ids[self.room_group_name]
-        if len(queue) % self.game_player_amount == 0:
+        if len(self.queue) % self.game_player_amount == 0:
             game_uid = secrets.token_urlsafe()
             selected_users = {}
             players = {}
             for index in range(self.game_player_amount):
-                user_id = int(next(iter(queue)))
-                channel_name = GameMiddleware.get_user_uid(self.room_group_name, user_id)
-                selected_users[str(user_id)] = channel_name
-                players["player_%s" % (index + 1)] = int(user_id)
-                GameMiddleware.remove_user(self.room_group_name, user_id)
+                user_id = int(next(iter(self.queue)))
+                selected_users[user_id] = self.queue[user_id]
+                players["player_%s" % (index + 1)] = user_id
+                self.queue.pop(user_id, None)
 
             async_to_sync(self.channel_layer.group_send)(
                 self.room_group_name, {
@@ -38,22 +36,22 @@ class GameConsumer(JsonWebsocketConsumer):
                 }
             )
 
-            for _, channel_name in selected_users.items():
+            for user_id, channel_name in selected_users.items():
                 async_to_sync(self.channel_layer.group_discard)(
                     self.room_group_name, channel_name
                 )
                 async_to_sync(self.channel_layer.group_add)(
                     "game_%s" % game_uid, channel_name
                 )
-
-            async_to_sync(self.channel_layer.group_send)(
-                "game_%s" % game_uid, {
-                    "type": "system.message",
-                    "data": {
-                        "message": "user.connected"
+                async_to_sync(self.channel_layer.group_send)(
+                    "game_%s" % game_uid, {
+                        "type": "system.message",
+                        "data": {
+                            "message": "user.connected",
+                            "user_id": user_id
+                        }
                     }
-                }
-            )
+                )
 
     def connect(self):
         user_id = self.scope["user"]
@@ -61,21 +59,30 @@ class GameConsumer(JsonWebsocketConsumer):
         self.game_player_amount = int(self.scope["url_route"]["kwargs"]["player_amount"])
         self.room_group_name = "game_%s_queue_%s" % (game_id, self.game_player_amount)
 
-        if not isinstance(user_id, AnonymousUser):
-            GameMiddleware.add_user_uid(self.room_group_name, user_id, self.channel_name)
+        self.queue = GameMiddleware.queue.setdefault(self.room_group_name, {})
+        self.queue[user_id] = self.channel_name
 
-            # Join room group
-            async_to_sync(self.channel_layer.group_add)(
-                self.room_group_name, self.channel_name
-            )
+        # Join room group
+        async_to_sync(self.channel_layer.group_add)(
+            self.room_group_name, self.channel_name
+        )
 
-            self.accept("Authorization")
-            self.check_queue()
-        else:
-            raise DenyConnection()
+        self.accept("Authorization")
+        self.check_queue()
 
     def disconnect(self, close_code):
-        GameMiddleware.remove_user(self.room_group_name, self.scope['user'])
+        self.queue.pop(self.scope["user"], None)
+
+        async_to_sync(self.channel_layer.group_send)(
+            self.room_group_name,
+            {
+                "type": "system.message",
+                "data": {
+                    "message": "user.disconnected",
+                    "user_id": self.scope["user"]
+                }
+            }
+        )
 
         # Leave room group
         async_to_sync(self.channel_layer.group_discard)(
