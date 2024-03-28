@@ -1,5 +1,6 @@
 import { getToken } from "./tokens";
 import fetchData from "./fetchData";
+import { logError } from "./utils";
 
 export default async function getUserInfo(setAuthed) {
     let accessToken, decodeToken, jsonData;
@@ -7,14 +8,14 @@ export default async function getUserInfo(setAuthed) {
 	try {
         accessToken = await getToken(setAuthed);
     } catch (error) {
-        console.log("Error getting token: ", error);
+        logError("failed to get token -> ", error);
         return null;
     }
 
     try {
         decodeToken = await decode(accessToken);
     } catch (error) {
-        console.log("Error decoding token: ", error);
+        logError("failed to decode token -> ", error);
         return null;
     }
 
@@ -28,14 +29,14 @@ export default async function getUserInfo(setAuthed) {
     );
 
     if (!response.ok) {
-        console.log("Error: error while fetching user data");
+        logError("failed to fetch user data.");
 		return null;
     }
 
     try {
         jsonData = await response.json();
     } catch (error) {
-        console.log("Error parsing response: ", error);
+        logError("failed to parse response -> ", error);
         return null;
     }
 

@@ -1,5 +1,6 @@
 import Cookies from "js-cookie";
 import fetchData from "./fetchData";
+import { logError } from "./utils";
 
 export async function createToken(userData, setAuthed) {
     const data = {
@@ -16,7 +17,7 @@ export async function createToken(userData, setAuthed) {
     );
 
     if (!response.ok) {
-        console.log("Error: error while creating authentication token");
+        logError("failed to create authentication token.");
         return false;
     }
 
@@ -46,7 +47,7 @@ export async function setToken(response, setAuthed) {
         setAuthed(true);
         return true;
     } catch (error) {
-        console.log("Error setting token: ", error);
+        logError("failed to set Cookies -> ", error);
         return false;
     }
 }
@@ -54,7 +55,7 @@ export async function setToken(response, setAuthed) {
 export async function refreshToken(setAuthed) {
     const refreshToken = Cookies.get("refresh_token");
     if (!refreshToken) {
-        console.log("Error: refresh token doesn't exist");
+        logError("refresh_token doesn't exist.");
         return false;
     }
 
@@ -71,7 +72,7 @@ export async function refreshToken(setAuthed) {
     );
 
     if (!response.ok) {
-        console.log("Error: error while refreshing authentication token");
+        logError("failed to refresh access_token.");
         return false;
     }
 

@@ -65,7 +65,7 @@ export default function SignUpPage() {
             <div className="center">
                 <div className="d-flex flex-column justify-content-center">
                     <form>
-                        <div className="mb-4">
+                        <div className="mb-5">
                             <Avatar />
                         </div>
                         <div className="position-relative">

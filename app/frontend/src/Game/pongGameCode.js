@@ -15,14 +15,13 @@ import { getToken } from "../functions/tokens";
 
 export async function startGame(canvas, setAuthed) {
 	const token = await getToken(setAuthed);
-	console.log(token);
     const ws  = new WebSocket(
         "ws://localhost:8000/ws/games/1/queue/2",
         ["Authorization", token]
     );
 
 	ws.addEventListener("message", (event) => {
-		console.log("Message from server ", event.data);
+		console.log("Message from server: ", event.data);
 	});
 
     const ctx = canvas.getContext("2d");

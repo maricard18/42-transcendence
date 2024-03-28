@@ -42,7 +42,6 @@ export default function ChangeUsername() {
 			if (formData.email != userInfo.email)
 				input.email = formData.email;
 			if (Object.keys(input).length === 0) {
-				console.log("Here!");
 				return ;
 			}
 

@@ -9,6 +9,7 @@ import "../../static/css/Menu.css";
 import "../../static/css/HomePage.css";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.bundle.js";
+import { logError } from "../functions/utils";
 
 export default function NavigationBar() {
     const { setAuthed } = useContext(AuthContext);
@@ -31,7 +32,7 @@ export default function NavigationBar() {
 					id: userData.id,
 				});
 			} else {
-				console.log("Error: Failed to fetch user data");
+				logError("failed to fetch user data.");
 			}
         };
 
