@@ -9,6 +9,8 @@ urlpatterns = [
 	re_path(r'^menu/pong-game/options/?$', RenderIndex),
 	re_path(r'^menu/pong-game/single-player/?$', RenderIndex),
 	re_path(r'^menu/pong-game/multiplayer/?$', RenderIndex),
+	re_path(r'^menu/pong-game/multiplayer/waiting-room/2/?$', RenderIndex),
+	re_path(r'^menu/pong-game/multiplayer/waiting-room/4/?$', RenderIndex),
 	re_path(r'^menu/pong-game/single-player-tournament/?$', RenderIndex),
 	re_path(r'^menu/pong-game/multiplayer-tournament/?$', RenderIndex),
 	re_path(r'^menu/pong-game/play/?$', RenderIndex),

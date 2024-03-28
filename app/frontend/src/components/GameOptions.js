@@ -1,7 +1,11 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import NavButton from "./NavButton";
-import { PreviousLocationContext } from "./Context";
-import { useLocation } from "react-router-dom";
+import { PreviousLocationContext, UserInfoContext } from "./Context";
+import { useLocation, Await } from "react-router-dom";
+import { connectWebsocket } from "../functions/websocket";
+import fetchData from "../functions/fetchData";
+import { getToken } from "../functions/tokens";
+import { logError } from "../functions/utils";
 import "../../static/css/Images.css";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
@@ -39,8 +43,8 @@ export function GameMenuOptions() {
 export function SinglePlayerOptions() {
     const location = useLocation();
     const { setPreviousLocation } = useContext(PreviousLocationContext);
-    
-	useEffect(() => {
+
+    useEffect(() => {
         setPreviousLocation(location.pathname);
     }, [location.pathname]);
 
@@ -87,8 +91,8 @@ export function SinglePlayerOptions() {
 export function MultiplayerOptions() {
     const location = useLocation();
     const { setPreviousLocation } = useContext(PreviousLocationContext);
-    
-	useEffect(() => {
+
+    useEffect(() => {
         setPreviousLocation(location.pathname);
     }, [location.pathname]);
 
@@ -98,7 +102,7 @@ export function MultiplayerOptions() {
                 <div className="mb-3">
                     <NavButton
                         template="primary-button"
-                        page="/menu/pong-game/play"
+                        page="/menu/pong-game/multiplayer/waiting-room/2"
                     >
                         2 Players
                     </NavButton>
@@ -106,7 +110,7 @@ export function MultiplayerOptions() {
                 <div className="mb-3">
                     <NavButton
                         template="primary-button"
-                        page="/menu/pong-game/play"
+                        page="/menu/pong-game/multiplayer/waiting-room/4"
                     >
                         4 Players
                     </NavButton>

@@ -14,15 +14,15 @@ import {
 import { getToken } from "../functions/tokens";
 
 export async function startGame(canvas, setAuthed) {
-	const token = await getToken(setAuthed);
-    const ws  = new WebSocket(
-        "ws://localhost:8000/ws/games/1/queue/2",
-        ["Authorization", token]
-    );
+    const token = await getToken(setAuthed);
+    const ws = new WebSocket("ws://localhost:8000/ws/games/1/queue/2", [
+        "Authorization",
+        token,
+    ]);	
 
-	ws.addEventListener("message", (event) => {
-		console.log("Message from server: ", event.data);
-	});
+    ws.addEventListener("message", (event) => {
+        console.log("Message from server: ", event.data);
+    });
 
     const ctx = canvas.getContext("2d");
 
@@ -30,13 +30,13 @@ export async function startGame(canvas, setAuthed) {
 
     window.addEventListener("keydown", (event) => {
         if (keys.hasOwnProperty(event.key)) {
-			keys[event.key] = true;
-		} 
+            keys[event.key] = true;
+        }
     });
     window.addEventListener("keyup", (event) => {
         if (keys.hasOwnProperty(event.key)) {
-			keys[event.key] = false;
-		} 
+            keys[event.key] = false;
+        }
     });
 
     let last_time = Date.now();

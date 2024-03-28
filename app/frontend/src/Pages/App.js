@@ -16,6 +16,7 @@ import {
     MultiplayerOptions,
     TournamentOptions,
 } from "../components/GameOptions";
+import { MultiplayerWaitingRoom } from "../components/WaitingRoom";
 import ProfilePage from "./ProfilePage";
 import Pong from "../components/Pong";
 import NavigationBar from "./NavigationBar";
@@ -99,6 +100,24 @@ const router = createBrowserRouter([
                             <>
                                 <Game1 />
                                 <MultiplayerOptions />
+                            </>
+                        ),
+                    },
+					{
+                        path: "pong-game/multiplayer/waiting-room/2",
+                        element: (
+                            <>
+                                <Game1 />
+                                <MultiplayerWaitingRoom />
+                            </>
+                        ),
+                    },
+					{
+                        path: "pong-game/multiplayer/waiting-room/4",
+                        element: (
+                            <>
+                                <Game1 />
+                                <MultiplayerWaitingRoom />
                             </>
                         ),
                     },
