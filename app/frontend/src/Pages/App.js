@@ -1,6 +1,10 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import { AuthProvider, UserInfoProvider } from "../components/Context";
+import {
+    AuthProvider,
+    UserInfoProvider,
+    PreviousLocationProvider,
+} from "../components/Context";
 import LandingPage from "./LandingPage";
 import SignUpPage from "./SignUpPage";
 import LoginPage from "./LoginPage";
@@ -10,8 +14,8 @@ import {
     GameMenuOptions,
     SinglePlayerOptions,
     MultiplayerOptions,
-    CreateJoinOptions,
-} from "../components/Options";
+    TournamentOptions,
+} from "../components/GameOptions";
 import ProfilePage from "./ProfilePage";
 import Pong from "../components/Pong";
 import NavigationBar from "./NavigationBar";
@@ -51,7 +55,9 @@ const router = createBrowserRouter([
         element: (
             <IsAuthed>
                 <UserInfoProvider>
-                    <NavigationBar />
+                    <PreviousLocationProvider>
+                        <NavigationBar />
+                    </PreviousLocationProvider>
                 </UserInfoProvider>
             </IsAuthed>
         ),
@@ -93,6 +99,24 @@ const router = createBrowserRouter([
                             <>
                                 <Game1 />
                                 <MultiplayerOptions />
+                            </>
+                        ),
+                    },
+                    {
+                        path: "pong-game/single-player-tournament",
+                        element: (
+                            <>
+                                <Game1 />
+                                <TournamentOptions />
+                            </>
+                        ),
+                    },
+                    {
+                        path: "pong-game/multiplayer-tournament",
+                        element: (
+                            <>
+                                <Game1 />
+                                <TournamentOptions />
                             </>
                         ),
                     },

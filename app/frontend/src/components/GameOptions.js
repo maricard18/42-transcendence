@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import NavButton from "./NavButton";
+import { PreviousLocationContext } from "./Context";
+import { useLocation } from "react-router-dom";
 import "../../static/css/Images.css";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
@@ -35,6 +37,13 @@ export function GameMenuOptions() {
 }
 
 export function SinglePlayerOptions() {
+    const location = useLocation();
+    const { setPreviousLocation } = useContext(PreviousLocationContext);
+    
+	useEffect(() => {
+        setPreviousLocation(location.pathname);
+    }, [location.pathname]);
+
     return (
         <div className="d-flex flex-column col-md-6">
             <div className="p-3 p-lg-5 pd-xl-0">
@@ -57,7 +66,7 @@ export function SinglePlayerOptions() {
                 <div className="mb-3">
                     <NavButton
                         template="primary-button"
-                        page="/menu/pong-game/play"
+                        page="/menu/pong-game/single-player-tournament"
                     >
                         Tournament
                     </NavButton>
@@ -76,6 +85,13 @@ export function SinglePlayerOptions() {
 }
 
 export function MultiplayerOptions() {
+    const location = useLocation();
+    const { setPreviousLocation } = useContext(PreviousLocationContext);
+    
+	useEffect(() => {
+        setPreviousLocation(location.pathname);
+    }, [location.pathname]);
+
     return (
         <div className="d-flex flex-column col-md-6">
             <div className="p-3 p-lg-5 pd-xl-0">
@@ -98,7 +114,7 @@ export function MultiplayerOptions() {
                 <div className="mb-3">
                     <NavButton
                         template="primary-button"
-                        page="/menu/pong-game/play"
+                        page="/menu/pong-game/multiplayer-tournament"
                     >
                         Tournament
                     </NavButton>
@@ -117,17 +133,11 @@ export function MultiplayerOptions() {
 }
 
 export function TournamentOptions() {
+    const { previousLocation } = useContext(PreviousLocationContext);
+
     return (
         <div className="d-flex flex-column col-md-6">
             <div className="p-3 p-lg-5 pd-xl-0">
-                <div className="mb-3">
-                    <NavButton
-                        template="primary-button"
-                        page="/menu/pong-game/play"
-                    >
-                        2 Players
-                    </NavButton>
-                </div>
                 <div className="mb-3">
                     <NavButton
                         template="primary-button"
@@ -141,17 +151,17 @@ export function TournamentOptions() {
                         template="primary-button"
                         page="/menu/pong-game/play"
                     >
-                        Tournament
+                        8 Players
                     </NavButton>
                 </div>
-            </div>
-            <div>
-                <NavButton
-                    template="secondary-button"
-                    page="/menu/pong-game/multiplayer"
-                >
-                    Back
-                </NavButton>
+                <div>
+                    <NavButton
+                        template="secondary-button"
+                        page={previousLocation}
+                    >
+                        Back
+                    </NavButton>
+                </div>
             </div>
         </div>
     );
