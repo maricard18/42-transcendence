@@ -40,8 +40,10 @@ export default function LoginPage() {
             );
 
             if (response.ok) {
-                await setToken(response, setAuthed);
-                navigate("/menu");
+                const success = await setToken(response, setAuthed);
+                if (success) {
+                    navigate("/menu");
+                }
             } else {
                 newErrors = await handleResponse(
                     response,

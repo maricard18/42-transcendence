@@ -6,7 +6,12 @@ import SignUpPage from "./SignUpPage";
 import LoginPage from "./LoginPage";
 import HomePage from "./HomePage";
 import { Game1, Game2 } from "../components/Games";
-import { GameMenuOptions, SinglePlayerOptions, MultiplayerOptions, CreateJoinOptions } from "../components/Options";
+import {
+    GameMenuOptions,
+    SinglePlayerOptions,
+    MultiplayerOptions,
+    CreateJoinOptions,
+} from "../components/Options";
 import ProfilePage from "./ProfilePage";
 import Pong from "../components/Pong";
 import NavigationBar from "./NavigationBar";
@@ -73,7 +78,7 @@ const router = createBrowserRouter([
                             </>
                         ),
                     },
-					{
+                    {
                         path: "pong-game/single-player",
                         element: (
                             <>
@@ -82,7 +87,7 @@ const router = createBrowserRouter([
                             </>
                         ),
                     },
-					{
+                    {
                         path: "pong-game/multiplayer",
                         element: (
                             <>
@@ -91,7 +96,7 @@ const router = createBrowserRouter([
                             </>
                         ),
                     },
-					{
+                    {
                         path: "pong-game/create-or-join",
                         element: (
                             <>
@@ -116,10 +121,10 @@ const router = createBrowserRouter([
                     },
                 ],
             },
-			{
-				path: "pong-game/play",
-				element: <Pong />,
-			},
+            {
+                path: "pong-game/play",
+                element: <Pong />,
+            },
         ],
     },
 ]);

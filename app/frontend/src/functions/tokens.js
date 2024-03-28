@@ -15,34 +15,52 @@ export async function createToken(userData, setAuthed) {
         data
     );
 
-    await setToken(response, setAuthed);
+    if (!response.ok) {
+        console.log("Error: error while creating authentication token");
+        return false;
+    }
+
+    const success = await setToken(response, setAuthed);
+    return success;
 }
 
 export async function setToken(response, setAuthed) {
-	const jsonData = await response.json();
-    const accessToken = jsonData["access_token"];
-    const refreshToken = jsonData["refresh_token"];
-    const expiresIn = Number(jsonData["expires_in"]);
-    var time = new Date();
-    time.setTime(time.getTime() + expiresIn * 1000);
-	
-    Cookies.set("access_token", accessToken, {
-		expires: time,
-        sameSite: "None",
-        secure: true,
-    });
-    Cookies.set("refresh_token", refreshToken, {
-		sameSite: "None",
-        secure: true,
-    });
-	
-	setAuthed(true);
+    try {
+        const jsonData = await response.json();
+        const accessToken = jsonData["access_token"];
+        const refreshToken = jsonData["refresh_token"];
+        const expiresIn = Number(jsonData["expires_in"]);
+        var time = new Date();
+        time.setTime(time.getTime() + expiresIn * 1000);
+
+        Cookies.set("access_token", accessToken, {
+            expires: time,
+            sameSite: "None",
+            secure: true,
+        });
+        Cookies.set("refresh_token", refreshToken, {
+            sameSite: "None",
+            secure: true,
+        });
+
+        setAuthed(true);
+        return true;
+    } catch (error) {
+        console.log("Error setting token: ", error);
+        return false;
+    }
 }
 
 export async function refreshToken(setAuthed) {
+    const refreshToken = Cookies.get("refresh_token");
+    if (!refreshToken) {
+        console.log("Error: refresh token doesn't exist");
+        return false;
+    }
+
     const data = {
         grant_type: "refresh_token",
-        refresh_token: Cookies.get("refresh_token"),
+        refresh_token: refreshToken,
     };
 
     const response = await fetchData(
@@ -52,7 +70,13 @@ export async function refreshToken(setAuthed) {
         data
     );
 
-    await setToken(response, setAuthed);
+    if (!response.ok) {
+        console.log("Error: error while refreshing authentication token");
+        return false;
+    }
+
+    const success = await setToken(response, setAuthed);
+    return success;
 }
 
 export async function getToken(setAuthed) {
@@ -61,7 +85,12 @@ export async function getToken(setAuthed) {
     if (accessToken) {
         return accessToken;
     } else {
-        await refreshToken(setAuthed);
+        const success = await refreshToken(setAuthed);
+
+        if (!success) {
+            return null;
+        }
+
         const newAccessToken = Cookies.get("access_token");
         return newAccessToken;
     }
@@ -70,8 +99,9 @@ export async function getToken(setAuthed) {
 export function hasToken() {
     const accessToken = Cookies.get("access_token");
 
-    if (accessToken)
-		return true;
+    if (accessToken) {
+        return true;
+    }
 
     return false;
 }

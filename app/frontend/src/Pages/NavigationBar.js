@@ -24,11 +24,15 @@ export default function NavigationBar() {
         const fetchUserInfo = async () => {
             const userData = await getUserInfo(setAuthed);
 
-            setUserInfo({
-                username: userData.username,
-                email: userData.email,
-                id: userData.id,
-            });
+            if (userData) {
+				setUserInfo({
+					username: userData.username,
+					email: userData.email,
+					id: userData.id,
+				});
+			} else {
+				console.log("Error: Failed to fetch user data");
+			}
         };
 
         fetchUserInfo();

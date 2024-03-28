@@ -43,8 +43,10 @@ export default function SignUpPage() {
             );
 
             if (response.ok) {
-                await createToken(formData, setAuthed);
-				navigate("/menu");
+                const success = await createToken(formData, setAuthed);
+                if (success) {
+                    navigate("/menu");
+                }
             } else {
                 newErrors = await handleResponse(
                     response,
