@@ -29,10 +29,14 @@ export async function startGame(canvas, setAuthed) {
     clearBackground(ctx);
 
     window.addEventListener("keydown", (event) => {
-        if (keys.hasOwnProperty(event.key)) keys[event.key] = true;
+        if (keys.hasOwnProperty(event.key)) {
+			keys[event.key] = true;
+		} 
     });
     window.addEventListener("keyup", (event) => {
-        if (keys.hasOwnProperty(event.key)) keys[event.key] = false;
+        if (keys.hasOwnProperty(event.key)) {
+			keys[event.key] = false;
+		} 
     });
 
     let last_time = Date.now();

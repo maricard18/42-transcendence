@@ -31,8 +31,9 @@ export class Ball {
         this.y += this.speed_y * dt;
 
 		if ((this.y - this.radius <= 0 && this.speed_y < 0)|| 
-			(this.y + this.radius >= ScreenHeight && this.speed_y > 0))
+			(this.y + this.radius >= ScreenHeight && this.speed_y > 0)) {
 			this.speed_y *= -1;
+		}
         if (this.x - this.radius <= 0 && this.speed_x < 0) {
 			cpu.score += 1;
 			this.reset();

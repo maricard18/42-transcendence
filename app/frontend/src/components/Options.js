@@ -41,7 +41,7 @@ export function SinglePlayerOptions() {
                 <div className="mb-3">
                     <NavButton
                         template="primary-button"
-                        page="/menu/pong-game/create-or-join"
+                        page="/menu/pong-game/play"
                     >
                         Computer
                     </NavButton>
@@ -49,7 +49,7 @@ export function SinglePlayerOptions() {
                 <div className="mb-3">
                     <NavButton
                         template="primary-button"
-                        page="/menu/pong-game/create-or-join"
+                        page="/menu/pong-game/play"
                     >
                         2 Players
                     </NavButton>
@@ -57,7 +57,7 @@ export function SinglePlayerOptions() {
                 <div className="mb-3">
                     <NavButton
                         template="primary-button"
-                        page="/menu/pong-game/create-or-join"
+                        page="/menu/pong-game/play"
                     >
                         Tournament
                     </NavButton>
@@ -82,7 +82,7 @@ export function MultiplayerOptions() {
                 <div className="mb-3">
                     <NavButton
                         template="primary-button"
-                        page="/menu/pong-game/create-or-join"
+                        page="/menu/pong-game/play"
                     >
                         2 Players
                     </NavButton>
@@ -90,7 +90,7 @@ export function MultiplayerOptions() {
                 <div className="mb-3">
                     <NavButton
                         template="primary-button"
-                        page="/menu/pong-game/create-or-join"
+                        page="/menu/pong-game/play"
                     >
                         4 Players
                     </NavButton>
@@ -98,19 +98,19 @@ export function MultiplayerOptions() {
                 <div className="mb-3">
                     <NavButton
                         template="primary-button"
-                        page="/menu/pong-game/create-or-join"
+                        page="/menu/pong-game/play"
                     >
                         Tournament
                     </NavButton>
                 </div>
-            </div>
-            <div>
-                <NavButton
-                    template="secondary-button"
-                    page="/menu/pong-game/options"
-                >
-                    Back
-                </NavButton>
+                <div>
+                    <NavButton
+                        template="secondary-button"
+                        page="/menu/pong-game/options"
+                    >
+                        Back
+                    </NavButton>
+                </div>
             </div>
         </div>
     );
@@ -123,7 +123,7 @@ export function TournamentOptions() {
                 <div className="mb-3">
                     <NavButton
                         template="primary-button"
-                        page="/menu/pong-game/create-or-join"
+                        page="/menu/pong-game/play"
                     >
                         2 Players
                     </NavButton>
@@ -131,7 +131,7 @@ export function TournamentOptions() {
                 <div className="mb-3">
                     <NavButton
                         template="primary-button"
-                        page="/menu/pong-game/create-or-join"
+                        page="/menu/pong-game/play"
                     >
                         4 Players
                     </NavButton>
@@ -139,7 +139,7 @@ export function TournamentOptions() {
                 <div className="mb-3">
                     <NavButton
                         template="primary-button"
-                        page="/menu/pong-game/create-or-join"
+                        page="/menu/pong-game/play"
                     >
                         Tournament
                     </NavButton>
@@ -152,34 +152,6 @@ export function TournamentOptions() {
                 >
                     Back
                 </NavButton>
-            </div>
-        </div>
-    );
-}
-
-export function CreateJoinOptions() {
-    return (
-        <div className="d-flex flex-column col-md-6">
-            <div className="p-3 p-lg-5 pd-xl-0">
-                <div className="mb-3">
-                    <NavButton
-                        template="primary-button"
-                        page="/menu/pong-game/play"
-                    >
-                        Create Game
-                    </NavButton>
-                </div>
-                <div className="mb-3">
-                    <NavButton template="primary-button">Join Game</NavButton>
-                </div>
-                <div>
-                    <NavButton
-                        template="secondary-button"
-                        page="/menu/pong-game/single-player"
-                    >
-                        Back
-                    </NavButton>
-                </div>
             </div>
         </div>
     );

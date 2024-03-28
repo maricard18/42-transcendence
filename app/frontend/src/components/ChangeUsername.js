@@ -37,10 +37,12 @@ export default function ChangeUsername() {
         if (!newErrors.message) {
 			const input = {};
 			
-			if (formData.username != userInfo.username)
+			if (formData.username != userInfo.username) {
 				input.username = formData.username;
-			if (formData.email != userInfo.email)
+			}
+			if (formData.email != userInfo.email) {
 				input.email = formData.email;
+			}
 			if (Object.keys(input).length === 0) {
 				return ;
 			}

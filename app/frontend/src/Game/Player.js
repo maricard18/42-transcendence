@@ -24,25 +24,28 @@ export class Player {
     update(keys, dt) {
         if (keys.ArrowUp && this.y >= 0)
 		{
-			if (this.speed < this.max_speed)
+			if (this.speed < this.max_speed) {
 				this.speed *= this.acceleration;
-			else
+			} else {
 				this.speed = this.max_speed;
+			}
 
 			this.y -= this.speed * dt;
 		} 
 		
 		if (keys.ArrowDown && this.y + this.height <= ScreenHeight)
 		{
-			if (this.speed < this.max_speed)
+			if (this.speed < this.max_speed) {
 				this.speed *= this.acceleration;
-			else
+			} else {
 				this.speed = this.max_speed;
+			}
 
 			this.y += this.speed * dt;
 		}
 		
-		if (!keys.ArrowUp && !keys.ArrowDown)
+		if (!keys.ArrowUp && !keys.ArrowDown) {
 			this.speed = this.inital_speed;
+		}
     }
 }

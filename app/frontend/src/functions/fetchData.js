@@ -15,6 +15,8 @@ export function checkEnterButton(functionToBeRun) {
                 ? event.which
                 : event.keyCode
             : event.keyCode;
-        if (keyCode == 13) functionToBeRun();
+        if (keyCode == 13) {
+			functionToBeRun();
+		}
     };
 }

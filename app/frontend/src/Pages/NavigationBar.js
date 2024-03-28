@@ -18,8 +18,9 @@ export default function NavigationBar() {
 	let template = "dropdown";
 
 	if (location.pathname == "/menu/profile/username" ||
-		location.pathname == "/menu/profile/username/")
-		template = "dropdown"
+		location.pathname == "/menu/profile/username/") {
+		template = "dropdown";
+	}
 
     useEffect(() => {
         const fetchUserInfo = async () => {

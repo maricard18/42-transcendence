@@ -96,15 +96,6 @@ const router = createBrowserRouter([
                             </>
                         ),
                     },
-                    {
-                        path: "pong-game/create-or-join",
-                        element: (
-                            <>
-                                <Game1 />
-                                <CreateJoinOptions />
-                            </>
-                        ),
-                    },
                 ],
             },
             {

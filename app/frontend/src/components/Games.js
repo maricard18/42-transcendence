@@ -8,8 +8,9 @@ export function Game1() {
     const location = useLocation();
     let gameSelected = false;
 
-    if (location.pathname == "/menu" || location.pathname == "/menu/")
+    if (location.pathname == "/menu" || location.pathname == "/menu/") {
         gameSelected = true;
+	}
 
     return (
         <div className="d-flex flex-column col-md-6">
@@ -34,9 +35,11 @@ export function Game2() {
     const location = useLocation();
     let gameSelected = false;
 
-    if (location.pathname == "/menu" || location.pathname == "/menu/")
-        gameSelected = true;
-
+    if (location.pathname == "/menu" || location.pathname == "/menu/") {
+		gameSelected = false;
+		//! gameSelected = true;
+	}
+	
     return (
         <div className="d-flex flex-column col-md-6">
             <div className="p-3 p-lg-5 pd-xl-0">
