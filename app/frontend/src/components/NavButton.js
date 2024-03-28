@@ -10,7 +10,6 @@ export default function NavButton({ template, page, children }) {
     const { setAuthed } = useContext(AuthContext);
 
     const handleClickTo = (path) => {
-		console.log("I am going to: ", path);
         if (page == "/") {
 			logout(setAuthed);
 		}
