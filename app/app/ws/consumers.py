@@ -30,10 +30,11 @@ class GameConsumer(JsonWebsocketConsumer):
 
             async_to_sync(self.channel_layer.group_send)(
                 self.room_group_name, {
-                    "channel_id": self.room_group_name,
-                    "type": "system_grouping",
-                    "game_uid": game_uid,
-                    "players": players,
+                    "type": "system.grouping",
+                    "data": {
+                        "game_uid": game_uid,
+                        "players": players
+                    }
                 }
             )
 
@@ -44,6 +45,15 @@ class GameConsumer(JsonWebsocketConsumer):
                 async_to_sync(self.channel_layer.group_add)(
                     "game_%s" % game_uid, channel_name
                 )
+
+            async_to_sync(self.channel_layer.group_send)(
+                "game_%s" % game_uid, {
+                    "type": "system.message",
+                    "data": {
+                        "message": "user.connected"
+                    }
+                }
+            )
 
     def connect(self):
         user_id = self.scope["user"]
@@ -75,7 +85,6 @@ class GameConsumer(JsonWebsocketConsumer):
         raise StopConsumer()
 
     def receive(self, text_data=None, bytes_data=None, **kwargs):
-        # self.send(text_data=json.dumps(text_data))
         # Send message to websocket
         if "queue" in self.room_group_name:
             return
@@ -84,20 +93,32 @@ class GameConsumer(JsonWebsocketConsumer):
             data = json.loads(text_data)
             async_to_sync(self.channel_layer.group_send)(
                 self.room_group_name,
-                {"type": "user_message", "channel_name": self.channel_name, "data": json.dumps(data)}
+                {
+                    "type": "user.message",
+                    "channel_name": self.channel_name,
+                    "data": json.dumps(data)
+                }
             )
         except json.decoder.JSONDecodeError:
             pass
 
     def user_message(self, event):
         if event["channel_name"] != self.channel_name:
-            data = json.loads(event["data"])
-            self.send(text_data=json.dumps(data))
+            self.send(text_data=json.dumps({
+                "type": event["type"],
+                "data": event["data"]
+            }))
 
     def system_message(self, event):
-        self.send(text_data=json.dumps(event))
+        self.send(text_data=json.dumps({
+            "type": event["type"],
+            "data": event["data"]
+        }))
 
     def system_grouping(self, event):
-        if self.scope["user"] in event["players"].values():
-            self.room_group_name = "game_%s" % event["game_uid"]
-            self.send(text_data=json.dumps(event))
+        if self.scope["user"] in event["data"]["players"].values():
+            self.room_group_name = "game_%s" % event["data"]["game_uid"]
+            self.send(text_data=json.dumps({
+                "type": event["type"],
+                "data": event["data"]
+            }))
