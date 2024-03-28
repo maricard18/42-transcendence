@@ -16,10 +16,10 @@ class GameConsumer(JsonWebsocketConsumer):
         self.queue = None
 
     def check_queue(self):
+        players = {}
         if len(self.queue) % self.game_player_amount == 0:
             game_uid = secrets.token_urlsafe()
             selected_users = {}
-            players = {}
             for index in range(self.game_player_amount):
                 user_id = int(next(iter(self.queue)))
                 selected_users[user_id] = self.queue[user_id]
@@ -43,6 +43,8 @@ class GameConsumer(JsonWebsocketConsumer):
                 async_to_sync(self.channel_layer.group_add)(
                     "game_%s" % game_uid, channel_name
                 )
+
+            for user_id, channel_name in selected_users.items():
                 async_to_sync(self.channel_layer.group_send)(
                     "game_%s" % game_uid, {
                         "type": "system.message",
@@ -52,6 +54,17 @@ class GameConsumer(JsonWebsocketConsumer):
                         }
                     }
                 )
+        else:
+            for index, user_id in enumerate(self.queue.keys()):
+                players["player_%s" % (index + 1)] = user_id
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_group_name, {
+                    "type": "system.grouping",
+                    "data": {
+                        "players": players
+                    }
+                }
+            )
 
     def connect(self):
         user_id = self.scope["user"]
@@ -124,8 +137,11 @@ class GameConsumer(JsonWebsocketConsumer):
 
     def system_grouping(self, event):
         if self.scope["user"] in event["data"]["players"].values():
-            self.room_group_name = "game_%s" % event["data"]["game_uid"]
+            if "game_uid" in event["data"]:
+                self.room_group_name = "game_%s" % event["data"]["game_uid"]
             self.send(text_data=json.dumps({
                 "type": event["type"],
-                "data": event["data"]
+                "data": {
+                    "players": event["data"]["players"]
+                }
             }))
