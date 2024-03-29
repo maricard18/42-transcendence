@@ -126,7 +126,7 @@ class GameConsumer(JsonWebsocketConsumer):
         # if event["channel_name"] != self.channel_name:
         self.send(text_data=json.dumps({
             "type": event["type"],
-            "data": json.dumps(event["data"])
+            "data": json.loads(event["data"])
         }))
 
     def system_message(self, event):
