@@ -11,9 +11,10 @@ import "bootstrap/dist/css/bootstrap.css";
 
 export function MultiplayerWaitingRoom() {
     const navigate = useNavigate();
-	const location = useLocation().pathname;
+    const location = useLocation().pathname;
     const lobbySize = location.substring(location.length - 1);
     const { setAuthed } = useContext(AuthContext);
+    const { userInfo } = useContext(UserInfoContext);
     const [userQueue, setUserQueue] = useState({});
     const [readyState, setReadyState] = useState(false);
     const [userReadyList, setUserReadyList] = useState({});
@@ -27,11 +28,28 @@ export function MultiplayerWaitingRoom() {
     }, []);
 
     useEffect(() => {
-		if (Object.keys(userQueue).length == lobbySize &&
-			Object.keys(userReadyList).length == lobbySize) {
-			navigate("/menu/pong-game/play");
-		}
-	}, [userReadyList]);
+        if (!readyState && userReadyList[userInfo.id]) {
+            setUserReadyList((prevState) => {
+                const newState = { ...prevState };
+                delete newState[userInfo.id];
+                return newState;
+            });
+        }
+    }, [readyState]);
+
+    useEffect(() => {
+        if (
+            Object.keys(userQueue).length == lobbySize &&
+            Object.keys(userReadyList).length == lobbySize
+        ) {
+            const allUsersReady = Object.values(userReadyList).every(
+                (ready) => ready
+            );
+            if (allUsersReady) {
+                navigate("/menu/pong-game/play");
+            }
+        }
+    }, [userReadyList]);
 
     return (
         <div className="d-flex flex-column col-md-6">
@@ -43,9 +61,7 @@ export function MultiplayerWaitingRoom() {
                         <ReadyButton
                             readyState={readyState}
                             setReadyState={setReadyState}
-                        >
-                            Ready
-                        </ReadyButton>
+                        />
                     )}
                 </div>
             </div>
@@ -76,35 +92,46 @@ function PlayerQueue({ children }) {
     );
 }
 
-function ReadyButton({ readyState, setReadyState, children }) {
+function ReadyButton({ readyState, setReadyState }) {
     const { userInfo } = useContext(UserInfoContext);
+    let template;
+	
+    useEffect(() => {
+		const message = {
+			state: {
+				[userInfo.id]: readyState,
+            },
+        };
+        sendMessage(ws, message);
+    }, [readyState]);
+
+	if (readyState) {
+		template = "secondary-button";
+	} else {
+		template = "primary-button";
+	}
 
     function handleClick() {
         if (!readyState) {
             setReadyState(true);
-            const message = {
-                state: {
-                    [userInfo.id]: "ready",
-                },
-            };
-
-            console.log("Sending message to websocket!");
-            sendMessage(ws, message);
+        } else {
+            setReadyState(false);
         }
     }
 
-    console.log("Child component was rendered.");
+    console.log("ReadyButton component was rendered.");
 
     return (
         <div className="mb-3">
             <button
                 type="button"
-                className="btn btn-primary primary-button"
+                className={`btn btn-primary ${template}`}
                 onClick={() => {
                     handleClick();
                 }}
             >
-                {children}
+                {!readyState && "Ready"}
+                {readyState && "Not Ready"}
             </button>
         </div>
     );

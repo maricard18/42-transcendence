@@ -17,13 +17,12 @@ export async function connectWebsocket(setAuthed, setUserQueue, setUserReadyList
 
             if (jsonData["type"] == "system.grouping") {
                 const playerList = jsonData["data"]["players"];
-				console.log(playerList);
                 setUserQueue(playerList);
             }
 			
 			if (jsonData["type"] == "user.message") {
                 const playerReadyList = jsonData["data"]["state"];
-                setUserReadyList((prevUserReadyList) => ({ ...prevUserReadyList, ...playerReadyList }));
+                setUserReadyList((prevState) => ({ ...prevState, ...playerReadyList }));
             }
         } catch (error) {
             console.log(error);
