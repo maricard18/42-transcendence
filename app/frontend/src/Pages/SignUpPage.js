@@ -60,6 +60,10 @@ export default function SignUpPage() {
 
     checkEnterButton(handleValidation);
 
+	//! remove username field on this page
+	//! create another sign up page after this one with username field and avatar
+	//! send all the info at once after user finishes to create their profile
+
     return (
         <div className="container">
             <div className="center">

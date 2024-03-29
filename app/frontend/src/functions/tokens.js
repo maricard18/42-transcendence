@@ -99,6 +99,8 @@ export async function getToken(setAuthed) {
 
 export function hasToken() {
     const accessToken = Cookies.get("access_token");
+	//! validate access token
+	//! Error: when there is an access_token but is no longer valid
 
     if (accessToken) {
         return true;

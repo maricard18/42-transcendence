@@ -14,13 +14,6 @@ import { logError } from "../functions/utils";
 export default function NavigationBar() {
     const { setAuthed } = useContext(AuthContext);
     const { userInfo, setUserInfo } = useContext(UserInfoContext);
-	const location = useLocation();
-	let template = "dropdown";
-
-	if (location.pathname == "/menu/profile/username" ||
-		location.pathname == "/menu/profile/username/") {
-		template = "dropdown";
-	}
 
     useEffect(() => {
         const fetchUserInfo = async () => {
@@ -34,6 +27,8 @@ export default function NavigationBar() {
 				});
 			} else {
 				logError("failed to fetch user data.");
+				//? setAuthed(false);
+				//! check function hasToken()
 			}
         };
 
@@ -56,7 +51,7 @@ export default function NavigationBar() {
                         type="button"
 						//className="btn btn-secondary dropdown-toggle navbar-icon"
                         className="btn btn-secondary navbar-icon"
-                        data-bs-toggle={template}
+                        data-bs-toggle="dropdown"
                         data-bs-display="static"
                         aria-expanded="false"
                     >
