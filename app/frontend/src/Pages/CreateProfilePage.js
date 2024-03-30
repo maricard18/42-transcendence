@@ -66,8 +66,6 @@ export default function CreateProfilePage() {
 
     checkEnterButton(handleValidation);
 
-	console.log("Create Profile data: ", formData);
-
     return (
         <div className="container">
             <div className="center">

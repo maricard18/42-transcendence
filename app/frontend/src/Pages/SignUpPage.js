@@ -24,8 +24,6 @@ export default function SignUpPage() {
 
     checkEnterButton(handleValidation);
 
-	console.log("SignUp data: ", formData);
-
     return (
         <div className="container">
             <div className="center">

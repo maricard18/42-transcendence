@@ -119,8 +119,6 @@ function ReadyButton({ readyState, setReadyState }) {
         }
     }
 
-    console.log("ReadyButton component was rendered.");
-
     return (
         <div className="mb-3">
             <button

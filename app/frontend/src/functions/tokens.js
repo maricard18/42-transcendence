@@ -108,7 +108,6 @@ export async function testToken(accessToken) {
         return false;
     }
 
-	console.log("Access token is valid :)");
 	return true;
 }
 
