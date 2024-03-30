@@ -10,6 +10,11 @@
 	font-weight: bold;
 }
 
+.username-text {
+	color: white;
+	font-weight: bold;
+}
+
 .login {
 	text-decoration: none;
 	font-weight: bold;

@@ -32,6 +32,11 @@ export default function CreateProfilePage() {
 			newErrors.username = 1;
 			setFormData({ ...formData, username: "" });
 			setErrors(newErrors);
+		} else if (formData.username.length < 4 || formData.username.length > 12) {
+			newErrors.message = "Username must be 4 to 12 characters";
+			newErrors.username = 1;
+			setFormData({ ...formData, username: "" });
+			setErrors(newErrors);
 		}
 
         if (!newErrors.message) {

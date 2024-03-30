@@ -48,6 +48,7 @@ export default async function getUserInfo(setAuthed) {
     const data = {
         username: jsonData["username"],
         email: jsonData["email"],
+		//! avatar: jsonData["image"]["link"],
         id: decodeToken["user_id"],
     };
 

@@ -3,14 +3,14 @@ import { Outlet, Link, useLocation } from "react-router-dom";
 import NavButton from "../components/NavButton";
 import getUserInfo from "../functions/getUserInfo";
 import { AuthContext, UserInfoContext } from "../components/Context";
+import { logError } from "../functions/utils";
+import { BaseAvatar } from "../components/Avatar";
 import "../../static/css/NavBar.css";
 import "../../static/css/Buttons.css";
 import "../../static/css/Menu.css";
 import "../../static/css/HomePage.css";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.bundle.js";
-import { logError } from "../functions/utils";
-import { logout } from "../functions/tokens";
 
 export default function NavigationBar() {
     const { authed, setAuthed } = useContext(AuthContext);
@@ -62,9 +62,15 @@ export default function NavigationBar() {
                             role="group"
                             aria-label="Vertical button group"
                         >
-                            <h6 className="sub-header text-center">
-                                <b>{userInfo.username}</b>
-                            </h6>
+                            <div className="d-flex align-items-center mb-3">
+                                <BaseAvatar width="40" height="40" />
+                                <h6
+                                    className="username-text"
+                                    style={{ marginLeft: "8px" }}
+                                >
+                                    <b>{userInfo.username}</b>
+                                </h6>
+                            </div>
                             <NavButton template="white-button" page="/menu">
                                 Home
                             </NavButton>

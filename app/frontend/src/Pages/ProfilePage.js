@@ -1,6 +1,7 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
 import NavButton from "../components/NavButton";
+import { DefaultAvatar } from "../components/Avatar";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
 
@@ -18,7 +19,7 @@ export default function ProfilePage() {
 				vh-100"
             >
                 <div className="d-flex flex-column">
-                    <h1 className="header">Profile</h1>
+					<DefaultAvatar width="200" height="200" />
                     <div className="box mt-3">
                         <div
                             className="btn-group-vertical"
@@ -36,9 +37,6 @@ export default function ProfilePage() {
                                 page="/menu/profile/password"
                             >
                                 Change Password
-                            </NavButton>
-                            <NavButton template="white-button" page="/menu/profile/username">
-                                Change Avatar
                             </NavButton>
                             <NavButton template="primary-button" page="/">
                                 Logout

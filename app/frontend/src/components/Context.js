@@ -49,6 +49,7 @@ export const UserInfoProvider = ({ children }) => {
     const [userInfo, setUserInfo] = useState({
         username: "",
         email: "",
+		avatar: "",
         id: "",
     });
 
