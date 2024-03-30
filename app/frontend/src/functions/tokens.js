@@ -18,11 +18,11 @@ export async function createToken(userData, setAuthed) {
 
     if (!response.ok) {
         logError("failed to create authentication token.");
-        return false;
+		logout(setAuthed);
+		return ;
     }
 
-    const success = await setToken(response, setAuthed);
-    return success;
+    await setToken(response, setAuthed);
 }
 
 export async function setToken(response, setAuthed) {
@@ -45,10 +45,10 @@ export async function setToken(response, setAuthed) {
         });
 
         setAuthed(true);
-        return true;
     } catch (error) {
         logError("failed to set Cookies -> ", error);
-        return false;
+		logout(setAuthed);
+		return ;
     }
 }
 
@@ -56,7 +56,8 @@ export async function refreshToken(setAuthed) {
     const refreshToken = Cookies.get("refresh_token");
     if (!refreshToken) {
         logError("refresh_token doesn't exist.");
-        return false;
+        logout(setAuthed);
+		return ;
     }
 
     const data = {
@@ -73,44 +74,46 @@ export async function refreshToken(setAuthed) {
 
     if (!response.ok) {
         logError("failed to refresh access_token.");
-        return false;
+        logout(setAuthed);
+		return ;
     }
 
-    const success = await setToken(response, setAuthed);
-    return success;
+    await setToken(response, setAuthed);
 }
 
 export async function getToken(setAuthed) {
     const accessToken = Cookies.get("access_token");
 
-    if (accessToken) {
+    if (accessToken && await testToken(accessToken)) {
         return accessToken;
     } else {
-        const success = await refreshToken(setAuthed);
-
-        if (!success) {
-            return null;
-        }
-
+        await refreshToken(setAuthed);
         const newAccessToken = Cookies.get("access_token");
         return newAccessToken;
     }
 }
 
-export function hasToken() {
-    const accessToken = Cookies.get("access_token");
-	//! validate access token
-	//! Error: when there is an access_token but is no longer valid
+export async function testToken(accessToken) {
+	const response = await fetchData(
+        "/api/users",
+        "GET",
+        {
+            "Content-type": "application/json",
+            Authorization: "Bearer " + accessToken,
+        },
+    );
 
-    if (accessToken) {
-        return true;
+    if (!response.ok) {
+        logError("access token not valid.");
+        return false;
     }
 
-    return false;
+	console.log("Access token is valid :)");
+	return true;
 }
 
 export function logout(setAuthed) {
-    setAuthed(false);
     Cookies.remove("access_token");
     Cookies.remove("refresh_token");
+    setAuthed(false);
 }

@@ -1,4 +1,4 @@
-import { getToken } from "./tokens";
+import { getToken, logout } from "./tokens";
 import fetchData from "./fetchData";
 import { logError } from "./utils";
 
@@ -9,14 +9,16 @@ export default async function getUserInfo(setAuthed) {
         accessToken = await getToken(setAuthed);
     } catch (error) {
         logError("failed to get token -> ", error);
-        return null;
+		logout(setAuthed);
+		return ;
     }
 
     try {
         decodeToken = await decode(accessToken);
     } catch (error) {
         logError("failed to decode token -> ", error);
-        return null;
+        logout(setAuthed);
+		return ;
     }
 
     const response = await fetchData(
@@ -30,14 +32,16 @@ export default async function getUserInfo(setAuthed) {
 
     if (!response.ok) {
         logError("failed to fetch user data.");
-		return null;
+		logout(setAuthed);
+		return ;
     }
 
     try {
         jsonData = await response.json();
     } catch (error) {
         logError("failed to parse response -> ", error);
-        return null;
+        logout(setAuthed);
+		return ;
     }
 
     const data = {

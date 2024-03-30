@@ -5,13 +5,11 @@ export default async function handleResponse(response, formData, setFormData) {
 
     if (response.status == 400) {
         if (jsonData["errors"]["username"][0] === "A user with that username already exists.") {
-            errors.message = "Username already exists";
+            errors.message = "This username already exists";
             errors.username = 1;
             setFormData({
                 ...formData,
                 username: "",
-                password: "",
-                confirmPassword: "",
             });
         }
     } else if (responseMessage === "Unauthorized") {

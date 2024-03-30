@@ -1,31 +1,30 @@
-import React, { useContext, useEffect } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import React, { useContext, useEffect, useState } from "react";
+import { Navigate, useLocation } from "react-router-dom";
 import { AuthContext } from "./Context";
-import { refreshToken } from "../functions/tokens";
+import { getToken } from "../functions/tokens";
 
 export function IsAuthed({ children }) {
     const { authed, setAuthed } = useContext(AuthContext);
+	const [loading, setLoading] = useState(true);
     const location = useLocation();
-    const navigate = useNavigate();
-    var access_token = "";
 
     useEffect(() => {
-        const refreshAccessToken = async () => {
-            access_token = await refreshToken(setAuthed);
-            if (!access_token) {
-                navigate("/");
-            }
+        const checkAccessToken = async () => {
+            await getToken(setAuthed);
+			setLoading(false);
         };
 
         if (!authed) {
-            refreshAccessToken();
-        }
+            checkAccessToken();
+        } else {
+			setLoading(false);
+		}
     }, [authed]);
 
     function renderComponent() {
-        if (!authed && !access_token) {
-            return <Navigate to={location.pathname} />;
-        } else if (authed) {
+		if (loading) {
+			return <Navigate to={location.pathname} />;
+		} else if (authed) {
             return children;
         } else {
             return <Navigate to="/" />;

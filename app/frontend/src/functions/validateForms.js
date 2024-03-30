@@ -3,11 +3,6 @@ export function validateSignUpForm(formData, setFormData) {
     const emailPattern =
         /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
-    if (formData.username === "") {
-        errors.message = "Please fill in all required fields";
-        errors.username = 1;
-        setFormData({ ...formData, username: "" });
-    }
     if (formData.email === "") {
         errors.message = "Please fill in all required fields";
         errors.email = 1;

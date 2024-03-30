@@ -10,6 +10,7 @@ import "../../static/css/HomePage.css";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.bundle.js";
 import { logError } from "../functions/utils";
+import { logout } from "../functions/tokens";
 
 export default function NavigationBar() {
     const { setAuthed } = useContext(AuthContext);
@@ -20,16 +21,15 @@ export default function NavigationBar() {
             const userData = await getUserInfo(setAuthed);
 
             if (userData) {
-				setUserInfo({
-					username: userData.username,
-					email: userData.email,
-					id: userData.id,
-				});
-			} else {
-				logError("failed to fetch user data.");
-				//? setAuthed(false);
-				//! check function hasToken()
-			}
+                setUserInfo({
+                    username: userData.username,
+                    email: userData.email,
+                    id: userData.id,
+                });
+            } else {
+                logError("failed to fetch user data.");
+				logout(setAuthed);
+            }
         };
 
         fetchUserInfo();
@@ -49,7 +49,7 @@ export default function NavigationBar() {
                 <div className="btn-group me-5">
                     <button
                         type="button"
-						//className="btn btn-secondary dropdown-toggle navbar-icon"
+                        //className="btn btn-secondary dropdown-toggle navbar-icon"
                         className="btn btn-secondary navbar-icon"
                         data-bs-toggle="dropdown"
                         data-bs-display="static"
