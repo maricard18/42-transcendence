@@ -13,7 +13,7 @@ import { logError } from "../functions/utils";
 import { logout } from "../functions/tokens";
 
 export default function NavigationBar() {
-    const { setAuthed } = useContext(AuthContext);
+    const { authed, setAuthed } = useContext(AuthContext);
     const { userInfo, setUserInfo } = useContext(UserInfoContext);
 
     useEffect(() => {
@@ -28,12 +28,11 @@ export default function NavigationBar() {
                 });
             } else {
                 logError("failed to fetch user data.");
-				logout(setAuthed);
             }
         };
 
         fetchUserInfo();
-    }, [userInfo.username]);
+    }, [authed, userInfo.username]);
 
     return (
         <div className="container-fluid">

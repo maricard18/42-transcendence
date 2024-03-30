@@ -18,8 +18,8 @@ export async function createToken(userData, setAuthed) {
 
     if (!response.ok) {
         logError("failed to create authentication token.");
-		logout(setAuthed);
-		return ;
+        logout(setAuthed);
+        return;
     }
 
     await setToken(response, setAuthed);
@@ -46,9 +46,9 @@ export async function setToken(response, setAuthed) {
 
         setAuthed(true);
     } catch (error) {
-        logError("failed to set Cookies -> ", error);
-		logout(setAuthed);
-		return ;
+        logError("failed to set Cookies");
+        logout(setAuthed);
+        return;
     }
 }
 
@@ -57,7 +57,7 @@ export async function refreshToken(setAuthed) {
     if (!refreshToken) {
         logError("refresh_token doesn't exist.");
         logout(setAuthed);
-		return ;
+        return;
     }
 
     const data = {
@@ -75,7 +75,7 @@ export async function refreshToken(setAuthed) {
     if (!response.ok) {
         logError("failed to refresh access_token.");
         logout(setAuthed);
-		return ;
+        return;
     }
 
     await setToken(response, setAuthed);
@@ -84,7 +84,7 @@ export async function refreshToken(setAuthed) {
 export async function getToken(setAuthed) {
     const accessToken = Cookies.get("access_token");
 
-    if (accessToken && await testToken(accessToken)) {
+    if (accessToken && (await testToken(accessToken))) {
         return accessToken;
     } else {
         await refreshToken(setAuthed);
@@ -94,21 +94,34 @@ export async function getToken(setAuthed) {
 }
 
 export async function testToken(accessToken) {
-	const response = await fetchData(
-        "/api/users",
+	let decodeToken;
+
+    try {
+        decodeToken = decode(accessToken);
+    } catch (error) {
+        logError("failed to decode access token while testing it's validity.");
+        return false;
+    }
+
+    const response = await fetchData(
+        "/api/users/" + decodeToken["user_id"],
         "GET",
         {
             "Content-type": "application/json",
             Authorization: "Bearer " + accessToken,
-        },
+        }
     );
 
     if (!response.ok) {
-        logError("access token not valid.");
+        logError("access token it's not valid.");
         return false;
     }
 
-	return true;
+    return true;
+}
+
+export function decode(accessToken) {
+    return JSON.parse(atob(accessToken.split(".")[1]));
 }
 
 export function logout(setAuthed) {

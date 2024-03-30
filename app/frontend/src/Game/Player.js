@@ -1,10 +1,12 @@
-import { PlayerSpeed, PlayerWidth, PlayerHeight, ScreenHeight } from "./variables";
+import { PlayerSpeed, PlayerWidth, PlayerHeight, ScreenHeight, keys } from "./variables";
 
 export class Player {
-    constructor(x, y, color) {
+    constructor(x, y, color, keyUp, keyDown) {
         this.x = x;
         this.y = y;
         this.color = color;
+		this.keyUp = keyUp;
+		this.keyDown = keyDown;
 		this.width = PlayerWidth;
 		this.height = PlayerHeight;
 		this.inital_speed = 200;
@@ -21,8 +23,8 @@ export class Player {
         ctx.fill();
     }
 
-    update(keys, dt) {
-        if (keys.ArrowUp && this.y >= 0)
+    update(dt) {
+        if (keys[this.keyUp] && this.y >= 0)
 		{
 			if (this.speed < this.max_speed) {
 				this.speed *= this.acceleration;
@@ -33,7 +35,7 @@ export class Player {
 			this.y -= this.speed * dt;
 		} 
 		
-		if (keys.ArrowDown && this.y + this.height <= ScreenHeight)
+		if (keys[this.keyDown] && this.y + this.height <= ScreenHeight)
 		{
 			if (this.speed < this.max_speed) {
 				this.speed *= this.acceleration;
@@ -44,7 +46,7 @@ export class Player {
 			this.y += this.speed * dt;
 		}
 		
-		if (!keys.ArrowUp && !keys.ArrowDown) {
+		if (!keys[this.keyUp] && !keys[this.keyDown]) {
 			this.speed = this.inital_speed;
 		}
     }

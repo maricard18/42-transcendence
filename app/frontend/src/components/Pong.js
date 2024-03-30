@@ -1,16 +1,20 @@
-import React, { useEffect, useRef, useContext } from "react";
+import React, { useEffect, useRef } from "react";
 import { startGame } from "../Game/pongGameCode";
-import { AuthContext } from "./Context";
+import { useLocation } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.css";
 
 export default function PongPage() {
     const canvasRef = useRef(null);
-	const { setAuthed } = useContext(AuthContext);
+	const location = useLocation().pathname;
+	const gameMode = location.match(/\/([^\/]+)\/[^\/]+$/)[1];
+    const lobbySize = location.substring(location.length - 1);
+
+	console.log(gameMode, lobbySize);
 
     useEffect(() => {
 		const startPongGame = async () => {
 			const canvas = canvasRef.current;
-			startGame(canvas, setAuthed);
+			startGame(canvas, gameMode, lobbySize);
 		};
 
 		startPongGame();

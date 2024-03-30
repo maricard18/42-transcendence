@@ -2,7 +2,6 @@ import React, { useState, useContext, useEffect } from "react";
 import Avatar from "../components/Avatar";
 import Input from "../components/Input";
 import SubmitButton from "../components/SubmitButton";
-import { validateSignUpForm } from "../functions/validateForms";
 import { useNavigate } from "react-router-dom";
 import fetchData from "../functions/fetchData";
 import handleResponse from "../functions/authenticationErrors";
@@ -17,6 +16,7 @@ export default function CreateProfilePage() {
     const { setAuthed } = useContext(AuthContext);
 	const { formData, setFormData } = useContext(FormDataContext);
     const [errors, setErrors] = useState({});
+	const [file, setFile] = useState();
 
 	useEffect(() => {
 		if (Object.values(formData).every(value => value === "")) {
@@ -41,6 +41,10 @@ export default function CreateProfilePage() {
                 password: formData.password,
             };
 
+			if (file) {
+				input["file"] = file;
+			}
+
             const response = await fetchData(
                 "/api/users",
                 "POST",
@@ -49,10 +53,8 @@ export default function CreateProfilePage() {
             );
 
             if (response.ok) {
-                const success = await createToken(formData, setAuthed);
-                if (success) {
-                    navigate("/menu");
-                }
+				await createToken(formData, setAuthed);
+                navigate("/menu");
             } else {
                 newErrors = await handleResponse(
                     response,
@@ -72,7 +74,7 @@ export default function CreateProfilePage() {
                 <div className="d-flex flex-column justify-content-center">
                     <form>
                         <div className="mb-5">
-                            <Avatar />
+                            <Avatar setFile={setFile}/>
                         </div>
                         <div className="position-relative">
                             {errors && (

@@ -15,6 +15,8 @@ export var paused = false;
 export const keys = {
     ArrowUp: false,
     ArrowDown: false,
+    w: false,
+    s: false,
 };
 
 export function pauseGame(duration) {

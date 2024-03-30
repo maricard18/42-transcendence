@@ -54,7 +54,7 @@ export function SinglePlayerOptions() {
                 <div className="mb-3">
                     <NavButton
                         template="primary-button"
-                        page="/menu/pong-game/play"
+                        page="/menu/pong-game/play/single-player/1"
                     >
                         Computer
                     </NavButton>
@@ -62,7 +62,7 @@ export function SinglePlayerOptions() {
                 <div className="mb-3">
                     <NavButton
                         template="primary-button"
-                        page="/menu/pong-game/play"
+                        page="/menu/pong-game/play/single-player/2"
                     >
                         2 Players
                     </NavButton>

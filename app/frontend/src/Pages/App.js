@@ -169,6 +169,14 @@ const router = createBrowserRouter([
                     },
                 ],
             },
+			{
+				path: "pong-game/play/single-player/1",
+				element: <Pong />,
+			},
+			{
+				path: "pong-game/play/single-player/2",
+				element: <Pong />,
+			},
             {
                 path: "pong-game/play",
                 element: <Pong />,

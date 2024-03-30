@@ -1,6 +1,7 @@
 import { getToken, logout } from "./tokens";
 import fetchData from "./fetchData";
 import { logError } from "./utils";
+import { decode } from "./tokens";
 
 export default async function getUserInfo(setAuthed) {
     let accessToken, decodeToken, jsonData;
@@ -8,15 +9,15 @@ export default async function getUserInfo(setAuthed) {
 	try {
         accessToken = await getToken(setAuthed);
     } catch (error) {
-        logError("failed to get token -> ", error);
+        logError("failed to get access token");
 		logout(setAuthed);
 		return ;
     }
 
     try {
-        decodeToken = await decode(accessToken);
+        decodeToken = decode(accessToken);
     } catch (error) {
-        logError("failed to decode token -> ", error);
+        logError("failed to decode token");
         logout(setAuthed);
 		return ;
     }
@@ -39,7 +40,7 @@ export default async function getUserInfo(setAuthed) {
     try {
         jsonData = await response.json();
     } catch (error) {
-        logError("failed to parse response -> ", error);
+        logError("failed to parse response");
         logout(setAuthed);
 		return ;
     }
@@ -51,8 +52,4 @@ export default async function getUserInfo(setAuthed) {
     };
 
     return data;
-}
-
-async function decode(accessToken) {
-    return JSON.parse(atob(accessToken.split(".")[1]));
 }
