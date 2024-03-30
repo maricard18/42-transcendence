@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
 from .models import Avatar
-from .permissions import UserPermission, TokenPermission
+from .permissions import UserPermission, TokenPermission, SSOPermission
 from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer, AuthUserSerializer, \
     APITokenObtainPairSerializer, TokenSerializer
 from .utils import get_user
@@ -136,7 +136,8 @@ class TokenViewSet(viewsets.ViewSet):
     queryset = User.objects.all()
     permission_classes = [TokenPermission]
 
-    def new_token(self, request):
+    @staticmethod
+    def new_token(request):
         serializer = AuthUserSerializer(data=request.data, partial=True)
         if serializer.is_valid():
             username = serializer.validated_data.get('username')
@@ -180,7 +181,8 @@ class TokenViewSet(viewsets.ViewSet):
             }, status=status.HTTP_401_UNAUTHORIZED)
         return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-    def refresh_token(self, request):
+    @staticmethod
+    def refresh_token(request):
         try:
             refresh_token = RefreshToken(request.data.get('refresh_token'))
         except TokenError as e:
@@ -208,3 +210,15 @@ class TokenViewSet(viewsets.ViewSet):
             elif request.data.get('grant_type') == 'refresh_token':
                 return self.refresh_token(request)
         return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+#######################
+#####  /api/sso   #####
+#######################
+
+class SSOViewSet(viewsets.ViewSet):
+    queryset = User.objects.all()
+    permission_classes = [SSOPermission]
+
+    def callback(self, request):
+        return Response({})

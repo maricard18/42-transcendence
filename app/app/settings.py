@@ -22,18 +22,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = str(os.environ.get('DJANGO_SECRET_KEY'))
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(os.environ.get('DEBUG', default=False))
+DEBUG = bool(os.environ.get('DJANGO_DEBUG'))
 
 APPEND_SLASH = False
 
 ALLOWED_HOSTS = []
 
-env_hosts = os.environ.get('ALLOWED_HOSTS')
-if env_hosts is not None:
-    ALLOWED_HOSTS = env_hosts.split(' ')
+env_hosts = list(os.environ.get('DJANGO_ALLOWED_HOSTS', default=[]))
 
 # Application definition
 
@@ -99,10 +97,10 @@ ASGI_APPLICATION = "app.asgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('POSTGRES_DB'),
-        'USER': os.environ.get('POSTGRES_USER'),
-        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-        'HOST': os.environ.get('POSTGRES_HOST'),
+        'NAME': str(os.environ.get('POSTGRES_DB')),
+        'USER': str(os.environ.get('POSTGRES_USER')),
+        'PASSWORD': str(os.environ.get('POSTGRES_PASSWORD')),
+        'HOST': str(os.environ.get('POSTGRES_HOST')),
     }
 }
 
@@ -162,9 +160,7 @@ REST_FRAMEWORK = {
     'DEFAULT_METADATA_CLASS': 'rest_framework.metadata.SimpleMetadata'
 }
 
-JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY")
-if JWT_SECRET_KEY is None and SECRET_KEY:
-    JWT_SECRET_KEY = SECRET_KEY
+JWT_SECRET_KEY = str(os.environ.get("DJANGO_JWT_SECRET_KEY"))
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
@@ -210,7 +206,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [(os.environ.get("REDIS_HOST"), os.environ.get("REDIS_PORT"))],
+            "hosts": [(str(os.environ.get("REDIS_HOST")), str(os.environ.get("REDIS_PORT")))],
         },
     },
 }

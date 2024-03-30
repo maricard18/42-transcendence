@@ -19,3 +19,12 @@ class TokenPermission(permissions.BasePermission):
             return True
         else:
             return False
+
+
+class SSOPermission(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        if view.action == 'callback':
+            return True
+        else:
+            return False
