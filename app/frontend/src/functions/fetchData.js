@@ -10,7 +10,8 @@ export default async function fetchData(endpoint, method, headers = {}, body = n
         fetchOptions.body = body;
     }
 
-    const response = await fetch("http://localhost:8000" + endpoint, fetchOptions);
+	const host = window.location.host;
+    const response = await fetch("http://" + host + endpoint, fetchOptions);
 
     return response;
 }

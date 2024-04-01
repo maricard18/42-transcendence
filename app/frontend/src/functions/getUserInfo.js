@@ -17,7 +17,7 @@ export default async function getUserInfo(setAuthed) {
     try {
         decodeToken = decode(accessToken);
     } catch (error) {
-        logError("failed to decode token");
+        logError("failed to decode token.");
         logout(setAuthed);
         return;
     }

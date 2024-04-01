@@ -3,16 +3,16 @@ import fetchData from "./fetchData";
 import { logError } from "./utils";
 
 export async function createToken(userData, setAuthed) {
-	const formDataToSend = new FormData();
-	formDataToSend.append('grant_type', 'password');
-	formDataToSend.append('username', userData.username);
-	formDataToSend.append('password', userData.password);
+    const formDataToSend = new FormData();
+    formDataToSend.append("grant_type", "password");
+    formDataToSend.append("username", userData.username);
+    formDataToSend.append("password", userData.password);
 
     const response = await fetchData(
         "/api/tokens",
         "POST",
         null,
-		formDataToSend
+        formDataToSend
     );
 
     if (!response.ok) {
@@ -35,12 +35,14 @@ export async function setToken(response, setAuthed) {
 
         Cookies.set("access_token", accessToken, {
             expires: time,
-            sameSite: "None",
-            secure: true,
+            //!  https:// -> sameSite: "None",
+            secure: false,
+            //! https:// -> secure: true,
         });
         Cookies.set("refresh_token", refreshToken, {
-            sameSite: "None",
-            secure: true,
+            //!  https:// -> sameSite: "None",
+            secure: false,
+            //! https:// -> secure: true,
         });
 
         setAuthed(true);
@@ -59,15 +61,15 @@ export async function refreshToken(setAuthed) {
         return;
     }
 
-	const formDataToSend = new FormData();
-	formDataToSend.append('grant_type', 'refresh_token');
-	formDataToSend.append('refresh_token', refreshToken);
+    const formDataToSend = new FormData();
+    formDataToSend.append("grant_type", "refresh_token");
+    formDataToSend.append("refresh_token", refreshToken);
 
     const response = await fetchData(
         "/api/tokens",
         "POST",
         null,
-		formDataToSend
+        formDataToSend
     );
 
     if (!response.ok) {
@@ -92,7 +94,7 @@ export async function getToken(setAuthed) {
 }
 
 export async function testToken(accessToken) {
-	let decodeToken;
+    let decodeToken;
 
     try {
         decodeToken = decode(accessToken);
@@ -101,7 +103,7 @@ export async function testToken(accessToken) {
         return false;
     }
 
-	const headers = {
+    const headers = {
         Authorization: `Bearer ${accessToken}`,
     };
 
