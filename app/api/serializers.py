@@ -17,17 +17,18 @@ class AvatarSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    image = serializers.SerializerMethodField()
+    avatar = serializers.SerializerMethodField()
 
-    def get_image(self, obj):
+    def get_avatar(self, obj):
         try:
             avatar_obj = Avatar.objects.get(user=obj)
             avatar_serializer = AvatarSerializer(avatar_obj)
             avatar_url = avatar_serializer.data['avatar']
             if avatar_url:
+                request = self.context['request']
+                request_path = request.get_full_path()
                 return {
-                    "link": self.context['request'].build_absolute_uri().strip('api/users') + '/' + avatar_url.strip(
-                        '/frontend')
+                    "link": request.build_absolute_uri().strip(request_path) + '/' + avatar_url.strip('/frontend')
                 }
             return avatar_url
         except Avatar.DoesNotExist:
@@ -35,7 +36,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'image', 'is_active', 'date_joined')
+        fields = ('id', 'username', 'email', 'avatar', 'is_active', 'date_joined')
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
