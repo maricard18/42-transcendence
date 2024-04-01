@@ -5,3 +5,11 @@
 .avatar-bright {
     filter: drop-shadow(0 0 8px #9461e6);
 }
+
+.avatar-border-lg {
+	outline: 3px solid white;
+}
+
+.avatar-border-sm {
+	outline: 1px solid white;
+}

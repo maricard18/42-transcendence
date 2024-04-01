@@ -30,6 +30,7 @@ export default function Avatar({ setFile }) {
                         alt="Avatar preview"
                         width="200"
                         height="200"
+						className="avatar-border-lg"
                         style={{ borderRadius: "50%" }}
                     />
                 ) : (

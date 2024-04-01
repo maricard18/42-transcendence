@@ -33,9 +33,7 @@ export default function NavigationBar() {
         };
 
         fetchUserInfo();
-    }, [authed, userInfo.username]);
-
-    console.log("User Info: ", userInfo);
+    }, [authed, userInfo.username, userInfo.avatar]);
 
     return (
         <div className="container-fluid">
@@ -72,6 +70,7 @@ export default function NavigationBar() {
                                         alt="Avatar preview"
                                         width="40"
                                         height="40"
+										className="avatar-border-sm"
                                         style={{ borderRadius: "50%" }}
                                     />
                                 ) : (

@@ -25,8 +25,8 @@ export function validateSignUpForm(formData, setFormData) {
         errors.message = "Passwords don't match";
         errors.confirmPassword = 1;
         setFormData({ ...formData, confirmPassword: "" });
-    } else if (formData.password.length < 4) {
-        errors.message = "Password needs at least 4 characters";
+    } else if (formData.password.length < 4 || formData.password.length > 128) {
+        errors.message = "Password must have 4-128 characters";;
 		errors.password = 1;
         errors.confirmPassword = 1;
         setFormData({ ...formData, password: "", confirmPassword: "" });
@@ -91,8 +91,8 @@ export function validateProfilePasswordForm(formData, setFormData) {
         errors.message = "Passwords don't match";
         errors.confirmPassword = 1;
         setFormData({ ...formData, confirmPassword: "" });
-    } else if (formData.password.length < 4) {
-        errors.message = "Password needs at least 4 characters";
+    } else if (formData.password.length < 4 || formData.password.length > 128) {
+        errors.message = "Password must have 4-128 characters";
 		errors.password = 1;
         errors.confirmPassword = 1;
         setFormData({ ...formData, password: "", confirmPassword: "" });

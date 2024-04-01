@@ -53,13 +53,8 @@ export default async function getUserInfo(setAuthed) {
         id: decodeToken["user_id"],
     };
 
-    if (jsonData["image"]) {
-		const url = jsonData["image"]["link"];
-		const regex = /\/api\/users\/\d+\//;
-		const matchIndex = url.search(regex);
-		const matchLength = url.match(regex)[0].length;
-		const first_part = url.substring(0, matchIndex + matchLength);
-		data["avatar"] = url.substring(first_part.length - 1);
+    if (jsonData["avatar"]) {
+		data["avatar"] = jsonData["avatar"]["link"]
 	}
 
     return data;

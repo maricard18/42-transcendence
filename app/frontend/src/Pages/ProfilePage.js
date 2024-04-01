@@ -1,13 +1,17 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 import NavButton from "../components/NavButton";
 import { DefaultAvatar } from "../components/Avatar";
-import { UserInfoContext } from "../components/Context";
+import { UserInfoContext, AuthContext } from "../components/Context";
+import { getToken } from "../functions/tokens";
+import { logError } from "../functions/utils";
+import fetchData from "../functions/fetchData";
+import getUserInfo from "../functions/getUserInfo";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
 
 export default function ProfilePage() {
-	const { userInfo } = useContext(UserInfoContext);
+    const { userInfo } = useContext(UserInfoContext);
 
     return (
         <div className="container">
@@ -23,17 +27,7 @@ export default function ProfilePage() {
             >
                 <div className="d-flex flex-column">
                     <div className="mb-3">
-                        {userInfo.avatar ? (
-                            <img
-                                src={userInfo.avatar}
-                                alt="Avatar preview"
-                                width="200"
-                                height="200"
-                                style={{ borderRadius: "50%" }}
-                            />
-                        ) : (
-                            <DefaultAvatar width="200" height="200" />
-                        )}
+                        <ChangeAvatar />
                     </div>
                     <div className="box mt-3">
                         <div
@@ -64,5 +58,86 @@ export default function ProfilePage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export function ChangeAvatar() {
+    const { setAuthed } = useContext(AuthContext);
+    const { userInfo, setUserInfo } = useContext(UserInfoContext);
+    const [newAvatar, setNewAvatar] = useState();
+
+    function previewAvatar(event) {
+        const file = event.target.files[0];
+        if (file) {
+            setNewAvatar(file);
+        }
+    }
+
+    useEffect(() => {
+        const checkNewAvatar = async () => {
+            if (newAvatar) {
+                const formDataToSend = new FormData();
+                formDataToSend.append("avatar", newAvatar);
+
+                const headers = {
+                    Authorization: `Bearer ${await getToken(setAuthed)}`,
+                };
+
+                const response = await fetchData(
+                    "/api/users/" + userInfo.id,
+                    "PUT",
+                    headers,
+                    formDataToSend
+                );
+
+                if (!response.ok) {
+                    logError(response.body);
+                } else {
+                    const userData = await getUserInfo(setAuthed);
+
+                    if (userData) {
+                        setUserInfo({
+                            username: userData.username,
+                            email: userData.email,
+                            avatar: userData.avatar,
+                            id: userData.id,
+                        });
+                    } else {
+                        logError("failed to fetch user data.");
+                    }
+                }
+
+                setNewAvatar();
+            }
+        };
+
+        checkNewAvatar();
+    }, [newAvatar]);
+
+    return (
+        <figure>
+            <input
+                type="file"
+                id="avatar"
+                name="avatar"
+                accept="image/png, image/jpeg, image/jpg"
+                onChange={previewAvatar}
+                hidden
+            />
+            <label htmlFor="avatar">
+                {userInfo.avatar ? (
+                    <img
+                        src={userInfo.avatar}
+                        alt="Avatar preview"
+                        width="200"
+                        height="200"
+                        className="avatar-border-lg"
+                        style={{ borderRadius: "50%" }}
+                    />
+                ) : (
+                    <DefaultAvatar width="200" height="200" />
+                )}
+            </label>
+        </figure>
     );
 }
