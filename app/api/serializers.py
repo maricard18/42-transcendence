@@ -2,27 +2,56 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
+from .models import Avatar
+
 
 ######################
 ####  /api/users  ####
 ######################
 
+
+class AvatarSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Avatar
+        fields = ('avatar',)
+
+
 class UserSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
+    def get_image(self, obj):
+        try:
+            avatar_obj = Avatar.objects.get(user=obj)
+            avatar_serializer = AvatarSerializer(avatar_obj)
+            avatar_url = avatar_serializer.data['avatar']
+            if avatar_url:
+                return {
+                    "link": self.context['request'].build_absolute_uri().strip('api/users') + '/' + avatar_url.strip(
+                        '/frontend')
+                }
+            return avatar_url
+        except Avatar.DoesNotExist:
+            return None
+
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'is_active', 'date_joined')
+        fields = ('id', 'username', 'email', 'image', 'is_active', 'date_joined')
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
+    avatar = serializers.ImageField(required=False)
+
     class Meta:
         model = User
-        fields = ('username', 'email', 'password')
+        fields = ('username', 'email', 'password', 'avatar')
 
 
 class UpdateUserSerializer(serializers.ModelSerializer):
+    avatar = serializers.ImageField(required=False)
+
     class Meta:
         model = User
-        fields = ('username', 'email', 'password')
+        fields = ('username', 'email', 'password', 'avatar')
         extra_kwargs = {
             'username': {'required': False},
             'password': {'required': False}

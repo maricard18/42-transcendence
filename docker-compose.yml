@@ -118,6 +118,7 @@ services:
       - transcendence-dev
     volumes:
       - ./app/:/app/:ro
+      - ./app/frontend/static/images/avatars/:/app/frontend/static/images/avatars/:rw
     depends_on:
       redis-dev:
         condition: service_started
