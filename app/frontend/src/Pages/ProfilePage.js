@@ -1,11 +1,14 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Outlet } from "react-router-dom";
 import NavButton from "../components/NavButton";
 import { DefaultAvatar } from "../components/Avatar";
+import { UserInfoContext } from "../components/Context";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
 
 export default function ProfilePage() {
+	const { userInfo } = useContext(UserInfoContext);
+
     return (
         <div className="container">
             <div
@@ -20,7 +23,17 @@ export default function ProfilePage() {
             >
                 <div className="d-flex flex-column">
                     <div className="mb-3">
-                        <DefaultAvatar width="200" height="200" />
+                        {userInfo.avatar ? (
+                            <img
+                                src={userInfo.avatar}
+                                alt="Avatar preview"
+                                width="200"
+                                height="200"
+                                style={{ borderRadius: "50%" }}
+                            />
+                        ) : (
+                            <DefaultAvatar width="200" height="200" />
+                        )}
                     </div>
                     <div className="box mt-3">
                         <div

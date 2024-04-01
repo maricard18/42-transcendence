@@ -24,7 +24,7 @@ export default function NavigationBar() {
                 setUserInfo({
                     username: userData.username,
                     email: userData.email,
-					avatar: userData.avatar,
+                    avatar: userData.avatar,
                     id: userData.id,
                 });
             } else {
@@ -34,6 +34,8 @@ export default function NavigationBar() {
 
         fetchUserInfo();
     }, [authed, userInfo.username]);
+
+    console.log("User Info: ", userInfo);
 
     return (
         <div className="container-fluid">
@@ -64,11 +66,17 @@ export default function NavigationBar() {
                             aria-label="Vertical button group"
                         >
                             <div className="d-flex align-items-center mb-3">
-                                <BaseAvatar
-                                    width="40"
-                                    height="40"
-                                    template=""
-                                />
+                                {userInfo.avatar ? (
+                                    <img
+                                        src={userInfo.avatar}
+                                        alt="Avatar preview"
+                                        width="40"
+                                        height="40"
+                                        style={{ borderRadius: "50%" }}
+                                    />
+                                ) : (
+                                    <BaseAvatar width="40" height="40" template="" />
+                                )}
                                 <h6 className="username-text ms-2 mt-1">
                                     <b>{userInfo.username}</b>
                                 </h6>

@@ -161,3 +161,4 @@ cython_debug/
 
 .DS_STORE
 /app/frontend/static/frontend/*
+/app/frontend/static/images/avatars

@@ -49,7 +49,7 @@ export default function CreateProfilePage() {
 			formDataToSend.append('password', formData.password);
 		
 			if (file) {
-				formDataToSend.append('avatar', file, "mouse.jpg");
+				formDataToSend.append('avatar', file);
 			}
 		
 			const response = await fetchData(
