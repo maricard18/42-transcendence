@@ -64,10 +64,7 @@ export default function NavigationBar() {
                         >
                             <div className="d-flex align-items-center mb-3">
                                 <BaseAvatar width="40" height="40" />
-                                <h6
-                                    className="username-text"
-                                    style={{ marginLeft: "8px" }}
-                                >
+                                <h6 className="username-text ms-2 mt-1">
                                     <b>{userInfo.username}</b>
                                 </h6>
                             </div>
