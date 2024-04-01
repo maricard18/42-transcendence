@@ -14,51 +14,53 @@ import "bootstrap/dist/css/bootstrap.css";
 export default function CreateProfilePage() {
     const navigate = useNavigate();
     const { setAuthed } = useContext(AuthContext);
-	const { formData, setFormData } = useContext(FormDataContext);
+    const { formData, setFormData } = useContext(FormDataContext);
     const [errors, setErrors] = useState({});
-	const [file, setFile] = useState();
+    const [file, setFile] = useState();
 
-	useEffect(() => {
-		if (Object.values(formData).every(value => value === "")) {
-			navigate("/sign-up");
-		}
-	}, [formData])
+    useEffect(() => {
+        if (Object.values(formData).every((value) => value === "")) {
+            navigate("/sign-up");
+        }
+    }, [formData]);
 
     const handleValidation = async () => {
         let newErrors = {};
 
-		if (formData.username === "") {
-			newErrors.message = "Please fill in all required fields";
-			newErrors.username = 1;
-			setFormData({ ...formData, username: "" });
-			setErrors(newErrors);
-		} else if (formData.username.length < 4 || formData.username.length > 12) {
-			newErrors.message = "Username must be 4 to 12 characters";
-			newErrors.username = 1;
-			setFormData({ ...formData, username: "" });
-			setErrors(newErrors);
-		}
+        if (formData.username === "") {
+            newErrors.message = "Please fill in all required fields";
+            newErrors.username = 1;
+            setFormData({ ...formData, username: "" });
+            setErrors(newErrors);
+        } else if (
+            formData.username.length < 4 ||
+            formData.username.length > 12
+        ) {
+            newErrors.message = "Username must be 4 to 12 characters";
+            newErrors.username = 1;
+            setFormData({ ...formData, username: "" });
+            setErrors(newErrors);
+        }
 
         if (!newErrors.message) {
-            const input = {
-                username: formData.username,
-                email: formData.email,
-                password: formData.password,
-            };
-
+			const formDataToSend = new FormData();
+			formDataToSend.append('username', formData.username);
+			formDataToSend.append('email', formData.email);
+			formDataToSend.append('password', formData.password);
+		
 			if (file) {
-				input["file"] = file;
+				formDataToSend.append('avatar', file, "mouse.jpg");
 			}
-
-            const response = await fetchData(
-                "/api/users",
-                "POST",
-                { "Content-type": "application/json" },
-                input
-            );
+		
+			const response = await fetchData(
+				"/api/users",
+				"POST",
+				null,
+				formDataToSend
+			);
 
             if (response.ok) {
-				await createToken(formData, setAuthed);
+                await createToken(formData, setAuthed);
                 navigate("/menu");
             } else {
                 newErrors = await handleResponse(
@@ -79,7 +81,7 @@ export default function CreateProfilePage() {
                 <div className="d-flex flex-column justify-content-center">
                     <form>
                         <div className="mb-5">
-                            <Avatar setFile={setFile}/>
+                            <Avatar setFile={setFile} />
                         </div>
                         <div className="position-relative">
                             {errors && (

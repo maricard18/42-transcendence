@@ -91,6 +91,11 @@ export function validateProfilePasswordForm(formData, setFormData) {
         errors.message = "Passwords don't match";
         errors.confirmPassword = 1;
         setFormData({ ...formData, confirmPassword: "" });
+    } else if (formData.password.length < 4) {
+        errors.message = "Password needs at least 4 characters";
+		errors.password = 1;
+        errors.confirmPassword = 1;
+        setFormData({ ...formData, password: "", confirmPassword: "" });
     }
 
     return errors;

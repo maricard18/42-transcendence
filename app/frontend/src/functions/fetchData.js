@@ -1,11 +1,18 @@
-export default async function fetchData(endpoint, method, headers, body) {
-	const response = await fetch("http://localhost:8000" + endpoint, {
-		method: method,
-		headers: headers,
-		...(body ? { body: JSON.stringify(body) } : {})
-	});
+export default async function fetchData(endpoint, method, headers = {}, body = null) {
+    const fetchOptions = {
+        method: method,
+        headers: {
+            ...headers,
+        },
+    };
 
-	return response;
+    if (body) {
+        fetchOptions.body = body;
+    }
+
+    const response = await fetch("http://localhost:8000" + endpoint, fetchOptions);
+
+    return response;
 }
 
 export function checkEnterButton(functionToBeRun) {

@@ -19,7 +19,9 @@ export default function ProfilePage() {
 				vh-100"
             >
                 <div className="d-flex flex-column">
-					<DefaultAvatar width="200" height="200" />
+                    <div className="mb-3">
+                        <DefaultAvatar width="200" height="200" />
+                    </div>
                     <div className="box mt-3">
                         <div
                             className="btn-group-vertical"

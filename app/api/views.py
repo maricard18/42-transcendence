@@ -32,10 +32,11 @@ class UserViewSet(viewsets.ViewSet):
             user = User.objects.create_user(serializer.validated_data.get('username'),
                                             serializer.validated_data.get('email'),
                                             serializer.validated_data.get('password'))
-            Avatar.objects.create(
-                user=user,
-                defaults={'avatar': serializer.validated_data.get('avatar')}
-            )
+            if serializer.validated_data.get('avatar'):
+                Avatar.objects.create(
+					user=user,
+					defaults={'avatar': serializer.validated_data.get('avatar')}
+				)
             return Response({
                 'id': user.id,
                 'login': user.username,

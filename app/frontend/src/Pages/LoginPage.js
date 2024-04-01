@@ -26,17 +26,16 @@ export default function LoginPage() {
         setErrors(newErrors);
 
         if (!newErrors.message) {
-            const input = {
-                grant_type: "password",
-                username: formData.username,
-                password: formData.password,
-            };
+			const formDataToSend = new FormData();
+			formDataToSend.append('grant_type', 'password');
+			formDataToSend.append('username', formData.username);
+			formDataToSend.append('password', formData.password);
 
             const response = await fetchData(
                 "/api/tokens",
                 "POST",
-                { "Content-type": "application/json" },
-                input
+                null,
+				formDataToSend
             );
 
             if (response.ok) {

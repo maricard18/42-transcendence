@@ -11,14 +11,14 @@ import "bootstrap/dist/css/bootstrap.css";
 export default function SignUpPage() {
     const navigate = useNavigate();
     const [errors, setErrors] = useState({});
-	const { formData, setFormData } = useContext(FormDataContext);
-    
+    const { formData, setFormData } = useContext(FormDataContext);
+
     const handleValidation = async () => {
         const newErrors = validateSignUpForm(formData, setFormData);
         setErrors(newErrors);
 
         if (!newErrors.message) {
-           navigate("/create-profile");
+            navigate("/create-profile");
         }
     };
 
@@ -28,7 +28,9 @@ export default function SignUpPage() {
         <div className="container">
             <div className="center">
                 <div className="d-flex flex-column justify-content-center">
-					<h1 className="header mb-5">Sign Up</h1>
+                    <div className="mb-3">
+                        <h1 className="header mb-4">Sign Up</h1>
+                    </div>
                     <form>
                         <div className="position-relative">
                             {errors && (

@@ -27,18 +27,18 @@ export default function ChangePassword() {
 		setSuccess({});
 
         if (!newErrors.message) {
-            const input = {
-                password: formData.password,
-            };
+			const formDataToSend = new FormData();
+			formDataToSend.append('password', formData.password);
+
+			const headers = {
+				'Authorization': `Bearer ${(await getToken(setAuthed))}`
+			};
 
             const response = await fetchData(
                 "/api/users/" + userInfo.id,
                 "PUT",
-                {
-                    "Content-type": "application/json",
-                    Authorization: "Bearer " + (await getToken(setAuthed)),
-                },
-                input
+                headers,
+				formDataToSend,
             );
 
             if (!response.ok) {

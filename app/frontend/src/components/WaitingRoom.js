@@ -70,12 +70,13 @@ export function MultiplayerWaitingRoom() {
 }
 
 function PlayerQueue({ children }) {
+	const { setAuthed } = useContext(AuthContext);
     const [userData, setUserData] = useState([]);
 
     useEffect(() => {
         const fetchUserData = async () => {
             const data = await Promise.all(
-                Object.values(children).map((value) => getUserData(value))
+                Object.values(children).map((value) => getUserData(value, setAuthed))
             );
             setUserData(data);
         };
@@ -95,21 +96,21 @@ function PlayerQueue({ children }) {
 function ReadyButton({ readyState, setReadyState }) {
     const { userInfo } = useContext(UserInfoContext);
     let template;
-	
+
     useEffect(() => {
-		const message = {
-			state: {
-				[userInfo.id]: readyState,
+        const message = {
+            state: {
+                [userInfo.id]: readyState,
             },
         };
         sendMessage(ws, message);
     }, [readyState]);
 
-	if (readyState) {
-		template = "secondary-button";
-	} else {
-		template = "primary-button";
-	}
+    if (readyState) {
+        template = "secondary-button";
+    } else {
+        template = "primary-button";
+    }
 
     function handleClick() {
         if (!readyState) {
@@ -135,13 +136,14 @@ function ReadyButton({ readyState, setReadyState }) {
     );
 }
 
-async function getUserData(value) {
+async function getUserData(value, setAuthed) {
     let jsonData;
-    const accessToken = await getToken();
-    const response = await fetchData("/api/users/" + value, "GET", {
-        "Content-type": "application/json",
-        Authorization: "Bearer " + accessToken,
-    });
+
+    const headers = {
+        Authorization: `Bearer ${await getToken(setAuthed)}`,
+    };
+
+    const response = await fetchData("/api/users/" + value, "GET", headers);
 
     if (!response.ok) {
         logError("failed to fetch user data.");
@@ -158,6 +160,7 @@ async function getUserData(value) {
     const data = {
         username: jsonData["username"],
         email: jsonData["email"],
+		//! avatar: jsonData["images"]["link"],
         id: value,
     };
 

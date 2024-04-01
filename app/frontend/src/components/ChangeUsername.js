@@ -32,48 +32,55 @@ export default function ChangeUsername() {
     const handleValidation = async () => {
         let newErrors = validateProfileUserForm(formData, setFormData);
         setErrors(newErrors);
-		setSuccess({});
+        setSuccess({});
 
         if (!newErrors.message) {
-			const input = {};
-			
-			if (formData.username != userInfo.username) {
-				input.username = formData.username;
-			}
-			if (formData.email != userInfo.email) {
-				input.email = formData.email;
-			}
-			if (Object.keys(input).length === 0) {
-				return ;
-			}
+            const formDataToSend = new FormData();
 
-			const response = await fetchData(
-					"/api/users/" + userInfo.id,
-					"PUT",
-					{
-						"Content-type": "application/json",
-						Authorization: "Bearer " + (await getToken(setAuthed)),
-					},
-					input
-				);
+            if (formData.username != userInfo.username) {
+                formDataToSend.append("username", formData.username);
+            }
+            if (formData.email != userInfo.email) {
+                formDataToSend.append("email", formData.email);
+            }
 
-			if (!response.ok) {
-				newErrors = await handleResponse(
-					response,
-					formData,
-					setFormData
-				);
-				setErrors(newErrors);
-				setSuccess({});
-			} else {
-				setUserInfo({
-					...userInfo,
-					username: formData.username,
-					email: formData.email,
-				});
-				setSuccess({ message: "Changes saved" });
-			}
-		}
+            let size = 0;
+            for (let pair of formDataToSend.entries()) {
+                size++;
+            }
+
+            if (!size) {
+                return;
+            }
+
+            const headers = {
+                Authorization: `Bearer ${await getToken(setAuthed)}`,
+            };
+
+            const response = await fetchData(
+                "/api/users/" + userInfo.id,
+                "PUT",
+                headers,
+                formDataToSend
+            );
+
+            if (!response.ok) {
+                newErrors = await handleResponse(
+                    response,
+                    formData,
+                    setFormData
+                );
+                setErrors(newErrors);
+                setSuccess({});
+            } else {
+                setUserInfo({
+                    ...userInfo,
+                    username: formData.username,
+                    email: formData.email,
+                });
+                setSuccess({ message: "Changes saved" });
+            }
+        }
     };
 
     checkEnterButton(handleValidation);
@@ -86,7 +93,9 @@ export default function ChangeUsername() {
             <form>
                 <div className="position-relative">
                     {errors && <p className="form-error">{errors.message}</p>}
-                    {success && (<p className="form-success">{success.message}</p>)}
+                    {success && (
+                        <p className="form-success">{success.message}</p>
+                    )}
                     <div className="mb-1">
                         <Input
                             type="text"

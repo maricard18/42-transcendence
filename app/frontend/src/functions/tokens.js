@@ -3,17 +3,16 @@ import fetchData from "./fetchData";
 import { logError } from "./utils";
 
 export async function createToken(userData, setAuthed) {
-    const data = {
-        grant_type: "password",
-        username: userData.username,
-        password: userData.password,
-    };
+	const formDataToSend = new FormData();
+	formDataToSend.append('grant_type', 'password');
+	formDataToSend.append('username', userData.username);
+	formDataToSend.append('password', userData.password);
 
     const response = await fetchData(
         "/api/tokens",
         "POST",
-        { "Content-type": "application/json" },
-        data
+        null,
+		formDataToSend
     );
 
     if (!response.ok) {
@@ -60,16 +59,15 @@ export async function refreshToken(setAuthed) {
         return;
     }
 
-    const data = {
-        grant_type: "refresh_token",
-        refresh_token: refreshToken,
-    };
+	const formDataToSend = new FormData();
+	formDataToSend.append('grant_type', 'refresh_token');
+	formDataToSend.append('refresh_token', refreshToken);
 
     const response = await fetchData(
         "/api/tokens",
         "POST",
-        { "Content-type": "application/json" },
-        data
+        null,
+		formDataToSend
     );
 
     if (!response.ok) {
@@ -103,13 +101,14 @@ export async function testToken(accessToken) {
         return false;
     }
 
+	const headers = {
+        Authorization: `Bearer ${accessToken}`,
+    };
+
     const response = await fetchData(
         "/api/users/" + decodeToken["user_id"],
         "GET",
-        {
-            "Content-type": "application/json",
-            Authorization: "Bearer " + accessToken,
-        }
+        headers
     );
 
     if (!response.ok) {

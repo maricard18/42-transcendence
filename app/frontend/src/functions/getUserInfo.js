@@ -6,12 +6,12 @@ import { decode } from "./tokens";
 export default async function getUserInfo(setAuthed) {
     let accessToken, decodeToken, jsonData;
 
-	try {
+    try {
         accessToken = await getToken(setAuthed);
     } catch (error) {
         logError("failed to get access token");
-		logout(setAuthed);
-		return ;
+        logout(setAuthed);
+        return;
     }
 
     try {
@@ -19,22 +19,23 @@ export default async function getUserInfo(setAuthed) {
     } catch (error) {
         logError("failed to decode token");
         logout(setAuthed);
-		return ;
+        return;
     }
+
+    const headers = {
+        Authorization: `Bearer ${accessToken}`,
+    };
 
     const response = await fetchData(
         "/api/users/" + decodeToken["user_id"],
         "GET",
-        {
-            "Content-type": "application/json",
-            Authorization: "Bearer " + accessToken,
-        },
+        headers
     );
 
     if (!response.ok) {
         logError("failed to fetch user data.");
-		logout(setAuthed);
-		return ;
+        logout(setAuthed);
+        return;
     }
 
     try {
@@ -42,13 +43,13 @@ export default async function getUserInfo(setAuthed) {
     } catch (error) {
         logError("failed to parse response");
         logout(setAuthed);
-		return ;
+        return;
     }
 
     const data = {
         username: jsonData["username"],
         email: jsonData["email"],
-		//! avatar: jsonData["image"]["link"],
+        //! avatar: jsonData["image"]["link"],
         id: decodeToken["user_id"],
     };
 

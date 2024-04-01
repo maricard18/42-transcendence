@@ -1,11 +1,7 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import NavButton from "./NavButton";
-import { PreviousLocationContext, UserInfoContext } from "./Context";
-import { useLocation, Await } from "react-router-dom";
-import { connectWebsocket } from "../functions/websocket";
-import fetchData from "../functions/fetchData";
-import { getToken } from "../functions/tokens";
-import { logError } from "../functions/utils";
+import { PreviousLocationContext } from "./Context";
+import { useLocation } from "react-router-dom";
 import "../../static/css/Images.css";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
