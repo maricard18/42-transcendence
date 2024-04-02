@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState, useRef } from "react";
-import { AuthContext, UserInfoContext } from "./Context";
+import React, { useContext, useEffect, useState } from "react";
+import { AuthContext, UserInfoContext, UserQueueContext } from "./Context";
 import { useLocation, useNavigate } from "react-router-dom";
 import { connectWebsocket, sendMessage, ws } from "../functions/websocket";
 import fetchData from "../functions/fetchData";
@@ -15,9 +15,7 @@ export function MultiplayerWaitingRoom() {
     const location = useLocation().pathname;
     const lobbySize = location.substring(location.length - 1);
     const { setAuthed } = useContext(AuthContext);
-    const { userInfo } = useContext(UserInfoContext);
-    const [userQueue, setUserQueue] = useState({});
-    const [readyState, setReadyState] = useState(false);
+    const { userQueue, setUserQueue } = useContext(UserQueueContext);
     const [userReadyList, setUserReadyList] = useState({});
 
     useEffect(() => {
@@ -29,16 +27,6 @@ export function MultiplayerWaitingRoom() {
     }, []);
 
     useEffect(() => {
-        if (!readyState && userReadyList[userInfo.id]) {
-            setUserReadyList((prevState) => {
-                const newState = { ...prevState };
-                delete newState[userInfo.id];
-                return newState;
-            });
-        }
-    }, [readyState]);
-
-    useEffect(() => {
         if (
             Object.keys(userQueue).length == lobbySize &&
             Object.keys(userReadyList).length == lobbySize
@@ -47,7 +35,7 @@ export function MultiplayerWaitingRoom() {
                 (ready) => ready
             );
             if (allUsersReady) {
-                navigate("/menu/pong-game/play");
+                navigate("/menu/pong-game/play/multiplayer/" + lobbySize);
             }
         }
     }, [userReadyList]);
@@ -61,8 +49,8 @@ export function MultiplayerWaitingRoom() {
                 <PlayerQueue>{userQueue}</PlayerQueue>
                 {Object.keys(userQueue).length == lobbySize && (
                     <ReadyButton
-                        readyState={readyState}
-                        setReadyState={setReadyState}
+                        userReadyList={userReadyList}
+                        setUserReadyList={setUserReadyList}
                     />
                 )}
             </div>
@@ -87,44 +75,49 @@ function PlayerQueue({ children }) {
         fetchUserData();
     }, [children]);
 
-    console.log(userData);
-
     return (
         <div className="d-flex flex-column justify-content-start align-items-start mb-3">
             {userData.map((data, index) =>
-                data.avatar ? (
-                    <React.Fragment key={index}>
-                        <div className="d-flex flex-row mb-2">
-                            <img
-                                src={data.avatar}
-                                alt="Avatar preview"
-                                width="40"
-                                height="40"
-                                className="avatar-border-sm"
-                                style={{ borderRadius: "50%" }}
-                            />
-                            <div className="username-text ms-3 mt-2">
-                                <h5>{data.username}</h5>
+                data ? (
+                    data.avatar ? (
+                        <React.Fragment key={index}>
+                            <div className="d-flex flex-row mb-2">
+                                <img
+                                    src={data.avatar}
+                                    alt="Avatar preview"
+                                    width="40"
+                                    height="40"
+                                    className="avatar-border-sm"
+                                    style={{ borderRadius: "50%" }}
+                                />
+                                <div className="username-text ms-3 mt-2">
+                                    <h5>{data.username}</h5>
+                                </div>
                             </div>
-                        </div>
-                    </React.Fragment>
-                ) : (
-                    <React.Fragment key={index}>
-                        <div className="d-flex flex-row mb-2">
-                            <BaseAvatar width="40" height="40" template="" />
-                            <div className="username-text ms-3 mt-2">
-                                <h5>{data.username}</h5>
+                        </React.Fragment>
+                    ) : (
+                        <React.Fragment key={index}>
+                            <div className="d-flex flex-row mb-2">
+                                <BaseAvatar
+                                    width="40"
+                                    height="40"
+                                    template=""
+                                />
+                                <div className="username-text ms-3 mt-2">
+                                    <h5>{data.username}</h5>
+                                </div>
                             </div>
-                        </div>
-                    </React.Fragment>
-                )
+                        </React.Fragment>
+                    )
+                ) : null
             )}
         </div>
     );
 }
 
-function ReadyButton({ readyState, setReadyState }) {
+function ReadyButton({ userReadyList, setUserReadyList }) {
     const { userInfo } = useContext(UserInfoContext);
+    const [readyState, setReadyState] = useState(false);
     let template;
 
     useEffect(() => {
@@ -144,8 +137,10 @@ function ReadyButton({ readyState, setReadyState }) {
 
     function handleClick() {
         if (!readyState) {
+            setUserReadyList({ ...userReadyList, [userInfo.id]: true });
             setReadyState(true);
         } else {
+            setUserReadyList({ ...userReadyList, [userInfo.id]: false });
             setReadyState(false);
         }
     }
@@ -183,7 +178,7 @@ async function getUserData(value, setAuthed) {
     try {
         jsonData = await response.json();
     } catch (error) {
-        logError("failed to parse response -> ", error);
+        logError("failed to parse response.");
         return null;
     }
 
@@ -196,8 +191,6 @@ async function getUserData(value, setAuthed) {
     if (jsonData["avatar"]) {
         data["avatar"] = jsonData["avatar"]["link"];
     }
-
-    console.log("data: ", data);
 
     return data;
 }

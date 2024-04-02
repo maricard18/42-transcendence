@@ -11,11 +11,11 @@ export class Ball {
     constructor(x, y, color) {
         this.x = x;
         this.y = y;
-        this.radius = ballRadius;
         this.color = color;
-        this.speed_x = BallSpeedX * getRandomDirection();
-        this.speed_y = BallSpeedY * getRandomDirection();
-		this.acceleration = 1.1;
+        this.radius = ballRadius;
+        this.speed_x = BallSpeedX;
+        this.speed_y = getRandomDirection();
+        this.acceleration = 1.1;
         this.last_time = Date.now();
     }
 
@@ -26,35 +26,42 @@ export class Ball {
         ctx.fill();
     }
 
-    update(dt, player, cpu) {
+    update(dt, player, opponent) {
         this.x += this.speed_x * dt;
         this.y += this.speed_y * dt;
 
-		if ((this.y - this.radius <= 0 && this.speed_y < 0)|| 
-			(this.y + this.radius >= ScreenHeight && this.speed_y > 0)) {
-			this.speed_y *= -1;
-		}
+        if (
+            (this.y - this.radius <= 0 && this.speed_y < 0) ||
+            (this.y + this.radius >= ScreenHeight && this.speed_y > 0)
+        ) {
+            this.speed_y *= -1;
+        }
         if (this.x - this.radius <= 0 && this.speed_x < 0) {
-			cpu.score += 1;
-			this.reset();
-		}
-		if (this.x + this.radius >= ScreenWidth && this.speed_x > 0) {
-			player.score += 1;
-            this.reset();
-		}
+            opponent.score += 1;
+            this.reset(player, opponent);
+        }
+        if (this.x + this.radius >= ScreenWidth && this.speed_x > 0) {
+            player.score += 1;
+            this.reset(player, opponent);
+        }
     }
 
-    reset() {
+    reset(player, opponent) {
         this.x = ScreenWidth / 2;
         this.y = ScreenHeight / 2;
 
-        this.speed_y = BallSpeedY * getRandomDirection();
-        this.speed_x = BallSpeedX * getRandomDirection();
+        if (player.score > opponent.score) {
+            this.speed_y = getRandomDirection();
+            this.speed_x = BallSpeedX;
+        } else {
+            this.speed_y = getRandomDirection();
+            this.speed_x = BallSpeedX * -1;
+        }
 
         pauseGame(2);
     }
 }
 
 function getRandomDirection() {
-    return Math.random() < 0.5 ? -1 : 1;
+    return Math.floor(Math.random() * 2 * BallSpeedY - BallSpeedY);
 }

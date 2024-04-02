@@ -1,6 +1,7 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useContext } from "react";
 import { startGame } from "../Game/pongGameCode";
 import { useLocation } from "react-router-dom";
+import { UserInfoContext, UserQueueContext } from "../components/Context";
 import "bootstrap/dist/css/bootstrap.css";
 
 export default function PongPage() {
@@ -8,13 +9,13 @@ export default function PongPage() {
 	const location = useLocation().pathname;
 	const gameMode = location.match(/\/([^\/]+)\/[^\/]+$/)[1];
     const lobbySize = location.substring(location.length - 1);
-
-	console.log(gameMode, lobbySize);
+	const { userInfo } = useContext(UserInfoContext);
+	const { userQueue } = useContext(UserQueueContext);
 
     useEffect(() => {
 		const startPongGame = async () => {
 			const canvas = canvasRef.current;
-			startGame(canvas, gameMode, lobbySize);
+			startGame(canvas, gameMode, lobbySize, userInfo, userQueue);
 		};
 
 		startPongGame();

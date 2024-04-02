@@ -4,7 +4,8 @@ export var ws;
 
 export async function connectWebsocket(setAuthed, setUserQueue, setUserReadyList) {
     const token = await getToken(setAuthed);
-    ws = new WebSocket("ws://localhost:8000/ws/games/1/queue/2", [
+	const host = window.location.host;
+    ws = new WebSocket("ws://" + host + "/ws/games/1/queue/2", [
         "Authorization",
         token,
     ]);

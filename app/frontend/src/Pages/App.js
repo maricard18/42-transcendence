@@ -5,6 +5,7 @@ import {
     FormDataProvider,
     UserInfoProvider,
     PreviousLocationProvider,
+    UserQueueProvider,
 } from "../components/Context";
 import LandingPage from "./LandingPage";
 import SignUpPage from "./SignUpPage";
@@ -70,9 +71,11 @@ const router = createBrowserRouter([
         element: (
             <IsAuthed>
                 <UserInfoProvider>
-                    <PreviousLocationProvider>
-                        <NavigationBar />
-                    </PreviousLocationProvider>
+                    <UserQueueProvider>
+                        <PreviousLocationProvider>
+                            <NavigationBar />
+                        </PreviousLocationProvider>
+                    </UserQueueProvider>
                 </UserInfoProvider>
             </IsAuthed>
         ),
@@ -169,14 +172,22 @@ const router = createBrowserRouter([
                     },
                 ],
             },
+            {
+                path: "pong-game/play/single-player/1",
+                element: <Pong />,
+            },
+            {
+                path: "pong-game/play/single-player/2",
+                element: <Pong />,
+            },
 			{
-				path: "pong-game/play/single-player/1",
-				element: <Pong />,
-			},
+                path: "pong-game/play/multiplayer/2",
+                element: <Pong />,
+            },
 			{
-				path: "pong-game/play/single-player/2",
-				element: <Pong />,
-			},
+                path: "pong-game/play/multiplayer/4",
+                element: <Pong />,
+            },
             {
                 path: "pong-game/play",
                 element: <Pong />,

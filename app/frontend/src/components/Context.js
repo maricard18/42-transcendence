@@ -60,6 +60,17 @@ export const UserInfoProvider = ({ children }) => {
     );
 };
 
+export const UserQueueContext = createContext();
+export const UserQueueProvider = ({ children }) => {
+    const [userQueue, setUserQueue] = useState({});
+
+    return (
+        <UserQueueContext.Provider value={{ userQueue, setUserQueue }}>
+            {children}
+        </UserQueueContext.Provider>
+    );
+};
+
 export const PreviousLocationContext = createContext();
 export const PreviousLocationProvider = ({ children }) => {
     const location = useLocation();
