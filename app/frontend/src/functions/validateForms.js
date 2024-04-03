@@ -1,7 +1,9 @@
+const usernamePattern = /^[a-zA-Z0-9@.+_-]+$/;
+const emailPattern =
+    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]{2,})+$/;
+
 export function validateSignUpForm(formData, setFormData) {
     const errors = {};
-    const emailPattern =
-        /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
     if (formData.email === "") {
         errors.message = "Please fill in all required fields";
@@ -17,19 +19,23 @@ export function validateSignUpForm(formData, setFormData) {
         errors.message = "Please fill in all required fields";
         errors.confirmPassword = 1;
         setFormData({ ...formData, confirmPassword: "" });
+    } else if (formData.email.length < 6 || formData.email.length > 64) {
+        errors.message = "Email must have 6-64 characters";
+        errors.email = 1;
+        setFormData({ ...formData, email: "" });
     } else if (!emailPattern.test(formData.email)) {
         errors.message = "Email not valid";
         errors.email = 1;
         setFormData({ ...formData, email: "" });
+    } else if (formData.password.length < 4 || formData.password.length > 32) {
+        errors.message = "Password must have 4-32 characters";
+        errors.password = 1;
+        errors.confirmPassword = 1;
+        setFormData({ ...formData, password: "", confirmPassword: "" });
     } else if (formData.password !== formData.confirmPassword) {
         errors.message = "Passwords don't match";
         errors.confirmPassword = 1;
         setFormData({ ...formData, confirmPassword: "" });
-    } else if (formData.password.length < 4 || formData.password.length > 128) {
-        errors.message = "Password must have 4-128 characters";;
-		errors.password = 1;
-        errors.confirmPassword = 1;
-        setFormData({ ...formData, password: "", confirmPassword: "" });
     }
 
     return errors;
@@ -54,8 +60,6 @@ export function validateLoginForm(formData, setFormData) {
 
 export function validateProfileUserForm(formData, setFormData) {
     const errors = {};
-    const emailPattern =
-        /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
     if (formData.username === "") {
         errors.message = "Please fill in all required fields";
@@ -64,6 +68,18 @@ export function validateProfileUserForm(formData, setFormData) {
     }
     if (formData.email === "") {
         errors.message = "Please fill in all required fields";
+        errors.email = 1;
+        setFormData({ ...formData, email: "" });
+    } else if (formData.username.length < 4 || formData.username.length > 12) {
+        errors.message = "Username must have 4-12 characters";
+        errors.username = 1;
+        setFormData({ ...formData, username: "" });
+    } else if (!usernamePattern.test(formData.username)) {
+        errors.message = "Username has invalid characters";
+        errors.username = 1;
+        setFormData({ ...formData, username: "" });
+    } else if (formData.email.length < 6 || formData.email.length > 64) {
+        errors.message = "Email must have 6-64 characters";
         errors.email = 1;
         setFormData({ ...formData, email: "" });
     } else if (!emailPattern.test(formData.email)) {
@@ -87,15 +103,15 @@ export function validateProfilePasswordForm(formData, setFormData) {
         errors.message = "Please fill in all required fields";
         errors.confirmPassword = 1;
         setFormData({ ...formData, confirmPassword: "" });
+    } else if (formData.password.length < 4 || formData.password.length > 32) {
+        errors.message = "Password must have 4-32 characters";
+        errors.password = 1;
+        errors.confirmPassword = 1;
+        setFormData({ ...formData, password: "", confirmPassword: "" });
     } else if (formData.password !== formData.confirmPassword) {
         errors.message = "Passwords don't match";
         errors.confirmPassword = 1;
         setFormData({ ...formData, confirmPassword: "" });
-    } else if (formData.password.length < 4 || formData.password.length > 128) {
-        errors.message = "Password must have 4-128 characters";
-		errors.password = 1;
-        errors.confirmPassword = 1;
-        setFormData({ ...formData, password: "", confirmPassword: "" });
     }
 
     return errors;

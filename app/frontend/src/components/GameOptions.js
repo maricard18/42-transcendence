@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from "react";
 import NavButton from "./NavButton";
-import { PreviousLocationContext } from "./Context";
+import { OnQueueContext, PreviousLocationContext } from "./Context";
 import { useLocation } from "react-router-dom";
 import "../../static/css/Images.css";
 import "../../static/css/Buttons.css";
@@ -87,8 +87,10 @@ export function SinglePlayerOptions() {
 export function MultiplayerOptions() {
     const location = useLocation();
     const { setPreviousLocation } = useContext(PreviousLocationContext);
-
+	const { setOnQueue } = useContext(OnQueueContext);
+	
     useEffect(() => {
+		setOnQueue(false);
         setPreviousLocation(location.pathname);
     }, [location.pathname]);
 

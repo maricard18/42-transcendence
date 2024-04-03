@@ -25,6 +25,7 @@ export default function CreateProfilePage() {
     }, [formData]);
 
     const handleValidation = async () => {
+		const usernamePattern = /^[a-zA-Z0-9@.+_-]+$/;
         let newErrors = {};
 
         if (formData.username === "") {
@@ -32,15 +33,17 @@ export default function CreateProfilePage() {
             newErrors.username = 1;
             setFormData({ ...formData, username: "" });
             setErrors(newErrors);
-        } else if (
-            formData.username.length < 4 ||
-            formData.username.length > 12
-        ) {
+        } else if (formData.username.length < 4 || formData.username.length > 12) {
             newErrors.message = "Username must have 4-12 characters";
             newErrors.username = 1;
             setFormData({ ...formData, username: "" });
             setErrors(newErrors);
-        }
+        } else if (!usernamePattern.test(formData.username)) {
+			newErrors.message = "Username has invalid characters";
+			newErrors.username = 1;
+			setFormData({ ...formData, username: "" });
+			setErrors(newErrors);
+		}
 
         if (!newErrors.message) {
 			const formDataToSend = new FormData();

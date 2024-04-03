@@ -6,6 +6,7 @@ urlpatterns = [
 	re_path(r'^sign-up/?$', RenderIndex),
 	re_path(r'^create-profile/?$', RenderIndex),
 	re_path(r'^login/?$', RenderIndex),
+	re_path(r'^login/42/?$', RenderIndex),
 	re_path(r'^menu/?$', RenderIndex),
 	re_path(r'^menu/pong-game/options/?$', RenderIndex),
 	re_path(r'^menu/pong-game/single-player/?$', RenderIndex),

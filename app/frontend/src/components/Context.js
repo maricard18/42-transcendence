@@ -1,25 +1,25 @@
 import React, { createContext, useState, useEffect } from "react";
 import { getToken, hasToken } from "../functions/tokens";
 import { useLocation } from "react-router-dom";
+import { ws } from "../functions/websocket";
 
 export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const [authed, setAuthed] = useState(false);
-	const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const checkToken = async () => {
             const token = await getToken(setAuthed);
-			if (token)
-            	setAuthed(true);
-			setLoading(false);
+            if (token) setAuthed(true);
+            setLoading(false);
         };
         checkToken();
     }, []);
 
-	if (loading) {
-		return null;
-	}
+    if (loading) {
+        return null;
+    }
 
     return (
         <AuthContext.Provider value={{ authed, setAuthed }}>
@@ -49,7 +49,7 @@ export const UserInfoProvider = ({ children }) => {
     const [userInfo, setUserInfo] = useState({
         username: "",
         email: "",
-		avatar: "",
+        avatar: "",
         id: "",
     });
 
@@ -73,8 +73,13 @@ export const UserQueueProvider = ({ children }) => {
 
 export const PreviousLocationContext = createContext();
 export const PreviousLocationProvider = ({ children }) => {
-    const location = useLocation();
-    const [previousLocation, setPreviousLocation] = useState(location.pathname);
+    const location = useLocation().pathname;
+    const [previousLocation, setPreviousLocation] = useState(location);
+	var last_location;
+
+    useEffect(() => {
+        last_location = previousLocation;
+    }, [previousLocation]);
 
     return (
         <PreviousLocationContext.Provider
@@ -84,3 +89,30 @@ export const PreviousLocationProvider = ({ children }) => {
         </PreviousLocationContext.Provider>
     );
 };
+
+export const OnQueueContext = createContext();
+export const OnQueueProvider = ({ children }) => {
+	const location = useLocation().pathname;
+    const [onQueue, setOnQueue] = useState();
+
+    useEffect(() => {
+        console.log("Here");
+		console.log(location)
+        if (onQueue === false) {
+            console.log("trying to close ws!");
+            if (ws) {
+				console.log("Closed ws");
+                ws.close();
+            }
+        }
+    }, [onQueue]);
+
+    return (
+        <OnQueueContext.Provider
+            value={{ onQueue, setOnQueue }}
+        >
+            {children}
+        </OnQueueContext.Provider>
+    );
+};
+

@@ -1,4 +1,4 @@
-import { PlayerSpeed, PlayerWidth, PlayerHeight, ScreenHeight, keys } from "./variables";
+import { PaddleSpeed, PaddleWidth, PaddleHeight, ScreenHeight, keys } from "./variables";
 
 export class Player {
     constructor(x, y, color, keyUp, keyDown, id) {
@@ -8,11 +8,13 @@ export class Player {
 		this.keyUp = keyUp;
 		this.keyDown = keyDown;
 		this.id = id,
-		this.width = PlayerWidth;
-		this.height = PlayerHeight;
+		this.initial_x = x;
+		this.initial_y = y;
+		this.width = PaddleWidth;
+		this.height = PaddleHeight;
 		this.inital_speed = 200;
 		this.speed = this.inital_speed;
-		this.max_speed = PlayerSpeed;
+		this.max_speed = PaddleSpeed;
 		this.acceleration = 1.1;
 		this.score = 0;
     }

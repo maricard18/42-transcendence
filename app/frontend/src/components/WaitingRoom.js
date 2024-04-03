@@ -1,5 +1,10 @@
 import React, { useContext, useEffect, useState } from "react";
-import { AuthContext, UserInfoContext, UserQueueContext } from "./Context";
+import {
+    AuthContext,
+    UserInfoContext,
+    UserQueueContext,
+    OnQueueContext,
+} from "./Context";
 import { useLocation, useNavigate } from "react-router-dom";
 import { connectWebsocket, sendMessage, ws } from "../functions/websocket";
 import fetchData from "../functions/fetchData";
@@ -14,6 +19,7 @@ export function MultiplayerWaitingRoom() {
     const navigate = useNavigate();
     const location = useLocation().pathname;
     const lobbySize = location.substring(location.length - 1);
+    const { setOnQueue } = useContext(OnQueueContext);
     const { setAuthed } = useContext(AuthContext);
     const { userQueue, setUserQueue } = useContext(UserQueueContext);
     const [userReadyList, setUserReadyList] = useState({});
@@ -24,6 +30,7 @@ export function MultiplayerWaitingRoom() {
         };
 
         startConnectingProcess();
+        setOnQueue(true);
     }, []);
 
     useEffect(() => {

@@ -6,6 +6,7 @@ import {
     ballRadius,
     pauseGame,
 } from "./variables";
+import { sendHostMessage, sendNonHostMessage } from "./pongGameCode";
 
 export class Ball {
     constructor(x, y, color) {
@@ -26,7 +27,7 @@ export class Ball {
         ctx.fill();
     }
 
-    update(dt, player, opponent) {
+    update(game, opponent, dt) {
         this.x += this.speed_x * dt;
         this.y += this.speed_y * dt;
 
@@ -38,19 +39,31 @@ export class Ball {
         }
         if (this.x - this.radius <= 0 && this.speed_x < 0) {
             opponent.score += 1;
-            this.reset(player, opponent);
+            this.reset(game, opponent);
         }
         if (this.x + this.radius >= ScreenWidth && this.speed_x > 0) {
-            player.score += 1;
-            this.reset(player, opponent);
+            game.player.score += 1;
+            this.reset(game, opponent);
+        }
+
+        if (game.mode === "multiplayer") {
+            if (game.player_id === game.host_id) {
+                sendHostMessage(game);
+            } else {
+                sendNonHostMessage(game);
+            }
         }
     }
 
-    reset(player, opponent) {
+    reset(game, opponent) {
         this.x = ScreenWidth / 2;
         this.y = ScreenHeight / 2;
+        game.player.x = game.player.initial_x;
+        game.player.y = game.player.initial_y;
+        opponent.x = opponent.initial_x;
+        opponent.y = opponent.initial_y;
 
-        if (player.score > opponent.score) {
+        if (game.player.score > opponent.score) {
             this.speed_y = getRandomDirection();
             this.speed_x = BallSpeedX;
         } else {
@@ -58,7 +71,15 @@ export class Ball {
             this.speed_x = BallSpeedX * -1;
         }
 
-        pauseGame(2);
+        if (game.mode === "multiplayer") {
+            if (game.player_id === game.host_id) {
+                sendHostMessage(game);
+            } else {
+                sendNonHostMessage(game);
+            }
+        }
+
+        pauseGame(game, 5);
     }
 }
 

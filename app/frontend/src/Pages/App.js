@@ -6,11 +6,14 @@ import {
     UserInfoProvider,
     PreviousLocationProvider,
     UserQueueProvider,
+    OnQueueContext,
+    OnQueueProvider,
 } from "../components/Context";
 import LandingPage from "./LandingPage";
 import SignUpPage from "./SignUpPage";
 import CreateProfilePage from "./CreateProfilePage";
 import LoginPage from "./LoginPage";
+import Login42Page from "./Login42Page";
 import HomePage from "./HomePage";
 import { Game1, Game2 } from "../components/Games";
 import {
@@ -59,6 +62,14 @@ const router = createBrowserRouter([
         ),
     },
     {
+        path: "/login/42",
+        element: (
+            <IsNotAuthed>
+                <Login42Page />,
+            </IsNotAuthed>
+        ),
+    },
+    {
         path: "/login",
         element: (
             <IsNotAuthed>
@@ -73,7 +84,9 @@ const router = createBrowserRouter([
                 <UserInfoProvider>
                     <UserQueueProvider>
                         <PreviousLocationProvider>
-                            <NavigationBar />
+                            <OnQueueProvider>
+                                <NavigationBar />
+                            </OnQueueProvider>
                         </PreviousLocationProvider>
                     </UserQueueProvider>
                 </UserInfoProvider>
@@ -180,11 +193,11 @@ const router = createBrowserRouter([
                 path: "pong-game/play/single-player/2",
                 element: <Pong />,
             },
-			{
+            {
                 path: "pong-game/play/multiplayer/2",
                 element: <Pong />,
             },
-			{
+            {
                 path: "pong-game/play/multiplayer/4",
                 element: <Pong />,
             },
