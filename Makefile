@@ -48,7 +48,7 @@ fclean: confirm
 	@$(COMMAND) down --volumes
 	@images=$$(docker image ls -q "$(PROJECT_NAME)-*"); \
 	if [ -n "$$images" ]; then \
-		docker image rm $$images; \
+		docker image rm $$images -f; \
 	fi
 
 db-migrations:
