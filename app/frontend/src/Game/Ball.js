@@ -6,7 +6,6 @@ import {
     ballRadius,
     pauseGame,
 } from "./variables";
-import { sendHostMessage } from "./pongGameCode";
 
 export class Ball {
     constructor(x, y, color) {

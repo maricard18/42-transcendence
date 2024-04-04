@@ -1,5 +1,5 @@
 import { getToken } from "./tokens";
-import { logError } from "./utils";
+import { log, logError } from "./utils";
 
 export var MyWebSocket = {};
 
@@ -17,6 +17,7 @@ export async function connectWebsocket(
     ]);
 
     MyWebSocket.ws.onopen = () => {
+		log("Websocket Created");
         setLoading(false);
     };
 
@@ -59,11 +60,13 @@ export async function connectWebsocket(
 }
 
 export function sendMessage(ws, message) {
-    if (ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify(message));
-    } else {
-        logError("WebSocket connection is not open");
-    }
+	if (ws) {
+		if (ws.readyState === WebSocket.OPEN) {
+			ws.send(JSON.stringify(message));
+		} else {
+			logError("WebSocket connection is not open");
+		}
+	}
 }
 
 export function multiplayerMessageHandler(ws, game, host) {

@@ -1,7 +1,8 @@
 import React, { createContext, useState, useEffect } from "react";
-import { getToken, hasToken } from "../functions/tokens";
+import { getToken } from "../functions/tokens";
 import { useLocation } from "react-router-dom";
 import { MyWebSocket } from "../functions/websocket";
+import { log } from "../functions/utils";
 
 export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
@@ -11,7 +12,9 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const checkToken = async () => {
             const token = await getToken(setAuthed);
-            if (token) setAuthed(true);
+            if (token) {
+				setAuthed(true);
+			}
             setLoading(false);
         };
         checkToken();
@@ -82,7 +85,7 @@ export const PreviousLocationProvider = ({ children }) => {
             location !== "/menu/pong-game/play/multiplayer/2" &&
             location !== "/menu/pong-game/play/multiplayer/4") {
             if (MyWebSocket.ws) {
-                console.log("Closed websocket!");
+                log("Closed websocket!");
                 MyWebSocket.ws.close();
                 delete MyWebSocket.ws;
             }
