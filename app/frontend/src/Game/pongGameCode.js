@@ -4,6 +4,7 @@ import { Player } from "./Player";
 import { Opponent } from "./Opponent";
 import { Cpu } from "./Cpu";
 import { MyWebSocket, sendMessage } from "../functions/websocket";
+import { multiplayerMessageHandler } from "../functions/websocket";
 import {
     ScreenWidth,
     ScreenHeight,
@@ -18,7 +19,8 @@ export async function startGame(
     gameMode,
     lobbySize,
     userInfo,
-    userQueue
+    userQueue,
+	setGameOver
 ) {
     const ctx = canvas.getContext("2d");
 
@@ -61,7 +63,7 @@ export async function startGame(
             lobbySize,
             paused: false,
         };
-        singleplayerGameLoop(game, ctx, keys);
+        singleplayerGameLoop(game, ctx, setGameOver);
     } else if (gameMode === "single-player" && lobbySize == 2) {
         const player = new Player(
             25,
@@ -88,7 +90,7 @@ export async function startGame(
             lobbySize,
             paused: false,
         };
-        singleplayerGameLoop(game, ctx);
+        singleplayerGameLoop(game, ctx, setGameOver);
     } else if (gameMode === "multiplayer" && lobbySize == 2) {
         const host_id = Object.values(userQueue)[0];
         let player;
@@ -140,12 +142,20 @@ export async function startGame(
             lobbySize,
             paused: false,
         };
+
         multiplayerMessageHandler(MyWebSocket.ws, game, host_id);
-        multiplayerGameLoop(game, ctx);
+
+        if (game.player_id === game.host_id) {
+            sendHostMessage(game);
+        } else {
+            sendNonHostMessage(game);
+        }
+
+        multiplayerGameLoop(game, ctx, setGameOver);
     }
 }
 
-function singleplayerGameLoop(game, ctx) {
+function singleplayerGameLoop(game, ctx, setGameOver) {
     if (!game.paused) {
         let current_time = Date.now();
         let dt = (current_time - game.last_time) / 1000;
@@ -183,11 +193,13 @@ function singleplayerGameLoop(game, ctx) {
         if (game.lobbySize == 1) {
             if (game.player.score === 5 || game.cpu.score === 5) {
                 console.log("Game Finished");
+				setGameOver(true);
                 return;
             }
         } else if (game.lobbySize == 2) {
             if (game.player.score === 5 || game.opponent.score === 5) {
                 console.log("Game Finished");
+				setGameOver(true);
                 return;
             }
         }
@@ -203,10 +215,10 @@ function singleplayerGameLoop(game, ctx) {
 
     game.last_time = Date.now();
 
-    window.requestAnimationFrame(() => singleplayerGameLoop(game, ctx));
+    window.requestAnimationFrame(() => singleplayerGameLoop(game, ctx, setGameOver));
 }
 
-function multiplayerGameLoop(game, ctx) {
+function multiplayerGameLoop(game, ctx, setGameOver) {
     if (!game.paused) {
         let current_time = Date.now();
         let dt = (current_time - game.last_time) / 1000;
@@ -247,6 +259,7 @@ function multiplayerGameLoop(game, ctx) {
 
         if (game.player.score === 5 || game.opponent.score === 5) {
             console.log("Game Finished");
+			setGameOver(true);
             return;
         }
 
@@ -257,7 +270,7 @@ function multiplayerGameLoop(game, ctx) {
 
     game.last_time = Date.now();
 
-    window.requestAnimationFrame(() => multiplayerGameLoop(game, ctx));
+    window.requestAnimationFrame(() => multiplayerGameLoop(game, ctx, setGameOver));
 }
 
 function clearBackground(ctx) {
@@ -310,40 +323,4 @@ export function sendNonHostMessage(game) {
     sendMessage(MyWebSocket.ws, message);
 }
 
-function multiplayerMessageHandler(ws, game, host) {
-    ws.onmessage = (event) => {
-        console.log("Game msg from server: ", JSON.parse(event.data));
 
-        try {
-            const jsonData = JSON.parse(event.data);
-
-            if (jsonData["type"] == "user.message") {
-                const gameData = jsonData["data"]["game"];
-                game.opponent.x = gameData["player_x"];
-                game.opponent.y = gameData["player_y"];
-
-                if (gameData["id"] == host) {
-                    game.ball.x = gameData["ball_x"];
-                    game.ball.y = gameData["ball_y"];
-                    game.ball.speed_x = gameData["ball_speed_x"];
-                    game.ball.speed_y = gameData["ball_speed_y"];
-                    game.player.score = gameData["opponent_score"];
-                    game.opponent.score = gameData["player_score"];
-
-                    if (gameData["paused"]) {
-                        updateOpponentScreen(game, gameData);
-                    }
-                }
-            }
-        } catch (error) {
-            console.log(error);
-        }
-    };
-}
-
-function updateOpponentScreen(game, gameData) {
-    console.log("Here!");
-    //game.player.x = game.player.initial_x;
-    //game.player.y = game.player.initial_y;
-	game.paused = gameData["paused"];
-}

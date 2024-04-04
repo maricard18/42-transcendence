@@ -5,16 +5,17 @@ import {
     UserInfoContext,
     UserQueueContext,
 } from "./Context";
-import { useLocation, useNavigate } from "react-router-dom";
 import {
     connectWebsocket,
     sendMessage,
     MyWebSocket,
 } from "../functions/websocket";
 import fetchData from "../functions/fetchData";
+import { useLocation, useNavigate } from "react-router-dom";
 import { getToken } from "../functions/tokens";
 import { logError } from "../functions/utils";
 import { BaseAvatar } from "./Avatar";
+import { CheckIcon, CloseIcon } from "./Icons";
 import "../../static/css/Images.css";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
@@ -31,7 +32,12 @@ export function MultiplayerWaitingRoom() {
 
     useEffect(() => {
         const startConnectingProcess = async () => {
-            await connectWebsocket(setAuthed, setUserQueue, setUserReadyList, setLoading);
+            await connectWebsocket(
+                setAuthed,
+                setUserQueue,
+                setUserReadyList,
+                setLoading
+            );
         };
 
         startConnectingProcess();
@@ -52,25 +58,25 @@ export function MultiplayerWaitingRoom() {
         }
     }, [userReadyList, userQueue]);
 
-    console.log(userQueue);
-	console.log(loading);
-
     return (
         <div className="d-flex flex-column col-md-6">
             <div className="p-3 p-lg-5 pd-xl-0">
                 <div className="d-flex flex-row mb-4">
                     <h3>Waiting for players</h3>
-					<div class="d-flex justify-content-center">
-                    <div
-                        class="spinner-border ms-3 mt-2"
-                        style={{width: "20px", height: "20px"}}
-                        role="status"
-                    >
-                        <span class="visually-hidden">Loading...</span>
+                    <div className="d-flex justify-content-center">
+                        <div
+                            className="spinner-border ms-3 mt-2"
+                            style={{ width: "20px", height: "20px" }}
+                            role="status"
+                        >
+                            <span className="visually-hidden">Loading...</span>
+                        </div>
                     </div>
                 </div>
-                </div>
-                <PlayerQueue>{userQueue}</PlayerQueue>
+                <PlayerQueue
+                    userQueue={userQueue}
+                    userReadyList={userReadyList}
+                />
                 {!loading
                     ? Object.keys(userQueue).length == lobbySize && (
                           <ReadyButton
@@ -84,14 +90,14 @@ export function MultiplayerWaitingRoom() {
     );
 }
 
-function PlayerQueue({ children }) {
+function PlayerQueue({ userQueue, userReadyList }) {
     const { setAuthed } = useContext(AuthContext);
     const [userData, setUserData] = useState([]);
 
     useEffect(() => {
         const fetchUserData = async () => {
             const data = await Promise.all(
-                Object.values(children).map((value) =>
+                Object.values(userQueue).map((value) =>
                     getUserData(value, setAuthed)
                 )
             );
@@ -99,7 +105,7 @@ function PlayerQueue({ children }) {
         };
 
         fetchUserData();
-    }, [children]);
+    }, [userQueue, userReadyList]);
 
     return (
         <div className="d-flex flex-column justify-content-start align-items-start mb-3">
@@ -116,8 +122,16 @@ function PlayerQueue({ children }) {
                                     className="avatar-border-sm"
                                     style={{ borderRadius: "50%" }}
                                 />
-                                <div className="username-text ms-3 mt-2">
-                                    <h5>{data.username}</h5>
+                                <div className="d-flex flex-row justify-content-center">
+                                    <div className="username-text ms-3 mt-2">
+                                        <h5>{data.username}</h5>
+                                    </div>
+                                    <div className="ms-1 mt-2">
+                                        <CheckIfReady
+                                            data={data}
+                                            userReadyList={userReadyList}
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </React.Fragment>
@@ -129,8 +143,16 @@ function PlayerQueue({ children }) {
                                     height="40"
                                     template=""
                                 />
-                                <div className="username-text ms-3 mt-2">
-                                    <h5>{data.username}</h5>
+                                <div className="d-flex flex-row">
+                                    <div className="username-text ms-3 mt-2">
+                                        <h5>{data.username}</h5>
+                                    </div>
+                                    <div className="ms-1 mt-2">
+                                        <CheckIfReady
+                                            data={data}
+                                            userReadyList={userReadyList}
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </React.Fragment>
@@ -141,10 +163,27 @@ function PlayerQueue({ children }) {
     );
 }
 
+function CheckIfReady({ data, userReadyList }) {
+    return Object.entries(userReadyList).map(([userId, isReady], index) => {
+        if (userId == data.id) {
+            if (isReady) {
+                return <CheckIcon key={index} />;
+            } else {
+                return <CloseIcon key={index} />;
+            }
+        }
+    });
+}
+
 function ReadyButton({ userReadyList, setUserReadyList }) {
     const { userInfo } = useContext(UserInfoContext);
     const [readyState, setReadyState] = useState(false);
     let template;
+
+    useEffect(() => {
+        setUserReadyList({ ...userReadyList, [userInfo.id]: false });
+        setReadyState(false);
+    }, []);
 
     useEffect(() => {
         const message = {

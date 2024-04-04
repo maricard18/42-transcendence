@@ -16,12 +16,12 @@ export async function connectWebsocket(
         token,
     ]);
 
-	MyWebSocket.ws.onopen = () => {
+    MyWebSocket.ws.onopen = () => {
         setLoading(false);
     };
 
     MyWebSocket.ws.onmessage = (event) => {
-        console.log("WEBSOCKET: ", JSON.parse(event.data));
+        console.log("WEBSOCKET", JSON.parse(event.data));
 
         try {
             const jsonData = JSON.parse(event.data);
@@ -64,4 +64,43 @@ export function sendMessage(ws, message) {
     } else {
         logError("WebSocket connection is not open");
     }
+}
+
+export function multiplayerMessageHandler(ws, game, host) {
+    ws.onmessage = (event) => {
+        console.log("GAME", JSON.parse(event.data));
+
+        try {
+            const jsonData = JSON.parse(event.data);
+
+            if (jsonData["type"] == "user.message") {
+                const gameData = jsonData["data"]["game"];
+                game.opponent.x = gameData["player_x"];
+                game.opponent.y = gameData["player_y"];
+
+                if (gameData["id"] == host) {
+                    game.ball.x = gameData["ball_x"];
+                    game.ball.y = gameData["ball_y"];
+                    game.ball.speed_x = gameData["ball_speed_x"];
+                    game.ball.speed_y = gameData["ball_speed_y"];
+                    game.player.score = gameData["opponent_score"];
+                    game.opponent.score = gameData["player_score"];
+
+                    //if (gameData["paused"]) {
+                    //    updateOpponentScreen(game, gameData);
+                    //} else if (gameData["paused"] === false) {
+                    //	game.paused = false;
+                    //}
+                }
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+}
+
+function updateOpponentScreen(game, gameData) {
+    game.player.x = game.player.initial_x;
+    game.player.y = game.player.initial_y;
+    game.paused = true;
 }

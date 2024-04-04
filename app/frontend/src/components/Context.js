@@ -77,13 +77,14 @@ export const PreviousLocationProvider = ({ children }) => {
     const [previousLocation, setPreviousLocation] = useState(location);
 
     useEffect(() => {
-        if (
-            previousLocation === "/menu/pong-game/multiplayer/waiting-room/2" ||
-            previousLocation === "/menu/pong-game/multiplayer/waiting-room/4"
-        ) {
+        if ((previousLocation === "/menu/pong-game/multiplayer/waiting-room/2" ||
+            previousLocation === "/menu/pong-game/multiplayer/waiting-room/4") &&
+            location !== "/menu/pong-game/play/multiplayer/2" &&
+            location !== "/menu/pong-game/play/multiplayer/4") {
             if (MyWebSocket.ws) {
+                console.log("Closed websocket!");
                 MyWebSocket.ws.close();
-				delete MyWebSocket.ws;
+                delete MyWebSocket.ws;
             }
         }
     });

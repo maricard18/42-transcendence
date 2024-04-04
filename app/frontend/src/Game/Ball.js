@@ -6,7 +6,7 @@ import {
     ballRadius,
     pauseGame,
 } from "./variables";
-import { sendHostMessage, sendNonHostMessage } from "./pongGameCode";
+import { sendHostMessage } from "./pongGameCode";
 
 export class Ball {
     constructor(x, y, color) {
@@ -45,14 +45,6 @@ export class Ball {
             game.player.score += 1;
             this.reset(game, opponent);
         }
-
-        if (game.mode === "multiplayer") {
-            if (game.player_id === game.host_id) {
-                sendHostMessage(game);
-            } else {
-                sendNonHostMessage(game);
-            }
-        }
     }
 
     reset(game, opponent) {
@@ -69,14 +61,6 @@ export class Ball {
         } else {
             this.speed_y = getRandomDirection();
             this.speed_x = BallSpeedX * -1;
-        }
-
-        if (game.mode === "multiplayer") {
-            if (game.player_id === game.host_id) {
-                sendHostMessage(game);
-            } else {
-                sendNonHostMessage(game);
-            }
         }
 
         pauseGame(game, 5);

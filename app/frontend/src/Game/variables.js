@@ -1,3 +1,5 @@
+import { sendHostMessage } from "./pongGameCode";
+
 export var BackgroundColor = "black";
 export var ScreenWidth = 650;
 export var ScreenHeight = 600;
@@ -22,7 +24,14 @@ export const keys = {
 
 export function pauseGame(game, duration) {
     game.paused = true;
+	if (game.mode === "multiplayer") {
+		sendHostMessage(game);
+	}
+
     setTimeout(() => {
         game.paused = false;
+        if (game.mode === "multiplayer") {
+			sendHostMessage(game);
+		}
     }, duration * 1000);
 }

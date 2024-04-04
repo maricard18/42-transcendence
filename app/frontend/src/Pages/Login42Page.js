@@ -42,13 +42,13 @@ export default function Login42Page() {
     return (
         <div className="container">
             {!loading ? (
-                <div class="d-flex justify-content-center">
+                <div className="d-flex justify-content-center">
                     <div
-                        class="spinner-border"
+                        className="spinner-border"
                         style={{width: "4rem", height: "4rem"}}
                         role="status"
                     >
-                        <span class="visually-hidden">Loading...</span>
+                        <span className="visually-hidden">Loading...</span>
                     </div>
                 </div>
             ) : null}
