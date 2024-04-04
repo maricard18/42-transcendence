@@ -13,24 +13,23 @@ from .models import Avatar
 class AvatarSerializer(serializers.ModelSerializer):
     class Meta:
         model = Avatar
-        fields = ('avatar',)
+        fields = ('avatar', 'link')
 
 
 class UserSerializer(serializers.ModelSerializer):
     avatar = serializers.SerializerMethodField()
 
-    def get_avatar(self, obj):
+    @staticmethod
+    def get_avatar(obj):
         try:
             avatar_obj = Avatar.objects.get(user=obj)
             avatar_serializer = AvatarSerializer(avatar_obj)
-            avatar_url = avatar_serializer.data['avatar']
-            if avatar_url:
-                request = self.context['request']
-                request_path = request.get_full_path()
+            link = avatar_serializer.data['link']
+            if link:
                 return {
-                    "link": request.build_absolute_uri().strip(request_path) + '/' + avatar_url.strip('/frontend')
+                    "link": link
                 }
-            return avatar_url
+            return None
         except Avatar.DoesNotExist:
             return None
 
@@ -75,6 +74,7 @@ class AuthUserSerializer(serializers.ModelSerializer):
 
 
 class APITokenObtainPairSerializer(TokenObtainPairSerializer):
+
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
