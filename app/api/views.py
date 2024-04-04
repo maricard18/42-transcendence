@@ -6,7 +6,7 @@ from rest_framework import status, viewsets
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
-from .models import Avatar
+from .models import Avatar, SSO_User
 from .permissions import UserPermission, TokenPermission, SSOPermission
 from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer, AuthUserSerializer, \
     APITokenObtainPairSerializer, TokenSerializer
@@ -32,12 +32,12 @@ class UserViewSet(viewsets.ViewSet):
             user = User.objects.create_user(serializer.validated_data.get('username'),
                                             serializer.validated_data.get('email'),
                                             serializer.validated_data.get('password'))
-
             avatar = serializer.validated_data.get('avatar')
             if avatar:
                 Avatar.objects.create(
                     user=user,
-                    avatar=avatar
+                    avatar=avatar,
+                    request=request
                 )
             return Response({
                 'id': user.id,
@@ -84,16 +84,10 @@ class UserViewSet(viewsets.ViewSet):
 
                 avatar = serializer.validated_data.get('avatar')
                 if avatar:
-                    try:
-                        old_avatar = Avatar.objects.get(user=user)
-                        if os.path.exists(old_avatar.avatar.path):
-                            os.remove(old_avatar.avatar.path)
-                    except Avatar.DoesNotExist:
-                        pass
-
                     Avatar.objects.update_or_create(
                         user=user,
-                        defaults={'avatar': avatar}
+                        avatar=avatar,
+                        request=request
                     )
                 return Response(None, status=status.HTTP_204_NO_CONTENT)
             return Response({
@@ -223,5 +217,63 @@ class SSOViewSet(viewsets.ViewSet):
     queryset = User.objects.all()
     permission_classes = [SSOPermission]
 
-    def callback(self, request):
-        return Response({})
+    @classmethod
+    def sso_101010(cls, request):
+        code = request.GET.get('code', '')
+        if code != '':
+            import requests
+
+            response = requests.post('https://api.intra.42.fr/oauth/token', data={
+                'grant_type': 'authorization_code',
+                'client_id': os.environ.get('42_CLIENT_ID'),
+                'client_secret': os.environ.get('42_CLIENT_SECRET'),
+                'code': code,
+                'redirect_uri': os.environ.get('42_REDIRECT_URI')
+            })
+            if response.status_code == 200:
+                user_info = requests.get('https://api.intra.42.fr/v2/me',
+                                         headers={'Authorization': 'Bearer ' + response.json()['access_token']}).json()
+
+                try:
+                    user, created, conflict = SSO_User.objects.get_or_create(
+                        sso='101010',
+                        sso_id=user_info.get('id'),
+                        username=user_info.get('login'),
+                        email=user_info.get('email'),
+                        image_link=user_info.get('image').get('link')
+                    )
+                except Exception as e:
+                    return Response({
+                        'errors': {
+                            'message': "An error occurred while creating an user.\n" + str(e),
+                            'code': status.HTTP_500_INTERNAL_SERVER_ERROR
+                        }
+                    }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+                refresh_token = APITokenObtainPairSerializer.get_token(user)
+
+                return Response({
+                    'access_token': str(refresh_token.access_token),
+                    'token_type': "Bearer",
+                    'expires_in': refresh_token.access_token.lifetime.seconds,
+                    'scope': refresh_token.payload.get('scope'),
+                    'refresh_token': str(refresh_token)
+                }, status=status.HTTP_200_OK if conflict is False else status.HTTP_409_CONFLICT)
+            return Response(response.json(), status=response.status_code)
+        return Response({
+            'errors': {
+                'message': "Query parameter 'code' is required.",
+                'code': status.HTTP_400_BAD_REQUEST
+            }
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    def callback(self, request, pk=None):
+        if str(pk) == '101010':
+            return self.sso_101010(request)
+        else:
+            return Response({
+                'errors': {
+                    'message': 'Unauthorized',
+                    'code': 401
+                }
+            }, status=status.HTTP_401_UNAUTHORIZED)

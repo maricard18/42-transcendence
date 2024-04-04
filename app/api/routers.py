@@ -45,7 +45,7 @@ class APIRouter(DefaultRouter):
         ),
         # List route.
         Route(
-            url=r'^{prefix}/callback$',
+            url=r'^{prefix}/{lookup}/callback$',
             mapping={
                 'get': 'callback'
             },
@@ -56,7 +56,7 @@ class APIRouter(DefaultRouter):
         # Dynamically generated list routes. Generated using
         # @action(detail=False) decorator on methods of the viewset.
         DynamicRoute(
-            url=r'^{prefix}/callback/{url_path}$',
+            url=r'^{prefix}/{lookup}/callback/{url_path}$',
             name='{basename}-{url_name}',
             detail=False,
             initkwargs={}
