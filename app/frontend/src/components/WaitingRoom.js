@@ -28,7 +28,9 @@ export function MultiplayerWaitingRoom() {
     const { setPreviousLocation } = useContext(PreviousLocationContext);
     const { userQueue, setUserQueue } = useContext(UserQueueContext);
     const [userReadyList, setUserReadyList] = useState({});
-    const [loading, setLoading] = useState(true);
+    const [lobbyFull, setLobbyfull] = useState(false);
+    const [userLeft, setUserLeft] = useState(false);
+    const [wsCreated, setWsCreated] = useState(false);
 
     useEffect(() => {
         const startConnectingProcess = async () => {
@@ -36,15 +38,33 @@ export function MultiplayerWaitingRoom() {
                 setAuthed,
                 setUserQueue,
                 setUserReadyList,
-                setLoading
+                setWsCreated
             );
         };
 
-        startConnectingProcess();
+        if (userLeft) {
+            console.log("User left, closing websocket");
+            MyWebSocket.ws.close();
+            setUserLeft(false);
+            setWsCreated(false);
+        }
+
+        if (!wsCreated) {
+            console.log("Starting connection process!");
+            startConnectingProcess();
+        }
+
         setPreviousLocation(location);
-    }, []);
+    }, [userLeft, wsCreated]);
 
     useEffect(() => {
+        if (!lobbyFull && Object.keys(userQueue).length == lobbySize) {
+            setLobbyfull(true);
+        } else if (lobbyFull && Object.keys(userQueue).length != lobbySize) {
+            setUserLeft(true);
+            setLobbyfull(false);
+        }
+
         if (
             Object.keys(userQueue).length == lobbySize &&
             Object.keys(userReadyList).length == lobbySize
@@ -77,7 +97,7 @@ export function MultiplayerWaitingRoom() {
                     userQueue={userQueue}
                     userReadyList={userReadyList}
                 />
-                {!loading
+                {wsCreated
                     ? Object.keys(userQueue).length == lobbySize && (
                           <ReadyButton
                               userReadyList={userReadyList}

@@ -7,7 +7,7 @@ export async function connectWebsocket(
     setAuthed,
     setUserQueue,
     setUserReadyList,
-    setLoading
+	setWsCreated
 ) {
     const token = await getToken(setAuthed);
     const host = window.location.host;
@@ -18,7 +18,7 @@ export async function connectWebsocket(
 
     MyWebSocket.ws.onopen = () => {
 		log("Websocket Created");
-        setLoading(false);
+		setWsCreated(true);
     };
 
     MyWebSocket.ws.onmessage = (event) => {
