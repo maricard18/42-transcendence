@@ -1,8 +1,24 @@
+# ASGI Server: Daphne allows handling HTTP and WebSocket requests.
 daphne==4.1.0
-pillow==10.2.0
+
+# Backend Framework: Django provides the foundation for building web applications.
 django==4.2.10
+
+# Dependency for Django's model.ImageField: Pillow is used for image processing and manipulation.
+pillow==10.2.0
+
+# WebSocket support for Django: Channels enables bidirectional communication over WebSockets.
 channels==4.0.0
 channels_redis==4.2.0
+
+# HTTP requests library: Requests simplifies making HTTP requests in Python.
+requests==2.31.0
+
+# PostgreSQL adapter for Django: Psycopg is the PostgreSQL database adapter for Python.
 psycopg[binary]==3.1.18
+
+# Django extension for RESTful APIs: Django Rest Framework streamlines API development and management.
 djangorestframework==3.14.0
+
+# JWT authentication for Django Rest Framework: Simple JWT provides JWT authentication for DRF.
 djangorestframework-simplejwt==5.3.1
