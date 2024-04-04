@@ -1,17 +1,27 @@
 import { getToken } from "./tokens";
+import { logError } from "./utils";
 
-export var ws;
+export var MyWebSocket = {};
 
-export async function connectWebsocket(setAuthed, setUserQueue, setUserReadyList) {
+export async function connectWebsocket(
+    setAuthed,
+    setUserQueue,
+    setUserReadyList,
+    setLoading
+) {
     const token = await getToken(setAuthed);
-	const host = window.location.host;
-    ws = new WebSocket("ws://" + host + "/ws/games/1/queue/2", [
+    const host = window.location.host;
+    MyWebSocket.ws = new WebSocket("ws://" + host + "/ws/games/1/queue/2", [
         "Authorization",
         token,
     ]);
 
-    ws.onmessage = (event) => {
-        console.log("Message from server: ", JSON.parse(event.data));
+	MyWebSocket.ws.onopen = () => {
+        setLoading(false);
+    };
+
+    MyWebSocket.ws.onmessage = (event) => {
+        console.log("WEBSOCKET: ", JSON.parse(event.data));
 
         try {
             const jsonData = JSON.parse(event.data);
@@ -20,10 +30,27 @@ export async function connectWebsocket(setAuthed, setUserQueue, setUserReadyList
                 const playerList = jsonData["data"]["players"];
                 setUserQueue(playerList);
             }
-			
-			if (jsonData["type"] == "user.message") {
+            if (jsonData["type"] == "system.message") {
+                const playerList = jsonData["data"];
+                if (playerList["message"] === "user.disconnected") {
+                    setUserQueue((prevState) => {
+                        const newState = { ...prevState };
+                        for (let key in newState) {
+                            if (newState[key] === playerList["user_id"]) {
+                                delete newState[key];
+                                break;
+                            }
+                        }
+                        return newState;
+                    });
+                }
+            }
+            if (jsonData["type"] == "user.message") {
                 const playerReadyList = jsonData["data"]["state"];
-                setUserReadyList((prevState) => ({ ...prevState, ...playerReadyList }));
+                setUserReadyList((prevState) => ({
+                    ...prevState,
+                    ...playerReadyList,
+                }));
             }
         } catch (error) {
             console.log(error);
@@ -32,5 +59,9 @@ export async function connectWebsocket(setAuthed, setUserQueue, setUserReadyList
 }
 
 export function sendMessage(ws, message) {
-    ws.send(JSON.stringify(message));
+    if (ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify(message));
+    } else {
+        logError("WebSocket connection is not open");
+    }
 }

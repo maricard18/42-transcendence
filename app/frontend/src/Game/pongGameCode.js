@@ -3,8 +3,7 @@ import { Ball } from "./Ball";
 import { Player } from "./Player";
 import { Opponent } from "./Opponent";
 import { Cpu } from "./Cpu";
-import { ws } from "../functions/websocket";
-import { sendMessage } from "../functions/websocket";
+import { MyWebSocket, sendMessage } from "../functions/websocket";
 import {
     ScreenWidth,
     ScreenHeight,
@@ -141,7 +140,7 @@ export async function startGame(
             lobbySize,
             paused: false,
         };
-        multiplayerMessageHandler(ws, game, host_id);
+        multiplayerMessageHandler(MyWebSocket.ws, game, host_id);
         multiplayerGameLoop(game, ctx);
     }
 }
@@ -296,7 +295,7 @@ export function sendHostMessage(game) {
         },
     };
 
-    sendMessage(ws, message);
+    sendMessage(MyWebSocket.ws, message);
 }
 
 export function sendNonHostMessage(game) {
@@ -308,7 +307,7 @@ export function sendNonHostMessage(game) {
         },
     };
 
-    sendMessage(ws, message);
+    sendMessage(MyWebSocket.ws, message);
 }
 
 function multiplayerMessageHandler(ws, game, host) {

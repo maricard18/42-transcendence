@@ -1,12 +1,16 @@
 import React, { useContext, useEffect, useState } from "react";
 import {
     AuthContext,
+    PreviousLocationContext,
     UserInfoContext,
     UserQueueContext,
-    OnQueueContext,
 } from "./Context";
 import { useLocation, useNavigate } from "react-router-dom";
-import { connectWebsocket, sendMessage, ws } from "../functions/websocket";
+import {
+    connectWebsocket,
+    sendMessage,
+    MyWebSocket,
+} from "../functions/websocket";
 import fetchData from "../functions/fetchData";
 import { getToken } from "../functions/tokens";
 import { logError } from "../functions/utils";
@@ -19,18 +23,19 @@ export function MultiplayerWaitingRoom() {
     const navigate = useNavigate();
     const location = useLocation().pathname;
     const lobbySize = location.substring(location.length - 1);
-    const { setOnQueue } = useContext(OnQueueContext);
     const { setAuthed } = useContext(AuthContext);
+    const { setPreviousLocation } = useContext(PreviousLocationContext);
     const { userQueue, setUserQueue } = useContext(UserQueueContext);
     const [userReadyList, setUserReadyList] = useState({});
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const startConnectingProcess = async () => {
-            await connectWebsocket(setAuthed, setUserQueue, setUserReadyList);
+            await connectWebsocket(setAuthed, setUserQueue, setUserReadyList, setLoading);
         };
 
         startConnectingProcess();
-        setOnQueue(true);
+        setPreviousLocation(location);
     }, []);
 
     useEffect(() => {
@@ -45,21 +50,35 @@ export function MultiplayerWaitingRoom() {
                 navigate("/menu/pong-game/play/multiplayer/" + lobbySize);
             }
         }
-    }, [userReadyList]);
+    }, [userReadyList, userQueue]);
+
+    console.log(userQueue);
+	console.log(loading);
 
     return (
         <div className="d-flex flex-column col-md-6">
             <div className="p-3 p-lg-5 pd-xl-0">
-                <div className="mb-4">
+                <div className="d-flex flex-row mb-4">
                     <h3>Waiting for players</h3>
+					<div class="d-flex justify-content-center">
+                    <div
+                        class="spinner-border ms-3 mt-2"
+                        style={{width: "20px", height: "20px"}}
+                        role="status"
+                    >
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
                 </div>
                 <PlayerQueue>{userQueue}</PlayerQueue>
-                {Object.keys(userQueue).length == lobbySize && (
-                    <ReadyButton
-                        userReadyList={userReadyList}
-                        setUserReadyList={setUserReadyList}
-                    />
-                )}
+                {!loading
+                    ? Object.keys(userQueue).length == lobbySize && (
+                          <ReadyButton
+                              userReadyList={userReadyList}
+                              setUserReadyList={setUserReadyList}
+                          />
+                      )
+                    : null}
             </div>
         </div>
     );
@@ -133,7 +152,7 @@ function ReadyButton({ userReadyList, setUserReadyList }) {
                 [userInfo.id]: readyState,
             },
         };
-        sendMessage(ws, message);
+        sendMessage(MyWebSocket.ws, message);
     }, [readyState]);
 
     if (readyState) {

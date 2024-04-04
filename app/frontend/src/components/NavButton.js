@@ -9,15 +9,15 @@ export default function NavButton({ template, page, children }) {
 
     const { setAuthed } = useContext(AuthContext);
 
-    const handleClickTo = (path) => {
-        if (page == "/") {
-            logout(setAuthed);
-        } else if (page.includes("https://api.intra.42.fr/oauth/authorize")) {
-            window.open(page, "_self");
-            return;
-        }
-        navigate(path);
-    };
+    const handleClickTo = (page) => {
+		if (page == "/") {
+			logout(setAuthed);
+		} else if (typeof page === 'string' && page.includes("https://")) {
+			window.open(page, "_self");
+			return;
+		}
+		navigate(page);
+	};
 
     return (
         <button

@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect } from "react";
 import { getToken, hasToken } from "../functions/tokens";
 import { useLocation } from "react-router-dom";
-import { ws } from "../functions/websocket";
+import { MyWebSocket } from "../functions/websocket";
 
 export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
@@ -75,11 +75,18 @@ export const PreviousLocationContext = createContext();
 export const PreviousLocationProvider = ({ children }) => {
     const location = useLocation().pathname;
     const [previousLocation, setPreviousLocation] = useState(location);
-	var last_location;
 
     useEffect(() => {
-        last_location = previousLocation;
-    }, [previousLocation]);
+        if (
+            previousLocation === "/menu/pong-game/multiplayer/waiting-room/2" ||
+            previousLocation === "/menu/pong-game/multiplayer/waiting-room/4"
+        ) {
+            if (MyWebSocket.ws) {
+                MyWebSocket.ws.close();
+				delete MyWebSocket.ws;
+            }
+        }
+    });
 
     return (
         <PreviousLocationContext.Provider
@@ -89,30 +96,3 @@ export const PreviousLocationProvider = ({ children }) => {
         </PreviousLocationContext.Provider>
     );
 };
-
-export const OnQueueContext = createContext();
-export const OnQueueProvider = ({ children }) => {
-	const location = useLocation().pathname;
-    const [onQueue, setOnQueue] = useState();
-
-    useEffect(() => {
-        console.log("Here");
-		console.log(location)
-        if (onQueue === false) {
-            console.log("trying to close ws!");
-            if (ws) {
-				console.log("Closed ws");
-                ws.close();
-            }
-        }
-    }, [onQueue]);
-
-    return (
-        <OnQueueContext.Provider
-            value={{ onQueue, setOnQueue }}
-        >
-            {children}
-        </OnQueueContext.Provider>
-    );
-};
-

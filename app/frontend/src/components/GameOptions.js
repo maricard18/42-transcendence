@@ -37,13 +37,6 @@ export function GameMenuOptions() {
 }
 
 export function SinglePlayerOptions() {
-    const location = useLocation();
-    const { setPreviousLocation } = useContext(PreviousLocationContext);
-
-    useEffect(() => {
-        setPreviousLocation(location.pathname);
-    }, [location.pathname]);
-
     return (
         <div className="d-flex flex-column col-md-6">
             <div className="p-3 p-lg-5 pd-xl-0">
@@ -85,15 +78,6 @@ export function SinglePlayerOptions() {
 }
 
 export function MultiplayerOptions() {
-    const location = useLocation();
-    const { setPreviousLocation } = useContext(PreviousLocationContext);
-	const { setOnQueue } = useContext(OnQueueContext);
-	
-    useEffect(() => {
-		setOnQueue(false);
-        setPreviousLocation(location.pathname);
-    }, [location.pathname]);
-
     return (
         <div className="d-flex flex-column col-md-6">
             <div className="p-3 p-lg-5 pd-xl-0">
@@ -135,8 +119,6 @@ export function MultiplayerOptions() {
 }
 
 export function TournamentOptions() {
-    const { previousLocation } = useContext(PreviousLocationContext);
-
     return (
         <div className="d-flex flex-column col-md-6">
             <div className="p-3 p-lg-5 pd-xl-0">
@@ -159,7 +141,7 @@ export function TournamentOptions() {
                 <div>
                     <NavButton
                         template="secondary-button"
-                        page={previousLocation}
+                        page={-1}
                     >
                         Back
                     </NavButton>

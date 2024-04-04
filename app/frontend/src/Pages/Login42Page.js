@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import fetchData from "../functions/fetchData";
 import handleResponse from "../functions/authenticationErrors";
@@ -10,6 +10,7 @@ import "bootstrap/dist/css/bootstrap.css";
 export default function Login42Page() {
     const navigate = useNavigate();
     const { setAuthed } = useContext(AuthContext);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const call42api = async () => {
@@ -23,6 +24,7 @@ export default function Login42Page() {
 
             if (response.ok) {
                 await setToken(response, setAuthed);
+                setLoading(true);
                 navigate("/menu");
             } else {
                 newErrors = await handleResponse(
@@ -39,11 +41,17 @@ export default function Login42Page() {
 
     return (
         <div className="container">
-            <div className="center">
-                <div className="d-flex flex-column justify-content-center">
-                    <h1 className="header mb-5">42 Login</h1>
+            {!loading ? (
+                <div class="d-flex justify-content-center">
+                    <div
+                        class="spinner-border"
+                        style={{width: "4rem", height: "4rem"}}
+                        role="status"
+                    >
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
                 </div>
-            </div>
+            ) : null}
         </div>
     );
 }

@@ -6,8 +6,6 @@ import {
     UserInfoProvider,
     PreviousLocationProvider,
     UserQueueProvider,
-    OnQueueContext,
-    OnQueueProvider,
 } from "../components/Context";
 import LandingPage from "./LandingPage";
 import SignUpPage from "./SignUpPage";
@@ -84,9 +82,7 @@ const router = createBrowserRouter([
                 <UserInfoProvider>
                     <UserQueueProvider>
                         <PreviousLocationProvider>
-                            <OnQueueProvider>
                                 <NavigationBar />
-                            </OnQueueProvider>
                         </PreviousLocationProvider>
                     </UserQueueProvider>
                 </UserInfoProvider>
