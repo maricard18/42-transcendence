@@ -79,7 +79,7 @@ class APITokenObtainPairSerializer(TokenObtainPairSerializer):
     def get_token(cls, user):
         token = super().get_token(user)
 
-        token['scope'] = 'public'
+        # token['scope'] = 'public'
 
         return token
 
