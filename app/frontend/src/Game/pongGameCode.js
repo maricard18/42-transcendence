@@ -20,6 +20,7 @@ export async function startGame(
     lobbySize,
     userInfo,
     userQueue,
+	gameOver,
 	setGameOver
 ) {
     const ctx = canvas.getContext("2d");
@@ -143,7 +144,7 @@ export async function startGame(
             paused: false,
         };
 
-        multiplayerMessageHandler(MyWebSocket.ws, game, host_id);
+        multiplayerMessageHandler(MyWebSocket, game, host_id, setGameOver);
 
         if (game.player_id === game.host_id) {
             sendHostMessage(game);
@@ -151,12 +152,12 @@ export async function startGame(
             sendNonHostMessage(game);
         }
 
-        multiplayerGameLoop(game, ctx, setGameOver);
+        multiplayerGameLoop(game, ctx, gameOver, setGameOver);
     }
 }
 
 function singleplayerGameLoop(game, ctx, setGameOver) {
-    if (!game.paused) {
+	if (!game.paused) {
         let current_time = Date.now();
         let dt = (current_time - game.last_time) / 1000;
 
@@ -218,8 +219,10 @@ function singleplayerGameLoop(game, ctx, setGameOver) {
     window.requestAnimationFrame(() => singleplayerGameLoop(game, ctx, setGameOver));
 }
 
-function multiplayerGameLoop(game, ctx, setGameOver) {
-    if (!game.paused) {
+function multiplayerGameLoop(game, ctx, gameOver, setGameOver) {
+	if (gameOver) {
+		return ;
+	} else if (!game.paused) {
         let current_time = Date.now();
         let dt = (current_time - game.last_time) / 1000;
 
@@ -270,7 +273,7 @@ function multiplayerGameLoop(game, ctx, setGameOver) {
 
     game.last_time = Date.now();
 
-    window.requestAnimationFrame(() => multiplayerGameLoop(game, ctx, setGameOver));
+    window.requestAnimationFrame(() => multiplayerGameLoop(game, ctx, gameOver, setGameOver));
 }
 
 function clearBackground(ctx) {

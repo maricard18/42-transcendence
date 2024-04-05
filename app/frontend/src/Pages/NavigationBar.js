@@ -2,8 +2,11 @@ import React, { useEffect, useContext } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import NavButton from "../components/NavButton";
 import getUserInfo from "../functions/getUserInfo";
-import { AuthContext, LoadingContext, UserInfoContext } from "../components/Context";
-import { logError } from "../functions/utils";
+import {
+    AuthContext,
+    LoadingContext,
+    UserInfoContext,
+} from "../components/Context";
 import { BaseAvatar } from "../components/Avatar";
 import "../../static/css/NavBar.css";
 import "../../static/css/Buttons.css";
@@ -15,26 +18,26 @@ import "bootstrap/dist/js/bootstrap.bundle.js";
 export default function NavigationBar() {
     const { authed, setAuthed } = useContext(AuthContext);
     const { userInfo, setUserInfo } = useContext(UserInfoContext);
-	const { setLoading } = useContext(LoadingContext);
-	
+    const { setLoading } = useContext(LoadingContext);
+
     useEffect(() => {
-		const fetchUserInfo = async () => {
-			const userData = await getUserInfo(setAuthed);
-			
+        const fetchUserInfo = async () => {
+            const userData = await getUserInfo(setAuthed);
+
             if (userData) {
-				setUserInfo({
+                setUserInfo({
                     username: userData.username,
                     email: userData.email,
                     avatar: userData.avatar,
                     id: userData.id,
                 });
-				setLoading(false);
+                setLoading(false);
             } else {
-				logError("failed to fetch user data.");
+                console.log("Error: failed to fetch user data.");
             }
         };
-		
-		setLoading(true);
+
+        setLoading(true);
         fetchUserInfo();
     }, [authed, userInfo.username, userInfo.avatar]);
 
@@ -73,11 +76,15 @@ export default function NavigationBar() {
                                         alt="Avatar preview"
                                         width="40"
                                         height="40"
-										className="avatar-border-sm"
+                                        className="avatar-border-sm"
                                         style={{ borderRadius: "50%" }}
                                     />
                                 ) : (
-                                    <BaseAvatar width="40" height="40" template="" />
+                                    <BaseAvatar
+                                        width="40"
+                                        height="40"
+                                        template=""
+                                    />
                                 )}
                                 <h6 className="username-text ms-2 mt-1">
                                     <b>{userInfo.username}</b>

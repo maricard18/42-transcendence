@@ -1,6 +1,5 @@
 import Cookies from "js-cookie";
 import fetchData from "./fetchData";
-import { logError } from "./utils";
 
 export async function createToken(userData, setAuthed) {
     const formDataToSend = new FormData();
@@ -16,7 +15,7 @@ export async function createToken(userData, setAuthed) {
     );
 
     if (!response.ok) {
-        logError("failed to create authentication token.");
+        console.log("Error: failed to create authentication token.");
         logout(setAuthed);
         return;
     }
@@ -47,7 +46,7 @@ export async function setToken(response, setAuthed) {
 
         setAuthed(true);
     } catch (error) {
-        logError("failed to set Cookies");
+        console.log("Error: failed to set Cookies");
         logout(setAuthed);
         return;
     }
@@ -56,7 +55,7 @@ export async function setToken(response, setAuthed) {
 export async function refreshToken(setAuthed) {
     const refreshToken = Cookies.get("refresh_token");
     if (!refreshToken) {
-        logError("refresh_token doesn't exist.");
+        console.log("Error: refresh_token doesn't exist.");
         logout(setAuthed);
         return;
     }
@@ -73,7 +72,7 @@ export async function refreshToken(setAuthed) {
     );
 
     if (!response.ok) {
-        logError("failed to refresh access_token.");
+        console.log("Error: failed to refresh access_token.");
         logout(setAuthed);
         return;
     }
@@ -99,7 +98,7 @@ export async function testToken(accessToken) {
     try {
         decodeToken = decode(accessToken);
     } catch (error) {
-        logError("failed to decode access token while testing it's validity.");
+        console.log("Error: failed to decode access token while testing it's validity.");
         return false;
     }
 
@@ -114,7 +113,7 @@ export async function testToken(accessToken) {
     );
 
     if (!response.ok) {
-        logError("access token it's not valid.");
+        console.log("Error: access token it's not valid.");
         return false;
     }
 

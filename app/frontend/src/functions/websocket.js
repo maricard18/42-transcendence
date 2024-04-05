@@ -1,5 +1,4 @@
 import { getToken } from "./tokens";
-import { log, logError } from "./utils";
 
 export var MyWebSocket = {};
 
@@ -7,7 +6,7 @@ export async function connectWebsocket(
     setAuthed,
     setUserQueue,
     setUserReadyList,
-	setWsCreated
+    setWsCreated
 ) {
     const token = await getToken(setAuthed);
     const host = window.location.host;
@@ -17,21 +16,28 @@ export async function connectWebsocket(
     ]);
 
     MyWebSocket.ws.onopen = () => {
-		log("Websocket Created");
-		setWsCreated(true);
+        console.log("Websocket Created");
+        setWsCreated(true);
     };
 
     MyWebSocket.ws.onmessage = (event) => {
-        console.log("WEBSOCKET", JSON.parse(event.data));
+        console.log("SYSTEM", JSON.parse(event.data));
 
         try {
             const jsonData = JSON.parse(event.data);
 
-            if (jsonData["type"] == "system.grouping") {
+            if (jsonData["type"] === "system.grouping") {
                 const playerList = jsonData["data"]["players"];
                 setUserQueue(playerList);
             }
-            if (jsonData["type"] == "system.message") {
+            if (jsonData["type"] === "user.message") {
+                const playerReadyList = jsonData["data"]["state"];
+                setUserReadyList((prevState) => ({
+                    ...prevState,
+                    ...playerReadyList,
+                }));
+            }
+            if (jsonData["type"] === "system.message") {
                 const playerList = jsonData["data"];
                 if (playerList["message"] === "user.disconnected") {
                     setUserQueue((prevState) => {
@@ -46,60 +52,65 @@ export async function connectWebsocket(
                     });
                 }
             }
-            if (jsonData["type"] == "user.message") {
-                const playerReadyList = jsonData["data"]["state"];
-                setUserReadyList((prevState) => ({
-                    ...prevState,
-                    ...playerReadyList,
-                }));
-            }
         } catch (error) {
             console.log(error);
         }
     };
+}
+
+export function multiplayerMessageHandler(MyWebSocket, game, host, setGameOver) {
+    if (MyWebSocket.ws) {
+        MyWebSocket.ws.onmessage = (event) => {
+            console.log("GAME", JSON.parse(event.data));
+
+            try {
+                const jsonData = JSON.parse(event.data);
+
+                if (jsonData["type"] === "user.message") {
+                    const gameData = jsonData["data"]["game"];
+                    game.opponent.x = gameData["player_x"];
+                    game.opponent.y = gameData["player_y"];
+
+                    if (gameData["id"] == host) {
+                        game.ball.x = gameData["ball_x"];
+                        game.ball.y = gameData["ball_y"];
+                        game.ball.speed_x = gameData["ball_speed_x"];
+                        game.ball.speed_y = gameData["ball_speed_y"];
+                        game.player.score = gameData["opponent_score"];
+                        game.opponent.score = gameData["player_score"];
+
+                        //if (gameData["paused"]) {
+                        //    updateOpponentScreen(game, gameData);
+                        //} else if (gameData["paused"] === false) {
+                        //	game.paused = false;
+                        //}
+                    }
+                }
+                if (jsonData["type"] == "system.message") {
+                    const playerList = jsonData["data"];
+                    if (playerList["message"] === "user.disconnected") {
+                        console.log("User disconnected from the Game!");
+                        console.log("You won!");
+                        MyWebSocket.ws.close();
+						delete MyWebSocket.ws;
+                        setGameOver(true);
+                    }
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        };
+    }
 }
 
 export function sendMessage(ws, message) {
-	if (ws) {
-		if (ws.readyState === WebSocket.OPEN) {
-			ws.send(JSON.stringify(message));
-		} else {
-			logError("WebSocket connection is not open");
-		}
-	}
-}
-
-export function multiplayerMessageHandler(ws, game, host) {
-    ws.onmessage = (event) => {
-        console.log("GAME", JSON.parse(event.data));
-
-        try {
-            const jsonData = JSON.parse(event.data);
-
-            if (jsonData["type"] == "user.message") {
-                const gameData = jsonData["data"]["game"];
-                game.opponent.x = gameData["player_x"];
-                game.opponent.y = gameData["player_y"];
-
-                if (gameData["id"] == host) {
-                    game.ball.x = gameData["ball_x"];
-                    game.ball.y = gameData["ball_y"];
-                    game.ball.speed_x = gameData["ball_speed_x"];
-                    game.ball.speed_y = gameData["ball_speed_y"];
-                    game.player.score = gameData["opponent_score"];
-                    game.opponent.score = gameData["player_score"];
-
-                    //if (gameData["paused"]) {
-                    //    updateOpponentScreen(game, gameData);
-                    //} else if (gameData["paused"] === false) {
-                    //	game.paused = false;
-                    //}
-                }
-            }
-        } catch (error) {
-            console.log(error);
+    if (ws) {
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify(message));
+        } else {
+            console.error("WebSocket connection is not open");
         }
-    };
+    }
 }
 
 function updateOpponentScreen(game, gameData) {

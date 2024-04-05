@@ -14,7 +14,6 @@ import {
 import fetchData from "../functions/fetchData";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getToken } from "../functions/tokens";
-import { logError } from "../functions/utils";
 import { BaseAvatar } from "./Avatar";
 import { CheckIcon, CloseIcon, LoadingIcon } from "./Icons";
 import "../../static/css/Images.css";
@@ -46,9 +45,12 @@ export function MultiplayerWaitingRoom() {
 
         if (userLeft) {
             console.log("User left, closing websocket");
-            MyWebSocket.ws.close();
-            setUserLeft(false);
-            setWsCreated(false);
+			if (MyWebSocket.ws) {
+				MyWebSocket.ws.close();
+				delete MyWebSocket.ws;
+			}
+			setUserLeft(false);
+			setWsCreated(false);
         }
 
         if (!wsCreated) {
@@ -124,7 +126,8 @@ function PlayerQueue({ userQueue, userReadyList }) {
         };
 
         fetchUserData();
-    }, [userQueue, userReadyList]);
+		console.log("Fetching Data");
+    }, [userQueue]);
 
     return (
         <div className="d-flex flex-column justify-content-start align-items-start mb-3">
@@ -255,14 +258,14 @@ async function getUserData(value, setAuthed) {
     const response = await fetchData("/api/users/" + value, "GET", headers);
 
     if (!response.ok) {
-        logError("failed to fetch user data.");
+        console.log("Error: failed to fetch user data.");
         return null;
     }
 
     try {
         jsonData = await response.json();
     } catch (error) {
-        logError("failed to parse response.");
+        console.log("Error: failed to parse response.");
         return null;
     }
 

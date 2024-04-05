@@ -4,7 +4,6 @@ import NavButton from "../components/NavButton";
 import { DefaultAvatar } from "../components/Avatar";
 import { UserInfoContext, AuthContext } from "../components/Context";
 import { getToken } from "../functions/tokens";
-import { logError } from "../functions/utils";
 import fetchData from "../functions/fetchData";
 import getUserInfo from "../functions/getUserInfo";
 import "../../static/css/Buttons.css";
@@ -103,7 +102,7 @@ export function ChangeAvatar() {
                             id: userData.id,
                         });
                     } else {
-                        logError("failed to fetch user data.");
+                        console.log("Error: failed to fetch user data.");
                     }
                 }
 

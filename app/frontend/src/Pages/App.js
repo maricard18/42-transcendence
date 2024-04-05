@@ -36,55 +36,55 @@ const router = createBrowserRouter([
         path: "/",
         element: (
             <IsNotAuthed>
-                <LandingPage />,
+                <LandingPage />
             </IsNotAuthed>
-        ),
+        )
     },
     {
         path: "/sign-up",
         element: (
             <FormDataProvider>
                 <IsNotAuthed>
-                    <SignUpPage />,
+                    <SignUpPage />
                 </IsNotAuthed>
             </FormDataProvider>
-        ),
+        )
     },
     {
         path: "/create-profile",
         element: (
             <FormDataProvider>
                 <IsNotAuthed>
-                    <CreateProfilePage />,
+                    <CreateProfilePage />
                 </IsNotAuthed>
             </FormDataProvider>
-        ),
+        )
     },
     {
         path: "/create-profile-42",
         element: (
             <FormDataProvider>
                 <IsNotAuthed>
-                    <Create42ProfilePage />,
+                    <Create42ProfilePage />
                 </IsNotAuthed>
             </FormDataProvider>
-        ),
+        )
     },
     {
         path: "/login/42",
         element: (
             <IsNotAuthed>
-                <Login42Page />,
+                <Login42Page />
             </IsNotAuthed>
-        ),
+        )
     },
     {
         path: "/login",
         element: (
             <IsNotAuthed>
-                <LoginPage />,
+                <LoginPage />
             </IsNotAuthed>
-        ),
+        )
     },
     {
         path: "/menu",
@@ -111,7 +111,7 @@ const router = createBrowserRouter([
                                 <Game1 />
                                 <Game2 />
                             </>
-                        ),
+                        )
                     },
                     {
                         path: "pong-game/options",
@@ -120,7 +120,7 @@ const router = createBrowserRouter([
                                 <Game1 />
                                 <GameMenuOptions />
                             </>
-                        ),
+                        )
                     },
                     {
                         path: "pong-game/single-player",
@@ -129,7 +129,7 @@ const router = createBrowserRouter([
                                 <Game1 />
                                 <SinglePlayerOptions />
                             </>
-                        ),
+                        )
                     },
                     {
                         path: "pong-game/multiplayer",
@@ -138,7 +138,7 @@ const router = createBrowserRouter([
                                 <Game1 />
                                 <MultiplayerOptions />
                             </>
-                        ),
+                        )
                     },
                     {
                         path: "pong-game/multiplayer/waiting-room/2",
@@ -147,7 +147,7 @@ const router = createBrowserRouter([
                                 <Game1 />
                                 <MultiplayerWaitingRoom />
                             </>
-                        ),
+                        )
                     },
                     {
                         path: "pong-game/multiplayer/waiting-room/4",
@@ -156,7 +156,7 @@ const router = createBrowserRouter([
                                 <Game1 />
                                 <MultiplayerWaitingRoom />
                             </>
-                        ),
+                        )
                     },
                     {
                         path: "pong-game/single-player-tournament",
@@ -165,7 +165,7 @@ const router = createBrowserRouter([
                                 <Game1 />
                                 <TournamentOptions />
                             </>
-                        ),
+                        )
                     },
                     {
                         path: "pong-game/multiplayer-tournament",
@@ -174,9 +174,9 @@ const router = createBrowserRouter([
                                 <Game1 />
                                 <TournamentOptions />
                             </>
-                        ),
-                    },
-                ],
+                        )
+                    }
+                ]
             },
             {
                 path: "profile",
@@ -184,36 +184,36 @@ const router = createBrowserRouter([
                 children: [
                     {
                         path: "username",
-                        element: <ChangeUsername />,
+                        element: <ChangeUsername />
                     },
                     {
                         path: "password",
-                        element: <ChangePassword />,
-                    },
-                ],
+                        element: <ChangePassword />
+                    }
+                ]
             },
             {
                 path: "pong-game/play/single-player/1",
-                element: <Pong />,
+                element: <Pong />
             },
             {
                 path: "pong-game/play/single-player/2",
-                element: <Pong />,
+                element: <Pong />
             },
             {
                 path: "pong-game/play/multiplayer/2",
-                element: <Pong />,
+                element: <Pong />
             },
             {
                 path: "pong-game/play/multiplayer/4",
-                element: <Pong />,
+                element: <Pong />
             },
             {
                 path: "pong-game/play",
-                element: <Pong />,
-            },
-        ],
-    },
+                element: <Pong />
+            }
+        ]
+    }
 ]);
 
 function App() {

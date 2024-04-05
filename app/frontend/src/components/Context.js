@@ -2,7 +2,6 @@ import React, { createContext, useState, useEffect } from "react";
 import { getToken } from "../functions/tokens";
 import { useLocation } from "react-router-dom";
 import { MyWebSocket } from "../functions/websocket";
-import { log } from "../functions/utils";
 
 export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
@@ -96,7 +95,7 @@ export const PreviousLocationProvider = ({ children }) => {
             location !== "/menu/pong-game/play/multiplayer/2" &&
             location !== "/menu/pong-game/play/multiplayer/4") {
             if (MyWebSocket.ws) {
-                log("Closed websocket!");
+                console.log("Closed websocket!");
                 MyWebSocket.ws.close();
                 delete MyWebSocket.ws;
             }
