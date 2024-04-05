@@ -1,0 +1,11 @@
+.square {
+	width: 300px;
+}
+
+.game {
+    outline: 3px solid transparent;
+}
+
+.game:hover {
+    outline-color: white;
+}

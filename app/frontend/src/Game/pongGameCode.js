@@ -1,0 +1,326 @@
+import { checkPlayerCollision, checkCpuCollision } from "./collision";
+import { Ball } from "./Ball";
+import { Player } from "./Player";
+import { Opponent } from "./Opponent";
+import { Cpu } from "./Cpu";
+import { MyWebSocket, sendMessage } from "../functions/websocket";
+import { multiplayerMessageHandler } from "../functions/websocket";
+import {
+    ScreenWidth,
+    ScreenHeight,
+    BackgroundColor,
+    keys,
+    PaddleHeight,
+    PaddleWidth,
+} from "./variables";
+
+export async function startGame(
+    canvas,
+    gameMode,
+    lobbySize,
+    userInfo,
+    userQueue,
+	setGameOver
+) {
+    const ctx = canvas.getContext("2d");
+
+    clearBackground(ctx);
+
+    window.addEventListener("keydown", (event) => {
+        if (keys.hasOwnProperty(event.key)) {
+            keys[event.key] = true;
+        }
+    });
+    window.addEventListener("keyup", (event) => {
+        if (keys.hasOwnProperty(event.key)) {
+            keys[event.key] = false;
+        }
+    });
+
+    const last_time = Date.now();
+    const ball = new Ball(ScreenWidth / 2, ScreenHeight / 2, "white");
+
+    if (gameMode === "single-player" && lobbySize == 1) {
+        const player = new Player(
+            25,
+            ScreenHeight / 2 - PaddleHeight / 2,
+            "red",
+            "ArrowUp",
+            "ArrowDown",
+            1
+        );
+        const cpu = new Cpu(
+            ScreenWidth - 25 - PaddleWidth,
+            ScreenHeight / 2 - PaddleHeight / 2,
+            "blue"
+        );
+        const game = {
+            last_time,
+            ball,
+            player,
+            cpu,
+            mode: gameMode,
+            lobbySize,
+            paused: false,
+        };
+        singleplayerGameLoop(game, ctx, setGameOver);
+    } else if (gameMode === "single-player" && lobbySize == 2) {
+        const player = new Player(
+            25,
+            ScreenHeight / 2 - PaddleHeight / 2,
+            "red",
+            "w",
+            "s",
+            1
+        );
+        const opponent = new Player(
+            ScreenWidth - 25 - PaddleWidth,
+            ScreenHeight / 2 - PaddleHeight / 2,
+            "blue",
+            "ArrowUp",
+            "ArrowDown",
+            2
+        );
+        const game = {
+            last_time,
+            ball,
+            player,
+            opponent,
+            mode: gameMode,
+            lobbySize,
+            paused: false,
+        };
+        singleplayerGameLoop(game, ctx, setGameOver);
+    } else if (gameMode === "multiplayer" && lobbySize == 2) {
+        const host_id = Object.values(userQueue)[0];
+        let player;
+        let opponent;
+
+        if (host_id == userInfo.id) {
+            player = new Player(
+                25,
+                ScreenHeight / 2 - PaddleHeight / 2,
+                "red",
+                "ArrowUp",
+                "ArrowDown",
+                userInfo.id
+            );
+            opponent = new Opponent(
+                ScreenWidth - 25 - PaddleWidth,
+                ScreenHeight / 2 - PaddleHeight / 2,
+                "blue",
+                "ArrowUp",
+                "ArrowDown",
+                0
+            );
+        } else {
+            player = new Player(
+                ScreenWidth - 25 - PaddleWidth,
+                ScreenHeight / 2 - PaddleHeight / 2,
+                "blue",
+                "ArrowUp",
+                "ArrowDown",
+                userInfo.id
+            );
+            opponent = new Opponent(
+                25,
+                ScreenHeight / 2 - PaddleHeight / 2,
+                "red",
+                "ArrowUp",
+                "ArrowDown",
+                0
+            );
+        }
+        const game = {
+            host_id,
+            player_id: userInfo.id,
+            last_time,
+            ball,
+            player,
+            opponent,
+            mode: gameMode,
+            lobbySize,
+            paused: false,
+        };
+
+        multiplayerMessageHandler(MyWebSocket.ws, game, host_id);
+
+        if (game.player_id === game.host_id) {
+            sendHostMessage(game);
+        } else {
+            sendNonHostMessage(game);
+        }
+
+        multiplayerGameLoop(game, ctx, setGameOver);
+    }
+}
+
+function singleplayerGameLoop(game, ctx, setGameOver) {
+    if (!game.paused) {
+        let current_time = Date.now();
+        let dt = (current_time - game.last_time) / 1000;
+
+        clearBackground(ctx);
+        drawGoal(ctx, 0, 20, "white");
+        drawGoal(ctx, ScreenWidth - 20, ScreenWidth, "white");
+
+        if (game.lobbySize == 1) {
+            game.ball.update(game, game.cpu, dt);
+        } else if (game.lobbySize == 2) {
+            game.ball.update(game, game.opponent, dt);
+        }
+        game.player.update(dt);
+        if (game.lobbySize == 1) {
+            game.cpu.update(game.ball, dt);
+        } else if (game.lobbySize == 2) {
+            game.opponent.update(dt);
+        }
+
+        checkPlayerCollision(game.ball, game.player);
+        if (game.lobbySize == 1) {
+            checkCpuCollision(game.ball, game.cpu);
+        } else if (game.lobbySize == 2) {
+            checkCpuCollision(game.ball, game.opponent);
+        }
+
+        drawScore(ctx, game.player, ScreenWidth / 2 - 100);
+        if (game.lobbySize == 1) {
+            drawScore(ctx, game.cpu, ScreenWidth / 2 + 100);
+        } else if (game.lobbySize == 2) {
+            drawScore(ctx, game.opponent, ScreenWidth / 2 + 100);
+        }
+
+        if (game.lobbySize == 1) {
+            if (game.player.score === 5 || game.cpu.score === 5) {
+                console.log("Game Finished");
+				setGameOver(true);
+                return;
+            }
+        } else if (game.lobbySize == 2) {
+            if (game.player.score === 5 || game.opponent.score === 5) {
+                console.log("Game Finished");
+				setGameOver(true);
+                return;
+            }
+        }
+
+        game.ball.draw(ctx);
+        game.player.draw(ctx);
+        if (game.lobbySize == 1) {
+            game.cpu.draw(ctx);
+        } else if (game.lobbySize == 2) {
+            game.opponent.draw(ctx);
+        }
+    }
+
+    game.last_time = Date.now();
+
+    window.requestAnimationFrame(() => singleplayerGameLoop(game, ctx, setGameOver));
+}
+
+function multiplayerGameLoop(game, ctx, setGameOver) {
+    if (!game.paused) {
+        let current_time = Date.now();
+        let dt = (current_time - game.last_time) / 1000;
+
+        clearBackground(ctx);
+        drawGoal(ctx, 0, 20, "white");
+        drawGoal(ctx, ScreenWidth - 20, ScreenWidth, "white");
+
+        if (game.player_id === game.host_id) {
+            game.ball.update(game, game.opponent, dt);
+        }
+        game.player.update(dt);
+
+        if (game.player_id === game.host_id) {
+            sendHostMessage(game);
+        } else {
+            sendNonHostMessage(game);
+        }
+
+        if (game.player_id === game.host_id) {
+            checkPlayerCollision(game.ball, game.player);
+            checkCpuCollision(game.ball, game.opponent);
+        }
+
+        if (game.player_id === game.host_id) {
+            drawScore(ctx, game.player, ScreenWidth / 2 - 100);
+            drawScore(ctx, game.opponent, ScreenWidth / 2 + 100);
+        } else {
+            drawScore(ctx, game.opponent, ScreenWidth / 2 - 100);
+            drawScore(ctx, game.player, ScreenWidth / 2 + 100);
+        }
+
+        if (game.player_id === game.host_id) {
+            sendHostMessage(game);
+        } else {
+            sendNonHostMessage(game);
+        }
+
+        if (game.player.score === 5 || game.opponent.score === 5) {
+            console.log("Game Finished");
+			setGameOver(true);
+            return;
+        }
+
+        game.ball.draw(ctx);
+        game.player.draw(ctx);
+        game.opponent.draw(ctx);
+    }
+
+    game.last_time = Date.now();
+
+    window.requestAnimationFrame(() => multiplayerGameLoop(game, ctx, setGameOver));
+}
+
+function clearBackground(ctx) {
+    ctx.fillStyle = BackgroundColor;
+    ctx.fillRect(0, 0, ScreenWidth, ScreenHeight);
+}
+
+function drawGoal(ctx, xi, xf, color) {
+    ctx.beginPath();
+    ctx.rect(xi, 0, xf, ScreenHeight);
+    ctx.fillStyle = color;
+    ctx.fill();
+}
+
+function drawScore(ctx, player, x) {
+    ctx.font = "30px Arial";
+    ctx.fillStyle = "white";
+    ctx.fillAlign = "center";
+    ctx.fillText(player.score, x, 50);
+}
+
+export function sendHostMessage(game) {
+    const message = {
+        game: {
+            id: game.player.id,
+            player_x: game.player.x,
+            player_y: game.player.y,
+            ball_x: game.ball.x,
+            ball_y: game.ball.y,
+            ball_speed_x: game.ball.speed_x,
+            ball_speed_y: game.ball.speed_y,
+            player_score: game.player.score,
+            opponent_score: game.opponent.score,
+            paused: game.paused,
+        },
+    };
+
+    sendMessage(MyWebSocket.ws, message);
+}
+
+export function sendNonHostMessage(game) {
+    const message = {
+        game: {
+            id: game.player.id,
+            player_x: game.player.x,
+            player_y: game.player.y,
+        },
+    };
+
+    sendMessage(MyWebSocket.ws, message);
+}
+
+
