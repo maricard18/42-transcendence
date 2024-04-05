@@ -1,0 +1,183 @@
+version: '3.8'
+services:
+  ############# PROD #############
+  postgres:
+    container_name: postgres
+    image: postgres:13-alpine3.18
+    user: postgres
+    env_file: .env
+    expose:
+      - "5432"
+    networks:
+      - transcendence
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      interval: 5s
+      start_period: 5s
+      retries: 5
+    profiles: [ "" ]
+    restart: always
+
+  redis:
+    container_name: redis
+    image: redis:7.2-alpine3.18
+    expose:
+      - "6379"
+    networks:
+      - transcendence
+    depends_on:
+      postgres:
+        condition: service_healthy
+      db-migrations:
+        condition: service_completed_successfully
+      webpack-build:
+        condition: service_completed_successfully
+    profiles: [ "" ]
+    restart: on-failure
+
+  django-backend:
+    container_name: django-backend
+    build:
+      context: app/
+      target: prod
+    env_file: .env
+    ports:
+      - "8000:8000"
+    networks:
+      - transcendence
+    volumes:
+      - frontend_data:/app/frontend
+    depends_on:
+      redis-dev:
+        condition: service_started
+    profiles: [ "" ]
+    restart: on-failure
+
+  ############# DEV #############
+  postgres-dev:
+    container_name: postgres-dev
+    image: postgres:13-alpine3.18
+    user: postgres
+    env_file: .env
+    ports:
+      - "5432:5432"
+    networks:
+      - transcendence-dev
+    volumes:
+      - postgres_data-dev:/var/lib/postgresql/data/
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      interval: 5s
+      start_period: 5s
+      retries: 5
+    profiles: [ "dev" ]
+    restart: always
+
+  webpack-dev:
+    container_name: webpack-dev
+    build:
+      context: app/frontend/
+      target: dev
+    networks:
+      - transcendence-dev
+    volumes:
+      - ./app/frontend/:/app/frontend/
+    profiles: [ "dev" ]
+    restart: on-failure
+
+  redis-dev:
+    container_name: redis-dev
+    image: redis:7.2-alpine3.18
+    expose:
+      - "6379"
+    networks:
+      - transcendence-dev
+    depends_on:
+      postgres-dev:
+        condition: service_healthy
+      db-migrations-dev:
+        condition: service_completed_successfully
+      webpack-dev:
+        condition: service_started
+    profiles: [ "dev" ]
+    restart: on-failure
+
+  django-backend-dev:
+    container_name: django-backend-dev
+    build:
+      context: app/
+      target: dev
+    env_file: .env
+    environment:
+      - POSTGRES_HOST=postgres-dev
+    ports:
+      - "8000:8000"
+    networks:
+      - transcendence-dev
+    volumes:
+      - ./app/:/app/:ro
+      - ./app/frontend/static/images/avatars/:/app/frontend/static/images/avatars/:rw
+    depends_on:
+      redis-dev:
+        condition: service_started
+    profiles: [ "dev" ]
+    restart: on-failure
+
+  ############# TOOLS #############
+  ############# PROD #############
+  db-migrations:
+    container_name: db-migrations
+    build:
+      context: app/
+      target: tools
+    env_file: .env
+    entrypoint: ["bash", "/app/tools/db-migrations.sh"]
+    networks:
+      - transcendence
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles: [ "", "tools" ]
+    restart: on-failure
+
+  webpack-build:
+    container_name: webpack-build
+    build:
+      context: app/frontend/
+      target: prod
+    networks:
+      - transcendence
+    volumes:
+      - frontend_data:/app/frontend
+    profiles: [ "", "tools" ]
+
+  ############# DEV #############
+  db-migrations-dev:
+    container_name: db-migrations-dev
+    build:
+      context: app/
+      target: tools
+    env_file: .env
+    environment:
+      - POSTGRES_HOST=postgres-dev
+    entrypoint: [ "bash", "/app/tools/db-migrations.sh" ]
+    networks:
+      - transcendence-dev
+    depends_on:
+      postgres-dev:
+        condition: service_healthy
+    profiles: [ "dev", "tools" ]
+    restart: on-failure
+
+networks:
+  transcendence:
+    driver: bridge
+  transcendence-dev:
+    driver: bridge
+
+volumes:
+  frontend_data:
+  postgres_data:
+  postgres_data-dev:
