@@ -4,6 +4,7 @@ import fetchData from "../functions/fetchData";
 import handleResponse from "../functions/authenticationErrors";
 import { setToken } from "../functions/tokens";
 import { AuthContext } from "../components/Context";
+import { LoadingIcon } from "../components/Icons";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
 
@@ -24,15 +25,11 @@ export default function Login42Page() {
 
             if (response.ok) {
                 await setToken(response, setAuthed);
-                setLoading(true);
+                setLoading(false);
                 navigate("/menu");
             } else {
-                newErrors = await handleResponse(
-                    response,
-                    formData,
-                    setFormData
-                );
-                setErrors(newErrors);
+                setLoading(false);
+				navigate("/create-profile-42");
             }
         };
 
@@ -43,13 +40,7 @@ export default function Login42Page() {
         <div className="container">
             {!loading ? (
                 <div className="d-flex justify-content-center">
-                    <div
-                        className="spinner-border"
-                        style={{width: "4rem", height: "4rem"}}
-                        role="status"
-                    >
-                        <span className="visually-hidden">Loading...</span>
-                    </div>
+                    <LoadingIcon size="4rem" />
                 </div>
             ) : null}
         </div>

@@ -29,3 +29,15 @@ export function CloseIcon() {
         </svg>
     );
 }
+
+export function LoadingIcon({ size = "3rem"}) {
+    return (
+        <div
+            className="spinner-border ms-3 mt-2"
+            style={{ width: size, height: size }}
+            role="status"
+        >
+            <span className="visually-hidden">Loading...</span>
+        </div>
+    );
+}

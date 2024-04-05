@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Outlet } from "react-router-dom";
 import "../../static/css/Images.css";
 import "../../static/css/Buttons.css";

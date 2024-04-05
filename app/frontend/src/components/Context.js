@@ -74,6 +74,17 @@ export const UserQueueProvider = ({ children }) => {
     );
 };
 
+export const LoadingContext = createContext();
+export const LoadingProvider = ({ children }) => {
+    const [loading, setLoading] = useState();
+
+    return (
+        <LoadingContext.Provider value={{ loading, setLoading }}>
+            {children}
+        </LoadingContext.Provider>
+    );
+};
+
 export const PreviousLocationContext = createContext();
 export const PreviousLocationProvider = ({ children }) => {
     const location = useLocation().pathname;

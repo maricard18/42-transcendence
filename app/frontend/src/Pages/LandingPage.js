@@ -5,6 +5,10 @@ import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
 
 export default function LandingPage() {
+	function createLink() {
+		// get env variables
+	}
+
     return (
         <div className="container">
             <div className="center">
@@ -19,7 +23,10 @@ export default function LandingPage() {
                         </NavButton>
                     </div>
                     <div className="mb-2">
-                        <NavButton template="secondary-button" page="https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-5b992f3110962d31fd7154ccd734a5aafc66c24fab9d5476537c09f0df4efb85&redirect_uri=http%3A%2F%2F10.12.5.7%3A8000%2Flogin%2F42&response_type=code" >
+                        <NavButton
+                            template="secondary-button"
+                            page={createLink}
+                        >
                             Sign up with 42
                         </NavButton>
                     </div>

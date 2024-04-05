@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import {
     AuthContext,
+    LoadingContext,
     PreviousLocationContext,
     UserInfoContext,
     UserQueueContext,
@@ -15,7 +16,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { getToken } from "../functions/tokens";
 import { logError } from "../functions/utils";
 import { BaseAvatar } from "./Avatar";
-import { CheckIcon, CloseIcon } from "./Icons";
+import { CheckIcon, CloseIcon, LoadingIcon } from "./Icons";
 import "../../static/css/Images.css";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
@@ -27,6 +28,7 @@ export function MultiplayerWaitingRoom() {
     const { setAuthed } = useContext(AuthContext);
     const { setPreviousLocation } = useContext(PreviousLocationContext);
     const { userQueue, setUserQueue } = useContext(UserQueueContext);
+    const { loading } = useContext(LoadingContext);
     const [userReadyList, setUserReadyList] = useState({});
     const [lobbyFull, setLobbyfull] = useState(false);
     const [userLeft, setUserLeft] = useState(false);
@@ -80,32 +82,29 @@ export function MultiplayerWaitingRoom() {
 
     return (
         <div className="d-flex flex-column col-md-6">
-            <div className="p-3 p-lg-5 pd-xl-0">
-                <div className="d-flex flex-row mb-4">
-                    <h3>Waiting for players</h3>
-                    <div className="d-flex justify-content-center">
-                        <div
-                            className="spinner-border ms-3 mt-2"
-                            style={{ width: "20px", height: "20px" }}
-                            role="status"
-                        >
-                            <span className="visually-hidden">Loading...</span>
-                        </div>
-                    </div>
+            {loading ? (
+                <div className="justify-content-center">
+                    <LoadingIcon size="5rem" />
                 </div>
-                <PlayerQueue
-                    userQueue={userQueue}
-                    userReadyList={userReadyList}
-                />
-                {wsCreated
-                    ? Object.keys(userQueue).length == lobbySize && (
-                          <ReadyButton
-                              userReadyList={userReadyList}
-                              setUserReadyList={setUserReadyList}
-                          />
-                      )
-                    : null}
-            </div>
+            ) : (
+                <div className="p-3 p-lg-5 pd-xl-0">
+                    <div className="d-flex flex-row justify-content-center mb-4">
+                        <h3>Waiting for players</h3>
+                    </div>
+                    <PlayerQueue
+                        userQueue={userQueue}
+                        userReadyList={userReadyList}
+                    />
+                    {wsCreated
+                        ? Object.keys(userQueue).length == lobbySize && (
+                              <ReadyButton
+                                  userReadyList={userReadyList}
+                                  setUserReadyList={setUserReadyList}
+                              />
+                          )
+                        : null}
+                </div>
+            )}
         </div>
     );
 }

@@ -6,10 +6,11 @@ import {
     UserInfoProvider,
     PreviousLocationProvider,
     UserQueueProvider,
+    LoadingProvider,
 } from "../components/Context";
 import LandingPage from "./LandingPage";
 import SignUpPage from "./SignUpPage";
-import CreateProfilePage from "./CreateProfilePage";
+import { CreateProfilePage, Create42ProfilePage } from "./CreateProfilePage";
 import LoginPage from "./LoginPage";
 import Login42Page from "./Login42Page";
 import HomePage from "./HomePage";
@@ -60,6 +61,16 @@ const router = createBrowserRouter([
         ),
     },
     {
+        path: "/create-profile-42",
+        element: (
+            <FormDataProvider>
+                <IsNotAuthed>
+                    <Create42ProfilePage />,
+                </IsNotAuthed>
+            </FormDataProvider>
+        ),
+    },
+    {
         path: "/login/42",
         element: (
             <IsNotAuthed>
@@ -82,7 +93,7 @@ const router = createBrowserRouter([
                 <UserInfoProvider>
                     <UserQueueProvider>
                         <PreviousLocationProvider>
-                                <NavigationBar />
+                            <NavigationBar />
                         </PreviousLocationProvider>
                     </UserQueueProvider>
                 </UserInfoProvider>
@@ -208,7 +219,9 @@ const router = createBrowserRouter([
 function App() {
     return (
         <AuthProvider>
-            <RouterProvider router={router} />
+            <LoadingProvider>
+                <RouterProvider router={router} />
+            </LoadingProvider>
         </AuthProvider>
     );
 }

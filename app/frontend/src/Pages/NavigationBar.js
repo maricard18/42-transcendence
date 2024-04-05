@@ -2,7 +2,7 @@ import React, { useEffect, useContext } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import NavButton from "../components/NavButton";
 import getUserInfo from "../functions/getUserInfo";
-import { AuthContext, UserInfoContext } from "../components/Context";
+import { AuthContext, LoadingContext, UserInfoContext } from "../components/Context";
 import { logError } from "../functions/utils";
 import { BaseAvatar } from "../components/Avatar";
 import "../../static/css/NavBar.css";
@@ -15,23 +15,26 @@ import "bootstrap/dist/js/bootstrap.bundle.js";
 export default function NavigationBar() {
     const { authed, setAuthed } = useContext(AuthContext);
     const { userInfo, setUserInfo } = useContext(UserInfoContext);
-
+	const { setLoading } = useContext(LoadingContext);
+	
     useEffect(() => {
-        const fetchUserInfo = async () => {
-            const userData = await getUserInfo(setAuthed);
-
+		const fetchUserInfo = async () => {
+			const userData = await getUserInfo(setAuthed);
+			
             if (userData) {
-                setUserInfo({
+				setUserInfo({
                     username: userData.username,
                     email: userData.email,
                     avatar: userData.avatar,
                     id: userData.id,
                 });
+				setLoading(false);
             } else {
-                logError("failed to fetch user data.");
+				logError("failed to fetch user data.");
             }
         };
-
+		
+		setLoading(true);
         fetchUserInfo();
     }, [authed, userInfo.username, userInfo.avatar]);
 
