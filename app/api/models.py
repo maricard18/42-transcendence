@@ -7,8 +7,6 @@ from django.contrib.auth.models import User
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models, IntegrityError
 
-from .utils import get_host
-
 
 ######################
 ####   Managers   ####
@@ -151,7 +149,7 @@ def path_and_rename(instance, filename):
     ext = filename.split('.')[-1]
 
     filename = '{}.{}'.format(secrets.token_hex(), ext)
-    instance.link = get_host(AvatarManager.request) + upload_path.replace('frontend', '') + filename
+    instance.link = upload_path.replace('frontend', '') + filename
     return os.path.join(upload_path, filename)
 
 
