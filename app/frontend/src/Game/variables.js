@@ -4,7 +4,7 @@ export var BackgroundColor = "black";
 export var ScreenWidth = 650;
 export var ScreenHeight = 600;
 
-export var PaddleSpeed = 500;
+export var PaddleSpeed = 600;
 export var PaddleWidth = 15;
 export var PaddleHeight = 80;
 

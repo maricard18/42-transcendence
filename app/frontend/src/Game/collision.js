@@ -1,6 +1,6 @@
 import { BallTopSpeedX, BallTopSpeedY } from "./variables";
 
-export function checkPlayerCollision(ball, player)
+export function checkPlayer1Collision(ball, player)
 {
 	if (ball.speed_x < 0 &&
 		ball.x - ball.radius <= player.x + player.width &&
@@ -36,7 +36,7 @@ export function checkPlayerCollision(ball, player)
 	}
 }
 
-export function checkCpuCollision(ball, player)
+export function checkPlayer2Collision(ball, player)
 {
 	if (ball.speed_x > 0 &&
 		ball.x + ball.radius >= player.x &&

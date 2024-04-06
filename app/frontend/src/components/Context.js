@@ -95,7 +95,6 @@ export const PreviousLocationProvider = ({ children }) => {
             location !== "/menu/pong-game/play/multiplayer/2" &&
             location !== "/menu/pong-game/play/multiplayer/4") {
             if (MyWebSocket.ws) {
-                console.log("Closed websocket!");
                 MyWebSocket.ws.close();
                 delete MyWebSocket.ws;
             }

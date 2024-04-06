@@ -1,8 +1,8 @@
-import { checkPlayerCollision, checkCpuCollision } from "./collision";
+import { checkPlayer1Collision, checkPlayer2Collision } from "./collision";
+import { Game } from "./Game";
 import { Ball } from "./Ball";
-import { Player } from "./Player";
-import { Opponent } from "./Opponent";
-import { Cpu } from "./Cpu";
+import { Player } from "./Player1";
+import { Cpu, Opponent } from "./Player2";
 import { MyWebSocket, sendMessage } from "../functions/websocket";
 import { multiplayerMessageHandler } from "../functions/websocket";
 import {
@@ -13,6 +13,7 @@ import {
     PaddleHeight,
     PaddleWidth,
 } from "./variables";
+import { startGameAnimation } from "./animations";
 
 export async function startGame(
     canvas,
@@ -20,8 +21,8 @@ export async function startGame(
     lobbySize,
     userInfo,
     userQueue,
-	gameOver,
-	setGameOver
+    gameOver,
+    setGameOver
 ) {
     const ctx = canvas.getContext("2d");
 
@@ -39,256 +40,233 @@ export async function startGame(
     });
 
     const last_time = Date.now();
-    const ball = new Ball(ScreenWidth / 2, ScreenHeight / 2, "white");
+    var game;
 
-    if (gameMode === "single-player" && lobbySize == 1) {
-        const player = new Player(
+    switch (gameMode) {
+        case "single-player":
+            game = createSinglePlayerGame(ctx, last_time, lobbySize);
+            await startGameAnimation(ctx, last_time);
+            singleplayerGameLoop(game, setGameOver);
+            break;
+        case "multiplayer":
+            game = createMultiPlayerGame(ctx, last_time, userQueue, userInfo);
+            multiplayerMessageHandler(MyWebSocket, game, setGameOver);
+            await startGameAnimation(ctx, last_time);
+            multiplayerGameLoop(game, gameOver, setGameOver);
+            break;
+    }
+}
+
+function createSinglePlayerGame(ctx, last_time, lobbySize) {
+    const player1 =
+        lobbySize == 1
+            ? new Player(
+                  25,
+                  ScreenHeight / 2 - PaddleHeight / 2,
+                  "red",
+                  "ArrowUp",
+                  "ArrowDown",
+                  1
+              )
+            : new Player(
+                  25,
+                  ScreenHeight / 2 - PaddleHeight / 2,
+                  "red",
+                  "w",
+                  "s",
+                  1
+              );
+
+    const player2 =
+        lobbySize == 1
+            ? new Cpu(
+                  ScreenWidth - 25 - PaddleWidth,
+                  ScreenHeight / 2 - PaddleHeight / 2,
+                  "blue"
+              )
+            : new Player(
+                  ScreenWidth - 25 - PaddleWidth,
+                  ScreenHeight / 2 - PaddleHeight / 2,
+                  "blue",
+                  "ArrowUp",
+                  "ArrowDown",
+                  2
+              );
+
+    return new Game(
+        ctx,
+        last_time,
+        new Ball(ScreenWidth / 2, ScreenHeight / 2, "white"),
+        player1,
+        player2,
+        "single-player",
+        null,
+        lobbySize
+    );
+}
+
+function createMultiPlayerGame(ctx, last_time, userQueue, userInfo) {
+    const host_id = Object.values(userQueue)[0];
+    let player1, player2;
+
+    if (host_id === userInfo.id) {
+        player1 = new Player(
             25,
             ScreenHeight / 2 - PaddleHeight / 2,
             "red",
             "ArrowUp",
             "ArrowDown",
-            1
+            userInfo.id
         );
-        const cpu = new Cpu(
-            ScreenWidth - 25 - PaddleWidth,
-            ScreenHeight / 2 - PaddleHeight / 2,
-            "blue"
-        );
-        const game = {
-            last_time,
-            ball,
-            player,
-            cpu,
-            mode: gameMode,
-            lobbySize,
-            paused: false,
-        };
-        singleplayerGameLoop(game, ctx, setGameOver);
-    } else if (gameMode === "single-player" && lobbySize == 2) {
-        const player = new Player(
-            25,
-            ScreenHeight / 2 - PaddleHeight / 2,
-            "red",
-            "w",
-            "s",
-            1
-        );
-        const opponent = new Player(
+        player2 = new Opponent(
             ScreenWidth - 25 - PaddleWidth,
             ScreenHeight / 2 - PaddleHeight / 2,
             "blue",
             "ArrowUp",
             "ArrowDown",
-            2
+            0
         );
-        const game = {
-            last_time,
-            ball,
-            player,
-            opponent,
-            mode: gameMode,
-            lobbySize,
-            paused: false,
-        };
-        singleplayerGameLoop(game, ctx, setGameOver);
-    } else if (gameMode === "multiplayer" && lobbySize == 2) {
-        const host_id = Object.values(userQueue)[0];
-        let player;
-        let opponent;
-
-        if (host_id == userInfo.id) {
-            player = new Player(
-                25,
-                ScreenHeight / 2 - PaddleHeight / 2,
-                "red",
-                "ArrowUp",
-                "ArrowDown",
-                userInfo.id
-            );
-            opponent = new Opponent(
-                ScreenWidth - 25 - PaddleWidth,
-                ScreenHeight / 2 - PaddleHeight / 2,
-                "blue",
-                "ArrowUp",
-                "ArrowDown",
-                0
-            );
-        } else {
-            player = new Player(
-                ScreenWidth - 25 - PaddleWidth,
-                ScreenHeight / 2 - PaddleHeight / 2,
-                "blue",
-                "ArrowUp",
-                "ArrowDown",
-                userInfo.id
-            );
-            opponent = new Opponent(
-                25,
-                ScreenHeight / 2 - PaddleHeight / 2,
-                "red",
-                "ArrowUp",
-                "ArrowDown",
-                0
-            );
-        }
-        const game = {
-            host_id,
-            player_id: userInfo.id,
-            last_time,
-            ball,
-            player,
-            opponent,
-            mode: gameMode,
-            lobbySize,
-            paused: false,
-        };
-
-        multiplayerMessageHandler(MyWebSocket, game, host_id, setGameOver);
-
-        if (game.player_id === game.host_id) {
-            sendHostMessage(game);
-        } else {
-            sendNonHostMessage(game);
-        }
-
-        multiplayerGameLoop(game, ctx, gameOver, setGameOver);
+    } else {
+        player1 = new Player(
+            ScreenWidth - 25 - PaddleWidth,
+            ScreenHeight / 2 - PaddleHeight / 2,
+            "blue",
+            "ArrowUp",
+            "ArrowDown",
+            userInfo.id
+        );
+        player2 = new Opponent(
+            25,
+            ScreenHeight / 2 - PaddleHeight / 2,
+            "red",
+            "ArrowUp",
+            "ArrowDown",
+            0
+        );
     }
+
+    return new Game(
+        ctx,
+        last_time,
+        new Ball(ScreenWidth / 2, ScreenHeight / 2, "white"),
+        player1,
+        player2,
+        "multiplayer",
+        host_id,
+		null
+    );
 }
 
-function singleplayerGameLoop(game, ctx, setGameOver) {
-	if (!game.paused) {
+function singleplayerGameLoop(game, setGameOver) {
+    if (!game.paused) {
         let current_time = Date.now();
         let dt = (current_time - game.last_time) / 1000;
 
-        clearBackground(ctx);
-        drawGoal(ctx, 0, 20, "white");
-        drawGoal(ctx, ScreenWidth - 20, ScreenWidth, "white");
+        clearBackground(game.ctx);
+        drawGoal(game.ctx, 0, 20, "white");
+        drawGoal(game.ctx, ScreenWidth - 20, ScreenWidth, "white");
+
+        game.ball.update(game, dt);
+        game.player1.update(dt);
 
         if (game.lobbySize == 1) {
-            game.ball.update(game, game.cpu, dt);
+            game.player2.update(game.ball, dt);
         } else if (game.lobbySize == 2) {
-            game.ball.update(game, game.opponent, dt);
-        }
-        game.player.update(dt);
-        if (game.lobbySize == 1) {
-            game.cpu.update(game.ball, dt);
-        } else if (game.lobbySize == 2) {
-            game.opponent.update(dt);
+            game.player2.update(dt);
         }
 
-        checkPlayerCollision(game.ball, game.player);
-        if (game.lobbySize == 1) {
-            checkCpuCollision(game.ball, game.cpu);
-        } else if (game.lobbySize == 2) {
-            checkCpuCollision(game.ball, game.opponent);
-        }
+        checkPlayer1Collision(game.ball, game.player1);
+        checkPlayer2Collision(game.ball, game.player2);
 
-        drawScore(ctx, game.player, ScreenWidth / 2 - 100);
-        if (game.lobbySize == 1) {
-            drawScore(ctx, game.cpu, ScreenWidth / 2 + 100);
-        } else if (game.lobbySize == 2) {
-            drawScore(ctx, game.opponent, ScreenWidth / 2 + 100);
-        }
+        drawScore(game.ctx, game.player1, ScreenWidth / 2 - 100);
+        drawScore(game.ctx, game.player2, ScreenWidth / 2 + 100);
 
-        if (game.lobbySize == 1) {
-            if (game.player.score === 5 || game.cpu.score === 5) {
-                console.log("Game Finished");
-				setGameOver(true);
-                return;
-            }
-        } else if (game.lobbySize == 2) {
-            if (game.player.score === 5 || game.opponent.score === 5) {
-                console.log("Game Finished");
-				setGameOver(true);
-                return;
-            }
-        }
-
-        game.ball.draw(ctx);
-        game.player.draw(ctx);
-        if (game.lobbySize == 1) {
-            game.cpu.draw(ctx);
-        } else if (game.lobbySize == 2) {
-            game.opponent.draw(ctx);
-        }
-    }
-
-    game.last_time = Date.now();
-
-    window.requestAnimationFrame(() => singleplayerGameLoop(game, ctx, setGameOver));
-}
-
-function multiplayerGameLoop(game, ctx, gameOver, setGameOver) {
-	if (gameOver) {
-		return ;
-	} else if (!game.paused) {
-        let current_time = Date.now();
-        let dt = (current_time - game.last_time) / 1000;
-
-        clearBackground(ctx);
-        drawGoal(ctx, 0, 20, "white");
-        drawGoal(ctx, ScreenWidth - 20, ScreenWidth, "white");
-
-        if (game.player_id === game.host_id) {
-            game.ball.update(game, game.opponent, dt);
-        }
-        game.player.update(dt);
-
-        if (game.player_id === game.host_id) {
-            sendHostMessage(game);
-        } else {
-            sendNonHostMessage(game);
-        }
-
-        if (game.player_id === game.host_id) {
-            checkPlayerCollision(game.ball, game.player);
-            checkCpuCollision(game.ball, game.opponent);
-        }
-
-        if (game.player_id === game.host_id) {
-            drawScore(ctx, game.player, ScreenWidth / 2 - 100);
-            drawScore(ctx, game.opponent, ScreenWidth / 2 + 100);
-        } else {
-            drawScore(ctx, game.opponent, ScreenWidth / 2 - 100);
-            drawScore(ctx, game.player, ScreenWidth / 2 + 100);
-        }
-
-        if (game.player_id === game.host_id) {
-            sendHostMessage(game);
-        } else {
-            sendNonHostMessage(game);
-        }
-
-        if (game.player.score === 5 || game.opponent.score === 5) {
+        if (game.player1.score === 5 || game.player2.score === 5) {
             console.log("Game Finished");
-			setGameOver(true);
+            setGameOver(true);
             return;
         }
 
-        game.ball.draw(ctx);
-        game.player.draw(ctx);
-        game.opponent.draw(ctx);
+        game.ball.draw(game.ctx);
+        game.player1.draw(game.ctx);
+        game.player2.draw(game.ctx);
     }
 
     game.last_time = Date.now();
 
-    window.requestAnimationFrame(() => multiplayerGameLoop(game, ctx, gameOver, setGameOver));
+    window.requestAnimationFrame(() => singleplayerGameLoop(game, setGameOver));
 }
 
-function clearBackground(ctx) {
+function multiplayerGameLoop(game, gameOver, setGameOver) {
+    if (gameOver) {
+        return;
+    } else if (!game.paused) {
+        let current_time = Date.now();
+        let dt = (current_time - game.last_time) / 1000;
+
+        clearBackground(game.ctx);
+        drawGoal(game.ctx, 0, 20, "white");
+        drawGoal(game.ctx, ScreenWidth - 20, ScreenWidth, "white");
+
+        game.ball.update(game, dt);
+        game.player1.update(dt);
+
+        if (game.player1.id === game.host_id) {
+            sendHostMessage(game);
+        } else {
+            sendNonHostMessage(game);
+        }
+
+        if (game.player1.id === game.host_id) {
+            checkPlayer1Collision(game.ball, game.player1);
+            checkPlayer2Collision(game.ball, game.player2);
+        }
+
+        if (game.player1.id === game.host_id) {
+            drawScore(game.ctx, game.player1, ScreenWidth / 2 - 100);
+            drawScore(game.ctx, game.player2, ScreenWidth / 2 + 100);
+        } else {
+            drawScore(game.ctx, game.player2, ScreenWidth / 2 - 100);
+            drawScore(game.ctx, game.player1, ScreenWidth / 2 + 100);
+        }
+
+        if (game.player1.id === game.host_id) {
+            sendHostMessage(game);
+        } else {
+            sendNonHostMessage(game);
+        }
+
+        if (game.player1.score === 5 || game.player2.score === 5) {
+            console.log("Game Finished");
+            setGameOver(true);
+            return;
+        }
+
+        game.ball.draw(game.ctx);
+        game.player1.draw(game.ctx);
+        game.player2.draw(game.ctx);
+    }
+
+    game.last_time = Date.now();
+
+    window.requestAnimationFrame(() =>
+        multiplayerGameLoop(game, gameOver, setGameOver)
+    );
+}
+
+export function clearBackground(ctx) {
     ctx.fillStyle = BackgroundColor;
     ctx.fillRect(0, 0, ScreenWidth, ScreenHeight);
 }
 
-function drawGoal(ctx, xi, xf, color) {
+export function drawGoal(ctx, xi, xf, color) {
     ctx.beginPath();
     ctx.rect(xi, 0, xf, ScreenHeight);
     ctx.fillStyle = color;
     ctx.fill();
 }
 
-function drawScore(ctx, player, x) {
+export function drawScore(ctx, player, x) {
     ctx.font = "30px Arial";
     ctx.fillStyle = "white";
     ctx.fillAlign = "center";
@@ -298,15 +276,15 @@ function drawScore(ctx, player, x) {
 export function sendHostMessage(game) {
     const message = {
         game: {
-            id: game.player.id,
-            player_x: game.player.x,
-            player_y: game.player.y,
+            id: game.player1.id,
+            player_x: game.player1.x,
+            player_y: game.player1.y,
             ball_x: game.ball.x,
             ball_y: game.ball.y,
             ball_speed_x: game.ball.speed_x,
             ball_speed_y: game.ball.speed_y,
-            player_score: game.player.score,
-            opponent_score: game.opponent.score,
+            player_score: game.player1.score,
+            opponent_score: game.player2.score,
             paused: game.paused,
         },
     };
@@ -317,13 +295,11 @@ export function sendHostMessage(game) {
 export function sendNonHostMessage(game) {
     const message = {
         game: {
-            id: game.player.id,
-            player_x: game.player.x,
-            player_y: game.player.y,
+            id: game.player1.id,
+            player_x: game.player1.x,
+            player_y: game.player1.y,
         },
     };
 
     sendMessage(MyWebSocket.ws, message);
 }
-
-

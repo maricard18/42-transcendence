@@ -16,7 +16,7 @@ import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.bundle.js";
 
 export default function NavigationBar() {
-    const { authed, setAuthed } = useContext(AuthContext);
+    const { setAuthed } = useContext(AuthContext);
     const { userInfo, setUserInfo } = useContext(UserInfoContext);
     const { setLoading } = useContext(LoadingContext);
 
@@ -39,7 +39,7 @@ export default function NavigationBar() {
 
         setLoading(true);
         fetchUserInfo();
-    }, [authed, userInfo.username, userInfo.avatar]);
+    }, [userInfo.username, userInfo.avatar]);
 
     return (
         <div className="container-fluid">

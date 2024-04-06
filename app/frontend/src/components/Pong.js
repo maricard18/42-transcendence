@@ -23,18 +23,20 @@ export default function PongPage() {
                 lobbySize,
                 userInfo,
                 userQueue,
-				gameOver,
+                gameOver,
                 setGameOver
             );
         };
 
-        if (Object.keys(userQueue).length != lobbySize) {
+        if (
+            gameMode === "multiplayer" &&
+            Object.keys(userQueue).length != lobbySize
+        ) {
             if (MyWebSocket.ws) {
-                console.log("Closed Websocket");
                 MyWebSocket.ws.close();
                 delete MyWebSocket.ws;
             }
-			setGameOver(true);
+            setGameOver(true);
         } else {
             startPongGame();
         }

@@ -44,7 +44,6 @@ export function MultiplayerWaitingRoom() {
         };
 
         if (userLeft) {
-            console.log("User left, closing websocket");
 			if (MyWebSocket.ws) {
 				MyWebSocket.ws.close();
 				delete MyWebSocket.ws;
@@ -54,7 +53,6 @@ export function MultiplayerWaitingRoom() {
         }
 
         if (!wsCreated) {
-            console.log("Starting connection process!");
             startConnectingProcess();
         }
 
@@ -126,7 +124,6 @@ function PlayerQueue({ userQueue, userReadyList }) {
         };
 
         fetchUserData();
-		console.log("Fetching Data");
     }, [userQueue]);
 
     return (

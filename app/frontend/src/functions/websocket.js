@@ -1,3 +1,5 @@
+import { ScreenWidth } from "../Game/variables";
+import { clearBackground, drawGoal, drawScore } from "../Game/pongGameCode";
 import { getToken } from "./tokens";
 
 export var MyWebSocket = {};
@@ -21,7 +23,7 @@ export async function connectWebsocket(
     };
 
     MyWebSocket.ws.onmessage = (event) => {
-        console.log("SYSTEM", JSON.parse(event.data));
+        //console.log("SYSTEM", JSON.parse(event.data));
 
         try {
             const jsonData = JSON.parse(event.data);
@@ -58,32 +60,31 @@ export async function connectWebsocket(
     };
 }
 
-export function multiplayerMessageHandler(MyWebSocket, game, host, setGameOver) {
+export function multiplayerMessageHandler(MyWebSocket, game, setGameOver) {
     if (MyWebSocket.ws) {
         MyWebSocket.ws.onmessage = (event) => {
-            console.log("GAME", JSON.parse(event.data));
+            //console.log("GAME", JSON.parse(event.data));
 
             try {
                 const jsonData = JSON.parse(event.data);
 
                 if (jsonData["type"] === "user.message") {
                     const gameData = jsonData["data"]["game"];
-                    game.opponent.x = gameData["player_x"];
-                    game.opponent.y = gameData["player_y"];
+                    game.player2.x = gameData["player_x"];
+                    game.player2.y = gameData["player_y"];
 
-                    if (gameData["id"] == host) {
-                        game.ball.x = gameData["ball_x"];
-                        game.ball.y = gameData["ball_y"];
-                        game.ball.speed_x = gameData["ball_speed_x"];
-                        game.ball.speed_y = gameData["ball_speed_y"];
-                        game.player.score = gameData["opponent_score"];
-                        game.opponent.score = gameData["player_score"];
-
-                        //if (gameData["paused"]) {
-                        //    updateOpponentScreen(game, gameData);
-                        //} else if (gameData["paused"] === false) {
-                        //	game.paused = false;
-                        //}
+                    if (gameData["id"] == game.host_id) {
+                        if (gameData["paused"]) {
+                            updateOpponentScreen(game, gameData);
+                        } else {
+                            game.paused = false;
+                            game.ball.x = gameData["ball_x"];
+                            game.ball.y = gameData["ball_y"];
+                            game.ball.speed_x = gameData["ball_speed_x"];
+                            game.ball.speed_y = gameData["ball_speed_y"];
+                            game.player1.score = gameData["opponent_score"];
+                            game.player2.score = gameData["player_score"];
+                        }
                     }
                 }
                 if (jsonData["type"] == "system.message") {
@@ -92,7 +93,7 @@ export function multiplayerMessageHandler(MyWebSocket, game, host, setGameOver) 
                         console.log("User disconnected from the Game!");
                         console.log("You won!");
                         MyWebSocket.ws.close();
-						delete MyWebSocket.ws;
+                        delete MyWebSocket.ws;
                         setGameOver(true);
                     }
                 }
@@ -114,7 +115,22 @@ export function sendMessage(ws, message) {
 }
 
 function updateOpponentScreen(game, gameData) {
-    game.player.x = game.player.initial_x;
-    game.player.y = game.player.initial_y;
     game.paused = true;
+    game.ball.x = gameData["ball_x"];
+    game.ball.y = gameData["ball_y"];
+    game.ball.speed_x = gameData["ball_speed_x"];
+    game.ball.speed_y = gameData["ball_speed_y"];
+    game.player1.score = gameData["opponent_score"];
+    game.player2.score = gameData["player_score"];
+    game.player1.x = game.player1.initial_x;
+    game.player1.y = game.player1.initial_y;
+
+    clearBackground(game.ctx);
+    drawGoal(game.ctx, 0, 20, "white");
+    drawGoal(game.ctx, ScreenWidth - 20, ScreenWidth, "white");
+    drawScore(game.ctx, game.player2, ScreenWidth / 2 - 100);
+    drawScore(game.ctx, game.player1, ScreenWidth / 2 + 100);
+    game.ball.draw(game.ctx);
+    game.player1.draw(game.ctx);
+    game.player2.draw(game.ctx);
 }
