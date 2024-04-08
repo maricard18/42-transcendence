@@ -7,6 +7,7 @@ import {
     UserQueueContext,
 } from "../components/Context";
 import { MyWebSocket } from "../functions/websocket";
+import { BaseAvatar } from "./Avatar";
 import "bootstrap/dist/css/bootstrap.css";
 
 export default function PongPage() {
