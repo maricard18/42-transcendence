@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.css";
 
-export default function Avatar({ setFile }) {
+export default function Avatar({ setFile, url = null }) {
     const [preview, setPreview] = useState();
+
+	if (url) {
+		setPreview(url);
+	}
 
     function previewAvatar(event) {
         const file = event.target.files[0];

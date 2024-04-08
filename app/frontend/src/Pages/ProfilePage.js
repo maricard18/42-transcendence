@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
-import NavButton from "../components/NavButton";
+import NavButton, { LogoutButton } from "../components/NavButton";
 import { DefaultAvatar } from "../components/Avatar";
 import { UserInfoContext, AuthContext } from "../components/Context";
 import { getToken } from "../functions/tokens";
@@ -10,8 +10,6 @@ import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
 
 export default function ProfilePage() {
-    const { userInfo } = useContext(UserInfoContext);
-
     return (
         <div className="container">
             <div
@@ -46,9 +44,9 @@ export default function ProfilePage() {
                             >
                                 Change Password
                             </NavButton>
-                            <NavButton template="primary-button" page="/">
+                            <LogoutButton template="primary-button">
                                 Logout
-                            </NavButton>
+                            </LogoutButton>
                         </div>
                     </div>
                 </div>
@@ -90,7 +88,7 @@ export function ChangeAvatar() {
                 );
 
                 if (!response.ok) {
-                    logError(response.body);
+                    console.log(response.body);
                 } else {
                     const userData = await getUserInfo(setAuthed);
 

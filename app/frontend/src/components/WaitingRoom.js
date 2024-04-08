@@ -1,4 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
+import fetchData from "../functions/fetchData";
+import { useLocation, useNavigate } from "react-router-dom";
+import { getToken } from "../functions/tokens";
+import { BaseAvatar } from "./Avatar";
+import { CheckIcon, CloseIcon, LoadingIcon } from "./Icons";
 import {
     AuthContext,
     LoadingContext,
@@ -12,23 +17,18 @@ import {
     sendMessage,
     MyWebSocket,
 } from "../functions/websocket";
-import fetchData from "../functions/fetchData";
-import { useLocation, useNavigate } from "react-router-dom";
-import { getToken } from "../functions/tokens";
-import { BaseAvatar } from "./Avatar";
-import { CheckIcon, CloseIcon, LoadingIcon } from "./Icons";
 import "../../static/css/Images.css";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
 
-export function MultiplayerWaitingRoom() {
+export default function MultiplayerWaitingRoom() {
     const navigate = useNavigate();
     const location = useLocation().pathname;
     const lobbySize = location.substring(location.length - 1);
     const { setAuthed } = useContext(AuthContext);
     const { setPreviousLocation } = useContext(PreviousLocationContext);
     const { userQueue, setUserQueue } = useContext(UserQueueContext);
-    const { userData, setUserData } = useContext(UserDataContext);
+    const { setUserData } = useContext(UserDataContext);
     const { loading } = useContext(LoadingContext);
     const [userReadyList, setUserReadyList] = useState({});
     const [lobbyFull, setLobbyfull] = useState(false);
@@ -41,7 +41,7 @@ export function MultiplayerWaitingRoom() {
                 setAuthed,
                 setUserQueue,
                 setUserReadyList,
-				setUserData,
+                setUserData,
                 setWsCreated
             );
         };
@@ -53,7 +53,7 @@ export function MultiplayerWaitingRoom() {
                 delete MyWebSocket.ws;
             }
             setUserLeft(false);
-			setUserData([]);
+            setUserData([]);
             setWsCreated(false);
         }
 
@@ -88,9 +88,7 @@ export function MultiplayerWaitingRoom() {
     return (
         <div className="d-flex flex-column col-md-6">
             {loading ? (
-                <div className="justify-content-center">
-                    <LoadingIcon size="5rem" />
-                </div>
+                <LoadingIcon size="5rem" />
             ) : (
                 <div className="p-3 p-lg-5 pd-xl-0">
                     <div className="d-flex flex-row justify-content-center mb-4">
@@ -117,18 +115,21 @@ export function MultiplayerWaitingRoom() {
 
 function PlayerQueue({ userQueue, userReadyList, lobbySize }) {
     const { userData, setUserData } = useContext(UserDataContext);
+    const { userInfo } = useContext(UserInfoContext);
     const { setAuthed } = useContext(AuthContext);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchUserData = async () => {
             const data = await Promise.all(
-                Object.values(userQueue).map((value) =>
-                    getUserData(value, setAuthed)
-                )
+                Object.values(userQueue).map((value) => {
+                    value === userInfo.id
+                        ? userInfo
+                        : getUserData(value, setAuthed);
+                })
             );
             setUserData(data);
-			setLoading(false);
+            setLoading(false);
         };
 
         if (Object.values(userData).length != lobbySize) {

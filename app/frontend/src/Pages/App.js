@@ -22,7 +22,7 @@ import {
     MultiplayerOptions,
     TournamentOptions,
 } from "../components/GameOptions";
-import { MultiplayerWaitingRoom } from "../components/WaitingRoom";
+import MultiplayerWaitingRoom from "../components/WaitingRoom";
 import ProfilePage from "./ProfilePage";
 import Pong from "../components/Pong";
 import NavigationBar from "./NavigationBar";
@@ -91,15 +91,13 @@ const router = createBrowserRouter([
         path: "/menu",
         element: (
             <IsAuthed>
-                <UserInfoProvider>
-                    <UserQueueProvider>
-                        <UserDataProvider>
-                            <PreviousLocationProvider>
-                                <NavigationBar />
-                            </PreviousLocationProvider>
-                        </UserDataProvider>
-                    </UserQueueProvider>
-                </UserInfoProvider>
+                <UserQueueProvider>
+                    <UserDataProvider>
+                        <PreviousLocationProvider>
+                            <NavigationBar />
+                        </PreviousLocationProvider>
+                    </UserDataProvider>
+                </UserQueueProvider>
             </IsAuthed>
         ),
         children: [
@@ -223,7 +221,9 @@ function App() {
     return (
         <AuthProvider>
             <LoadingProvider>
-                <RouterProvider router={router} />
+                <UserInfoProvider>
+                    <RouterProvider router={router} />
+                </UserInfoProvider>
             </LoadingProvider>
         </AuthProvider>
     );

@@ -5,9 +5,16 @@ import SubmitButton from "../components/SubmitButton";
 import { useNavigate } from "react-router-dom";
 import fetchData from "../functions/fetchData";
 import handleResponse from "../functions/authenticationErrors";
-import { createToken, decode } from "../functions/tokens";
-import { AuthContext, FormDataContext } from "../components/Context";
+import { createToken, decode, getToken } from "../functions/tokens";
+import { LoadingIcon } from "../components/Icons";
 import { checkEnterButton } from "../functions/fetchData";
+import getUserInfo from "../functions/getUserInfo";
+import {
+    AuthContext,
+    FormDataContext,
+    LoadingContext,
+    UserInfoContext,
+} from "../components/Context";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
 
@@ -130,9 +137,34 @@ export function CreateProfilePage() {
 export function Create42ProfilePage() {
     const navigate = useNavigate();
     const { setAuthed } = useContext(AuthContext);
-    const [formData, setFormData] = useContext({ username: "" });
+    const { userInfo, setUserInfo } = useContext(UserInfoContext);
+    const { loading, setLoading } = useContext(LoadingContext);
+    const [formData, setFormData] = useState({ username: "" });
     const [errors, setErrors] = useState({});
     const [file, setFile] = useState();
+
+    useEffect(() => {
+        const fetchUserInfo = async () => {
+			console.log("here");
+            const userData = await getUserInfo(setAuthed);
+
+            if (userData) {
+                setUserInfo({
+                    username: userData.username,
+                    email: userData.email,
+                    avatar: userData.avatar,
+                    id: userData.id,
+                });
+                setLoading(false);
+				console.log("good")
+            } else {
+                console.log("Error: failed to fetch user data.");
+            }
+        };
+
+        setLoading(true);
+        fetchUserInfo();
+    }, []);
 
     const handleValidation = async () => {
         const usernamePattern = /^[a-zA-Z0-9@.+_-]+$/;
@@ -197,46 +229,57 @@ export function Create42ProfilePage() {
 
     return (
         <div className="container">
-            <div className="center">
-                <div className="d-flex flex-column justify-content-center">
-                    <form>
-                        <div className="mb-5">
-                            <Avatar setFile={setFile} />
-                        </div>
-                        <div className="position-relative">
-                            {errors && (
-                                <p className="form-error">{errors.message}</p>
-                            )}
-                            <div className="mb-1">
-                                <Input
-                                    type="text"
-                                    id="username"
-                                    template={
-                                        errors.username ? "input-error" : ""
+            {loading ? (
+                <LoadingIcon size="5rem" />
+            ) : (
+                <div className="center">
+                    <div className="d-flex flex-column justify-content-center">
+                        <form>
+                            <div className="mb-5">
+                                <Avatar
+                                    setFile={setFile}
+                                    url={
+                                        userInfo.avatar ? userInfo.avatar : null
                                     }
-                                    value={formData.username}
-                                    setValue={(value) =>
-                                        setFormData({
-                                            ...formData,
-                                            username: value,
-                                        })
-                                    }
-                                >
-                                    username
-                                </Input>
+                                />
                             </div>
-                            <div>
-                                <SubmitButton
-                                    template="secondary-button"
-                                    onClick={handleValidation}
-                                >
-                                    Next
-                                </SubmitButton>
+                            <div className="position-relative">
+                                {errors && (
+                                    <p className="form-error">
+                                        {errors.message}
+                                    </p>
+                                )}
+                                <div className="mb-1">
+                                    <Input
+                                        type="text"
+                                        id="username"
+                                        template={
+                                            errors.username ? "input-error" : ""
+                                        }
+                                        value={formData.username}
+                                        setValue={(value) =>
+                                            setFormData({
+                                                ...formData,
+                                                username: value,
+                                            })
+                                        }
+                                    >
+                                        username
+                                    </Input>
+                                </div>
+                                <div>
+                                    <SubmitButton
+                                        template="secondary-button"
+                                        onClick={handleValidation}
+                                    >
+                                        Next
+                                    </SubmitButton>
+                                </div>
                             </div>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 }

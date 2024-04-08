@@ -1,5 +1,5 @@
-from django.urls import re_path
-from .views import RenderIndex
+from django.urls import re_path, path
+from .views import RenderIndex, GetEnvVars
 
 urlpatterns = [
 	re_path(r'^/?$', RenderIndex),
@@ -24,4 +24,6 @@ urlpatterns = [
 	re_path(r'^menu/profile/username/?$', RenderIndex),
 	re_path(r'^menu/profile/password/?$', RenderIndex),
 	re_path(r'^menu/profile/avatar/?$', RenderIndex),
+
+	path('get-env-vars', GetEnvVars, name='get_env_vars'),
 ]

@@ -11,7 +11,6 @@ import "bootstrap/dist/css/bootstrap.css";
 export default function Login42Page() {
     const navigate = useNavigate();
     const { setAuthed } = useContext(AuthContext);
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const call42api = async () => {
@@ -25,11 +24,9 @@ export default function Login42Page() {
 
             if (response.ok) {
                 await setToken(response, setAuthed);
-                setLoading(false);
                 navigate("/menu");
             } else {
-                setLoading(false);
-				navigate("/create-profile-42");
+                navigate("/create-profile-42");
             }
         };
 
@@ -38,11 +35,7 @@ export default function Login42Page() {
 
     return (
         <div className="container">
-            {!loading ? (
-                <div className="d-flex justify-content-center">
-                    <LoadingIcon size="4rem" />
-                </div>
-            ) : null}
+            <LoadingIcon size="5rem" />
         </div>
     );
 }
