@@ -7,7 +7,7 @@ import {
 } from "./variables";
 
 export class Player {
-    constructor(x, y, color, keyUp, keyDown, id) {
+    constructor({x, y, color, keyUp, keyDown, id}) {
         this.x = x;
         this.y = y;
         this.color = color;

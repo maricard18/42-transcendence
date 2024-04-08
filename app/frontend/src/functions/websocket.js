@@ -1,9 +1,4 @@
-import {
-    ScreenHeight,
-    ScreenWidth,
-    ballSpeedXScalar,
-    ballSpeedYScalar,
-} from "../Game/variables";
+import { ScreenHeight, ScreenWidth } from "../Game/variables";
 import { clearBackground, drawGoal, drawScore } from "../Game/pongGameCode";
 import { getToken } from "./tokens";
 

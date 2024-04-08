@@ -1,7 +1,11 @@
 import React, { useEffect, useRef, useContext, useState } from "react";
 import { startGame } from "../Game/pongGameCode";
 import { useLocation, Navigate } from "react-router-dom";
-import { UserDataContext, UserInfoContext, UserQueueContext } from "../components/Context";
+import {
+    UserDataContext,
+    UserInfoContext,
+    UserQueueContext,
+} from "../components/Context";
 import { MyWebSocket } from "../functions/websocket";
 import "bootstrap/dist/css/bootstrap.css";
 
@@ -12,7 +16,7 @@ export default function PongPage() {
     const lobbySize = location.substring(location.length - 1);
     const { userInfo } = useContext(UserInfoContext);
     const { userQueue } = useContext(UserQueueContext);
-	const { userData } = useContext(UserDataContext);
+    const { userData } = useContext(UserDataContext);
     const [gameOver, setGameOver] = useState(false);
     const aspectRatioRectangle = 4 / 3;
     const aspectRatioSquare = 1;
@@ -26,7 +30,7 @@ export default function PongPage() {
                 gameMode,
                 lobbySize,
                 userInfo,
-				userQueue,
+                userQueue,
                 userData,
                 gameOver,
                 setGameOver
@@ -69,7 +73,7 @@ export default function PongPage() {
         <div className="outlet-padding center">
             {!gameOver ? (
                 <div>
-                    {userQueue && userData ? (
+                    {userQueue && gameMode === "multiplayer" ? (
                         <div className="d-flex flex-column">
                             {displayUsernames(lobbySize, userData)}
                         </div>

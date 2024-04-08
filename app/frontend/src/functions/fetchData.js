@@ -1,15 +1,15 @@
 export default async function fetchData(endpoint, method, headers = {}, body = null) {
-    const fetchOptions = {
-        method: method,
+	const fetchOptions = {
+		method: method,
         headers: {
             ...headers,
         },
     };
-
+	
     if (body) {
-        fetchOptions.body = body;
+		fetchOptions.body = body;
     }
-
+	
 	const host = window.location.host;
     const response = await fetch("http://" + host + endpoint, fetchOptions);
 

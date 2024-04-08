@@ -8,7 +8,7 @@ import {
 } from "./variables";
 
 export class Ball {
-    constructor(x, y, color) {
+    constructor({ x, y, color }) {
         this.x = x;
         this.y = y;
         this.color = color;
@@ -38,8 +38,8 @@ export class Ball {
         }
 
         if (this.x + this.radius >= ScreenWidth && this.speed_x > 0) {
-            game.player1.score += 1;
-            this.reset(game);
+			game.player1.score += 1;
+			this.reset(game);
         } else if (this.x - this.radius <= 0 && this.speed_x < 0) {
             game.player2.score += 1;
             this.reset(game);

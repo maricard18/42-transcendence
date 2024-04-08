@@ -2,11 +2,13 @@ import { clearBackground } from "./pongGameCode";
 import { ScreenHeight, ScreenWidth } from "./variables";
 import { drawGoal } from "./pongGameCode";
 
-export function startGameAnimation(ctx, last_time) {
+export function startGameAnimation(ctx, game) {
     return new Promise((resolve) => {
         const animate = () => {
             const current_time = Date.now();
-            const elapsedTime = Math.floor((current_time - last_time) / 1000);
+            const elapsedTime = Math.floor(
+                (current_time - game.last_time) / 1000
+            );
 
             clearBackground(ctx);
             drawGoal(ctx, 0, 0.04 * ScreenWidth, "white");
@@ -26,6 +28,7 @@ export function startGameAnimation(ctx, last_time) {
             if (elapsedTime < 3) {
                 window.requestAnimationFrame(animate);
             } else {
+                game.paused = false;
                 resolve();
             }
         };
