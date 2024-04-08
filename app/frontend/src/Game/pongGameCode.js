@@ -5,15 +5,15 @@ import { Player } from "./Player1";
 import { Cpu, Opponent } from "./Player2";
 import { MyWebSocket, sendMessage } from "../functions/websocket";
 import { multiplayerMessageHandler } from "../functions/websocket";
+import { startGameAnimation } from "./animations";
+import { updateVariables } from "./variables";
 import {
     ScreenWidth,
     ScreenHeight,
-    BackgroundColor,
     keys,
     PaddleHeight,
     PaddleWidth,
 } from "./variables";
-import { startGameAnimation } from "./animations";
 
 export async function startGame(
     canvas,
@@ -21,12 +21,14 @@ export async function startGame(
     lobbySize,
     userInfo,
     userQueue,
+    userData,
     gameOver,
     setGameOver
 ) {
     const ctx = canvas.getContext("2d");
 
     clearBackground(ctx);
+    updateVariables(canvas);
 
     window.addEventListener("keydown", (event) => {
         if (keys.hasOwnProperty(event.key)) {
@@ -49,10 +51,16 @@ export async function startGame(
             singleplayerGameLoop(game, setGameOver);
             break;
         case "multiplayer":
-            game = createMultiPlayerGame(ctx, last_time, userQueue, userInfo);
+            game = createMultiPlayerGame(
+                ctx,
+                last_time,
+                userData,
+                userInfo,
+                lobbySize
+            );
             multiplayerMessageHandler(MyWebSocket, game, setGameOver);
             await startGameAnimation(ctx, last_time);
-            multiplayerGameLoop(game, gameOver, setGameOver);
+            multiplayerGameLoop(game, userQueue, gameOver, setGameOver);
             break;
     }
 }
@@ -105,13 +113,13 @@ function createSinglePlayerGame(ctx, last_time, lobbySize) {
     );
 }
 
-function createMultiPlayerGame(ctx, last_time, userQueue, userInfo) {
-    const host_id = Object.values(userQueue)[0];
+function createMultiPlayerGame(ctx, last_time, userData, userInfo, lobbySize) {
+    const host_id = userData[0].id;
     let player1, player2;
 
     if (host_id === userInfo.id) {
         player1 = new Player(
-            25,
+            0.05 * ScreenWidth,
             ScreenHeight / 2 - PaddleHeight / 2,
             "red",
             "ArrowUp",
@@ -119,7 +127,7 @@ function createMultiPlayerGame(ctx, last_time, userQueue, userInfo) {
             userInfo.id
         );
         player2 = new Opponent(
-            ScreenWidth - 25 - PaddleWidth,
+            ScreenWidth - 0.05 * ScreenWidth - PaddleWidth,
             ScreenHeight / 2 - PaddleHeight / 2,
             "blue",
             "ArrowUp",
@@ -128,7 +136,7 @@ function createMultiPlayerGame(ctx, last_time, userQueue, userInfo) {
         );
     } else {
         player1 = new Player(
-            ScreenWidth - 25 - PaddleWidth,
+            ScreenWidth - 0.05 * ScreenWidth - PaddleWidth,
             ScreenHeight / 2 - PaddleHeight / 2,
             "blue",
             "ArrowUp",
@@ -136,7 +144,7 @@ function createMultiPlayerGame(ctx, last_time, userQueue, userInfo) {
             userInfo.id
         );
         player2 = new Opponent(
-            25,
+            0.05 * ScreenWidth,
             ScreenHeight / 2 - PaddleHeight / 2,
             "red",
             "ArrowUp",
@@ -153,7 +161,7 @@ function createMultiPlayerGame(ctx, last_time, userQueue, userInfo) {
         player2,
         "multiplayer",
         host_id,
-		null
+        lobbySize
     );
 }
 
@@ -163,8 +171,13 @@ function singleplayerGameLoop(game, setGameOver) {
         let dt = (current_time - game.last_time) / 1000;
 
         clearBackground(game.ctx);
-        drawGoal(game.ctx, 0, 20, "white");
-        drawGoal(game.ctx, ScreenWidth - 20, ScreenWidth, "white");
+        drawGoal(game.ctx, 0, 0.04 * ScreenWidth, "white");
+        drawGoal(
+            game.ctx,
+            ScreenWidth - 0.04 * ScreenWidth,
+            ScreenWidth,
+            "white"
+        );
 
         game.ball.update(game, dt);
         game.player1.update(dt);
@@ -197,16 +210,24 @@ function singleplayerGameLoop(game, setGameOver) {
     window.requestAnimationFrame(() => singleplayerGameLoop(game, setGameOver));
 }
 
-function multiplayerGameLoop(game, gameOver, setGameOver) {
+function multiplayerGameLoop(game, userQueue, gameOver, setGameOver) {
     if (gameOver) {
+        return;
+    } else if (Object.values(userQueue).length != game.lobbySize) {
+        setGameOver(true);
         return;
     } else if (!game.paused) {
         let current_time = Date.now();
         let dt = (current_time - game.last_time) / 1000;
 
         clearBackground(game.ctx);
-        drawGoal(game.ctx, 0, 20, "white");
-        drawGoal(game.ctx, ScreenWidth - 20, ScreenWidth, "white");
+        drawGoal(game.ctx, 0, 0.04 * ScreenWidth, "white");
+        drawGoal(
+            game.ctx,
+            ScreenWidth - 0.04 * ScreenWidth,
+            ScreenWidth,
+            "white"
+        );
 
         game.ball.update(game, dt);
         game.player1.update(dt);
@@ -223,11 +244,11 @@ function multiplayerGameLoop(game, gameOver, setGameOver) {
         }
 
         if (game.player1.id === game.host_id) {
-            drawScore(game.ctx, game.player1, ScreenWidth / 2 - 100);
-            drawScore(game.ctx, game.player2, ScreenWidth / 2 + 100);
+            drawScore(game.ctx, game.player1, ScreenWidth / 2 - 0.08 * ScreenWidth);
+            drawScore(game.ctx, game.player2, ScreenWidth / 2 + 0.08 * ScreenWidth);
         } else {
-            drawScore(game.ctx, game.player2, ScreenWidth / 2 - 100);
-            drawScore(game.ctx, game.player1, ScreenWidth / 2 + 100);
+            drawScore(game.ctx, game.player2, ScreenWidth / 2 - 0.08 * ScreenWidth);
+            drawScore(game.ctx, game.player1, ScreenWidth / 2 + 0.08 * ScreenWidth);
         }
 
         if (game.player1.id === game.host_id) {
@@ -236,7 +257,11 @@ function multiplayerGameLoop(game, gameOver, setGameOver) {
             sendNonHostMessage(game);
         }
 
-        if (game.player1.score === 5 || game.player2.score === 5) {
+        if (
+            game.player1.score === 5 ||
+            game.player2.score === 5 ||
+            Object.values(userQueue).length != game.lobbySize
+        ) {
             console.log("Game Finished");
             setGameOver(true);
             return;
@@ -250,12 +275,12 @@ function multiplayerGameLoop(game, gameOver, setGameOver) {
     game.last_time = Date.now();
 
     window.requestAnimationFrame(() =>
-        multiplayerGameLoop(game, gameOver, setGameOver)
+        multiplayerGameLoop(game, userQueue, gameOver, setGameOver)
     );
 }
 
 export function clearBackground(ctx) {
-    ctx.fillStyle = BackgroundColor;
+    ctx.fillStyle = "black";
     ctx.fillRect(0, 0, ScreenWidth, ScreenHeight);
 }
 
@@ -267,24 +292,26 @@ export function drawGoal(ctx, xi, xf, color) {
 }
 
 export function drawScore(ctx, player, x) {
-    ctx.font = "30px Arial";
+    ctx.font = `${0.05 * ScreenWidth}px Arial`;
     ctx.fillStyle = "white";
     ctx.fillAlign = "center";
-    ctx.fillText(player.score, x, 50);
+    ctx.fillText(player.score, x, 0.08 * ScreenHeight);
 }
 
 export function sendHostMessage(game) {
     const message = {
         game: {
             id: game.player1.id,
-            player_x: game.player1.x,
-            player_y: game.player1.y,
+            screen_width: ScreenWidth,
+            screen_height: ScreenHeight,
+            player1_x: game.player1.x,
+            player1_y: game.player1.y,
             ball_x: game.ball.x,
             ball_y: game.ball.y,
             ball_speed_x: game.ball.speed_x,
             ball_speed_y: game.ball.speed_y,
-            player_score: game.player1.score,
-            opponent_score: game.player2.score,
+            player1_score: game.player1.score,
+            player2_score: game.player2.score,
             paused: game.paused,
         },
     };
@@ -296,8 +323,10 @@ export function sendNonHostMessage(game) {
     const message = {
         game: {
             id: game.player1.id,
-            player_x: game.player1.x,
-            player_y: game.player1.y,
+            screen_width: ScreenWidth,
+            screen_height: ScreenHeight,
+            player1_x: game.player1.x,
+            player1_y: game.player1.y,
         },
     };
 

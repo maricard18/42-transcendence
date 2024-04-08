@@ -9,10 +9,15 @@ export function startGameAnimation(ctx, last_time) {
             const elapsedTime = Math.floor((current_time - last_time) / 1000);
 
             clearBackground(ctx);
-            drawGoal(ctx, 0, 20, "white");
-            drawGoal(ctx, ScreenWidth - 20, ScreenWidth, "white");
+            drawGoal(ctx, 0, 0.04 * ScreenWidth, "white");
+            drawGoal(
+                ctx,
+                ScreenWidth - 0.04 * ScreenWidth,
+                ScreenWidth,
+                "white"
+            );
 
-            ctx.font = "200px Arial";
+            ctx.font = `${0.3 * ScreenWidth}px Arial`;
             ctx.fillStyle = "white";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
