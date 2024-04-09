@@ -1,13 +1,14 @@
 import os
 
+import pyotp
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from rest_framework import status, viewsets
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
-from .models import Avatar, SSO_User
-from .permissions import UserPermission, TokenPermission, SSOPermission
+from .models import Avatar, SSO_User, OTP_Token
+from .permissions import UserPermission, TokenPermission, SSOPermission, OTPPermission
 from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer, AuthUserSerializer, \
     APITokenObtainPairSerializer, TokenSerializer
 from .utils import get_user
@@ -277,3 +278,85 @@ class SSOViewSet(viewsets.ViewSet):
                     'code': 401
                 }
             }, status=status.HTTP_401_UNAUTHORIZED)
+
+
+#######################
+#####  /api/otp   #####
+#######################
+
+class OTPViewSet(viewsets.ViewSet):
+    permission_classes = [OTPPermission]
+
+    # POST /api/otp
+    def create(self, request):
+        user = User.objects.get(pk=request.user.id)
+        try:
+            OTP_Token.objects.get(user=user)
+            return Response({
+                'errors': {
+                    'message': "User already has an active OTP.",
+                    'code': status.HTTP_409_CONFLICT
+                }
+            }, status=status.HTTP_409_CONFLICT)
+        except OTP_Token.DoesNotExist:
+            otp = OTP_Token.objects.create(
+                auth_user=user,
+                token=pyotp.random_base32()
+            )
+
+        url = pyotp.totp.TOTP(otp.token).provisioning_uri(name=otp.auth_user.username, issuer_name='ft_transcendence')
+        return Response({
+            'url': url
+        }, status=status.HTTP_200_OK)
+
+    # GET /api/otp/:id
+    def retrieve(self, request, pk=None):
+        if int(request.user.id) != int(pk):
+            return Response({
+                'errors': {
+                    'message': 'Unauthorized',
+                    'code': status.HTTP_401_UNAUTHORIZED
+                }
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        if request.GET.get('code') is None:
+            return Response({
+                'errors': {
+                    'message': "Query parameter 'code' is required.",
+                    'code': status.HTTP_400_BAD_REQUEST
+                }
+            }, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            user = User.objects.get(pk=int(request.user.id))
+            totp = pyotp.TOTP(OTP_Token.objects.get(auth_user=user).token)
+        except OTP_Token.DoesNotExist:
+            return Response({
+                'errors': {
+                    'message': 'Resource Not Found',
+                    'code': status.HTTP_404_NOT_FOUND
+                }
+            }, status=status.HTTP_404_NOT_FOUND)
+        return Response({
+            'valid': totp.now() == int(request.GET.get('code'))
+        }, status=status.HTTP_200_OK)
+
+    # DELETE /api/otp/:id
+    def destroy(self, request, pk=None):
+        if int(request.user.id) != int(pk):
+            return Response({
+                'errors': {
+                    'message': 'Unauthorized',
+                    'code': status.HTTP_401_UNAUTHORIZED
+                }
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            user = User.objects.get(pk=int(request.user.id))
+            otp = OTP_Token.objects.get(auth_user=user)
+            otp.delete()
+            return Response(None, status=status.HTTP_204_NO_CONTENT)
+        except OTP_Token.DoesNotExist:
+            return Response({
+                'errors': {
+                    'message': 'Resource Not Found',
+                    'code': status.HTTP_404_NOT_FOUND
+                }
+            }, status=status.HTTP_404_NOT_FOUND)
