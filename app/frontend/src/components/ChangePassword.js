@@ -1,11 +1,11 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import Input from "../components/Input";
 import SubmitButton from "../components/SubmitButton";
 import { validateProfilePasswordForm } from "../functions/validateForms";
 import fetchData from "../functions/fetchData";
 import handleResponse from "../functions/authenticationErrors";
 import { checkEnterButton } from "../functions/fetchData";
-import { getToken } from "../functions/tokens";
+import { getToken, decode } from "../functions/tokens";
 import { AuthContext, UserInfoContext } from "./Context";
 import "../../static/css/Buttons.css";
 import "../../static/css/errors.css";
@@ -13,7 +13,7 @@ import "bootstrap/dist/css/bootstrap.css";
 
 export default function ChangePassword() {
     const { setAuthed } = useContext(AuthContext);
-    const { userInfo } = useContext(UserInfoContext);
+    const { userInfo, setUserInfo } = useContext(UserInfoContext);
     const [errors, setErrors] = useState({});
     const [success, setSuccess] = useState({ message: "" });
     const [formData, setFormData] = useState({
@@ -24,21 +24,23 @@ export default function ChangePassword() {
     const handleValidation = async () => {
         let newErrors = validateProfilePasswordForm(formData, setFormData);
         setErrors(newErrors);
-		setSuccess({});
+        setSuccess({});
 
         if (!newErrors.message) {
-			const formDataToSend = new FormData();
-			formDataToSend.append('password', formData.password);
+            const formDataToSend = new FormData();
+            formDataToSend.append("password", formData.password);
 
-			const headers = {
-				'Authorization': `Bearer ${(await getToken(setAuthed))}`
-			};
+            const accessToken = await getToken(setAuthed);
+            const decodedToken = decode(accessToken);
+            const headers = {
+                Authorization: `Bearer ${accessToken}`,
+            };
 
             const response = await fetchData(
-                "/api/users/" + userInfo.id,
+                "/api/users/" + decodedToken["user_id"],
                 "PUT",
                 headers,
-				formDataToSend,
+                formDataToSend
             );
 
             if (!response.ok) {
@@ -48,10 +50,14 @@ export default function ChangePassword() {
                     setFormData
                 );
                 setErrors(newErrors);
-				setSuccess({});
-            }
-			else
+                setSuccess({});
+            } else {
+                setUserInfo({
+                    ...userInfo,
+                    id: decodedToken["user_id"],
+                });
                 setSuccess({ message: "Changes saved" });
+            }
         }
     };
 
@@ -65,7 +71,9 @@ export default function ChangePassword() {
             <form>
                 <div className="position-relative">
                     {errors && <p className="form-error">{errors.message}</p>}
-                    {success && (<p className="form-success">{success.message}</p>)}
+                    {success && (
+                        <p className="form-success">{success.message}</p>
+                    )}
                     <div className="mb-1">
                         <Input
                             type="password"

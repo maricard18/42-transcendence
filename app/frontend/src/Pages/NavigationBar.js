@@ -38,8 +38,7 @@ export default function NavigationBar() {
             }
         };
 
-		if (!userInfo) {
-			//! need to check if every field is filled
+		if (Object.values(userInfo).every(value => value === '')) {
 			setLoading(true);
 			fetchUserInfo();
 		}

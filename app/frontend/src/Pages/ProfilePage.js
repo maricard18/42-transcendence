@@ -76,32 +76,27 @@ export function ChangeAvatar() {
                 const formDataToSend = new FormData();
                 formDataToSend.append("avatar", newAvatar);
 
+                const accessToken = await getToken(setAuthed);
+                const decodedToken = decode(accessToken);
                 const headers = {
-                    Authorization: `Bearer ${await getToken(setAuthed)}`,
+                    Authorization: `Bearer ${accessToken}`,
                 };
 
                 const response = await fetchData(
-                    "/api/users/" + userInfo.id,
+                    "/api/users/" + decodedToken["user_id"],
                     "PUT",
                     headers,
                     formDataToSend
                 );
 
-                if (!response.ok) {
-                    console.log(response.body);
+                if (response.ok) {
+                    setUserInfo({
+                        ...userInfo,
+                        avatar: URL.createObjectURL(newAvatar),
+                        id: decodedToken["user_id"],
+                    });
                 } else {
-                    const userData = await getUserInfo(setAuthed);
-
-                    if (userData) {
-                        setUserInfo({
-                            username: userData.username,
-                            email: userData.email,
-                            avatar: userData.avatar,
-                            id: userData.id,
-                        });
-                    } else {
-                        console.log("Error: failed to fetch user data.");
-                    }
+                    console.log("Error: failed to fetch user data.");
                 }
 
                 setNewAvatar();

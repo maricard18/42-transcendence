@@ -4,7 +4,7 @@ import SubmitButton from "../components/SubmitButton";
 import { validateProfileUserForm } from "../functions/validateForms";
 import fetchData from "../functions/fetchData";
 import handleResponse from "../functions/authenticationErrors";
-import { getToken } from "../functions/tokens";
+import { decode, getToken } from "../functions/tokens";
 import { checkEnterButton } from "../functions/fetchData";
 import { AuthContext, UserInfoContext } from "./Context";
 import "../../static/css/Buttons.css";
@@ -53,12 +53,14 @@ export default function ChangeUsername() {
                 return;
             }
 
+            const accessToken = await getToken(setAuthed);
+            const decodedToken = decode(accessToken);
             const headers = {
-                Authorization: `Bearer ${await getToken(setAuthed)}`,
+                Authorization: `Bearer ${accessToken}`,
             };
 
             const response = await fetchData(
-                "/api/users/" + userInfo.id,
+                "/api/users/" + decodedToken["user_id"],
                 "PUT",
                 headers,
                 formDataToSend
@@ -77,6 +79,7 @@ export default function ChangeUsername() {
                     ...userInfo,
                     username: formData.username,
                     email: formData.email,
+                    id: decodedToken["user_id"],
                 });
                 setSuccess({ message: "Changes saved" });
             }

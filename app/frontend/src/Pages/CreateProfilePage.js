@@ -78,7 +78,7 @@ export function CreateProfilePage() {
                 setUserInfo({
                     username: formData.username,
                     email: formData.email,
-                    avatar: file ? file : null,
+                    avatar: file ? URL.createObjectURL(file) : null,
                     id: null,
                 });
                 navigate("/menu");
@@ -160,8 +160,8 @@ export function Create42ProfilePage() {
                 setLoading(false);
             } else {
                 console.error("Error: failed to fetch user data.");
-				setLoading(false);
-				navigate("/");
+                setLoading(false);
+                navigate("/");
             }
         };
 
