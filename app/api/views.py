@@ -215,42 +215,75 @@ class TokenViewSet(viewsets.ViewSet):
 #######################
 
 class SSOViewSet(viewsets.ViewSet):
-    queryset = User.objects.all()
     permission_classes = [SSOPermission]
 
     @classmethod
-    def sso_101010(cls, request):
-        code = request.GET.get('code', '')
-        if code != '':
-            import requests
+    def check_params(cls, **kwargs):
+        action = kwargs.get("action")
+        user_id = kwargs.get("user_id")
+        code = kwargs.get("code")
 
-            response = requests.post('https://api.intra.42.fr/oauth/token', data={
-                'grant_type': 'authorization_code',
-                'client_id': os.environ.get('42_CLIENT_ID'),
-                'client_secret': os.environ.get('42_CLIENT_SECRET'),
-                'code': code,
-                'redirect_uri': os.environ.get('42_REDIRECT_URI')
+        if not action or not code:
+            raise serializers.ValidationError({
+                'errors': {
+                    'message': "'action' and 'code' query parameters are required.",
+                    'code': status.HTTP_400_BAD_REQUEST
+                }
             })
-            if response.status_code == 200:
-                user_info = requests.get('https://api.intra.42.fr/v2/me',
-                                         headers={'Authorization': 'Bearer ' + response.json()['access_token']}).json()
 
-                try:
-                    user, created, conflict = SSO_User.objects.get_or_create(
-                        sso='101010',
-                        sso_id=user_info.get('id'),
-                        username=user_info.get('login'),
-                        email=user_info.get('email'),
-                        image_link=user_info.get('image').get('link')
-                    )
-                except Exception as e:
-                    return Response({
-                        'errors': {
-                            'message': "An error occurred while creating an user.\n" + str(e),
-                            'code': status.HTTP_500_INTERNAL_SERVER_ERROR
-                        }
-                    }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        if action not in ['link', 'register']:
+            raise serializers.ValidationError({
+                'errors': {
+                    'message': "'action' query parameter must be 'link' or 'register'.",
+                    'code': status.HTTP_400_BAD_REQUEST
+                }
+            })
 
+        if action == 'link' and not user_id:
+            raise serializers.ValidationError({
+                'errors': {
+                    'message': "'user_id' query parameter is required when linking.",
+                    'code': status.HTTP_400_BAD_REQUEST
+                }
+            })
+
+    @classmethod
+    def sso_101010(cls, request):
+        user = None
+        action = request.GET.get('action', None)
+        user_id = request.GET.get('user_id', None)
+        code = request.GET.get('code', None)
+
+        try:
+            cls.check_params(action=action, user_id=user_id, code=code)
+        except serializers.ValidationError as e:
+            return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
+
+        import requests
+
+        response = requests.post('https://api.intra.42.fr/oauth/token', data={
+            'grant_type': 'authorization_code',
+            'client_id': os.environ.get('42_CLIENT_ID'),
+            'client_secret': os.environ.get('42_CLIENT_SECRET'),
+            'code': code,
+            'redirect_uri': os.environ.get('42_REDIRECT_URI')
+        })
+        if response.status_code == 200:
+            user_info = requests.get('https://api.intra.42.fr/v2/me',
+                                     headers={'Authorization': 'Bearer ' + response.json()['access_token']}).json()
+            user, created, conflict = SSO_User.objects.get_or_create(
+                action=action,
+                user=user,
+                sso='101010',
+                sso_id=user_info.get('id'),
+                username=user_info.get('login'),
+                email=user_info.get('email'),
+                image_link=user_info.get('image').get('link')
+            )
+
+            if action == 'link':
+                return Response({}, status=status.HTTP_201_CREATED)
+            else:
                 refresh_token = APITokenObtainPairSerializer.get_token(user)
 
                 return Response({
@@ -260,13 +293,7 @@ class SSOViewSet(viewsets.ViewSet):
                     'scope': refresh_token.payload.get('scope'),
                     'refresh_token': str(refresh_token)
                 }, status=status.HTTP_200_OK if conflict is False else status.HTTP_409_CONFLICT)
-            return Response(response.json(), status=response.status_code)
-        return Response({
-            'errors': {
-                'message': "Query parameter 'code' is required.",
-                'code': status.HTTP_400_BAD_REQUEST
-            }
-        }, status=status.HTTP_400_BAD_REQUEST)
+        return Response(response.json(), status=response.status_code)
 
     def callback(self, request, pk=None):
         if str(pk) == '101010':
@@ -275,7 +302,7 @@ class SSOViewSet(viewsets.ViewSet):
             return Response({
                 'errors': {
                     'message': 'Unauthorized',
-                    'code': 401
+                    'code': status.HTTP_401_UNAUTHORIZED
                 }
             }, status=status.HTTP_401_UNAUTHORIZED)
 
