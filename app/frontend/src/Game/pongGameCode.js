@@ -46,19 +46,14 @@ export async function startGame(
         case "single-player":
             game = createSinglePlayerGame(ctx, userInfo, lobbySize);
             await startGameAnimation(ctx, game);
-			game.last_time = Date.now();
+            game.last_time = Date.now();
             singleplayerGameLoop(game, setGameOver);
             break;
         case "multiplayer":
-            game = createMultiPlayerGame(
-                ctx,
-                userData,
-                userInfo,
-                lobbySize
-            );
+            game = createMultiPlayerGame(ctx, userData, userInfo, lobbySize);
             multiplayerMessageHandler(MyWebSocket, game, setGameOver);
             await startGameAnimation(ctx, game);
-			game.last_time = Date.now();
+            game.last_time = Date.now();
             multiplayerGameLoop(game, userQueue, gameOver, setGameOver);
             break;
     }
@@ -178,13 +173,13 @@ function singleplayerGameLoop(game, setGameOver) {
         clearBackground(game.ctx);
         drawGoal(game.ctx, 0, 0.04 * ScreenWidth, "white");
         drawGoal(
-			game.ctx,
+            game.ctx,
             ScreenWidth - 0.04 * ScreenWidth,
             ScreenWidth,
             "white"
-			);
-			
-		console.log("Inside the game", game);
+        );
+
+        console.log("Inside the game", game);
         game.ball.update(game, dt);
         game.player1.update(dt);
 
@@ -280,8 +275,8 @@ function multiplayerGameLoop(game, userQueue, gameOver, setGameOver) {
         }
 
         if (
-            game.player1.score === 5 ||
-            game.player2.score === 5 ||
+            (game.player1.id === game.host_id &&
+                (game.player1.score === 5 || game.player2.score === 5)) ||
             Object.values(userQueue).length != game.lobbySize
         ) {
             console.log("Game Finished");
