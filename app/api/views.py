@@ -36,7 +36,7 @@ class UserViewSet(viewsets.ViewSet):
             avatar = serializer.validated_data.get('avatar')
             if avatar:
                 Avatar.objects.create(
-                    user=user,
+                    auth_user=user,
                     avatar=avatar,
                     request=request
                 )
@@ -86,7 +86,7 @@ class UserViewSet(viewsets.ViewSet):
                 avatar = serializer.validated_data.get('avatar')
                 if avatar:
                     Avatar.objects.update_or_create(
-                        user=user,
+                        auth_user=user,
                         avatar=avatar,
                         request=request
                     )

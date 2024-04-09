@@ -22,7 +22,7 @@ class UserSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_avatar(obj):
         try:
-            avatar_obj = Avatar.objects.get(user=obj)
+            avatar_obj = Avatar.objects.get(auth_user=obj)
             avatar_serializer = AvatarSerializer(avatar_obj)
             link = avatar_serializer.data['link']
             if link:
