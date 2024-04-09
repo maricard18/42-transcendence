@@ -5,7 +5,7 @@ import SubmitButton from "../components/SubmitButton";
 import { useNavigate } from "react-router-dom";
 import fetchData from "../functions/fetchData";
 import handleResponse from "../functions/authenticationErrors";
-import { createToken, decode, getToken } from "../functions/tokens";
+import { createToken, getToken } from "../functions/tokens";
 import { LoadingIcon } from "../components/Icons";
 import { checkEnterButton } from "../functions/fetchData";
 import getUserInfo from "../functions/getUserInfo";
@@ -22,6 +22,7 @@ export function CreateProfilePage() {
     const navigate = useNavigate();
     const { setAuthed } = useContext(AuthContext);
     const { formData, setFormData } = useContext(FormDataContext);
+    const { setUserInfo } = useContext(UserInfoContext);
     const [errors, setErrors] = useState({});
     const [file, setFile] = useState();
 
@@ -74,6 +75,12 @@ export function CreateProfilePage() {
 
             if (response.ok) {
                 await createToken(formData, setAuthed);
+                setUserInfo({
+                    username: formData.username,
+                    email: formData.email,
+                    avatar: file ? file : null,
+                    id: null,
+                });
                 navigate("/menu");
             } else {
                 newErrors = await handleResponse(
@@ -137,28 +144,24 @@ export function CreateProfilePage() {
 export function Create42ProfilePage() {
     const navigate = useNavigate();
     const { setAuthed } = useContext(AuthContext);
-    const { userInfo, setUserInfo } = useContext(UserInfoContext);
+    const { setUserInfo } = useContext(UserInfoContext);
     const { loading, setLoading } = useContext(LoadingContext);
     const [formData, setFormData] = useState({ username: "" });
     const [errors, setErrors] = useState({});
     const [file, setFile] = useState();
+    const [userData, setUserData] = useState();
 
     useEffect(() => {
         const fetchUserInfo = async () => {
-			console.log("here");
-            const userData = await getUserInfo(setAuthed);
+            const data = await getUserInfo(setAuthed);
 
-            if (userData) {
-                setUserInfo({
-                    username: userData.username,
-                    email: userData.email,
-                    avatar: userData.avatar,
-                    id: userData.id,
-                });
+            if (data) {
+                setUserData(data);
                 setLoading(false);
-				console.log("good")
             } else {
-                console.log("Error: failed to fetch user data.");
+                console.error("Error: failed to fetch user data.");
+				setLoading(false);
+				navigate("/");
             }
         };
 
@@ -199,20 +202,24 @@ export function Create42ProfilePage() {
             }
 
             const accessToken = await getToken(setAuthed);
-            const user_id = decode(accessToken);
             const headers = {
                 Authorization: `Bearer ${accessToken}`,
             };
 
             const response = await fetchData(
-                "/api/users/" + user_id,
+                "/api/users/" + userData.id,
                 "PUT",
                 headers,
                 formDataToSend
             );
 
             if (response.ok) {
-                await createToken(formData, setAuthed);
+                setUserInfo({
+                    username: formData.username,
+                    email: userData.email,
+                    avatar: file ? file : userData.avatar,
+                    id: userData.id,
+                });
                 navigate("/menu");
             } else {
                 newErrors = await handleResponse(
@@ -238,9 +245,7 @@ export function Create42ProfilePage() {
                             <div className="mb-5">
                                 <Avatar
                                     setFile={setFile}
-                                    url={
-                                        userInfo.avatar ? userInfo.avatar : null
-                                    }
+                                    url={userData ? userData.avatar : null}
                                 />
                             </div>
                             <div className="position-relative">

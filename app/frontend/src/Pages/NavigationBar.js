@@ -32,14 +32,17 @@ export default function NavigationBar() {
                     avatar: userData.avatar,
                     id: userData.id,
                 });
-                setLoading(false);
+				setLoading(false);
             } else {
                 console.log("Error: failed to fetch user data.");
             }
         };
 
-        setLoading(true);
-        fetchUserInfo();
+		if (!userInfo) {
+			//! need to check if every field is filled
+			setLoading(true);
+			fetchUserInfo();
+		}
     }, []);
 
     return loading ? (

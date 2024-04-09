@@ -3,10 +3,15 @@ import "bootstrap/dist/css/bootstrap.css";
 
 export default function Avatar({ setFile, url = null }) {
     const [preview, setPreview] = useState();
+    const [loading, setLoading] = useState();
 
-	if (url) {
-		setPreview(url);
-	}
+    useEffect(() => {
+        if (url) {
+			setLoading(true);
+            setPreview(url);
+			setLoading(false);
+        }
+    }, [url]);
 
     function previewAvatar(event) {
         const file = event.target.files[0];
@@ -28,18 +33,20 @@ export default function Avatar({ setFile, url = null }) {
                 hidden
             />
             <label htmlFor="avatar">
-                {preview ? (
-                    <img
-                        src={preview}
-                        alt="Avatar preview"
-                        width="200"
-                        height="200"
-						className="avatar-border-lg"
-                        style={{ borderRadius: "50%" }}
-                    />
-                ) : (
-                    <DefaultAvatar width="200" height="200" />
-                )}
+                {!loading ? (
+                    preview ? (
+                        <img
+                            src={preview}
+                            alt="Avatar preview"
+                            width="200"
+                            height="200"
+                            className="avatar-border-lg"
+                            style={{ borderRadius: "50%" }}
+                        />
+                    ) : (
+                        <DefaultAvatar width="200" height="200" />
+                    )
+                ) : null}
             </label>
         </figure>
     );

@@ -62,31 +62,29 @@ const router = createBrowserRouter([
         ),
     },
     {
-        path: "/create-profile-42",
-        element: (
-            <FormDataProvider>
-                <IsNotAuthed>
-                    <Create42ProfilePage />
-                </IsNotAuthed>
-            </FormDataProvider>
-        ),
-    },
-    {
-        path: "/login/42",
+        path: "/create-profile/42",
         element: (
             <IsNotAuthed>
-                <Login42Page />
+                <Create42ProfilePage />
             </IsNotAuthed>
         ),
     },
     {
-        path: "/login",
+		path: "/login",
         element: (
-            <IsNotAuthed>
+			<IsNotAuthed>
                 <LoginPage />
             </IsNotAuthed>
         ),
     },
+	{
+		path: "/login/42",
+		element: (
+			<IsNotAuthed>
+				<Login42Page />
+			</IsNotAuthed>
+		),
+	},
     {
         path: "/menu",
         element: (

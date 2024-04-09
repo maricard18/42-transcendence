@@ -26,7 +26,13 @@ export default function Login42Page() {
                 await setToken(response, setAuthed);
                 navigate("/menu");
             } else {
-                navigate("/create-profile-42");
+				if (response.status === 409) {
+					await setToken(response, setAuthed);
+					navigate("/create-profile/42");
+				} else {
+					console.error("Error: failed to sign up with 42");
+					navigate("/");
+				}
             }
         };
 

@@ -4,7 +4,7 @@ import SubmitButton from "../components/SubmitButton";
 import { validateSignUpForm } from "../functions/validateForms";
 import { useNavigate } from "react-router-dom";
 import { checkEnterButton } from "../functions/fetchData";
-import { FormDataContext } from "../components/Context";
+import { FormDataContext, UserInfoContext } from "../components/Context";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
 
