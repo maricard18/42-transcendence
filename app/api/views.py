@@ -1,10 +1,9 @@
 import os
-import secrets
 
 import pyotp
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
-from rest_framework import status, viewsets, serializers
+from rest_framework import status, viewsets
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
@@ -12,6 +11,7 @@ from .models import Avatar, SSO_User, OTP_Token
 from .permissions import UserPermission, TokenPermission, SSOPermission, OTPPermission
 from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer, AuthUserSerializer, \
     APITokenObtainPairSerializer, TokenSerializer
+from .utils import get_user
 
 
 ######################
