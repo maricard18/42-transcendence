@@ -6,7 +6,6 @@ import { BaseAvatar } from "./Avatar";
 import { CheckIcon, CloseIcon, LoadingIcon } from "./Icons";
 import {
     AuthContext,
-    LoadingContext,
     PreviousLocationContext,
     UserDataContext,
     UserInfoContext,
@@ -29,7 +28,7 @@ export default function MultiplayerWaitingRoom() {
     const { setPreviousLocation } = useContext(PreviousLocationContext);
     const { userQueue, setUserQueue } = useContext(UserQueueContext);
     const { setUserData } = useContext(UserDataContext);
-    const { loading } = useContext(LoadingContext);
+    const [loading, setLoading] = useState(true);
     const [userReadyList, setUserReadyList] = useState({});
     const [lobbyFull, setLobbyfull] = useState(false);
     const [userLeft, setUserLeft] = useState(false);
@@ -44,6 +43,7 @@ export default function MultiplayerWaitingRoom() {
                 setUserData,
                 setWsCreated
             );
+			setLoading(false);
         };
 
         if (userLeft) {
@@ -69,6 +69,7 @@ export default function MultiplayerWaitingRoom() {
             setLobbyfull(true);
         } else if (lobbyFull && Object.keys(userQueue).length != lobbySize) {
             setUserLeft(true);
+			setLoading(true);
             setLobbyfull(false);
         }
 
@@ -122,18 +123,17 @@ function PlayerQueue({ userQueue, userReadyList, lobbySize }) {
     useEffect(() => {
         const fetchUserData = async () => {
             const data = await Promise.all(
-                Object.values(userQueue).map((value) => {
-                    value === userInfo.id
-                        ? userInfo
-                        : getUserData(value, setAuthed);
-                })
+                Object.values(userQueue).map((value) =>
+					value === userInfo.id
+						? userInfo
+                    	: getUserData(value, setAuthed)
+                )
             );
             setUserData(data);
             setLoading(false);
         };
 
         if (Object.values(userData).length != lobbySize) {
-            setLoading(true);
             fetchUserData();
         } else {
             setLoading(false);

@@ -1,12 +1,8 @@
-import React, { useEffect, useContext } from "react";
+import React, { useEffect, useContext, useState } from "react";
 import { Outlet, Link } from "react-router-dom";
-import NavButton, { LogoutButton } from "../components/NavButton";
+import NavButton from "../components/NavButton";
 import getUserInfo from "../functions/getUserInfo";
-import {
-    AuthContext,
-    LoadingContext,
-    UserInfoContext,
-} from "../components/Context";
+import { AuthContext, UserInfoContext } from "../components/Context";
 import { BaseAvatar } from "../components/Avatar";
 import { LoadingIcon } from "../components/Icons";
 import "../../static/css/NavBar.css";
@@ -15,11 +11,12 @@ import "../../static/css/Menu.css";
 import "../../static/css/HomePage.css";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.bundle.js";
+import { LoadingIcon } from "../components/Icons";
 
 export default function NavigationBar() {
     const { setAuthed } = useContext(AuthContext);
     const { userInfo, setUserInfo } = useContext(UserInfoContext);
-    const { loading, setLoading } = useContext(LoadingContext);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchUserInfo = async () => {
@@ -38,16 +35,15 @@ export default function NavigationBar() {
             }
         };
 
-		if (Object.values(userInfo).every(value => value === '')) {
-			setLoading(true);
-			fetchUserInfo();
-		}
+        if (Object.values(userInfo).some((element) => element === "")) {
+            fetchUserInfo();
+        } else {
+            setLoading(false);
+        }
     }, []);
 
     return loading ? (
-        <div className="container-fluid">
-            <LoadingIcon size="5rem" />
-        </div>
+        <LoadingIcon size="5rem" />
     ) : (
         <div className="container-fluid">
             <nav className="navbar navbar-dark navbar-layout fixed-top">
