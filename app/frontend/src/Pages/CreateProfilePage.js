@@ -12,7 +12,6 @@ import getUserInfo from "../functions/getUserInfo";
 import {
     AuthContext,
     FormDataContext,
-    LoadingContext,
     UserInfoContext,
 } from "../components/Context";
 import "../../static/css/Buttons.css";
@@ -145,7 +144,7 @@ export function Create42ProfilePage() {
     const navigate = useNavigate();
     const { setAuthed } = useContext(AuthContext);
     const { setUserInfo } = useContext(UserInfoContext);
-    const { loading, setLoading } = useContext(LoadingContext);
+    const [loading, setLoading] = useState(true);
     const [formData, setFormData] = useState({ username: "" });
     const [errors, setErrors] = useState({});
     const [file, setFile] = useState();

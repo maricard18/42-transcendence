@@ -3,13 +3,12 @@ import NavButton from "../components/NavButton";
 import { Link } from "react-router-dom";
 import fetchData from "../functions/fetchData";
 import { LoadingIcon } from "../components/Icons";
-import { LoadingContext } from "../components/Context";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
 
 export default function LandingPage() {
     const [link, setLink] = useState();
-    const { loading, setLoading } = useContext(LoadingContext);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const createLink = async () => {
@@ -32,10 +31,10 @@ export default function LandingPage() {
                 setLoading(false);
             } else {
                 console.log("Error getting env vars!");
+				setLoading(false);
             }
         };
 
-		setLoading(true);
 		createLink();
     }, []);
 

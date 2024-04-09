@@ -1,6 +1,6 @@
 import React, { useEffect, useContext, useState } from "react";
 import { Outlet, Link } from "react-router-dom";
-import NavButton from "../components/NavButton";
+import NavButton, { LogoutButton } from "../components/NavButton";
 import getUserInfo from "../functions/getUserInfo";
 import { AuthContext, UserInfoContext } from "../components/Context";
 import { BaseAvatar } from "../components/Avatar";
@@ -11,7 +11,6 @@ import "../../static/css/Menu.css";
 import "../../static/css/HomePage.css";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.bundle.js";
-import { LoadingIcon } from "../components/Icons";
 
 export default function NavigationBar() {
     const { setAuthed } = useContext(AuthContext);
