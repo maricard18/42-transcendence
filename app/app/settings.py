@@ -31,19 +31,15 @@ APPEND_SLASH = False
 
 ALLOWED_HOSTS = list(os.environ.get('DJANGO_ALLOWED_HOSTS', default=[]))
 
-# Application definition
-
+# Django default apps
 INSTALLED_APPS = [
     'daphne',
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
     'django.contrib.staticfiles'
 ]
 
-# Django Addons
+# Third-party apps
 INSTALLED_APPS += [
     'rest_framework',
     'rest_framework.authtoken',
@@ -57,15 +53,16 @@ INSTALLED_APPS += [
     'api.apps.ApiConfig'
 ]
 
+# Django default middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware'
 ]
+
+# User-defined middleware
+MIDDLEWARE += []
 
 ROOT_URLCONF = 'app.urls'
 

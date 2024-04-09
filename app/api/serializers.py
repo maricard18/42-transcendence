@@ -107,9 +107,13 @@ class TokenSerializer(serializers.Serializer):
 
         if grant_type == 'password':
             if not data.get('password'):
-                raise serializers.ValidationError({"password": "This field is required."})
+                raise serializers.ValidationError({
+                    "password": "This field is required."
+                })
         elif grant_type == 'refresh_token':
             if not data.get('refresh_token'):
-                raise serializers.ValidationError({"refresh_token": "This field is required."})
+                raise serializers.ValidationError({
+                    "refresh_token": "This field is required."
+                })
 
         return data

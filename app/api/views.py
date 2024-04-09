@@ -1,4 +1,5 @@
 import os
+import secrets
 
 import pyotp
 from django.contrib.auth import authenticate
@@ -11,7 +12,6 @@ from .models import Avatar, SSO_User, OTP_Token
 from .permissions import UserPermission, TokenPermission, SSOPermission, OTPPermission
 from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer, AuthUserSerializer, \
     APITokenObtainPairSerializer, TokenSerializer
-from .utils import get_user
 
 
 ######################
@@ -48,82 +48,97 @@ class UserViewSet(viewsets.ViewSet):
         return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     # GET /api/users/:id
-    # GET /api/users/:username
     def retrieve(self, request, pk=None):
-        user = get_user(pk)
-        if not user:
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
             return Response({
                 'errors': {
-                    'message': 'User Not Found',
-                    'code': 404
+                    'message': 'Resource Not Found',
+                    'code': status.HTTP_404_NOT_FOUND
                 }
             }, status=status.HTTP_404_NOT_FOUND)
         return Response(UserSerializer(user, context={'request': request}).data)
 
     # PUT /api/users/:id
-    # PUT /api/users/:username
     def update(self, request, pk=None):
-        user = get_user(pk)
-        if not user:
+        if int(request.user.id) != int(pk):
             return Response({
                 'errors': {
-                    'message': 'User Not Found',
-                    'code': 404
+                    'message': 'Unauthorized',
+                    'code': status.HTTP_401_UNAUTHORIZED
+                }
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            return Response({
+                'errors': {
+                    'message': 'Resource Not Found',
+                    'code': status.HTTP_404_NOT_FOUND
                 }
             }, status=status.HTTP_404_NOT_FOUND)
 
-        if int(request.auth.get('user_id')) == user.id:
-            serializer = UpdateUserSerializer(data=request.data, partial=True)
-            if serializer.is_valid():
-                for key, value in serializer.data.items():
-                    if key == "password":
-                        user.set_password(value)
-                        continue
-                    if hasattr(user, key):
-                        setattr(user, key, value)
-                user.save()
-
-                avatar = serializer.validated_data.get('avatar')
-                if avatar:
-                    Avatar.objects.update_or_create(
-                        auth_user=user,
-                        avatar=avatar,
-                        request=request
-                    )
-                return Response(None, status=status.HTTP_204_NO_CONTENT)
-            return Response({
-                'errors': serializer.errors
-            }, status=status.HTTP_400_BAD_REQUEST)
-        return Response({
-            'errors': {
-                'message': 'Unauthorized',
-                'code': 401
-            }
-        }, status=status.HTTP_401_UNAUTHORIZED)
-
-    # DELETE /api/users/:id
-    # DELETE /api/users/:username
-    def destroy(self, request, pk=None):
-        user = get_user(pk)
-        if not user:
-            return Response({
-                'errors': {
-                    'message': 'User Not Found',
-                    'code': 404
-                }
-            }, status=status.HTTP_404_NOT_FOUND)
-
-        if int(request.auth.get('user_id')) == user.id:
-            user.is_active = False
+        serializer = UpdateUserSerializer(data=request.data, partial=True)
+        if serializer.is_valid():
+            for key, value in serializer.data.items():
+                if key == "password":
+                    user.set_password(value)
+                    continue
+                if hasattr(user, key):
+                    setattr(user, key, value)
             user.save()
-            user.set_password(None)
+
+            avatar = serializer.validated_data.get('avatar')
+            if avatar:
+                Avatar.objects.update_or_create(
+                    auth_user=user,
+                    avatar=avatar,
+                    request=request
+                )
             return Response(None, status=status.HTTP_204_NO_CONTENT)
         return Response({
-            'errors': {
-                'message': 'Unauthorized',
-                'code': 401
-            }
-        }, status=status.HTTP_401_UNAUTHORIZED)
+            'errors': serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    # DELETE /api/users/:id
+    def destroy(self, request, pk=None):
+        if int(request.user.id) != int(pk):
+            return Response({
+                'errors': {
+                    'message': 'Unauthorized',
+                    'code': status.HTTP_401_UNAUTHORIZED
+                }
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            return Response({
+                'errors': {
+                    'message': 'Resource Not Found',
+                    'code': status.HTTP_404_NOT_FOUND
+                }
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        # Delete Avatar
+        try:
+            Avatar.objects.get(auth_user=user).delete()
+        except Avatar.DoesNotExist:
+            pass
+
+        # Delete SSO User
+        try:
+            SSO_User.objects.get(auth_user=user).delete()
+        except SSO_User.DoesNotExist:
+            pass
+
+        # GDPR Anonymized User
+        user.username = secrets.token_hex()
+        user.email = None
+        user.password = None
+        user.is_active = False
+        user.save()
+        return Response(None, status=status.HTTP_204_NO_CONTENT)
 
 
 #######################
@@ -131,7 +146,6 @@ class UserViewSet(viewsets.ViewSet):
 #######################
 
 class TokenViewSet(viewsets.ViewSet):
-    queryset = User.objects.all()
     permission_classes = [TokenPermission]
 
     @staticmethod
@@ -149,14 +163,14 @@ class TokenViewSet(viewsets.ViewSet):
                     return Response({
                         'errors': {
                             'message': "Field 'username' or 'email' is required",
-                            'code': 400
+                            'code': status.HTTP_400_BAD_REQUEST
                         }
                     }, status=status.HTTP_400_BAD_REQUEST)
             except User.DoesNotExist:
                 return Response({
                     'errors': {
-                        'message': 'User Not Found',
-                        'code': 404
+                        'message': 'Resource Not Found',
+                        'code': status.HTTP_404_NOT_FOUND
                     }
                 }, status=status.HTTP_404_NOT_FOUND)
             user = authenticate(username=AuthUserSerializer(user).data.get('username'),
@@ -174,7 +188,7 @@ class TokenViewSet(viewsets.ViewSet):
             return Response({
                 'errors': {
                     'message': 'Unauthorized',
-                    'code': 401
+                    'code': status.HTTP_401_UNAUTHORIZED
                 }
             }, status=status.HTTP_401_UNAUTHORIZED)
         return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
