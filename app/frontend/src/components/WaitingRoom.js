@@ -27,7 +27,7 @@ export function MultiplayerWaitingRoom() {
     const { setAuthed } = useContext(AuthContext);
     const { setPreviousLocation } = useContext(PreviousLocationContext);
     const { userQueue, setUserQueue } = useContext(UserQueueContext);
-    const { setUserData } = useContext(UserDataContext);
+    const { userData, setUserData } = useContext(UserDataContext);
     const [loading, setLoading] = useState(true);
     const [userReadyList, setUserReadyList] = useState({});
     const [lobbyFull, setLobbyfull] = useState(false);
@@ -40,24 +40,26 @@ export function MultiplayerWaitingRoom() {
                 setAuthed,
                 setUserQueue,
                 setUserReadyList,
-				setUserData,
+                setUserData,
                 setWsCreated
             );
-			setLoading(false);
+            setLoading(false);
         };
 
         if (userLeft) {
             if (MyWebSocket.ws) {
-                console.log("closing Websocket in waiting room");
+                console.log("Closing this websocket, opponent left");
                 MyWebSocket.ws.close();
                 delete MyWebSocket.ws;
             }
             setUserLeft(false);
-			setUserData([]);
+            setUserData([]);
             setWsCreated(false);
         }
 
         if (!wsCreated) {
+            console.log("UserLeft:", userLeft);
+            console.log("LobbyFull:", lobbyFull);
             startConnectingProcess();
         }
 
@@ -69,7 +71,7 @@ export function MultiplayerWaitingRoom() {
             setLobbyfull(true);
         } else if (lobbyFull && Object.keys(userQueue).length != lobbySize) {
             setUserLeft(true);
-			setLoading(true);
+            setLoading(true);
             setLobbyfull(false);
         }
 
@@ -81,10 +83,17 @@ export function MultiplayerWaitingRoom() {
                 (ready) => ready
             );
             if (allUsersReady) {
+                console.log("Queue:", userQueue);
+                console.log("UserReadyList:", userReadyList);
+                console.log("UserData:", userData);
                 navigate("/menu/pong-game/play/multiplayer/" + lobbySize);
             }
         }
     }, [userReadyList, userQueue]);
+
+    console.log("Queue:", userQueue);
+    console.log("UserReadyList:", userReadyList);
+    console.log("UserData:", userData);
 
     return (
         <div className="d-flex flex-column col-md-6">
@@ -119,20 +128,20 @@ export function MultiplayerWaitingRoom() {
 function PlayerQueue({ userQueue, userReadyList, lobbySize }) {
     const { userData, setUserData } = useContext(UserDataContext);
     const { setAuthed } = useContext(AuthContext);
-	const { userInfo } = useContext(UserInfoContext);
+    const { userInfo } = useContext(UserInfoContext);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchUserData = async () => {
             const data = await Promise.all(
                 Object.values(userQueue).map((value) =>
-					value === userInfo.id
-						? userInfo
-                    	: getUserData(value, setAuthed)
+                    value === userInfo.id
+                        ? userInfo
+                        : getUserData(value, setAuthed)
                 )
             );
             setUserData(data);
-			setLoading(false);
+            setLoading(false);
         };
 
         if (Object.values(userData).length != lobbySize) {
@@ -144,57 +153,58 @@ function PlayerQueue({ userQueue, userReadyList, lobbySize }) {
 
     return (
         <div className="d-flex flex-column justify-content-start align-items-start mb-3">
-            {!loading &&
-                userData.map((data, index) =>
-                    data ? (
-                        data.avatar ? (
-                            <React.Fragment key={index}>
-                                <div className="d-flex flex-row mb-2">
-                                    <img
-                                        src={data.avatar}
-                                        alt="Avatar preview"
-                                        width="40"
-                                        height="40"
-                                        className="avatar-border-sm"
-                                        style={{ borderRadius: "50%" }}
-                                    />
-                                    <div className="d-flex flex-row justify-content-center">
-                                        <div className="username-text ms-3 mt-2">
-                                            <h5>{data.username}</h5>
-                                        </div>
-                                        <div className="ms-1 mt-2">
-                                            <CheckIfReady
-                                                data={data}
-                                                userReadyList={userReadyList}
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            </React.Fragment>
-                        ) : (
-                            <React.Fragment key={index}>
-                                <div className="d-flex flex-row mb-2">
-                                    <BaseAvatar
-                                        width="40"
-                                        height="40"
-                                        template=""
-                                    />
-                                    <div className="d-flex flex-row">
-                                        <div className="username-text ms-3 mt-2">
-                                            <h5>{data.username}</h5>
-                                        </div>
-                                        <div className="ms-1 mt-2">
-                                            <CheckIfReady
-                                                data={data}
-                                                userReadyList={userReadyList}
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            </React.Fragment>
-                        )
-                    ) : null
-                )}
+            {!loading && userData
+                ? userData.map((data, index) =>
+                      data ? (
+                          data.avatar ? (
+                              <React.Fragment key={index}>
+                                  <div className="d-flex flex-row mb-2">
+                                      <img
+                                          src={data.avatar}
+                                          alt="Avatar preview"
+                                          width="40"
+                                          height="40"
+                                          className="avatar-border-sm"
+                                          style={{ borderRadius: "50%" }}
+                                      />
+                                      <div className="d-flex flex-row justify-content-center">
+                                          <div className="username-text ms-3 mt-2">
+                                              <h5>{data.username}</h5>
+                                          </div>
+                                          <div className="ms-1 mt-2">
+                                              <CheckIfReady
+                                                  data={data}
+                                                  userReadyList={userReadyList}
+                                              />
+                                          </div>
+                                      </div>
+                                  </div>
+                              </React.Fragment>
+                          ) : (
+                              <React.Fragment key={index}>
+                                  <div className="d-flex flex-row mb-2">
+                                      <BaseAvatar
+                                          width="40"
+                                          height="40"
+                                          template=""
+                                      />
+                                      <div className="d-flex flex-row">
+                                          <div className="username-text ms-3 mt-2">
+                                              <h5>{data.username}</h5>
+                                          </div>
+                                          <div className="ms-1 mt-2">
+                                              <CheckIfReady
+                                                  data={data}
+                                                  userReadyList={userReadyList}
+                                              />
+                                          </div>
+                                      </div>
+                                  </div>
+                              </React.Fragment>
+                          )
+                      ) : null
+                  )
+                : null}
         </div>
     );
 }

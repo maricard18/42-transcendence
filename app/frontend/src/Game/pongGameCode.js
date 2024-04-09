@@ -21,7 +21,9 @@ export async function startGame(
     lobbySize,
     userInfo,
     userQueue,
+    setUserQueue,
     userData,
+    setUserData,
     gameOver,
     setGameOver
 ) {
@@ -51,10 +53,16 @@ export async function startGame(
             break;
         case "multiplayer":
             game = createMultiPlayerGame(ctx, userData, userInfo, lobbySize);
-            multiplayerMessageHandler(MyWebSocket, game, setGameOver);
+            multiplayerMessageHandler(
+                MyWebSocket,
+                game,
+                setGameOver,
+                setUserQueue,
+                setUserData
+            );
             await startGameAnimation(ctx, game);
             game.last_time = Date.now();
-            multiplayerGameLoop(game, userQueue, gameOver, setGameOver);
+            multiplayerGameLoop(game, setGameOver);
             break;
     }
 }
@@ -179,7 +187,6 @@ function singleplayerGameLoop(game, setGameOver) {
             "white"
         );
 
-        console.log("Inside the game", game);
         game.ball.update(game, dt);
         game.player1.update(dt);
 
@@ -211,11 +218,10 @@ function singleplayerGameLoop(game, setGameOver) {
     window.requestAnimationFrame(() => singleplayerGameLoop(game, setGameOver));
 }
 
-function multiplayerGameLoop(game, userQueue, gameOver, setGameOver) {
-    if (gameOver) {
-        return;
-    } else if (Object.values(userQueue).length != game.lobbySize) {
-        setGameOver(true);
+function multiplayerGameLoop(game, setGameOver) {
+    if (game.over) {
+        console.log("User left in the middle of the game!");
+        console.log("Game finished.");
         return;
     } else if (!game.paused) {
         let current_time = Date.now();
@@ -275,11 +281,10 @@ function multiplayerGameLoop(game, userQueue, gameOver, setGameOver) {
         }
 
         if (
-            (game.player1.id === game.host_id &&
-                (game.player1.score === 5 || game.player2.score === 5)) ||
-            Object.values(userQueue).length != game.lobbySize
+            game.player1.id === game.host_id &&
+            (game.player1.score === 5 || game.player2.score === 5)
         ) {
-            console.log("Game Finished");
+            console.log("Game Finished, someone won");
             setGameOver(true);
             return;
         }
@@ -292,7 +297,7 @@ function multiplayerGameLoop(game, userQueue, gameOver, setGameOver) {
     game.last_time = Date.now();
 
     window.requestAnimationFrame(() =>
-        multiplayerGameLoop(game, userQueue, gameOver, setGameOver)
+        multiplayerGameLoop(game, setGameOver)
     );
 }
 
@@ -330,6 +335,7 @@ export function sendHostMessage(game) {
             player1_score: game.player1.score,
             player2_score: game.player2.score,
             paused: game.paused,
+			over: game.over
         },
     };
 

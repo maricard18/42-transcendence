@@ -12,8 +12,8 @@ export const AuthProvider = ({ children }) => {
         const checkToken = async () => {
             const token = await getToken(setAuthed);
             if (token) {
-				setAuthed(true);
-			}
+                setAuthed(true);
+            }
             setLoading(false);
         };
         checkToken();
@@ -90,11 +90,16 @@ export const PreviousLocationProvider = ({ children }) => {
     const [previousLocation, setPreviousLocation] = useState(location);
 
     useEffect(() => {
-        if ((previousLocation === "/menu/pong-game/multiplayer/waiting-room/2" ||
-            previousLocation === "/menu/pong-game/multiplayer/waiting-room/4") &&
+        if (
+            (previousLocation ===
+                "/menu/pong-game/multiplayer/waiting-room/2" ||
+                previousLocation ===
+                    "/menu/pong-game/multiplayer/waiting-room/4") &&
             location !== "/menu/pong-game/play/multiplayer/2" &&
-            location !== "/menu/pong-game/play/multiplayer/4") {
+            location !== "/menu/pong-game/play/multiplayer/4"
+        ) {
             if (MyWebSocket.ws) {
+                console.log("Closing this Websocket, user changed pages");
                 MyWebSocket.ws.close();
                 delete MyWebSocket.ws;
             }

@@ -9,5 +9,6 @@ export class Game {
 		this.host_id = host_id;
         this.lobbySize = lobbySize;
         this.paused = false;
+		this.over = false;
     }
 }

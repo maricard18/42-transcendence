@@ -16,8 +16,8 @@ export default function PongPage() {
     const gameMode = location.match(/\/([^\/]+)\/[^\/]+$/)[1];
     const lobbySize = location.substring(location.length - 1);
     const { userInfo } = useContext(UserInfoContext);
-    const { userQueue } = useContext(UserQueueContext);
-    const { userData } = useContext(UserDataContext);
+    const { userQueue, setUserQueue } = useContext(UserQueueContext);
+    const { userData, setUserData } = useContext(UserDataContext);
     const [gameOver, setGameOver] = useState(false);
     const aspectRatioRectangle = 4 / 3;
     const aspectRatioSquare = 1;
@@ -32,9 +32,11 @@ export default function PongPage() {
                 lobbySize,
                 userInfo,
                 userQueue,
+				setUserQueue,
                 userData,
-                gameOver,
-                setGameOver
+				setUserData,
+				gameOver,
+				setGameOver
             );
         };
 
@@ -43,15 +45,22 @@ export default function PongPage() {
             Object.keys(userQueue).length != lobbySize
         ) {
             if (MyWebSocket.ws) {
-                console.log("Here closing a websocket!");
+                console.log("Closing this websocket, oppponent refreshed the page");
                 MyWebSocket.ws.close();
                 delete MyWebSocket.ws;
             }
             setGameOver(true);
+        } else if (gameOver) {
+            if (MyWebSocket.ws) {
+                console.log("Closing this websocket, game ended");
+                MyWebSocket.ws.close();
+                delete MyWebSocket.ws;
+            }
         } else {
+			console.log("Starting game.")
             startPongGame();
         }
-    }, []);
+    }, [gameOver]);
 
     if (
         gameMode === "single-player" ||
