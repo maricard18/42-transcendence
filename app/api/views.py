@@ -3,7 +3,7 @@ import os
 import pyotp
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
-from rest_framework import status, viewsets
+from rest_framework import status, viewsets, serializers
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
@@ -249,15 +249,22 @@ class SSOViewSet(viewsets.ViewSet):
 
     @classmethod
     def sso_101010(cls, request):
-        user = None
         action = request.GET.get('action', None)
         user_id = request.GET.get('user_id', None)
         code = request.GET.get('code', None)
 
         try:
             cls.check_params(action=action, user_id=user_id, code=code)
+            auth_user = User.objects.get(pk=user_id)
         except serializers.ValidationError as e:
             return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
+        except User.DoesNotExist:
+            return Response({
+                'errors': {
+                    'message': 'User Not Found',
+                    'code': status.HTTP_404_NOT_FOUND
+                }
+            }, status=status.HTTP_404_NOT_FOUND)
 
         import requests
 
@@ -273,7 +280,7 @@ class SSOViewSet(viewsets.ViewSet):
                                      headers={'Authorization': 'Bearer ' + response.json()['access_token']}).json()
             user, created, conflict = SSO_User.objects.get_or_create(
                 action=action,
-                user=user,
+                auth_user=auth_user,
                 sso='101010',
                 sso_id=user_info.get('id'),
                 username=user_info.get('login'),

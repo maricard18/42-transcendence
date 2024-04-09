@@ -5,7 +5,7 @@ import unicodedata
 from django.apps.registry import apps
 from django.contrib.auth.models import User
 from django.contrib.auth.validators import UnicodeUsernameValidator
-from django.db import models, IntegrityError
+from django.db import models
 
 
 ######################
@@ -94,22 +94,22 @@ class SSO_UserManager(models.Manager):
             self.model._meta.app_label, self.model._meta.object_name
         )
         username = GlobalUserModel.normalize_username(username)
-        auth_user = self.model(sso_provider=sso_provider, sso_id=sso_id, username=username, email=email,
-                               auth_user=auth_user)
-        auth_user.save(using=self._db)
-        return auth_user
+        user = self.model(sso_provider=sso_provider, sso_id=sso_id, username=username, email=email,
+                          auth_user=auth_user)
+        user.save(using=self._db)
+        return user
 
     def get_or_create(self, defaults=None, **kwargs):
         created = False
         conflict = False
         try:
-            auth_user = SSO_User.objects.get(
+            user = SSO_User.objects.get(
                 sso_provider=kwargs['sso_provider'],
                 sso_id=kwargs['sso_id']
             )
         except SSO_User.DoesNotExist:
-            username = kwargs['username']
             if kwargs['action'] == 'register':
+                username = kwargs['username']
                 while True:
                     try:
                         User.objects.get(username=username)
@@ -118,14 +118,14 @@ class SSO_UserManager(models.Manager):
                     except User.DoesNotExist:
                         break
 
-                user = User.objects.create_user(
+                auth_user = User.objects.create_user(
                     username=username,
                     email=kwargs['email']
                 )
             else:
-                user = kwargs['user']
+                auth_user = kwargs['auth_user']
 
-            SSO_User.objects.create_user(
+            user = SSO_User.objects.create_user(
                 sso_provider=kwargs['sso_provider'],
                 sso_id=kwargs['sso_id'],
                 username=kwargs['username'],
@@ -133,9 +133,9 @@ class SSO_UserManager(models.Manager):
                 auth_user=auth_user
             )
             if kwargs['image_link'] is not None:
-                Avatar.objects.create(auth_user=auth_user, link=kwargs['image_link'])
+                Avatar.objects.create(user=user, link=kwargs['image_link'])
             created = True
-        return auth_user, created, conflict
+        return user, created, conflict
 
 
 ######################
