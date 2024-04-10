@@ -14,10 +14,10 @@ export default function Login42Page() {
 
     useEffect(() => {
         const call42api = async () => {
-            const query = window.location.search;
+			const query = window.location.search;
 
             const response = await fetchData(
-                "/api/sso/101010/callback" + query,
+                "/api/sso/101010/callback" + query + "&action=register",
                 "GET",
                 null
             );
