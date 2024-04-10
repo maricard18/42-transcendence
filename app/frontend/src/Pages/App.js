@@ -90,15 +90,15 @@ const router = createBrowserRouter([
         path: "/menu",
         element: (
             <IsAuthed>
-                <PreviousLocationProvider>
-                    <UserInfoProvider>
-                        <UserQueueProvider>
-                            <UserDataProvider>
+                <UserQueueProvider>
+                    <UserDataProvider>
+                        <UserInfoProvider>
+                            <PreviousLocationProvider>
                                 <NavigationBar />
-                            </UserDataProvider>
-                        </UserQueueProvider>
-                    </UserInfoProvider>
-                </PreviousLocationProvider>
+                            </PreviousLocationProvider>
+                        </UserInfoProvider>
+                    </UserDataProvider>
+                </UserQueueProvider>
             </IsAuthed>
         ),
         children: [

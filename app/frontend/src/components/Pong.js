@@ -1,12 +1,8 @@
 import React, { useEffect, useRef, useContext, useState } from "react";
-import { startGame } from "../Game/pongGameCode";
+import { createGameObject, startGame } from "../Game/pongGameCode";
 import { useLocation, Navigate } from "react-router-dom";
-import {
-    UserDataContext,
-    UserInfoContext,
-    UserQueueContext,
-} from "../components/Context";
-import { MyWebSocket, closeWebsocket } from "../functions/websocket";
+import { UserDataContext, UserInfoContext, UserQueueContext } from "../components/Context";
+import { closeWebsocket } from "../functions/websocket";
 import { BaseAvatar } from "./Avatar";
 import "bootstrap/dist/css/bootstrap.css";
 
@@ -21,46 +17,34 @@ export default function PongPage() {
     const [gameOver, setGameOver] = useState(false);
     const aspectRatioRectangle = 4 / 3;
     const aspectRatioSquare = 1;
-	let maxWidth = 1280, maxHeight = 960;
-	let minWidth = 640, minHeight = 480;
-    let aspectRatio, width, height;
+    let maxWidth = 1280,
+        maxHeight = 960;
+    let minWidth = 640,
+        minHeight = 480;
+    let aspectRatio, width, height, game;
 
     useEffect(() => {
         const startPongGame = async () => {
             const canvas = canvasRef.current;
-            await startGame(
-                canvas,
-                gameMode,
-                lobbySize,
-                userInfo,
-                setUserQueue,
-                userData,
-                setUserData,
-                setGameOver
-            );
+            game = createGameObject(canvas, gameMode, lobbySize, userInfo, userData);
+            await startGame(game, setUserQueue, setUserData, setGameOver);
         };
 
         if (gameOver) {
             closeWebsocket();
-        }
-
-        if (
-            gameMode === "multiplayer" &&
-            Object.keys(userQueue).length != lobbySize
-        ) {
-            console.log("Closing this websocket, opponent refreshed the page");
-            closeWebsocket();
-            setGameOver(true);
         } else {
-            console.log("Starting game");
-            startPongGame();
+            if (gameMode === "single-player" ||
+			   (gameMode === "multiplayer" &&
+				Object.values(userQueue).length == lobbySize)) {
+                startPongGame();
+            } else {
+                setGameOver(true);
+            }
         }
-    }, [gameOver]);
+    }, [gameOver, game]);
 
-    if (
-        gameMode === "single-player" ||
-        (gameMode === "multiplayer" && lobbySize == 2)
-    ) {
+    if (gameMode === "single-player" ||
+       (gameMode === "multiplayer" && lobbySize == 2)) {
         aspectRatio = aspectRatioRectangle;
     } else if (gameMode === "multiplayer" && lobbySize == 4) {
         aspectRatio = aspectRatioSquare;
@@ -68,23 +52,21 @@ export default function PongPage() {
 
     if (window.innerWidth / window.innerHeight > aspectRatio) {
         height = window.innerHeight - 300;
-		if (height > maxHeight) {
-			height = maxHeight;
-		} else if (height < minHeight) {
-			height = minHeight;
-		}
+        if (height > maxHeight) {
+            height = maxHeight;
+        } else if (height < minHeight) {
+            height = minHeight;
+        }
         width = height * aspectRatio;
     } else {
         width = window.innerWidth - 300;
-		if (width > maxWidth) {
-			width = maxWidth;
-		} else if (width < minWidth) {
-			width = minWidth;
-		}
+        if (width > maxWidth) {
+            width = maxWidth;
+        } else if (width < minWidth) {
+            width = minWidth;
+        }
         height = width / aspectRatio;
     }
-
-	console.log(width, height);
 
     return (
         <div className="outlet-padding center">

@@ -19,7 +19,6 @@ export async function connectWebsocket(
     ]);
 
     MyWebSocket.ws.onopen = () => {
-        console.log("Websocket Created");
         setWsCreated(true);
     };
 
@@ -65,7 +64,6 @@ export async function connectWebsocket(
 export function multiplayerMessageHandler(
     MyWebSocket,
     game,
-    setGameOver,
     setUserQueue,
     setUserData
 ) {
@@ -116,8 +114,7 @@ export function multiplayerMessageHandler(
                     const playerList = jsonData["data"];
                     if (playerList["message"] === "user.disconnected") {
                         game.over = true;
-                        closeWebsocket()
-                        setGameOver(true);
+                        closeWebsocket();
                         setUserData([]);
                         setUserQueue((prevState) => {
                             const newState = { ...prevState };
@@ -142,17 +139,15 @@ export function sendMessage(ws, message) {
     if (ws) {
         if (ws.readyState === WebSocket.OPEN) {
             ws.send(JSON.stringify(message));
-        } else {
-            console.error("WebSocket connection is not open");
         }
     }
 }
 
 export function closeWebsocket() {
-	if (MyWebSocket.ws) {
-		MyWebSocket.ws.close();
-		delete MyWebSocket.ws;
-	}
+    if (MyWebSocket.ws) {
+        MyWebSocket.ws.close();
+        delete MyWebSocket.ws;
+    }
 }
 
 function updateOpponentScreen(game, gameData) {

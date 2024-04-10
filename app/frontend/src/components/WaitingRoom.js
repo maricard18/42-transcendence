@@ -34,9 +34,11 @@ export function MultiplayerWaitingRoom() {
     const [lobbyFull, setLobbyfull] = useState(false);
     const [userLeft, setUserLeft] = useState(false);
     const [wsCreated, setWsCreated] = useState(false);
+	const [isConnecting, setIsConnecting] = useState(false);
 
     useEffect(() => {
         const startConnectingProcess = async () => {
+			setIsConnecting(true);
             await connectWebsocket(
                 setAuthed,
                 setUserQueue,
@@ -44,18 +46,18 @@ export function MultiplayerWaitingRoom() {
                 setUserData,
                 setWsCreated
             );
+			setIsConnecting(false);
             setLoading(false);
         };
 
         if (userLeft) {
-			console.log("Closing this websocket, opponent left");
             closeWebsocket();
             setUserLeft(false);
             setUserData([]);
             setWsCreated(false);
         }
 
-        if (!wsCreated) {
+        if (!wsCreated && !isConnecting) {
             startConnectingProcess();
         }
 
@@ -71,10 +73,8 @@ export function MultiplayerWaitingRoom() {
             setLobbyfull(false);
         }
 
-        if (
-            Object.keys(userQueue).length == lobbySize &&
-            Object.keys(userReadyList).length == lobbySize
-        ) {
+        if (Object.keys(userQueue).length == lobbySize &&
+            Object.keys(userReadyList).length == lobbySize) {
             const allUsersReady = Object.values(userReadyList).every(
                 (ready) => ready
             );

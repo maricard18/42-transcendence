@@ -76,21 +76,6 @@ export const UserQueueProvider = ({ children }) => {
 export const UserDataContext = createContext();
 export const UserDataProvider = ({ children }) => {
     const [userData, setUserData] = useState([]);
-    const { previousLocation } = useContext(PreviousLocationContext);
-	const location = useLocation().pathname;
-
-    useEffect(() => {
-        if (
-            (previousLocation ===
-                "/menu/pong-game/multiplayer/waiting-room/2" ||
-                previousLocation ===
-                    "/menu/pong-game/multiplayer/waiting-room/4") &&
-            location !== "/menu/pong-game/play/multiplayer/2" &&
-            location !== "/menu/pong-game/play/multiplayer/4"
-        ) {
-            setUserData([]);
-        }
-    }, [location]);
 
     return (
         <UserDataContext.Provider value={{ userData, setUserData }}>
@@ -103,17 +88,16 @@ export const PreviousLocationContext = createContext();
 export const PreviousLocationProvider = ({ children }) => {
     const location = useLocation().pathname;
     const [previousLocation, setPreviousLocation] = useState(location);
+    const { setUserQueue } = useContext(UserQueueContext);
+    const { setUserData } = useContext(UserDataContext);
 
     useEffect(() => {
-        if (
-            (previousLocation ===
-                "/menu/pong-game/multiplayer/waiting-room/2" ||
-                previousLocation ===
-                    "/menu/pong-game/multiplayer/waiting-room/4") &&
+        if ((previousLocation === "/menu/pong-game/multiplayer/waiting-room/2" ||
+            previousLocation === "/menu/pong-game/multiplayer/waiting-room/4") &&
             location !== "/menu/pong-game/play/multiplayer/2" &&
-            location !== "/menu/pong-game/play/multiplayer/4"
-        ) {
-			console.log("Closing this Websocket, you changed pages");
+            location !== "/menu/pong-game/play/multiplayer/4") {
+            setUserQueue({});
+            setUserData([]);
             closeWebsocket();
         }
     }, [location]);
