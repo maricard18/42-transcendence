@@ -1,7 +1,7 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect, useContext } from "react";
 import { getToken } from "../functions/tokens";
 import { useLocation } from "react-router-dom";
-import { MyWebSocket } from "../functions/websocket";
+import { closeWebsocket } from "../functions/websocket";
 
 export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
@@ -76,6 +76,21 @@ export const UserQueueProvider = ({ children }) => {
 export const UserDataContext = createContext();
 export const UserDataProvider = ({ children }) => {
     const [userData, setUserData] = useState([]);
+    const { previousLocation } = useContext(PreviousLocationContext);
+	const location = useLocation().pathname;
+
+    useEffect(() => {
+        if (
+            (previousLocation ===
+                "/menu/pong-game/multiplayer/waiting-room/2" ||
+                previousLocation ===
+                    "/menu/pong-game/multiplayer/waiting-room/4") &&
+            location !== "/menu/pong-game/play/multiplayer/2" &&
+            location !== "/menu/pong-game/play/multiplayer/4"
+        ) {
+            setUserData([]);
+        }
+    }, [location]);
 
     return (
         <UserDataContext.Provider value={{ userData, setUserData }}>
@@ -98,13 +113,10 @@ export const PreviousLocationProvider = ({ children }) => {
             location !== "/menu/pong-game/play/multiplayer/2" &&
             location !== "/menu/pong-game/play/multiplayer/4"
         ) {
-            if (MyWebSocket.ws) {
-                console.log("Closing this Websocket, user changed pages");
-                MyWebSocket.ws.close();
-                delete MyWebSocket.ws;
-            }
+			console.log("Closing this Websocket, you changed pages");
+            closeWebsocket();
         }
-    });
+    }, [location]);
 
     return (
         <PreviousLocationContext.Provider

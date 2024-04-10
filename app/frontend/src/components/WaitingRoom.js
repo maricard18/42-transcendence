@@ -15,6 +15,7 @@ import {
     connectWebsocket,
     sendMessage,
     MyWebSocket,
+	closeWebsocket,
 } from "../functions/websocket";
 import "../../static/css/Images.css";
 import "../../static/css/Buttons.css";
@@ -47,19 +48,14 @@ export function MultiplayerWaitingRoom() {
         };
 
         if (userLeft) {
-            if (MyWebSocket.ws) {
-                console.log("Closing this websocket, opponent left");
-                MyWebSocket.ws.close();
-                delete MyWebSocket.ws;
-            }
+			console.log("Closing this websocket, opponent left");
+            closeWebsocket();
             setUserLeft(false);
             setUserData([]);
             setWsCreated(false);
         }
 
         if (!wsCreated) {
-            console.log("UserLeft:", userLeft);
-            console.log("LobbyFull:", lobbyFull);
             startConnectingProcess();
         }
 
@@ -83,17 +79,10 @@ export function MultiplayerWaitingRoom() {
                 (ready) => ready
             );
             if (allUsersReady) {
-                console.log("Queue:", userQueue);
-                console.log("UserReadyList:", userReadyList);
-                console.log("UserData:", userData);
                 navigate("/menu/pong-game/play/multiplayer/" + lobbySize);
             }
         }
     }, [userReadyList, userQueue]);
-
-    console.log("Queue:", userQueue);
-    console.log("UserReadyList:", userReadyList);
-    console.log("UserData:", userData);
 
     return (
         <div className="d-flex flex-column col-md-6">

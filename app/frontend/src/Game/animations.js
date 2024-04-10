@@ -25,7 +25,7 @@ export function startGameAnimation(ctx, game) {
             ctx.textBaseline = "middle";
             ctx.fillText(3 - elapsedTime, ScreenWidth / 2, ScreenHeight / 2);
 
-            if (elapsedTime < 3) {
+            if (elapsedTime < 3 && !game.over) {
                 window.requestAnimationFrame(animate);
             } else {
                 game.paused = false;

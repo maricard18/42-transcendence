@@ -6,7 +6,7 @@ import {
     UserInfoContext,
     UserQueueContext,
 } from "../components/Context";
-import { MyWebSocket } from "../functions/websocket";
+import { MyWebSocket, closeWebsocket } from "../functions/websocket";
 import { BaseAvatar } from "./Avatar";
 import "bootstrap/dist/css/bootstrap.css";
 
@@ -21,6 +21,8 @@ export default function PongPage() {
     const [gameOver, setGameOver] = useState(false);
     const aspectRatioRectangle = 4 / 3;
     const aspectRatioSquare = 1;
+	let maxWidth = 1280, maxHeight = 960;
+	let minWidth = 640, minHeight = 480;
     let aspectRatio, width, height;
 
     useEffect(() => {
@@ -31,33 +33,26 @@ export default function PongPage() {
                 gameMode,
                 lobbySize,
                 userInfo,
-                userQueue,
-				setUserQueue,
+                setUserQueue,
                 userData,
-				setUserData,
-				gameOver,
-				setGameOver
+                setUserData,
+                setGameOver
             );
         };
+
+        if (gameOver) {
+            closeWebsocket();
+        }
 
         if (
             gameMode === "multiplayer" &&
             Object.keys(userQueue).length != lobbySize
         ) {
-            if (MyWebSocket.ws) {
-                console.log("Closing this websocket, oppponent refreshed the page");
-                MyWebSocket.ws.close();
-                delete MyWebSocket.ws;
-            }
+            console.log("Closing this websocket, opponent refreshed the page");
+            closeWebsocket();
             setGameOver(true);
-        } else if (gameOver) {
-            if (MyWebSocket.ws) {
-                console.log("Closing this websocket, game ended");
-                MyWebSocket.ws.close();
-                delete MyWebSocket.ws;
-            }
         } else {
-			console.log("Starting game.")
+            console.log("Starting game");
             startPongGame();
         }
     }, [gameOver]);
@@ -72,12 +67,24 @@ export default function PongPage() {
     }
 
     if (window.innerWidth / window.innerHeight > aspectRatio) {
-        height = window.innerHeight - 250;
+        height = window.innerHeight - 300;
+		if (height > maxHeight) {
+			height = maxHeight;
+		} else if (height < minHeight) {
+			height = minHeight;
+		}
         width = height * aspectRatio;
     } else {
-        width = window.innerWidth - 250;
+        width = window.innerWidth - 300;
+		if (width > maxWidth) {
+			width = maxWidth;
+		} else if (width < minWidth) {
+			width = minWidth;
+		}
         height = width / aspectRatio;
     }
+
+	console.log(width, height);
 
     return (
         <div className="outlet-padding center">

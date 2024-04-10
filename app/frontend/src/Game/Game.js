@@ -8,7 +8,7 @@ export class Game {
         this.mode = mode;
 		this.host_id = host_id;
         this.lobbySize = lobbySize;
-        this.paused = false;
+        this.paused = true;
 		this.over = false;
     }
 }

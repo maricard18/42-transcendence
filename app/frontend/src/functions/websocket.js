@@ -24,7 +24,7 @@ export async function connectWebsocket(
     };
 
     MyWebSocket.ws.onmessage = (event) => {
-        console.log("SYSTEM", JSON.parse(event.data));
+        //console.log("SYSTEM", JSON.parse(event.data));
 
         try {
             const jsonData = JSON.parse(event.data);
@@ -62,7 +62,13 @@ export async function connectWebsocket(
     };
 }
 
-export function multiplayerMessageHandler(MyWebSocket, game, setGameOver, setUserQueue, setUserData) {
+export function multiplayerMessageHandler(
+    MyWebSocket,
+    game,
+    setGameOver,
+    setUserQueue,
+    setUserData
+) {
     if (MyWebSocket.ws) {
         MyWebSocket.ws.onmessage = (event) => {
             //console.log("GAME", JSON.parse(event.data));
@@ -81,7 +87,7 @@ export function multiplayerMessageHandler(MyWebSocket, game, setGameOver, setUse
 
                     if (gameData["id"] == game.host_id) {
                         game.paused = gameData["paused"];
-						game.over = gameData["over"];
+                        game.over = gameData["over"];
                         game.ball.x =
                             (gameData["ball_x"] / gameData["screen_width"]) *
                             ScreenWidth;
@@ -109,10 +115,8 @@ export function multiplayerMessageHandler(MyWebSocket, game, setGameOver, setUse
                 if (jsonData["type"] == "system.message") {
                     const playerList = jsonData["data"];
                     if (playerList["message"] === "user.disconnected") {
-                        console.log("Closing this websocket, user left the game");
-                        MyWebSocket.ws.close();
-                        delete MyWebSocket.ws;
-						game.over = true;
+                        game.over = true;
+                        closeWebsocket()
                         setGameOver(true);
                         setUserData([]);
                         setUserQueue((prevState) => {
@@ -139,9 +143,16 @@ export function sendMessage(ws, message) {
         if (ws.readyState === WebSocket.OPEN) {
             ws.send(JSON.stringify(message));
         } else {
-            console.error("WebSocket connection is not open :(");
+            console.error("WebSocket connection is not open");
         }
     }
+}
+
+export function closeWebsocket() {
+	if (MyWebSocket.ws) {
+		MyWebSocket.ws.close();
+		delete MyWebSocket.ws;
+	}
 }
 
 function updateOpponentScreen(game, gameData) {

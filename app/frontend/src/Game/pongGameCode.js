@@ -20,14 +20,13 @@ export async function startGame(
     gameMode,
     lobbySize,
     userInfo,
-    userQueue,
     setUserQueue,
     userData,
     setUserData,
-    gameOver,
     setGameOver
 ) {
     const ctx = canvas.getContext("2d");
+	console.log("ctx", ctx);
     var game;
 
     clearBackground(ctx);
@@ -220,8 +219,7 @@ function singleplayerGameLoop(game, setGameOver) {
 
 function multiplayerGameLoop(game, setGameOver) {
     if (game.over) {
-        console.log("User left in the middle of the game!");
-        console.log("Game finished.");
+        console.log("Game finished, opponent left");
         return;
     } else if (!game.paused) {
         let current_time = Date.now();
