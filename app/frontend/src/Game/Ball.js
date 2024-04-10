@@ -8,7 +8,7 @@ import {
 } from "./variables";
 
 export class Ball {
-    constructor(x, y, color) {
+    constructor({ x, y, color }) {
         this.x = x;
         this.y = y;
         this.color = color;
@@ -26,7 +26,7 @@ export class Ball {
         ctx.fill();
     }
 
-    update(game, opponent, dt) {
+    update(game, dt) {
         this.x += this.speed_x * dt;
         this.y += this.speed_y * dt;
 
@@ -36,25 +36,25 @@ export class Ball {
         ) {
             this.speed_y *= -1;
         }
-        if (this.x - this.radius <= 0 && this.speed_x < 0) {
-            opponent.score += 1;
-            this.reset(game, opponent);
-        }
+
         if (this.x + this.radius >= ScreenWidth && this.speed_x > 0) {
-            game.player.score += 1;
-            this.reset(game, opponent);
+			game.player1.score += 1;
+			this.reset(game);
+        } else if (this.x - this.radius <= 0 && this.speed_x < 0) {
+            game.player2.score += 1;
+            this.reset(game);
         }
     }
 
-    reset(game, opponent) {
+    reset(game) {
         this.x = ScreenWidth / 2;
         this.y = ScreenHeight / 2;
-        game.player.x = game.player.initial_x;
-        game.player.y = game.player.initial_y;
-        opponent.x = opponent.initial_x;
-        opponent.y = opponent.initial_y;
+        game.player1.x = game.player1.initial_x;
+        game.player1.y = game.player1.initial_y;
+        game.player2.x = game.player2.initial_x;
+        game.player2.y = game.player2.initial_y;
 
-        if (game.player.score > opponent.score) {
+        if (game.player1.score > game.player2.score) {
             this.speed_y = getRandomDirection();
             this.speed_x = BallSpeedX;
         } else {
@@ -62,7 +62,7 @@ export class Ball {
             this.speed_x = BallSpeedX * -1;
         }
 
-        pauseGame(game, 5);
+        pauseGame(game, 2);
     }
 }
 

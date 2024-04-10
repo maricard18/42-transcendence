@@ -30,14 +30,16 @@ export function CloseIcon() {
     );
 }
 
-export function LoadingIcon({ size = "3rem"}) {
+export function LoadingIcon({ size = "3rem" }) {
     return (
-        <div
-            className="spinner-border ms-3 mt-2"
-            style={{ width: size, height: size }}
-            role="status"
-        >
-            <span className="visually-hidden">Loading...</span>
+        <div className="center">
+            <div
+                className="spinner-border ms-3 mt-2"
+                style={{ width: size, height: size }}
+                role="status"
+            >
+                <span className="visually-hidden">Loading...</span>
+            </div>
         </div>
     );
 }

@@ -27,3 +27,7 @@
 	color: inherit;
 	transition: 0.5s;
 }
+
+.outlet-padding {
+    padding-top: 68px;
+}

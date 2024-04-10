@@ -6,8 +6,14 @@ import {
     UserInfoProvider,
     PreviousLocationProvider,
     UserQueueProvider,
-    LoadingProvider,
+    UserDataProvider,
 } from "../components/Context";
+import {
+    GameMenuOptions,
+    SinglePlayerOptions,
+    MultiplayerOptions,
+    TournamentOptions,
+} from "../components/GameOptions";
 import LandingPage from "./LandingPage";
 import SignUpPage from "./SignUpPage";
 import { CreateProfilePage, Create42ProfilePage } from "./CreateProfilePage";
@@ -15,12 +21,6 @@ import LoginPage from "./LoginPage";
 import Login42Page from "./Login42Page";
 import HomePage from "./HomePage";
 import { Game1, Game2 } from "../components/Games";
-import {
-    GameMenuOptions,
-    SinglePlayerOptions,
-    MultiplayerOptions,
-    TournamentOptions,
-} from "../components/GameOptions";
 import { MultiplayerWaitingRoom } from "../components/WaitingRoom";
 import ProfilePage from "./ProfilePage";
 import Pong from "../components/Pong";
@@ -36,7 +36,7 @@ const router = createBrowserRouter([
         path: "/",
         element: (
             <IsNotAuthed>
-                <LandingPage />,
+                <LandingPage />
             </IsNotAuthed>
         ),
     },
@@ -45,7 +45,7 @@ const router = createBrowserRouter([
         element: (
             <FormDataProvider>
                 <IsNotAuthed>
-                    <SignUpPage />,
+                    <SignUpPage />
                 </IsNotAuthed>
             </FormDataProvider>
         ),
@@ -55,7 +55,7 @@ const router = createBrowserRouter([
         element: (
             <FormDataProvider>
                 <IsNotAuthed>
-                    <CreateProfilePage />,
+                    <CreateProfilePage />
                 </IsNotAuthed>
             </FormDataProvider>
         ),
@@ -65,7 +65,7 @@ const router = createBrowserRouter([
         element: (
             <FormDataProvider>
                 <IsNotAuthed>
-                    <Create42ProfilePage />,
+                    <Create42ProfilePage />
                 </IsNotAuthed>
             </FormDataProvider>
         ),
@@ -74,7 +74,7 @@ const router = createBrowserRouter([
         path: "/login/42",
         element: (
             <IsNotAuthed>
-                <Login42Page />,
+                <Login42Page />
             </IsNotAuthed>
         ),
     },
@@ -82,7 +82,7 @@ const router = createBrowserRouter([
         path: "/login",
         element: (
             <IsNotAuthed>
-                <LoginPage />,
+                <LoginPage />
             </IsNotAuthed>
         ),
     },
@@ -90,13 +90,15 @@ const router = createBrowserRouter([
         path: "/menu",
         element: (
             <IsAuthed>
-                <UserInfoProvider>
-                    <UserQueueProvider>
-                        <PreviousLocationProvider>
-                            <NavigationBar />
-                        </PreviousLocationProvider>
-                    </UserQueueProvider>
-                </UserInfoProvider>
+                <UserQueueProvider>
+                    <UserDataProvider>
+                        <UserInfoProvider>
+                            <PreviousLocationProvider>
+                                <NavigationBar />
+                            </PreviousLocationProvider>
+                        </UserInfoProvider>
+                    </UserDataProvider>
+                </UserQueueProvider>
             </IsAuthed>
         ),
         children: [
@@ -219,9 +221,7 @@ const router = createBrowserRouter([
 function App() {
     return (
         <AuthProvider>
-            <LoadingProvider>
-                <RouterProvider router={router} />
-            </LoadingProvider>
+            <RouterProvider router={router} />
         </AuthProvider>
     );
 }

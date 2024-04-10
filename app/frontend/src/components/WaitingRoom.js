@@ -1,8 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
+import fetchData from "../functions/fetchData";
+import { useLocation, useNavigate } from "react-router-dom";
+import { getToken } from "../functions/tokens";
+import { BaseAvatar } from "./Avatar";
+import { CheckIcon, CloseIcon, LoadingIcon } from "./Icons";
 import {
     AuthContext,
-    LoadingContext,
     PreviousLocationContext,
+    UserDataContext,
     UserInfoContext,
     UserQueueContext,
 } from "./Context";
@@ -10,13 +15,8 @@ import {
     connectWebsocket,
     sendMessage,
     MyWebSocket,
+	closeWebsocket,
 } from "../functions/websocket";
-import fetchData from "../functions/fetchData";
-import { useLocation, useNavigate } from "react-router-dom";
-import { getToken } from "../functions/tokens";
-import { logError } from "../functions/utils";
-import { BaseAvatar } from "./Avatar";
-import { CheckIcon, CloseIcon, LoadingIcon } from "./Icons";
 import "../../static/css/Images.css";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
@@ -28,31 +28,36 @@ export function MultiplayerWaitingRoom() {
     const { setAuthed } = useContext(AuthContext);
     const { setPreviousLocation } = useContext(PreviousLocationContext);
     const { userQueue, setUserQueue } = useContext(UserQueueContext);
-    const { loading } = useContext(LoadingContext);
+    const { userData, setUserData } = useContext(UserDataContext);
+    const [loading, setLoading] = useState(true);
     const [userReadyList, setUserReadyList] = useState({});
     const [lobbyFull, setLobbyfull] = useState(false);
     const [userLeft, setUserLeft] = useState(false);
     const [wsCreated, setWsCreated] = useState(false);
+	const [isConnecting, setIsConnecting] = useState(false);
 
     useEffect(() => {
         const startConnectingProcess = async () => {
+			setIsConnecting(true);
             await connectWebsocket(
                 setAuthed,
                 setUserQueue,
                 setUserReadyList,
+                setUserData,
                 setWsCreated
             );
+			setIsConnecting(false);
+            setLoading(false);
         };
 
         if (userLeft) {
-            console.log("User left, closing websocket");
-            MyWebSocket.ws.close();
+            closeWebsocket();
             setUserLeft(false);
+            setUserData([]);
             setWsCreated(false);
         }
 
-        if (!wsCreated) {
-            console.log("Starting connection process!");
+        if (!wsCreated && !isConnecting) {
             startConnectingProcess();
         }
 
@@ -64,13 +69,12 @@ export function MultiplayerWaitingRoom() {
             setLobbyfull(true);
         } else if (lobbyFull && Object.keys(userQueue).length != lobbySize) {
             setUserLeft(true);
+            setLoading(true);
             setLobbyfull(false);
         }
 
-        if (
-            Object.keys(userQueue).length == lobbySize &&
-            Object.keys(userReadyList).length == lobbySize
-        ) {
+        if (Object.keys(userQueue).length == lobbySize &&
+            Object.keys(userReadyList).length == lobbySize) {
             const allUsersReady = Object.values(userReadyList).every(
                 (ready) => ready
             );
@@ -94,6 +98,7 @@ export function MultiplayerWaitingRoom() {
                     <PlayerQueue
                         userQueue={userQueue}
                         userReadyList={userReadyList}
+                        lobbySize={lobbySize}
                     />
                     {wsCreated
                         ? Object.keys(userQueue).length == lobbySize && (
@@ -109,75 +114,86 @@ export function MultiplayerWaitingRoom() {
     );
 }
 
-function PlayerQueue({ userQueue, userReadyList }) {
+function PlayerQueue({ userQueue, userReadyList, lobbySize }) {
+    const { userData, setUserData } = useContext(UserDataContext);
     const { setAuthed } = useContext(AuthContext);
-    const [userData, setUserData] = useState([]);
+    const { userInfo } = useContext(UserInfoContext);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchUserData = async () => {
             const data = await Promise.all(
                 Object.values(userQueue).map((value) =>
-                    getUserData(value, setAuthed)
+                    value === userInfo.id
+                        ? userInfo
+                        : getUserData(value, setAuthed)
                 )
             );
             setUserData(data);
+            setLoading(false);
         };
 
-        fetchUserData();
-    }, [userQueue, userReadyList]);
+        if (Object.values(userData).length != lobbySize) {
+            fetchUserData();
+        } else {
+            setLoading(false);
+        }
+    }, [userQueue]);
 
     return (
         <div className="d-flex flex-column justify-content-start align-items-start mb-3">
-            {userData.map((data, index) =>
-                data ? (
-                    data.avatar ? (
-                        <React.Fragment key={index}>
-                            <div className="d-flex flex-row mb-2">
-                                <img
-                                    src={data.avatar}
-                                    alt="Avatar preview"
-                                    width="40"
-                                    height="40"
-                                    className="avatar-border-sm"
-                                    style={{ borderRadius: "50%" }}
-                                />
-                                <div className="d-flex flex-row justify-content-center">
-                                    <div className="username-text ms-3 mt-2">
-                                        <h5>{data.username}</h5>
-                                    </div>
-                                    <div className="ms-1 mt-2">
-                                        <CheckIfReady
-                                            data={data}
-                                            userReadyList={userReadyList}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </React.Fragment>
-                    ) : (
-                        <React.Fragment key={index}>
-                            <div className="d-flex flex-row mb-2">
-                                <BaseAvatar
-                                    width="40"
-                                    height="40"
-                                    template=""
-                                />
-                                <div className="d-flex flex-row">
-                                    <div className="username-text ms-3 mt-2">
-                                        <h5>{data.username}</h5>
-                                    </div>
-                                    <div className="ms-1 mt-2">
-                                        <CheckIfReady
-                                            data={data}
-                                            userReadyList={userReadyList}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </React.Fragment>
-                    )
-                ) : null
-            )}
+            {!loading && userData
+                ? userData.map((data, index) =>
+                      data ? (
+                          data.avatar ? (
+                              <React.Fragment key={index}>
+                                  <div className="d-flex flex-row mb-2">
+                                      <img
+                                          src={data.avatar}
+                                          alt="Avatar preview"
+                                          width="40"
+                                          height="40"
+                                          className="avatar-border-sm"
+                                          style={{ borderRadius: "50%" }}
+                                      />
+                                      <div className="d-flex flex-row justify-content-center">
+                                          <div className="username-text ms-3 mt-2">
+                                              <h5>{data.username}</h5>
+                                          </div>
+                                          <div className="ms-1 mt-2">
+                                              <CheckIfReady
+                                                  data={data}
+                                                  userReadyList={userReadyList}
+                                              />
+                                          </div>
+                                      </div>
+                                  </div>
+                              </React.Fragment>
+                          ) : (
+                              <React.Fragment key={index}>
+                                  <div className="d-flex flex-row mb-2">
+                                      <BaseAvatar
+                                          width="40"
+                                          height="40"
+                                          template=""
+                                      />
+                                      <div className="d-flex flex-row">
+                                          <div className="username-text ms-3 mt-2">
+                                              <h5>{data.username}</h5>
+                                          </div>
+                                          <div className="ms-1 mt-2">
+                                              <CheckIfReady
+                                                  data={data}
+                                                  userReadyList={userReadyList}
+                                              />
+                                          </div>
+                                      </div>
+                                  </div>
+                              </React.Fragment>
+                          )
+                      ) : null
+                  )
+                : null}
         </div>
     );
 }
@@ -255,14 +271,14 @@ async function getUserData(value, setAuthed) {
     const response = await fetchData("/api/users/" + value, "GET", headers);
 
     if (!response.ok) {
-        logError("failed to fetch user data.");
+        console.log("Error: failed to fetch user data.");
         return null;
     }
 
     try {
         jsonData = await response.json();
     } catch (error) {
-        logError("failed to parse response.");
+        console.log("Error: failed to parse response.");
         return null;
     }
 

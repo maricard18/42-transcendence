@@ -1,9 +1,9 @@
-import { Player } from "./Player";
+import { Player } from "./Player1";
 import { ScreenHeight, ScreenWidth } from "./variables";
 
 export class Cpu extends Player {
-    constructor(x, y, color) {
-        super(x, y, color);
+    constructor({x, y, color}) {
+        super({x, y, color});
     }
 
     update(ball, dt) {
@@ -24,4 +24,10 @@ export class Cpu extends Player {
             this.y += this.max_speed * dt;
         }
     }
+}
+
+export class Opponent extends Player {
+	constructor({x, y, color, keyUp, keyDown, id}) {
+		super({x, y, color, keyUp, keyDown, id});
+	}
 }

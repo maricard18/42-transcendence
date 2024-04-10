@@ -1,8 +1,7 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect, useContext } from "react";
 import { getToken } from "../functions/tokens";
 import { useLocation } from "react-router-dom";
-import { MyWebSocket } from "../functions/websocket";
-import { log } from "../functions/utils";
+import { closeWebsocket } from "../functions/websocket";
 
 export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
@@ -13,8 +12,8 @@ export const AuthProvider = ({ children }) => {
         const checkToken = async () => {
             const token = await getToken(setAuthed);
             if (token) {
-				setAuthed(true);
-			}
+                setAuthed(true);
+            }
             setLoading(false);
         };
         checkToken();
@@ -74,14 +73,14 @@ export const UserQueueProvider = ({ children }) => {
     );
 };
 
-export const LoadingContext = createContext();
-export const LoadingProvider = ({ children }) => {
-    const [loading, setLoading] = useState();
+export const UserDataContext = createContext();
+export const UserDataProvider = ({ children }) => {
+    const [userData, setUserData] = useState([]);
 
     return (
-        <LoadingContext.Provider value={{ loading, setLoading }}>
+        <UserDataContext.Provider value={{ userData, setUserData }}>
             {children}
-        </LoadingContext.Provider>
+        </UserDataContext.Provider>
     );
 };
 
@@ -89,19 +88,19 @@ export const PreviousLocationContext = createContext();
 export const PreviousLocationProvider = ({ children }) => {
     const location = useLocation().pathname;
     const [previousLocation, setPreviousLocation] = useState(location);
+    const { setUserQueue } = useContext(UserQueueContext);
+    const { setUserData } = useContext(UserDataContext);
 
     useEffect(() => {
         if ((previousLocation === "/menu/pong-game/multiplayer/waiting-room/2" ||
             previousLocation === "/menu/pong-game/multiplayer/waiting-room/4") &&
             location !== "/menu/pong-game/play/multiplayer/2" &&
             location !== "/menu/pong-game/play/multiplayer/4") {
-            if (MyWebSocket.ws) {
-                log("Closed websocket!");
-                MyWebSocket.ws.close();
-                delete MyWebSocket.ws;
-            }
+            setUserQueue({});
+            setUserData([]);
+            closeWebsocket();
         }
-    });
+    }, [location]);
 
     return (
         <PreviousLocationContext.Provider
