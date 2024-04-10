@@ -11,6 +11,7 @@ import "../../static/css/Menu.css";
 import "../../static/css/HomePage.css";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.bundle.js";
+import { LoadingIcon } from "../components/Icons";
 
 export default function NavigationBar() {
     const { setAuthed } = useContext(AuthContext);
@@ -28,7 +29,7 @@ export default function NavigationBar() {
                     avatar: userData.avatar,
                     id: userData.id,
                 });
-				setLoading(false);
+                setLoading(false);
             } else {
                 console.log("Error: failed to fetch user data.");
             }
