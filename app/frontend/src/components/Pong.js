@@ -1,12 +1,8 @@
 import React, { useEffect, useRef, useContext, useState } from "react";
-import { startGame } from "../Game/pongGameCode";
+import { createGameObject, startGame } from "../Game/pongGameCode";
 import { useLocation, Navigate } from "react-router-dom";
-import {
-    UserDataContext,
-    UserInfoContext,
-    UserQueueContext,
-} from "../components/Context";
-import { MyWebSocket } from "../functions/websocket";
+import { UserDataContext, UserInfoContext, UserQueueContext } from "../components/Context";
+import { closeWebsocket } from "../functions/websocket";
 import { BaseAvatar } from "./Avatar";
 import "bootstrap/dist/css/bootstrap.css";
 
@@ -16,57 +12,59 @@ export default function PongPage() {
     const gameMode = location.match(/\/([^\/]+)\/[^\/]+$/)[1];
     const lobbySize = location.substring(location.length - 1);
     const { userInfo } = useContext(UserInfoContext);
-    const { userQueue } = useContext(UserQueueContext);
-    const { userData } = useContext(UserDataContext);
+    const { userQueue, setUserQueue } = useContext(UserQueueContext);
+    const { userData, setUserData } = useContext(UserDataContext);
     const [gameOver, setGameOver] = useState(false);
     const aspectRatioRectangle = 4 / 3;
     const aspectRatioSquare = 1;
-    let aspectRatio, width, height;
+    let maxWidth = 1280,
+        maxHeight = 960;
+    let minWidth = 640,
+        minHeight = 480;
+    let aspectRatio, width, height, game;
 
     useEffect(() => {
         const startPongGame = async () => {
             const canvas = canvasRef.current;
-            await startGame(
-                canvas,
-                gameMode,
-                lobbySize,
-                userInfo,
-                userQueue,
-                userData,
-                gameOver,
-                setGameOver
-            );
+            game = createGameObject(canvas, gameMode, lobbySize, userInfo, userData);
+            await startGame(game, setUserQueue, setUserData, setGameOver);
         };
 
-        if (
-            gameMode === "multiplayer" &&
-            Object.keys(userQueue).length != lobbySize
-        ) {
-            if (MyWebSocket.ws) {
-                console.log("Here closing a websocket!");
-                MyWebSocket.ws.close();
-                delete MyWebSocket.ws;
-            }
-            setGameOver(true);
+        if (gameOver) {
+            closeWebsocket();
         } else {
-            startPongGame();
+            if (gameMode === "single-player" ||
+			   (gameMode === "multiplayer" &&
+				Object.values(userQueue).length == lobbySize)) {
+                startPongGame();
+            } else {
+                setGameOver(true);
+            }
         }
-    }, []);
+    }, [gameOver, game]);
 
-    if (
-        gameMode === "single-player" ||
-        (gameMode === "multiplayer" && lobbySize == 2)
-    ) {
+    if (gameMode === "single-player" ||
+       (gameMode === "multiplayer" && lobbySize == 2)) {
         aspectRatio = aspectRatioRectangle;
     } else if (gameMode === "multiplayer" && lobbySize == 4) {
         aspectRatio = aspectRatioSquare;
     }
 
     if (window.innerWidth / window.innerHeight > aspectRatio) {
-        height = window.innerHeight - 250;
+        height = window.innerHeight - 300;
+        if (height > maxHeight) {
+            height = maxHeight;
+        } else if (height < minHeight) {
+            height = minHeight;
+        }
         width = height * aspectRatio;
     } else {
-        width = window.innerWidth - 250;
+        width = window.innerWidth - 300;
+        if (width > maxWidth) {
+            width = maxWidth;
+        } else if (width < minWidth) {
+            width = minWidth;
+        }
         height = width / aspectRatio;
     }
 

@@ -90,9 +90,11 @@ const router = createBrowserRouter([
             <IsAuthed>
                 <UserQueueProvider>
                     <UserDataProvider>
-                        <PreviousLocationProvider>
-                            <NavigationBar />
-                        </PreviousLocationProvider>
+                        <UserInfoProvider>
+                            <PreviousLocationProvider>
+                                <NavigationBar />
+                            </PreviousLocationProvider>
+                        </UserInfoProvider>
                     </UserDataProvider>
                 </UserQueueProvider>
             </IsAuthed>

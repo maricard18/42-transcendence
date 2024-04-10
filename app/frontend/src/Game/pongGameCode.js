@@ -15,18 +15,14 @@ import {
     PaddleWidth,
 } from "./variables";
 
-export async function startGame(
+export function createGameObject(
     canvas,
     gameMode,
     lobbySize,
     userInfo,
-    userQueue,
-    userData,
-    gameOver,
-    setGameOver
+    userData
 ) {
-    const ctx = canvas.getContext("2d");
-    var game;
+    const ctx = canvas.getContext('2d');
 
     clearBackground(ctx);
     updateVariables(canvas);
@@ -42,19 +38,30 @@ export async function startGame(
         }
     });
 
-    switch (gameMode) {
+    if (gameMode === "single-player") {
+        return createSinglePlayerGame(ctx, userInfo, lobbySize);
+    } else if (gameMode === "multiplayer") {
+        return createMultiPlayerGame(ctx, userData, userInfo, lobbySize);
+    }
+}
+
+export async function startGame(game, setUserQueue, setUserData, setGameOver) {
+    switch (game.mode) {
         case "single-player":
-            game = createSinglePlayerGame(ctx, userInfo, lobbySize);
-            await startGameAnimation(ctx, game);
+            await startGameAnimation(game);
             game.last_time = Date.now();
             singleplayerGameLoop(game, setGameOver);
             break;
         case "multiplayer":
-            game = createMultiPlayerGame(ctx, userData, userInfo, lobbySize);
-            multiplayerMessageHandler(MyWebSocket, game, setGameOver);
-            await startGameAnimation(ctx, game);
+            multiplayerMessageHandler(
+                MyWebSocket,
+                game,
+                setUserQueue,
+                setUserData
+            );
+            await startGameAnimation(game);
             game.last_time = Date.now();
-            multiplayerGameLoop(game, userQueue, gameOver, setGameOver);
+            multiplayerGameLoop(game, setGameOver);
             break;
     }
 }
@@ -166,7 +173,10 @@ function createMultiPlayerGame(ctx, userData, userInfo, lobbySize) {
 }
 
 function singleplayerGameLoop(game, setGameOver) {
-    if (!game.paused) {
+	if (game.over) {
+		setGameOver(true);
+		return;
+	} else if (!game.paused) {
         let current_time = Date.now();
         let dt = (current_time - game.last_time) / 1000;
 
@@ -179,7 +189,6 @@ function singleplayerGameLoop(game, setGameOver) {
             "white"
         );
 
-        console.log("Inside the game", game);
         game.ball.update(game, dt);
         game.player1.update(dt);
 
@@ -196,7 +205,7 @@ function singleplayerGameLoop(game, setGameOver) {
         drawScore(game.ctx, game.player2, ScreenWidth / 2 + 100);
 
         if (game.player1.score === 5 || game.player2.score === 5) {
-            console.log("Game Finished");
+            console.log("Game ended");
             setGameOver(true);
             return;
         }
@@ -211,10 +220,8 @@ function singleplayerGameLoop(game, setGameOver) {
     window.requestAnimationFrame(() => singleplayerGameLoop(game, setGameOver));
 }
 
-function multiplayerGameLoop(game, userQueue, gameOver, setGameOver) {
-    if (gameOver) {
-        return;
-    } else if (Object.values(userQueue).length != game.lobbySize) {
+function multiplayerGameLoop(game, setGameOver) {
+    if (game.over || !MyWebSocket.ws) {
         setGameOver(true);
         return;
     } else if (!game.paused) {
@@ -275,11 +282,9 @@ function multiplayerGameLoop(game, userQueue, gameOver, setGameOver) {
         }
 
         if (
-            (game.player1.id === game.host_id &&
-                (game.player1.score === 5 || game.player2.score === 5)) ||
-            Object.values(userQueue).length != game.lobbySize
+            game.player1.id === game.host_id &&
+            (game.player1.score === 5 || game.player2.score === 5)
         ) {
-            console.log("Game Finished");
             setGameOver(true);
             return;
         }
@@ -291,9 +296,7 @@ function multiplayerGameLoop(game, userQueue, gameOver, setGameOver) {
 
     game.last_time = Date.now();
 
-    window.requestAnimationFrame(() =>
-        multiplayerGameLoop(game, userQueue, gameOver, setGameOver)
-    );
+    window.requestAnimationFrame(() => multiplayerGameLoop(game, setGameOver));
 }
 
 export function clearBackground(ctx) {
@@ -330,6 +333,7 @@ export function sendHostMessage(game) {
             player1_score: game.player1.score,
             player2_score: game.player2.score,
             paused: game.paused,
+            over: game.over,
         },
     };
 

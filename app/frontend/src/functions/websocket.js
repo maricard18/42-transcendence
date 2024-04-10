@@ -19,7 +19,6 @@ export async function connectWebsocket(
     ]);
 
     MyWebSocket.ws.onopen = () => {
-        console.log("Websocket Created");
         setWsCreated(true);
     };
 
@@ -62,7 +61,12 @@ export async function connectWebsocket(
     };
 }
 
-export function multiplayerMessageHandler(MyWebSocket, game, setGameOver) {
+export function multiplayerMessageHandler(
+    MyWebSocket,
+    game,
+    setUserQueue,
+    setUserData
+) {
     if (MyWebSocket.ws) {
         MyWebSocket.ws.onmessage = (event) => {
             //console.log("GAME", JSON.parse(event.data));
@@ -80,39 +84,48 @@ export function multiplayerMessageHandler(MyWebSocket, game, setGameOver) {
                         ScreenHeight;
 
                     if (gameData["id"] == game.host_id) {
+                        game.paused = gameData["paused"];
+                        game.over = gameData["over"];
+                        game.ball.x =
+                            (gameData["ball_x"] / gameData["screen_width"]) *
+                            ScreenWidth;
+                        game.ball.y =
+                            (gameData["ball_y"] / gameData["screen_height"]) *
+                            ScreenHeight;
+                        game.ball.speed_x =
+                            (gameData["ball_speed_x"] /
+                                gameData["screen_width"]) *
+                            ScreenWidth;
+                        game.ball.speed_y =
+                            (gameData["ball_speed_y"] /
+                                gameData["screen_height"]) *
+                            ScreenHeight;
+                        game.player1.score = gameData["player2_score"];
+                        game.player2.score = gameData["player1_score"];
+
                         if (gameData["paused"]) {
+                            game.player1.x = game.player1.initial_x;
+                            game.player1.y = game.player1.initial_y;
                             updateOpponentScreen(game, gameData);
-                        } else {
-                            game.paused = false;
-                            game.ball.x =
-                                (gameData["ball_x"] /
-                                    gameData["screen_width"]) *
-                                ScreenWidth;
-                            game.ball.y =
-                                (gameData["ball_y"] /
-                                    gameData["screen_height"]) *
-                                ScreenHeight;
-                            game.ball.speed_x =
-                                (gameData["ball_speed_x"] /
-                                    gameData["screen_width"]) *
-                                ScreenWidth;
-                            game.ball.speed_y =
-                                (gameData["ball_speed_y"] /
-                                    gameData["screen_height"]) *
-                                ScreenHeight;
-                            game.player1.score = gameData["player2_score"];
-                            game.player2.score = gameData["player1_score"];
                         }
                     }
                 }
                 if (jsonData["type"] == "system.message") {
                     const playerList = jsonData["data"];
                     if (playerList["message"] === "user.disconnected") {
-                        console.log("User disconnected from the Game!");
-                        console.log("You won!");
-                        MyWebSocket.ws.close();
-                        delete MyWebSocket.ws;
-                        setGameOver(true);
+                        game.over = true;
+                        closeWebsocket();
+                        setUserData([]);
+                        setUserQueue((prevState) => {
+                            const newState = { ...prevState };
+                            for (let key in newState) {
+                                if (newState[key] === playerList["user_id"]) {
+                                    delete newState[key];
+                                    break;
+                                }
+                            }
+                            return newState;
+                        });
                     }
                 }
             } catch (error) {
@@ -126,26 +139,18 @@ export function sendMessage(ws, message) {
     if (ws) {
         if (ws.readyState === WebSocket.OPEN) {
             ws.send(JSON.stringify(message));
-        } else {
-            console.error("WebSocket connection is not open :(");
         }
     }
 }
 
-function updateOpponentScreen(game, gameData) {
-    game.paused = true;
-    game.ball.x = (gameData["ball_x"] / gameData["screen_width"]) * ScreenWidth;
-    game.ball.y =
-        (gameData["ball_y"] / gameData["screen_height"]) * ScreenHeight;
-    game.ball.speed_x =
-        (gameData["ball_speed_x"] / gameData["screen_width"]) * ScreenWidth;
-    game.ball.speed_y =
-        (gameData["ball_speed_y"] / gameData["screen_height"]) * ScreenHeight;
-    game.player1.score = gameData["player2_score"];
-    game.player2.score = gameData["player1_score"];
-    game.player1.x = game.player1.initial_x;
-    game.player1.y = game.player1.initial_y;
+export function closeWebsocket() {
+    if (MyWebSocket.ws) {
+        MyWebSocket.ws.close();
+        delete MyWebSocket.ws;
+    }
+}
 
+function updateOpponentScreen(game, gameData) {
     clearBackground(game.ctx);
     drawGoal(game.ctx, 0, 0.04 * ScreenWidth, "white");
     drawGoal(game.ctx, ScreenWidth - 0.04 * ScreenWidth, ScreenWidth, "white");

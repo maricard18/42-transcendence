@@ -2,7 +2,7 @@ import { clearBackground } from "./pongGameCode";
 import { ScreenHeight, ScreenWidth } from "./variables";
 import { drawGoal } from "./pongGameCode";
 
-export function startGameAnimation(ctx, game) {
+export function startGameAnimation(game) {
     return new Promise((resolve) => {
         const animate = () => {
             const current_time = Date.now();
@@ -10,22 +10,22 @@ export function startGameAnimation(ctx, game) {
                 (current_time - game.last_time) / 1000
             );
 
-            clearBackground(ctx);
-            drawGoal(ctx, 0, 0.04 * ScreenWidth, "white");
+            clearBackground(game.ctx);
+            drawGoal(game.ctx, 0, 0.04 * ScreenWidth, "white");
             drawGoal(
-                ctx,
+                game.ctx,
                 ScreenWidth - 0.04 * ScreenWidth,
                 ScreenWidth,
                 "white"
             );
 
-            ctx.font = `${0.3 * ScreenWidth}px Arial`;
-            ctx.fillStyle = "white";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            ctx.fillText(3 - elapsedTime, ScreenWidth / 2, ScreenHeight / 2);
+            game.ctx.font = `${0.3 * ScreenWidth}px Arial`;
+            game.ctx.fillStyle = "white";
+            game.ctx.textAlign = "center";
+            game.ctx.textBaseline = "middle";
+            game.ctx.fillText(3 - elapsedTime, ScreenWidth / 2, ScreenHeight / 2);
 
-            if (elapsedTime < 3) {
+            if (elapsedTime < 3 && !game.over) {
                 window.requestAnimationFrame(animate);
             } else {
                 game.paused = false;
