@@ -28,3 +28,12 @@ class SSOPermission(permissions.BasePermission):
             return True
         else:
             return False
+
+
+class OTPPermission(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        if view.action in ['create', 'retrieve', 'destroy']:
+            return request.auth
+        else:
+            return False
