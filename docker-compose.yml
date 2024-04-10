@@ -125,6 +125,20 @@ services:
     profiles: [ "dev" ]
     restart: on-failure
 
+  # zap-proxy:
+  #   container_name: zap-proxy
+  #   image: owasp/zap2docker-stable
+  #   command: zap-webswing.sh -port 8080 
+  #   ports:
+  #     - "8080:8080"
+  #   networks:
+  #     - transcendence-dev
+  #   depends_on:
+  #     django-backend-dev:
+  #       condition: service_started
+  #   profiles: [ "dev" ]
+  #   restart: on-failure
+
   ############# TOOLS #############
   ############# PROD #############
   db-migrations:
