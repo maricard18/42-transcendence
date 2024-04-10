@@ -5,7 +5,7 @@ import unicodedata
 from django.apps.registry import apps
 from django.contrib.auth.models import User
 from django.contrib.auth.validators import UnicodeUsernameValidator
-from django.db import models, IntegrityError
+from django.db import models
 
 
 ######################
@@ -80,7 +80,7 @@ class SSO_UserManager(models.Manager):
             email = email_name + "@" + domain_part.lower()
         return email
 
-    def create_user(self, sso, sso_id, username, email, user):
+    def create_user(self, sso_provider, sso_id, username, email, auth_user):
         """
         Create and save a user with the given username, email, and password.
         """
@@ -94,45 +94,43 @@ class SSO_UserManager(models.Manager):
             self.model._meta.app_label, self.model._meta.object_name
         )
         username = GlobalUserModel.normalize_username(username)
-        user = self.model(sso=sso, sso_id=sso_id, username=username, email=email, user=user)
+        user = self.model(sso_provider=sso_provider, sso_id=sso_id, username=username, email=email,
+                          auth_user=auth_user)
         user.save(using=self._db)
         return user
 
     def get_or_create(self, defaults=None, **kwargs):
-        user = None
         created = False
         conflict = False
         try:
             user = SSO_User.objects.get(
-                sso=kwargs['sso'],
+                sso_provider=kwargs['sso_provider'],
                 sso_id=kwargs['sso_id']
             )
         except SSO_User.DoesNotExist:
-            try:
-                user = User.objects.create_user(
-                    username=kwargs['username'],
+            if kwargs['action'] == 'register':
+                username = kwargs['username']
+                while True:
+                    try:
+                        User.objects.get(username=username)
+                        username = secrets.token_hex(4)
+                        conflict = True
+                    except User.DoesNotExist:
+                        break
+
+                auth_user = User.objects.create_user(
+                    username=username,
                     email=kwargs['email']
                 )
-            except IntegrityError as e:
-                if 'key value violates unique constraint "auth_user_username_key"' in str(e):
-                    while True:
-                        try:
-                            user = User.objects.create_user(
-                                username=secrets.token_hex(4),
-                                email=kwargs['email']
-                            )
-                            conflict = True
-                            break
-                        except IntegrityError as e:
-                            if 'key value violates unique constraint "auth_user_username_key"' in str(e):
-                                continue
+            else:
+                auth_user = kwargs['auth_user']
 
-            SSO_User.objects.create_user(
-                sso=kwargs['sso'],
+            user = SSO_User.objects.create_user(
+                sso_provider=kwargs['sso_provider'],
                 sso_id=kwargs['sso_id'],
                 username=kwargs['username'],
                 email=kwargs['email'],
-                user=user
+                auth_user=auth_user
             )
             if kwargs['image_link'] is not None:
                 Avatar.objects.create(user=user, link=kwargs['image_link'])
@@ -162,13 +160,12 @@ class Avatar(models.Model):
 
 
 class SSO_User(models.Model):
-    sso = models.CharField(
-        "sso",
+    sso_provider = models.CharField(
+        "sso_provider",
         max_length=8,
         help_text="Required. The SSO that was used to signup/login."
     )
 
-    sso_id = models.IntegerField("sso_id", help_text="Required. An unique identifier at the SSO.")
     username_validator = UnicodeUsernameValidator()
     username = models.CharField(
         "username",
@@ -178,10 +175,11 @@ class SSO_User(models.Model):
         validators=[username_validator],
         error_messages={
             "unique": "A user with that username already exists.",
-        },
+        }
     )
     email = models.EmailField("email address", blank=True)
-    user = models.OneToOneField(User, on_delete=models.CASCADE, unique=True)
+    sso_id = models.IntegerField("sso_id", help_text="Required. An unique identifier at the SSO.")
+    auth_user = models.OneToOneField(User, on_delete=models.CASCADE, unique=True)
 
     objects = SSO_UserManager()
 
