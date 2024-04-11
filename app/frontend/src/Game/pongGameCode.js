@@ -5,24 +5,12 @@ import { Player } from "./Player1";
 import { Cpu, Opponent } from "./Player2";
 import { MyWebSocket, sendMessage } from "../functions/websocket";
 import { multiplayerMessageHandler } from "../functions/websocket";
-import { startGameAnimation } from "./animations";
-import { updateVariables } from "./variables";
-import {
-    ScreenWidth,
-    ScreenHeight,
-    keys,
-    PaddleHeight,
-    PaddleWidth,
-} from "./variables";
+import { gameConfettiAnimation, gameStartAnimation } from "./animations";
+import { GoalWidth, PaddleStartX, updateVariables } from "./variables";
+import { ScreenWidth, ScreenHeight, keys, PaddleHeight, PaddleWidth } from "./variables";
 
-export function createGameObject(
-    canvas,
-    gameMode,
-    lobbySize,
-    userInfo,
-    userData
-) {
-    const ctx = canvas.getContext('2d');
+export function createGameObject(canvas, gameMode, lobbySize, userInfo, userData) {
+    const ctx = canvas.getContext("2d");
 
     clearBackground(ctx);
     updateVariables(canvas);
@@ -48,20 +36,19 @@ export function createGameObject(
 export async function startGame(game, setUserQueue, setUserData, setGameOver) {
     switch (game.mode) {
         case "single-player":
-            await startGameAnimation(game);
+            await gameStartAnimation(game);
             game.last_time = Date.now();
-            singleplayerGameLoop(game, setGameOver);
+            await singleplayerGameLoop(game);
+            await gameConfettiAnimation(game);
+            setGameOver(true);
             break;
         case "multiplayer":
-            multiplayerMessageHandler(
-                MyWebSocket,
-                game,
-                setUserQueue,
-                setUserData
-            );
-            await startGameAnimation(game);
+            multiplayerMessageHandler(MyWebSocket, game, setUserQueue, setUserData);
+            await gameStartAnimation(game);
             game.last_time = Date.now();
-            multiplayerGameLoop(game, setGameOver);
+            await multiplayerGameLoop(game);
+            await gameConfettiAnimation(game);
+            setGameOver(true);
             break;
     }
 }
@@ -70,36 +57,36 @@ function createSinglePlayerGame(ctx, userInfo, lobbySize) {
     const player1 =
         lobbySize == 1
             ? new Player({
-                  x: 0.05 * ScreenWidth,
+                  x: PaddleStartX,
                   y: ScreenHeight / 2 - PaddleHeight / 2,
                   color: "red",
                   keyUp: "ArrowUp",
                   keyDown: "ArrowDown",
-                  id: userInfo.id,
+                  info: userInfo,
               })
             : new Player({
-                  x: 0.05 * ScreenWidth,
+                  x: PaddleStartX,
                   y: ScreenHeight / 2 - PaddleHeight / 2,
                   color: "red",
                   keyUp: "w",
                   keyDown: "s",
-                  id: userInfo.id,
+                  info: userInfo,
               });
 
     const player2 =
         lobbySize == 1
             ? new Cpu({
-                  x: ScreenWidth - 0.05 * ScreenWidth - PaddleWidth,
+                  x: ScreenWidth - PaddleStartX - PaddleWidth,
                   y: ScreenHeight / 2 - PaddleHeight / 2,
                   color: "blue",
               })
             : new Player({
-                  x: ScreenWidth - 0.05 * ScreenWidth - PaddleWidth,
+                  x: ScreenWidth - PaddleStartX - PaddleWidth,
                   y: ScreenHeight / 2 - PaddleHeight / 2,
                   color: "blue",
                   keyUp: "ArrowUp",
                   keyDown: "ArrowDown",
-                  id: 0,
+                  info: 0,
               });
 
     return new Game({
@@ -123,37 +110,37 @@ function createMultiPlayerGame(ctx, userData, userInfo, lobbySize) {
 
     if (host_id === userInfo.id) {
         player1 = new Player({
-            x: 0.05 * ScreenWidth,
+            x: PaddleStartX,
             y: ScreenHeight / 2 - PaddleHeight / 2,
             color: "red",
             keyUp: "ArrowUp",
             keyDown: "ArrowDown",
-            id: userInfo.id,
+            info: userInfo,
         });
         player2 = new Opponent({
-            x: ScreenWidth - 0.05 * ScreenWidth - PaddleWidth,
+            x: ScreenWidth - PaddleStartX - PaddleWidth,
             y: ScreenHeight / 2 - PaddleHeight / 2,
             color: "blue",
             keyUp: "ArrowUp",
             keyDown: "ArrowDown",
-            id: 0,
+            info: 0,
         });
     } else {
         player1 = new Player({
-            x: ScreenWidth - 0.05 * ScreenWidth - PaddleWidth,
+            x: ScreenWidth - PaddleStartX - PaddleWidth,
             y: ScreenHeight / 2 - PaddleHeight / 2,
             color: "blue",
             keyUp: "ArrowUp",
             keyDown: "ArrowDown",
-            id: userInfo.id,
+            info: userInfo,
         });
         player2 = new Opponent({
-            x: 0.05 * ScreenWidth,
+            x: PaddleStartX,
             y: ScreenHeight / 2 - PaddleHeight / 2,
             color: "red",
             keyUp: "ArrowUp",
             keyDown: "ArrowDown",
-            id: 0,
+            info: 0,
         });
     }
 
@@ -172,131 +159,125 @@ function createMultiPlayerGame(ctx, userData, userInfo, lobbySize) {
     });
 }
 
-function singleplayerGameLoop(game, setGameOver) {
-	if (game.over) {
-		setGameOver(true);
-		return;
-	} else if (!game.paused) {
-        let current_time = Date.now();
-        let dt = (current_time - game.last_time) / 1000;
+function singleplayerGameLoop(game) {
+    return new Promise((resolve) => {
+        const playPong = () => {
+            if (!game.paused) {
+                let current_time = Date.now();
+                let dt = (current_time - game.last_time) / 1000;
 
-        clearBackground(game.ctx);
-        drawGoal(game.ctx, 0, 0.04 * ScreenWidth, "white");
-        drawGoal(
-            game.ctx,
-            ScreenWidth - 0.04 * ScreenWidth,
-            ScreenWidth,
-            "white"
-        );
+                clearBackground(game.ctx);
+                game.drawGoal(0, GoalWidth, "white");
+                game.drawGoal(ScreenWidth - GoalWidth, ScreenWidth, "white");
 
-        game.ball.update(game, dt);
-        game.player1.update(dt);
+                game.ball.update(game, dt);
+                game.player1.update(dt);
 
-        if (game.lobbySize == 1) {
-            game.player2.update(game.ball, dt);
-        } else if (game.lobbySize == 2) {
-            game.player2.update(dt);
-        }
+                if (game.lobbySize == 1) {
+                    game.player2.update(game.ball, dt);
+                } else if (game.lobbySize == 2) {
+                    game.player2.update(dt);
+                }
 
-        checkPlayer1Collision(game.ball, game.player1);
-        checkPlayer2Collision(game.ball, game.player2);
+                checkPlayer1Collision(game.ball, game.player1);
+                checkPlayer2Collision(game.ball, game.player2);
 
-        drawScore(game.ctx, game.player1, ScreenWidth / 2 - 100);
-        drawScore(game.ctx, game.player2, ScreenWidth / 2 + 100);
+                game.drawScore(game.player1, ScreenWidth / 2 - 100);
+                game.drawScore(game.player2, ScreenWidth / 2 + 100);
 
-        if (game.player1.score === 5 || game.player2.score === 5) {
-            console.log("Game ended");
-            setGameOver(true);
-            return;
-        }
+                if (game.player1.score === 5 || game.player2.score === 5) {
+                    game.winner =
+                        game.player1.score > game.player2.score
+                            ? game.player1.info.username
+                            : game.lobbySize == 1
+                            ? "Computer"
+                            : "Player 2";
+                    game.over = true;
+                    resolve();
+                }
 
-        game.ball.draw(game.ctx);
-        game.player1.draw(game.ctx);
-        game.player2.draw(game.ctx);
-    }
+                game.ball.draw(game.ctx);
+                game.player1.draw(game.ctx);
+                game.player2.draw(game.ctx);
+            }
 
-    game.last_time = Date.now();
+            game.last_time = Date.now();
 
-    window.requestAnimationFrame(() => singleplayerGameLoop(game, setGameOver));
+            if (!game.over) {
+                window.requestAnimationFrame(playPong);
+            }
+        };
+
+        window.requestAnimationFrame(playPong);
+    });
 }
 
-function multiplayerGameLoop(game, setGameOver) {
-    if (game.over || !MyWebSocket.ws) {
-        setGameOver(true);
-        return;
-    } else if (!game.paused) {
-        let current_time = Date.now();
-        let dt = (current_time - game.last_time) / 1000;
+function multiplayerGameLoop(game) {
+	return new Promise((resolve) => {
+        const playPong = () => {
+            if (game.over || !MyWebSocket.ws) {
+				resolve();
+			} else if (!game.paused) {
+				let current_time = Date.now();
+				let dt = (current_time - game.last_time) / 1000;
+		
+				clearBackground(game.ctx);
+				game.drawGoal(0, GoalWidth, "white");
+				game.drawGoal(ScreenWidth - GoalWidth, ScreenWidth, "white");
+		
+				game.ball.update(game, dt);
+				game.player1.update(dt);
+		
+				if (game.player1.info.id === game.host_id) {
+					sendHostMessage(game);
+				} else {
+					sendNonHostMessage(game);
+				}
+		
+				if (game.player1.info.id === game.host_id) {
+					checkPlayer1Collision(game.ball, game.player1);
+					checkPlayer2Collision(game.ball, game.player2);
+				}
+		
+				if (game.player1.info.id === game.host_id) {
+					game.drawScore(game.player1, ScreenWidth / 2 - 0.08 * ScreenWidth);
+					game.drawScore(game.player2, ScreenWidth / 2 + 0.08 * ScreenWidth);
+				} else {
+					game.drawScore(game.player2, ScreenWidth / 2 - 0.08 * ScreenWidth);
+					game.drawScore(game.player1, ScreenWidth / 2 + 0.08 * ScreenWidth);
+				}
+		
+				if (game.player1.info.id === game.host_id) {
+					sendHostMessage(game);
+				} else {
+					sendNonHostMessage(game);
+				}
+		
+				if (game.player1.info.id === game.host_id &&
+				   (game.player1.score === 5 || game.player2.score === 5)) {
+					game.winner =
+						game.player1.score > game.player2.score
+							? game.player1.info.username
+							: game.player2.info.username
+					game.over = true;
+					sendHostMessage(game);
+					resolve();
+				}
+		
+				game.ball.draw(game.ctx);
+				game.player1.draw(game.ctx);
+				game.player2.draw(game.ctx);
+			}
+		
+			game.last_time = Date.now();
 
-        clearBackground(game.ctx);
-        drawGoal(game.ctx, 0, 0.04 * ScreenWidth, "white");
-        drawGoal(
-            game.ctx,
-            ScreenWidth - 0.04 * ScreenWidth,
-            ScreenWidth,
-            "white"
-        );
+            if (!game.over) {
+                window.requestAnimationFrame(playPong);
+            }
+        };
 
-        game.ball.update(game, dt);
-        game.player1.update(dt);
-
-        if (game.player1.id === game.host_id) {
-            sendHostMessage(game);
-        } else {
-            sendNonHostMessage(game);
-        }
-
-        if (game.player1.id === game.host_id) {
-            checkPlayer1Collision(game.ball, game.player1);
-            checkPlayer2Collision(game.ball, game.player2);
-        }
-
-        if (game.player1.id === game.host_id) {
-            drawScore(
-                game.ctx,
-                game.player1,
-                ScreenWidth / 2 - 0.08 * ScreenWidth
-            );
-            drawScore(
-                game.ctx,
-                game.player2,
-                ScreenWidth / 2 + 0.08 * ScreenWidth
-            );
-        } else {
-            drawScore(
-                game.ctx,
-                game.player2,
-                ScreenWidth / 2 - 0.08 * ScreenWidth
-            );
-            drawScore(
-                game.ctx,
-                game.player1,
-                ScreenWidth / 2 + 0.08 * ScreenWidth
-            );
-        }
-
-        if (game.player1.id === game.host_id) {
-            sendHostMessage(game);
-        } else {
-            sendNonHostMessage(game);
-        }
-
-        if (
-            game.player1.id === game.host_id &&
-            (game.player1.score === 5 || game.player2.score === 5)
-        ) {
-            setGameOver(true);
-            return;
-        }
-
-        game.ball.draw(game.ctx);
-        game.player1.draw(game.ctx);
-        game.player2.draw(game.ctx);
-    }
-
-    game.last_time = Date.now();
-
-    window.requestAnimationFrame(() => multiplayerGameLoop(game, setGameOver));
+        window.requestAnimationFrame(playPong);
+    });
 }
 
 export function clearBackground(ctx) {
@@ -304,24 +285,10 @@ export function clearBackground(ctx) {
     ctx.fillRect(0, 0, ScreenWidth, ScreenHeight);
 }
 
-export function drawGoal(ctx, xi, xf, color) {
-    ctx.beginPath();
-    ctx.rect(xi, 0, xf, ScreenHeight);
-    ctx.fillStyle = color;
-    ctx.fill();
-}
-
-export function drawScore(ctx, player, x) {
-    ctx.font = `${0.05 * ScreenWidth}px Arial`;
-    ctx.fillStyle = "white";
-    ctx.fillAlign = "center";
-    ctx.fillText(player.score, x, 0.08 * ScreenHeight);
-}
-
 export function sendHostMessage(game) {
     const message = {
         game: {
-            id: game.player1.id,
+            id: game.player1.info.id,
             screen_width: ScreenWidth,
             screen_height: ScreenHeight,
             player1_x: game.player1.x,
@@ -334,6 +301,7 @@ export function sendHostMessage(game) {
             player2_score: game.player2.score,
             paused: game.paused,
             over: game.over,
+			winner: game.winner,
         },
     };
 
@@ -343,7 +311,7 @@ export function sendHostMessage(game) {
 export function sendNonHostMessage(game) {
     const message = {
         game: {
-            id: game.player1.id,
+            id: game.player1.info.id,
             screen_width: ScreenWidth,
             screen_height: ScreenHeight,
             player1_x: game.player1.x,

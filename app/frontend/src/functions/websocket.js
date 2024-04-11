@@ -1,5 +1,5 @@
-import { ScreenHeight, ScreenWidth } from "../Game/variables";
-import { clearBackground, drawGoal, drawScore } from "../Game/pongGameCode";
+import { GoalWidth, ScreenHeight, ScreenWidth } from "../Game/variables";
+import { clearBackground } from "../Game/pongGameCode";
 import { getToken } from "./tokens";
 
 export var MyWebSocket = {};
@@ -61,12 +61,7 @@ export async function connectWebsocket(
     };
 }
 
-export function multiplayerMessageHandler(
-    MyWebSocket,
-    game,
-    setUserQueue,
-    setUserData
-) {
+export function multiplayerMessageHandler(MyWebSocket, game, setUserQueue, setUserData) {
     if (MyWebSocket.ws) {
         MyWebSocket.ws.onmessage = (event) => {
             //console.log("GAME", JSON.parse(event.data));
@@ -77,36 +72,27 @@ export function multiplayerMessageHandler(
                 if (jsonData["type"] === "user.message") {
                     const gameData = jsonData["data"]["game"];
                     game.player2.x =
-                        (gameData["player1_x"] / gameData["screen_width"]) *
-                        ScreenWidth;
+                        (gameData["player1_x"] / gameData["screen_width"]) * ScreenWidth;
                     game.player2.y =
-                        (gameData["player1_y"] / gameData["screen_height"]) *
-                        ScreenHeight;
+                        (gameData["player1_y"] / gameData["screen_height"]) * ScreenHeight;
 
                     if (gameData["id"] == game.host_id) {
-                        game.paused = gameData["paused"];
-                        game.over = gameData["over"];
                         game.ball.x =
-                            (gameData["ball_x"] / gameData["screen_width"]) *
-                            ScreenWidth;
+                            (gameData["ball_x"] / gameData["screen_width"]) * ScreenWidth;
                         game.ball.y =
-                            (gameData["ball_y"] / gameData["screen_height"]) *
-                            ScreenHeight;
+                            (gameData["ball_y"] / gameData["screen_height"]) * ScreenHeight;
                         game.ball.speed_x =
-                            (gameData["ball_speed_x"] /
-                                gameData["screen_width"]) *
-                            ScreenWidth;
+                            (gameData["ball_speed_x"] / gameData["screen_width"]) * ScreenWidth;
                         game.ball.speed_y =
-                            (gameData["ball_speed_y"] /
-                                gameData["screen_height"]) *
-                            ScreenHeight;
+                            (gameData["ball_speed_y"] / gameData["screen_height"]) * ScreenHeight;
                         game.player1.score = gameData["player2_score"];
                         game.player2.score = gameData["player1_score"];
+						game.paused = gameData["paused"];
+                        game.over = gameData["over"];
+						game.winner = gameData["winner"];
 
-                        if (gameData["paused"]) {
-                            game.player1.x = game.player1.initial_x;
-                            game.player1.y = game.player1.initial_y;
-                            updateOpponentScreen(game, gameData);
+                        if (game.paused === true) {
+                            updateOpponentScreen(game);
                         }
                     }
                 }
@@ -135,6 +121,23 @@ export function multiplayerMessageHandler(
     }
 }
 
+function updateOpponentScreen(game) {
+	clearBackground(game.ctx);
+	game.drawGoal(0, GoalWidth, "white");
+	game.drawGoal(ScreenWidth - GoalWidth, ScreenWidth, "white");
+	game.drawScore(game.player2, ScreenWidth / 2 - 0.08 * ScreenWidth);
+	game.drawScore(game.player1, ScreenWidth / 2 + 0.08 * ScreenWidth);
+	
+	if (game.player1.score !== 5 && game.player2.score !== 5) {
+		game.player1.x = game.player1.initial_x;
+		game.player1.y = game.player1.initial_y;
+		game.ball.draw(game.ctx);
+	}
+	
+	game.player1.draw(game.ctx);
+	game.player2.draw(game.ctx);
+}
+
 export function sendMessage(ws, message) {
     if (ws) {
         if (ws.readyState === WebSocket.OPEN) {
@@ -148,15 +151,4 @@ export function closeWebsocket() {
         MyWebSocket.ws.close();
         delete MyWebSocket.ws;
     }
-}
-
-function updateOpponentScreen(game, gameData) {
-    clearBackground(game.ctx);
-    drawGoal(game.ctx, 0, 0.04 * ScreenWidth, "white");
-    drawGoal(game.ctx, ScreenWidth - 0.04 * ScreenWidth, ScreenWidth, "white");
-    drawScore(game.ctx, game.player2, ScreenWidth / 2 - 0.08 * ScreenWidth);
-    drawScore(game.ctx, game.player1, ScreenWidth / 2 + 0.08 * ScreenWidth);
-    game.ball.draw(game.ctx);
-    game.player1.draw(game.ctx);
-    game.player2.draw(game.ctx);
 }

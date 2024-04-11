@@ -3,9 +3,8 @@ import { Outlet } from "react-router-dom";
 import NavButton, { LogoutButton } from "../components/NavButton";
 import { DefaultAvatar } from "../components/Avatar";
 import { UserInfoContext, AuthContext } from "../components/Context";
-import { getToken } from "../functions/tokens";
+import { getToken, decode } from "../functions/tokens";
 import fetchData from "../functions/fetchData";
-import getUserInfo from "../functions/getUserInfo";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
 

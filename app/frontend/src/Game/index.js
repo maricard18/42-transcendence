@@ -1,4 +1,4 @@
-import { startGameAnimation } from "./animations";
+import { gameStartAnimation } from "./animations";
 import { Ball } from "./Ball";
 import { Player } from "./Player1";
 import { Cpu, Opponent } from "./Player2";

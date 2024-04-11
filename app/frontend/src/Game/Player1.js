@@ -7,13 +7,13 @@ import {
 } from "./variables";
 
 export class Player {
-    constructor({x, y, color, keyUp, keyDown, id}) {
+    constructor({x, y, color, keyUp, keyDown, info}) {
         this.x = x;
         this.y = y;
         this.color = color;
         this.keyUp = keyUp;
         this.keyDown = keyDown;
-        this.id = id;
+        this.info = info;
 		this.initial_x = x;
         this.initial_y = y;
         this.width = PaddleWidth;

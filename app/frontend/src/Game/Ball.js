@@ -47,20 +47,22 @@ export class Ball {
     }
 
     reset(game) {
-        this.x = ScreenWidth / 2;
-        this.y = ScreenHeight / 2;
-        game.player1.x = game.player1.initial_x;
-        game.player1.y = game.player1.initial_y;
-        game.player2.x = game.player2.initial_x;
-        game.player2.y = game.player2.initial_y;
-
-        if (game.player1.score > game.player2.score) {
-            this.speed_y = getRandomDirection();
-            this.speed_x = BallSpeedX;
-        } else {
-            this.speed_y = getRandomDirection();
-            this.speed_x = BallSpeedX * -1;
-        }
+		if (game.player1.score !== 5 && game.player2.score !== 5) {
+			this.x = ScreenWidth / 2;
+			this.y = ScreenHeight / 2;
+			game.player1.x = game.player1.initial_x;
+			game.player1.y = game.player1.initial_y;
+			game.player2.x = game.player2.initial_x;
+			game.player2.y = game.player2.initial_y;
+			
+			if (game.player1.score > game.player2.score) {
+				this.speed_y = getRandomDirection();
+				this.speed_x = BallSpeedX;
+			} else {
+				this.speed_y = getRandomDirection();
+				this.speed_x = BallSpeedX * -1;
+			}
+		}
 
         pauseGame(game, 2);
     }
