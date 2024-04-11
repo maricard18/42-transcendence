@@ -125,6 +125,22 @@ services:
     profiles: [ "dev" ]
     restart: on-failure
 
+  # modsecurity-dev:
+  #   container_name: modsecurity-dev
+  #   image: owasp/modsecurity-crs:nginx-alpine
+  #   environment:
+  #     - PROXY=1
+  #   ports:
+  #     - 8080:8080
+  #   networks:
+  #     - modsecurity-proxy
+  #   volumes:
+  #     - ./app/security/proxy.conf:/etc/nginx/conf.d/proxy.conf:ro
+  #   profiles: [ "dev" ]
+  #   depends_on:
+  #     - django-backend-dev
+  #   restart: always
+
   # zap-proxy:
   #   container_name: zap-proxy
   #   image: owasp/zap2docker-stable
@@ -190,6 +206,8 @@ networks:
     driver: bridge
   transcendence-dev:
     driver: bridge
+  modsecurity-proxy:
+    external: true
 
 volumes:
   frontend_data:
