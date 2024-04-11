@@ -50,6 +50,7 @@ INSTALLED_APPS += [
 # User-defined apps
 INSTALLED_APPS += [
     'frontend.apps.FrontendConfig',
+    'api_auth.apps.ApiAuthConfig',
     'api.apps.ApiConfig'
 ]
 
