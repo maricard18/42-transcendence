@@ -1,17 +1,14 @@
-import os
 import secrets
 
 import pyotp
-from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
-from rest_framework import status, viewsets, serializers
+from rest_framework import status, viewsets
 from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
-from .models import Avatar, SSO_User, OTP_Token
-from .permissions import UserPermission, TokenPermission, SSOPermission, OTPPermission
-from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer, AuthUserSerializer, \
-    APITokenObtainPairSerializer, TokenSerializer
+from api_auth.models import Avatar, SSO_User
+from .models import OTP_Token
+from .permissions import UserPermission, OTPPermission
+from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer
 
 
 ######################
@@ -141,208 +138,28 @@ class UserViewSet(viewsets.ViewSet):
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 
 
-#######################
-##### /api/tokens #####
-#######################
-
-class TokenViewSet(viewsets.ViewSet):
-    permission_classes = [TokenPermission]
-
-    @staticmethod
-    def new_token(request):
-        serializer = AuthUserSerializer(data=request.data, partial=True)
-        if serializer.is_valid():
-            username = serializer.validated_data.get('username')
-            email = serializer.validated_data.get('email')
-            try:
-                if username:
-                    user = User.objects.get(username=username)
-                elif email:
-                    user = User.objects.get(email=email)
-                else:
-                    return Response({
-                        'errors': {
-                            'message': "Field 'username' or 'email' is required",
-                            'code': status.HTTP_400_BAD_REQUEST
-                        }
-                    }, status=status.HTTP_400_BAD_REQUEST)
-            except User.DoesNotExist:
-                return Response({
-                    'errors': {
-                        'message': 'Resource Not Found',
-                        'code': status.HTTP_404_NOT_FOUND
-                    }
-                }, status=status.HTTP_404_NOT_FOUND)
-            user = authenticate(username=AuthUserSerializer(user).data.get('username'),
-                                password=serializer.validated_data.get('password'))
-            if user is not None:
-                refresh_token = APITokenObtainPairSerializer.get_token(user)
-
-                return Response({
-                    'access_token': str(refresh_token.access_token),
-                    'token_type': "Bearer",
-                    'expires_in': refresh_token.access_token.lifetime.seconds,
-                    'scope': refresh_token.payload.get('scope'),
-                    'refresh_token': str(refresh_token)
-                }, status=status.HTTP_200_OK)
-            return Response({
-                'errors': {
-                    'message': 'Unauthorized',
-                    'code': status.HTTP_401_UNAUTHORIZED
-                }
-            }, status=status.HTTP_401_UNAUTHORIZED)
-        return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-    @staticmethod
-    def refresh_token(request):
-        try:
-            refresh_token = RefreshToken(request.data.get('refresh_token'))
-        except TokenError as e:
-            return Response({
-                'errors': {
-                    'message': e.args[0],
-                    'code': status.HTTP_400_BAD_REQUEST
-                }
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        return Response({
-            'access_token': str(refresh_token.access_token),
-            'token_type': "Bearer",
-            'expires_in': refresh_token.access_token.lifetime.seconds,
-            'scope': refresh_token.payload.get('scope'),
-            'refresh_token': str(refresh_token)
-        }, status=status.HTTP_200_OK)
-
-    # POST /api/tokens
-    def create(self, request):
-        serializer = TokenSerializer(data=request.data)
-        if serializer.is_valid():
-            if request.data.get('grant_type') == 'password':
-                return self.new_token(request)
-            elif request.data.get('grant_type') == 'refresh_token':
-                return self.refresh_token(request)
-        return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-
-#######################
-#####  /api/sso   #####
-#######################
-
-class SSOViewSet(viewsets.ViewSet):
-    permission_classes = [SSOPermission]
-
-    @classmethod
-    def check_params(cls, **kwargs):
-        action = kwargs.get("action")
-        user_id = kwargs.get("user_id")
-        code = kwargs.get("code")
-
-        if not action or not code:
-            raise serializers.ValidationError({
-                'errors': {
-                    'message': "'action' and 'code' query parameters are required.",
-                    'code': status.HTTP_400_BAD_REQUEST
-                }
-            })
-
-        if action not in ['link', 'register']:
-            raise serializers.ValidationError({
-                'errors': {
-                    'message': "'action' query parameter must be 'link' or 'register'.",
-                    'code': status.HTTP_400_BAD_REQUEST
-                }
-            })
-
-        if action == 'link' and not user_id:
-            raise serializers.ValidationError({
-                'errors': {
-                    'message': "'user_id' query parameter is required when linking.",
-                    'code': status.HTTP_400_BAD_REQUEST
-                }
-            })
-
-    @classmethod
-    def sso_101010(cls, request):
-        action = request.GET.get('action', None)
-        user_id = request.GET.get('user_id', None)
-        code = request.GET.get('code', None)
-
-        try:
-            cls.check_params(action=action, user_id=user_id, code=code)
-            auth_user = User.objects.get(pk=user_id)
-        except serializers.ValidationError as e:
-            return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
-        except User.DoesNotExist:
-            return Response({
-                'errors': {
-                    'message': 'User Not Found',
-                    'code': status.HTTP_404_NOT_FOUND
-                }
-            }, status=status.HTTP_404_NOT_FOUND)
-
-        import requests
-
-        response = requests.post('https://api.intra.42.fr/oauth/token', data={
-            'grant_type': 'authorization_code',
-            'client_id': os.environ.get('42_CLIENT_ID'),
-            'client_secret': os.environ.get('42_CLIENT_SECRET'),
-            'code': code,
-            'redirect_uri': os.environ.get('42_REDIRECT_URI')
-        })
-        if response.status_code == 200:
-            user_info = requests.get('https://api.intra.42.fr/v2/me',
-                                     headers={'Authorization': 'Bearer ' + response.json()['access_token']}).json()
-            user, created, conflict = SSO_User.objects.get_or_create(
-                action=action,
-                auth_user=auth_user,
-                sso='101010',
-                sso_id=user_info.get('id'),
-                username=user_info.get('login'),
-                email=user_info.get('email'),
-                image_link=user_info.get('image').get('link')
-            )
-
-            if action == 'link':
-                return Response({}, status=status.HTTP_201_CREATED)
-            else:
-                refresh_token = APITokenObtainPairSerializer.get_token(user)
-
-                return Response({
-                    'access_token': str(refresh_token.access_token),
-                    'token_type': "Bearer",
-                    'expires_in': refresh_token.access_token.lifetime.seconds,
-                    'scope': refresh_token.payload.get('scope'),
-                    'refresh_token': str(refresh_token)
-                }, status=status.HTTP_200_OK if conflict is False else status.HTTP_409_CONFLICT)
-        return Response(response.json(), status=response.status_code)
-
-    def callback(self, request, pk=None):
-        if str(pk) == '101010':
-            return self.sso_101010(request)
-        else:
-            return Response({
-                'errors': {
-                    'message': 'Unauthorized',
-                    'code': status.HTTP_401_UNAUTHORIZED
-                }
-            }, status=status.HTTP_401_UNAUTHORIZED)
-
-
-#######################
-#####  /api/otp   #####
-#######################
+##############################
+##### /api/users/:id/otp #####
+##############################
 
 class OTPViewSet(viewsets.ViewSet):
     permission_classes = [OTPPermission]
 
-    # POST /api/otp
-    def create(self, request):
-        user = User.objects.get(pk=request.user.id)
-        try:
-            OTP_Token.objects.get(user=user)
+    # POST /api/users/:id/otp
+    def create(self, request, pk=None):
+        if int(request.user.id) != int(pk):
             return Response({
                 'errors': {
-                    'message': "User already has an active OTP.",
+                    'message': 'Unauthorized',
+                    'code': status.HTTP_401_UNAUTHORIZED
+                }
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        user = User.objects.get(pk=request.user.id)
+        try:
+            OTP_Token.objects.get(auth_user=user)
+            return Response({
+                'errors': {
+                    'message': "User already has an active OTP",
                     'code': status.HTTP_409_CONFLICT
                 }
             }, status=status.HTTP_409_CONFLICT)
@@ -355,9 +172,9 @@ class OTPViewSet(viewsets.ViewSet):
         url = pyotp.totp.TOTP(otp.token).provisioning_uri(name=otp.auth_user.username, issuer_name='ft_transcendence')
         return Response({
             'url': url
-        }, status=status.HTTP_200_OK)
+        }, status=status.HTTP_201_CREATED)
 
-    # GET /api/otp/:id
+    # GET /api/users/:id/otp
     def retrieve(self, request, pk=None):
         if int(request.user.id) != int(pk):
             return Response({
@@ -369,7 +186,7 @@ class OTPViewSet(viewsets.ViewSet):
         if request.GET.get('code') is None:
             return Response({
                 'errors': {
-                    'message': "Query parameter 'code' is required.",
+                    'message': "Query parameter 'code' is required",
                     'code': status.HTTP_400_BAD_REQUEST
                 }
             }, status=status.HTTP_400_BAD_REQUEST)
@@ -387,7 +204,7 @@ class OTPViewSet(viewsets.ViewSet):
             'valid': totp.now() == int(request.GET.get('code'))
         }, status=status.HTTP_200_OK)
 
-    # DELETE /api/otp/:id
+    # DELETE /api/users/:id/otp
     def destroy(self, request, pk=None):
         if int(request.user.id) != int(pk):
             return Response({

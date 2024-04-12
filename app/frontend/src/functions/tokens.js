@@ -8,7 +8,7 @@ export async function createToken(userData, setAuthed) {
     formDataToSend.append("password", userData.password);
 
     const response = await fetchData(
-        "/api/tokens",
+        "/auth/token",
         "POST",
         null,
         formDataToSend
@@ -65,7 +65,7 @@ export async function refreshToken(setAuthed) {
     formDataToSend.append("refresh_token", refreshToken);
 
     const response = await fetchData(
-        "/api/tokens",
+        "/auth/token",
         "POST",
         null,
         formDataToSend

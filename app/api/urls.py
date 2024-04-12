@@ -1,11 +1,14 @@
+from django.urls import path
+
 from .routers import APIRouter
-from .views import UserViewSet, TokenViewSet, SSOViewSet, OTPViewSet
+from .views import UserViewSet, OTPViewSet
 
 router = APIRouter()
 
-router.register(r'tokens', TokenViewSet, basename='token')
 router.register(r'users', UserViewSet, basename='user')
-router.register(r'sso', SSOViewSet, basename='sso')
-router.register(r'otp', OTPViewSet, basename='otp')
 
-urlpatterns = router.urls
+urlpatterns = [
+    path('users/<int:pk>/otp', OTPViewSet.as_view({'get': 'retrieve', 'post': 'create', 'delete': 'destroy'}),
+         name='user_otp'),
+]
+urlpatterns += router.urls

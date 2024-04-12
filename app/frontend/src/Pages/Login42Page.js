@@ -1,10 +1,9 @@
-import React, { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, {useContext, useEffect} from "react";
+import {useNavigate} from "react-router-dom";
 import fetchData from "../functions/fetchData";
-import handleResponse from "../functions/authenticationErrors";
-import { setToken } from "../functions/tokens";
-import { AuthContext } from "../components/Context";
-import { LoadingIcon } from "../components/Icons";
+import {setToken} from "../functions/tokens";
+import {AuthContext} from "../components/Context";
+import {LoadingIcon} from "../components/Icons";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
 
@@ -17,7 +16,7 @@ export default function Login42Page() {
 			const query = window.location.search;
 
             const response = await fetchData(
-                "/api/sso/101010/callback" + query + "&action=register",
+                "/auth/sso/101010/callback" + query + "&action=register",
                 "GET",
                 null
             );

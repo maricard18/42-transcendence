@@ -18,7 +18,7 @@ django==4.2.10
 
 # WebSocket support for Django: Channels enables bidirectional communication over WebSockets.
 channels==4.0.0
-channels_redis==4.2.0
+channels-redis==4.2.0
 
 # Django extension for RESTful APIs: Django Rest Framework streamlines API development and management.
 djangorestframework==3.14.0
