@@ -30,7 +30,7 @@ export class Ball {
         this.x += this.speed_x * dt;
         this.y += this.speed_y * dt;
 
-		if (game.lobbySize != 4) {
+		if (game.mode === "single-player" || game.lobbySize == 2) {
 			if ((this.y - this.radius <= 0 && this.speed_y < 0) ||
             	(this.y + this.radius >= ScreenHeight && this.speed_y > 0)) {
             	this.speed_y *= -1;
@@ -47,10 +47,10 @@ export class Ball {
 			if (this.x + this.radius >= ScreenWidth && this.speed_x > 0) {
 				game.player1.score += 1;
 				this.reset(game);
-			} else if (this.y + this.radius >= ScreenHeight && this.speed_y > 0) {
+			} else if (this.x - this.radius <= 0 && this.speed_x < 0) {
 				game.player2.score += 1;
 				this.reset(game);
-			} else if (this.x - this.radius <= 0 && this.speed_x < 0) {
+			} else if (this.y + this.radius >= ScreenHeight && this.speed_y > 0) {
 				game.player3.score += 1;
 				this.reset(game);
 			} else if (this.y - this.radius <= 0 && this.speed_y < 0) {
@@ -83,9 +83,10 @@ export class Ball {
 				this.speed_y = getRandomDirection();
 				this.speed_x = BallSpeedX * -1;
 			}
+			
+			pauseGame(game, 2);
 		}
 
-        pauseGame(game, 2);
     }
 }
 

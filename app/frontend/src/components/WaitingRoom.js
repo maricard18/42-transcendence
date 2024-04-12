@@ -28,7 +28,7 @@ export default function MultiplayerWaitingRoom() {
     const { setAuthed } = useContext(AuthContext);
     const { setPreviousLocation } = useContext(PreviousLocationContext);
     const { userQueue, setUserQueue } = useContext(UserQueueContext);
-    const { userData, setUserData } = useContext(UserDataContext);
+    const { setUserData } = useContext(UserDataContext);
     const [loading, setLoading] = useState(true);
     const [userReadyList, setUserReadyList] = useState({});
     const [lobbyFull, setLobbyfull] = useState(false);
@@ -44,7 +44,8 @@ export default function MultiplayerWaitingRoom() {
                 setUserQueue,
                 setUserReadyList,
                 setUserData,
-                setWsCreated
+                setWsCreated,
+				lobbySize
             );
 			setIsConnecting(false);
             setLoading(false);

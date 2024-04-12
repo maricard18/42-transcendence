@@ -20,7 +20,7 @@ export function createSinglePlayerGameObjects(ctx, userInfo, lobbySize) {
                   color: "red",
                   keyUp: "w",
                   keyDown: "s",
-                  info: userInfo,
+                  info: 0,
               });
 
     const player2 =
@@ -57,7 +57,6 @@ export function createSinglePlayerGameObjects(ctx, userInfo, lobbySize) {
 export function createMultiPlayer2GameObjects(ctx, userData, userInfo, lobbySize) {
 	const host_id = userData[0].id;
     let player1, player2;
-	console.log(userData);
 
     if (host_id === userInfo.id) {
         player1 = new Player({
@@ -66,7 +65,7 @@ export function createMultiPlayer2GameObjects(ctx, userData, userInfo, lobbySize
             color: "red",
             keyUp: "ArrowUp",
             keyDown: "ArrowDown",
-            info: userInfo,
+            info: userData[0],
         });
         player2 = new Opponent({
             x: ScreenWidth - PaddleStartX - PaddleWidth,
@@ -74,24 +73,24 @@ export function createMultiPlayer2GameObjects(ctx, userData, userInfo, lobbySize
             color: "blue",
             keyUp: "ArrowUp",
             keyDown: "ArrowDown",
-            info: 2,
+            info: userData[1],
         });
     } else {
-        player1 = new Player({
+		player1 = new Opponent({
+			x: PaddleStartX,
+			y: ScreenHeight / 2 - PaddleHeight / 2,
+			color: "red",
+			keyUp: "ArrowUp",
+			keyDown: "ArrowDown",
+			info: userData[0],
+		});
+        player2 = new Player({
             x: ScreenWidth - PaddleStartX - PaddleWidth,
             y: ScreenHeight / 2 - PaddleHeight / 2,
             color: "blue",
             keyUp: "ArrowUp",
             keyDown: "ArrowDown",
-            info: userInfo,
-        });
-        player2 = new Opponent({
-            x: PaddleStartX,
-            y: ScreenHeight / 2 - PaddleHeight / 2,
-            color: "red",
-            keyUp: "ArrowUp",
-            keyDown: "ArrowDown",
-            info: 1,
+            info: userData[1],
         });
     }
 
@@ -121,23 +120,23 @@ export function createMultiPlayer4GameObjects(ctx, userData, userInfo, lobbySize
             color: "red",
             keyUp: "ArrowUp",
             keyDown: "ArrowDown",
-            info: userInfo,
+            info: userData[0],
         });
-		player2 = new InvertedOpponent({
+		player2 = new Opponent({
+			x: ScreenWidth - PaddleStartX - PaddleWidth,
+			y: ScreenHeight / 2 - PaddleHeight / 2,
+			color: "blue",
+			keyUp: "ArrowUp",
+			keyDown: "ArrowDown",
+			info: userData[1],
+		});
+		player3 = new InvertedOpponent({
 			x: ScreenWidth / 2 - PaddleWidth / 2,
             y: ScreenHeight - PaddleStartX - PaddleHeight,
             color: "yellow",
             keyRigth: "ArrowRigth",
             keyLeft: "ArrowLeft",
-            info: 2,
-        });
-        player3 = new Opponent({
-            x: ScreenWidth - PaddleStartX - PaddleWidth,
-            y: ScreenHeight / 2 - PaddleHeight / 2,
-            color: "blue",
-            keyUp: "ArrowUp",
-            keyDown: "ArrowDown",
-            info: 3,
+            info: userData[2],
         });
 		player4 = new InvertedOpponent({
             x: ScreenWidth / 2 - PaddleWidth / 2,
@@ -145,106 +144,106 @@ export function createMultiPlayer4GameObjects(ctx, userData, userInfo, lobbySize
             color: "green",
             keyRigth: "ArrowRigth",
             keyLeft: "ArrowLeft",
-            info: 4,
+            info: userData[3],
         });
     } else if (userInfo.id === userData[1].id) {
-		player1 = new InvertedPlayer({
-            x: ScreenWidth / 2 - PaddleWidth / 2,
-            y: ScreenHeight - PaddleStartX - PaddleHeight,
-            color: "yellow",
-            keyRight: "ArrowRight",
-            keyLeft: "ArrowLeft",
-            info: userInfo,
-        });
-        player2 = new Opponent({
-            x: ScreenWidth - PaddleStartX - PaddleWidth,
-            y: ScreenHeight / 2 - PaddleHeight / 2,
-            color: "blue",
-            keyUp: "ArrowUp",
-            keyDown: "ArrowDown",
-            info: 3,
-        });
-		player3 = new InvertedOpponent({
-            x: ScreenWidth / 2 - PaddleWidth / 2,
-            y: PaddleStartX,
-            color: "green",
-            keyRight: "ArrowRight",
-            keyLeft: "ArrowLeft",
-            info: 4,
-        });
-		player4 = new Opponent({
+		player1 = new Opponent({
             x: PaddleStartX,
             y: ScreenHeight / 2 - PaddleHeight / 2,
             color: "red",
             keyUp: "ArrowUp",
             keyDown: "ArrowDown",
-            info: 1,
+            info: userData[0],
+        });
+		player2 = new Player({
+			x: ScreenWidth - PaddleStartX - PaddleWidth,
+			y: ScreenHeight / 2 - PaddleHeight / 2,
+			color: "blue",
+			keyUp: "ArrowUp",
+			keyDown: "ArrowDown",
+			info: userData[1],
+		});
+		player3 = new InvertedOpponent({
+			x: ScreenWidth / 2 - PaddleWidth / 2,
+            y: ScreenHeight - PaddleStartX - PaddleHeight,
+            color: "yellow",
+            keyRigth: "ArrowRigth",
+            keyLeft: "ArrowLeft",
+            info: userData[2],
+        });
+		player4 = new InvertedOpponent({
+            x: ScreenWidth / 2 - PaddleWidth / 2,
+            y: PaddleStartX,
+            color: "green",
+            keyRigth: "ArrowRigth",
+            keyLeft: "ArrowLeft",
+            info: userData[3],
         });
     } else if (userInfo.id === userData[2].id) {
-        player1 = new Player({
-            x: ScreenWidth - PaddleStartX - PaddleWidth,
-            y: ScreenHeight / 2 - PaddleHeight / 2,
-            color: "blue",
-            keyUp: "ArrowUp",
-            keyDown: "ArrowDown",
-            info: userInfo,
-        });
-		player2 = new InvertedOpponent({
-            x: ScreenWidth / 2 - PaddleWidth / 2,
-            y: PaddleStartX,
-            color: "green",
-            keyRight: "ArrowRight",
-            keyLeft: "ArrowLeft",
-            info: 4,
-        });
-		player3 = new Opponent({
+		player1 = new Opponent({
             x: PaddleStartX,
             y: ScreenHeight / 2 - PaddleHeight / 2,
             color: "red",
             keyUp: "ArrowUp",
             keyDown: "ArrowDown",
-            info: 1,
+            info: userData[0],
+        });
+		player2 = new Opponent({
+			x: ScreenWidth - PaddleStartX - PaddleWidth,
+			y: ScreenHeight / 2 - PaddleHeight / 2,
+			color: "blue",
+			keyUp: "ArrowUp",
+			keyDown: "ArrowDown",
+			info: userData[1],
+		});
+		player3 = new InvertedPlayer({
+			x: ScreenWidth / 2 - PaddleWidth / 2,
+            y: ScreenHeight - PaddleStartX - PaddleHeight,
+            color: "yellow",
+            keyRigth: "ArrowRigth",
+            keyLeft: "ArrowLeft",
+            info: userData[2],
         });
 		player4 = new InvertedOpponent({
             x: ScreenWidth / 2 - PaddleWidth / 2,
-            y: ScreenHeight - PaddleStartX - PaddleHeight,
-            color: "yellow",
-            keyRight: "ArrowRight",
+            y: PaddleStartX,
+            color: "green",
+            keyRigth: "ArrowRigth",
             keyLeft: "ArrowLeft",
-            info: 2,
+            info: userData[3],
         });
     } else if (userInfo.id === userData[3].id) {
-		player2 = new InvertedPlayer({
-            x: ScreenWidth / 2 - PaddleWidth / 2,
-            y: PaddleStartX,
-            color: "green",
-            keyRight: "ArrowRight",
-            keyLeft: "ArrowLeft",
-            info: userInfo,
-        });
-		player3 = new Opponent({
+		player1 = new Opponent({
             x: PaddleStartX,
             y: ScreenHeight / 2 - PaddleHeight / 2,
             color: "red",
             keyUp: "ArrowUp",
             keyDown: "ArrowDown",
-            info: 1,
+            info: userData[0],
         });
-		player4 = new InvertedOpponent({
-            x: ScreenWidth / 2 - PaddleWidth / 2,
+		player2 = new Opponent({
+			x: ScreenWidth - PaddleStartX - PaddleWidth,
+			y: ScreenHeight / 2 - PaddleHeight / 2,
+			color: "blue",
+			keyUp: "ArrowUp",
+			keyDown: "ArrowDown",
+			info: userData[1],
+		});
+		player3 = new InvertedOpponent({
+			x: ScreenWidth / 2 - PaddleWidth / 2,
             y: ScreenHeight - PaddleStartX - PaddleHeight,
             color: "yellow",
-            keyRight: "ArrowRight",
+            keyRigth: "ArrowRigth",
             keyLeft: "ArrowLeft",
-            info: 2,
+            info: userData[2],
         });
-		player1 = new Opponent({
-            x: ScreenWidth - PaddleStartX - PaddleWidth,
-            y: ScreenHeight / 2 - PaddleHeight / 2,
-            color: "blue",
-            keyUp: "ArrowUp",
-            keyDown: "ArrowDown",
-            info: 3,
+		player4 = new InvertedPlayer({
+            x: ScreenWidth / 2 - PaddleWidth / 2,
+            y: PaddleStartX,
+            color: "green",
+            keyRigth: "ArrowRigth",
+            keyLeft: "ArrowLeft",
+            info: userData[3],
         });
     }
 

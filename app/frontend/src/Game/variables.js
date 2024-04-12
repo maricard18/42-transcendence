@@ -26,8 +26,8 @@ export var GoalWidth;
 export const keys = {
     ArrowUp: false,
     ArrowDown: false,
-	ArrowLeft: false,
-	ArrowRight: false,
+    ArrowLeft: false,
+    ArrowRight: false,
     w: false,
     s: false,
 };
@@ -36,15 +36,15 @@ export function updateVariables(canvas) {
     ScreenWidth = canvas.width;
     ScreenHeight = canvas.height;
     PaddleSpeed = canvas.height;
-	PaddleStartX = PaddleStartXScalar * canvas.width;
+    PaddleStartX = PaddleStartXScalar * canvas.width;
     PaddleHeight = paddleHeightScalar * canvas.height;
     PaddleWidth = paddlewidthScalar * canvas.width;
     ballRadius = ballRadiusScalar * canvas.width;
-	BallSpeedX = ballSpeedXScalar * canvas.width;
+    BallSpeedX = ballSpeedXScalar * canvas.width;
     BallSpeedY = ballSpeedYScalar * canvas.height;
-	BallTopSpeedX = ballTopSpeedXScalar * canvas.width;
+    BallTopSpeedX = ballTopSpeedXScalar * canvas.width;
     BallTopSpeedY = ballTopSpeedYScalar * canvas.height;
-	GoalWidth = GoalWidthScalar * canvas.width;
+    GoalWidth = GoalWidthScalar * canvas.width;
 }
 
 export function pauseGame(game, duration) {

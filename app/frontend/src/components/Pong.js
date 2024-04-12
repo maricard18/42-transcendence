@@ -26,8 +26,8 @@ export default function PongPage() {
     useEffect(() => {
         const startPongGame = async () => {
             const canvas = canvasRef.current;
-            game = createGameObject(canvas, gameMode, lobbySize, userInfo, userData);
-            await startGame(game, setUserQueue, setUserData, setGameOver);
+            game = createGameObject(canvas, gameMode, lobbySize, userData, userInfo);
+            await startGame(game, setUserQueue, setUserData, setGameOver, userData, userInfo);
         };
 
         if (gameOver) {

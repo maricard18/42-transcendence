@@ -119,7 +119,7 @@ export class InvertedPlayer {
     }
 
     update(dt) {
-        if (keys[this.keyRight] && this.x >= 0) {
+        if (keys[this.keyLeft] && this.x >= 0) {
             if (this.speed < this.max_speed) {
                 this.speed *= this.acceleration;
             } else {
@@ -129,7 +129,7 @@ export class InvertedPlayer {
             this.x -= this.speed * dt;
         }
 
-        if (keys[this.keyLeft] && this.x + this.width <= ScreenWidth) {
+        if (keys[this.keyRight] && this.x + this.width <= ScreenWidth) {
             if (this.speed < this.max_speed) {
                 this.speed *= this.acceleration;
             } else {

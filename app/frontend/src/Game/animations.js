@@ -72,8 +72,8 @@ export function gameConfettiAnimation(game) {
             clearBackground(game.ctx);
             game.player1.draw(game.ctx);
             game.player2.draw(game.ctx);
-            game.drawScore(game.player1, ScreenWidth / 2 - 100);
-            game.drawScore(game.player2, ScreenWidth / 2 + 100);
+            game.drawScore(game.player1, ScreenWidth / 2 - 0.08 * ScreenWidth);
+			game.drawScore(game.player2, ScreenWidth / 2 + 0.08 * ScreenWidth);
 
             confettiParticles.forEach((particle) => {
                 game.ctx.fillStyle = particle.color;

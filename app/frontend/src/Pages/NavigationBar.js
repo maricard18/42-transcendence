@@ -41,76 +41,83 @@ export default function NavigationBar() {
         }
     }, []);
 
-    return loading ? (
-        <LoadingIcon size="5rem" />
-    ) : (
+    return (
         <div className="container-fluid">
-            <nav className="navbar navbar-dark navbar-layout fixed-top">
-                <p>
-                    <Link
-                        className="navbar-brand navbar-text-layout ms-5"
-                        to=""
-                    >
-                        Transcendence
-                    </Link>
-                </p>
-                <div className="btn-group me-5">
-                    <button
-                        type="button"
-                        //className="btn btn-secondary dropdown-toggle navbar-icon"
-                        className="btn btn-secondary navbar-icon"
-                        data-bs-toggle="dropdown"
-                        data-bs-display="static"
-                        aria-expanded="false"
-                    >
-                        <span className="navbar-toggler-icon"></span>
-                    </button>
-                    <div className="dropdown-menu dropdown-menu-end menu-box">
-                        <div
-                            className="btn-group-vertical d-flex flex-column"
-                            role="group"
-                            aria-label="Vertical button group"
-                        >
-                            <div className="d-flex align-items-center mb-3">
-                                {userInfo.avatar ? (
-                                    <img
-                                        src={userInfo.avatar}
-                                        alt="Avatar preview"
-                                        width="40"
-                                        height="40"
-                                        className="avatar-border-sm"
-                                        style={{ borderRadius: "50%" }}
-                                    />
-                                ) : (
-                                    <BaseAvatar
-                                        width="40"
-                                        height="40"
-                                        template=""
-                                    />
-                                )}
-                                <h6 className="username-text ms-2 mt-1">
-                                    <b>{userInfo.username}</b>
-                                </h6>
-                            </div>
-                            <NavButton template="white-button" page="/menu">
-                                Home
-                            </NavButton>
-                            <NavButton
-                                template="white-button"
-                                page="/menu/profile/username"
+            {loading ? (
+                <LoadingIcon size="5rem" />
+            ) : (
+                <div>
+                    <nav className="navbar navbar-dark navbar-layout fixed-top">
+                        <p>
+                            <Link
+                                className="navbar-brand navbar-text-layout ms-5"
+                                to=""
                             >
-                                Profile
-                            </NavButton>
-                            <LogoutButton template="white-button">
-                                Logout
-                            </LogoutButton>
+                                Transcendence
+                            </Link>
+                        </p>
+                        <div className="btn-group me-5">
+                            <button
+                                type="button"
+                                //className="btn btn-secondary dropdown-toggle navbar-icon"
+                                className="btn btn-secondary navbar-icon"
+                                data-bs-toggle="dropdown"
+                                data-bs-display="static"
+                                aria-expanded="false"
+                            >
+                                <span className="navbar-toggler-icon"></span>
+                            </button>
+                            <div className="dropdown-menu dropdown-menu-end menu-box">
+                                <div
+                                    className="btn-group-vertical d-flex flex-column"
+                                    role="group"
+                                    aria-label="Vertical button group"
+                                >
+                                    <div className="d-flex align-items-center mb-3">
+                                        {userInfo.avatar ? (
+                                            <img
+                                                src={userInfo.avatar}
+                                                alt="Avatar preview"
+                                                width="40"
+                                                height="40"
+                                                className="avatar-border-sm"
+                                                style={{ borderRadius: "50%" }}
+                                            />
+                                        ) : (
+                                            <BaseAvatar
+                                                width="40"
+                                                height="40"
+                                                template=""
+                                            />
+                                        )}
+                                        <h6 className="username-text ms-2 mt-1">
+                                            <b>{userInfo.username}</b>
+                                        </h6>
+                                    </div>
+                                    <NavButton
+                                        template="white-button"
+                                        page="/menu"
+                                    >
+                                        Home
+                                    </NavButton>
+                                    <NavButton
+                                        template="white-button"
+                                        page="/menu/profile/username"
+                                    >
+                                        Profile
+                                    </NavButton>
+                                    <LogoutButton template="white-button">
+                                        Logout
+                                    </LogoutButton>
+                                </div>
+                            </div>
                         </div>
+                    </nav>
+                    <div>
+                        <Outlet />
                     </div>
                 </div>
-            </nav>
-            <div>
-                <Outlet />
-            </div>
+            )}
         </div>
     );
 }
