@@ -1,16 +1,16 @@
 import React, { useEffect, useContext, useState } from "react";
 import { Outlet, Link } from "react-router-dom";
-import NavButton from "../components/NavButton";
+import NavButton, { LogoutButton } from "../components/NavButton";
 import getUserInfo from "../functions/getUserInfo";
 import { AuthContext, UserInfoContext } from "../components/Context";
 import { BaseAvatar } from "../components/Avatar";
+import { LoadingIcon } from "../components/Icons";
 import "../../static/css/NavBar.css";
 import "../../static/css/Buttons.css";
 import "../../static/css/Menu.css";
 import "../../static/css/HomePage.css";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.bundle.js";
-import { LoadingIcon } from "../components/Icons";
 
 export default function NavigationBar() {
     const { setAuthed } = useContext(AuthContext);
@@ -97,13 +97,13 @@ export default function NavigationBar() {
                             </NavButton>
                             <NavButton
                                 template="white-button"
-                                page="profile/username"
+                                page="/menu/profile/username"
                             >
                                 Profile
                             </NavButton>
-                            <NavButton template="white-button" page="/">
+                            <LogoutButton template="white-button">
                                 Logout
-                            </NavButton>
+                            </LogoutButton>
                         </div>
                     </div>
                 </div>

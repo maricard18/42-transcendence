@@ -21,7 +21,7 @@ import LoginPage from "./LoginPage";
 import Login42Page from "./Login42Page";
 import HomePage from "./HomePage";
 import { Game1, Game2 } from "../components/Games";
-import { MultiplayerWaitingRoom } from "../components/WaitingRoom";
+import MultiplayerWaitingRoom from "../components/WaitingRoom";
 import ProfilePage from "./ProfilePage";
 import Pong from "../components/Pong";
 import NavigationBar from "./NavigationBar";
@@ -61,20 +61,10 @@ const router = createBrowserRouter([
         ),
     },
     {
-        path: "/create-profile-42",
-        element: (
-            <FormDataProvider>
-                <IsNotAuthed>
-                    <Create42ProfilePage />
-                </IsNotAuthed>
-            </FormDataProvider>
-        ),
-    },
-    {
-        path: "/login/42",
+        path: "/create-profile/42",
         element: (
             <IsNotAuthed>
-                <Login42Page />
+                <Create42ProfilePage />
             </IsNotAuthed>
         ),
     },
@@ -83,6 +73,14 @@ const router = createBrowserRouter([
         element: (
             <IsNotAuthed>
                 <LoginPage />
+            </IsNotAuthed>
+        ),
+    },
+    {
+        path: "/login/42",
+        element: (
+            <IsNotAuthed>
+                <Login42Page />
             </IsNotAuthed>
         ),
     },
@@ -221,7 +219,9 @@ const router = createBrowserRouter([
 function App() {
     return (
         <AuthProvider>
-            <RouterProvider router={router} />
+            <UserInfoProvider>
+                <RouterProvider router={router} />
+            </UserInfoProvider>
         </AuthProvider>
     );
 }

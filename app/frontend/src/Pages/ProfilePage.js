@@ -1,17 +1,14 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
-import NavButton from "../components/NavButton";
+import NavButton, { LogoutButton } from "../components/NavButton";
 import { DefaultAvatar } from "../components/Avatar";
 import { UserInfoContext, AuthContext } from "../components/Context";
-import { getToken } from "../functions/tokens";
+import { decode, getToken } from "../functions/tokens";
 import fetchData from "../functions/fetchData";
-import getUserInfo from "../functions/getUserInfo";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
 
 export default function ProfilePage() {
-    const { userInfo } = useContext(UserInfoContext);
-
     return (
         <div className="container">
             <div
@@ -46,9 +43,9 @@ export default function ProfilePage() {
                             >
                                 Change Password
                             </NavButton>
-                            <NavButton template="primary-button" page="/">
+                            <LogoutButton template="primary-button">
                                 Logout
-                            </NavButton>
+                            </LogoutButton>
                         </div>
                     </div>
                 </div>
@@ -78,32 +75,27 @@ export function ChangeAvatar() {
                 const formDataToSend = new FormData();
                 formDataToSend.append("avatar", newAvatar);
 
+                const accessToken = await getToken(setAuthed);
+                const decodedToken = decode(accessToken);
                 const headers = {
-                    Authorization: `Bearer ${await getToken(setAuthed)}`,
+                    Authorization: `Bearer ${accessToken}`,
                 };
 
                 const response = await fetchData(
-                    "/api/users/" + userInfo.id,
+                    "/api/users/" + decodedToken["user_id"],
                     "PUT",
                     headers,
                     formDataToSend
                 );
 
-                if (!response.ok) {
-                    logError(response.body);
+                if (response.ok) {
+                    setUserInfo({
+                        ...userInfo,
+                        avatar: URL.createObjectURL(newAvatar),
+                        id: decodedToken["user_id"],
+                    });
                 } else {
-                    const userData = await getUserInfo(setAuthed);
-
-                    if (userData) {
-                        setUserInfo({
-                            username: userData.username,
-                            email: userData.email,
-                            avatar: userData.avatar,
-                            id: userData.id,
-                        });
-                    } else {
-                        console.log("Error: failed to fetch user data.");
-                    }
+                    console.log("Error: failed to fetch user data.");
                 }
 
                 setNewAvatar();

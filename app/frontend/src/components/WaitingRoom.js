@@ -21,7 +21,7 @@ import "../../static/css/Images.css";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
 
-export function MultiplayerWaitingRoom() {
+export default function MultiplayerWaitingRoom() {
     const navigate = useNavigate();
     const location = useLocation().pathname;
     const lobbySize = location.substring(location.length - 1);
@@ -87,9 +87,7 @@ export function MultiplayerWaitingRoom() {
     return (
         <div className="d-flex flex-column col-md-6">
             {loading ? (
-                <div className="justify-content-center">
-                    <LoadingIcon size="5rem" />
-                </div>
+                <LoadingIcon size="5rem" />
             ) : (
                 <div className="p-3 p-lg-5 pd-xl-0">
                     <div className="d-flex flex-row justify-content-center mb-4">

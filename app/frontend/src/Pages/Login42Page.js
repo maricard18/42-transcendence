@@ -11,25 +11,28 @@ import "bootstrap/dist/css/bootstrap.css";
 export default function Login42Page() {
     const navigate = useNavigate();
     const { setAuthed } = useContext(AuthContext);
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const call42api = async () => {
-            const query = window.location.search;
+			const query = window.location.search;
 
             const response = await fetchData(
-                "/api/sso/101010/callback" + query,
+                "/api/sso/101010/callback" + query + "&action=register",
                 "GET",
                 null
             );
 
             if (response.ok) {
                 await setToken(response, setAuthed);
-                setLoading(false);
                 navigate("/menu");
             } else {
-                setLoading(false);
-				navigate("/create-profile-42");
+				if (response.status === 409) {
+					await setToken(response, setAuthed);
+					navigate("/create-profile/42");
+				} else {
+					console.error("Error: failed to sign up with 42");
+					navigate("/");
+				}
             }
         };
 
@@ -38,11 +41,7 @@ export default function Login42Page() {
 
     return (
         <div className="container">
-            {!loading ? (
-                <div className="d-flex justify-content-center">
-                    <LoadingIcon size="4rem" />
-                </div>
-            ) : null}
+            <LoadingIcon size="5rem" />
         </div>
     );
 }

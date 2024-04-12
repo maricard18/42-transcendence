@@ -1,7 +1,5 @@
-import React, { useContext, useEffect } from "react";
+import React from "react";
 import NavButton from "./NavButton";
-import { OnQueueContext, PreviousLocationContext } from "./Context";
-import { useLocation } from "react-router-dom";
 import "../../static/css/Images.css";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";

@@ -5,26 +5,26 @@ import { getToken } from "../functions/tokens";
 
 export function IsAuthed({ children }) {
     const { authed, setAuthed } = useContext(AuthContext);
-	const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
     const location = useLocation();
 
     useEffect(() => {
         const checkAccessToken = async () => {
             await getToken(setAuthed);
-			setLoading(false);
+            setLoading(false);
         };
 
         if (!authed) {
             checkAccessToken();
         } else {
-			setLoading(false);
-		}
+            setLoading(false);
+        }
     }, [authed]);
 
     function renderComponent() {
-		if (loading) {
-			return <Navigate to={location.pathname} />;
-		} else if (authed) {
+        if (loading) {
+            return <Navigate to={location.pathname} />;
+        } else if (authed) {
             return children;
         } else {
             return <Navigate to="/" />;
@@ -36,6 +36,13 @@ export function IsAuthed({ children }) {
 
 export function IsNotAuthed({ children }) {
     const { authed } = useContext(AuthContext);
+    const location = useLocation().pathname;
 
-    return authed === true ? <Navigate to="/menu" /> : children;
+	//! check if this condition is needded
+    return authed === true &&
+        (location != "/login/42" && location != "/create-profile/42") ? (
+        <Navigate to="/menu" />
+    ) : (
+        children
+    );
 }
