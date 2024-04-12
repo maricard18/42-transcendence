@@ -125,30 +125,15 @@ services:
     profiles: [ "dev" ]
     restart: on-failure
 
-  # modsecurity-dev:
-  #   container_name: modsecurity-dev
-  #   image: owasp/modsecurity-crs:nginx-alpine
-  #   environment:
-  #     - PROXY=1
-  #   ports:
-  #     - 80:80
-  #   networks:
-  #     - transcendence-dev
-  #   volumes:
-  #     - ./app/security/proxy.conf:/etc/nginx/conf.d/proxy.conf:ro
-  #   profiles: [ "dev" ]
-  #   depends_on:
-  #     - django-backend-dev
-  #   restart: always
-  nginx-dev:
-    container_name: nginx-base
-    image: nginx:latest
+  modsecurity-dev:
+    container_name: modsecurity-dev
+    image: owasp/modsecurity-crs:nginx-alpine
     ports:
       - 80:80
     networks:
       - transcendence-dev
     volumes:
-      - ./app/security/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./app/security/proxy.conf:/etc/nginx/conf.d/proxy.conf:ro
     profiles: [ "dev" ]
     depends_on:
       - django-backend-dev
