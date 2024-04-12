@@ -1,4 +1,4 @@
-import { sendHostMessage } from "./pongGameCode";
+import { sendHostMessage } from "./pongGame";
 
 export var PaddleStartXScalar = 0.03;
 export var paddleHeightScalar = 0.15;
@@ -26,6 +26,8 @@ export var GoalWidth;
 export const keys = {
     ArrowUp: false,
     ArrowDown: false,
+	ArrowLeft: false,
+	ArrowRight: false,
     w: false,
     s: false,
 };

@@ -1,4 +1,4 @@
-import { clearBackground } from "./pongGameCode";
+import { clearBackground } from "./pongGame";
 import { GoalWidth, ScreenHeight, ScreenWidth } from "./variables";
 import { MyWebSocket } from "../functions/websocket";
 

@@ -1,13 +1,10 @@
 import { checkPlayer1Collision, checkPlayer2Collision } from "./collision";
-import { Game } from "./Game";
-import { Ball } from "./Ball";
-import { Player } from "./Player1";
-import { Cpu, Opponent } from "./Player2";
+import { createSinglePlayerGameObjects, createMultiPlayer2GameObjects, createMultiPlayer4GameObjects } from "./createPlayers";
 import { MyWebSocket, sendMessage } from "../functions/websocket";
 import { multiplayerMessageHandler } from "../functions/websocket";
 import { gameConfettiAnimation, gameStartAnimation } from "./animations";
-import { GoalWidth, PaddleStartX, updateVariables } from "./variables";
-import { ScreenWidth, ScreenHeight, keys, PaddleHeight, PaddleWidth } from "./variables";
+import { GoalWidth, updateVariables } from "./variables";
+import { ScreenWidth, ScreenHeight, keys } from "./variables";
 
 export function createGameObject(canvas, gameMode, lobbySize, userInfo, userData) {
     const ctx = canvas.getContext("2d");
@@ -27,136 +24,36 @@ export function createGameObject(canvas, gameMode, lobbySize, userInfo, userData
     });
 
     if (gameMode === "single-player") {
-        return createSinglePlayerGame(ctx, userInfo, lobbySize);
-    } else if (gameMode === "multiplayer") {
-        return createMultiPlayerGame(ctx, userData, userInfo, lobbySize);
+        return createSinglePlayerGameObjects(ctx, userInfo, lobbySize);
+    } else if ( gameMode === "multiplayer" && lobbySize == 2) {
+        return createMultiPlayer2GameObjects(ctx, userData, userInfo, lobbySize);
+    } else if ( gameMode === "multiplayer" && lobbySize == 4) {
+        return createMultiPlayer4GameObjects(ctx, userData, userInfo, lobbySize);
     }
 }
 
 export async function startGame(game, setUserQueue, setUserData, setGameOver) {
-    switch (game.mode) {
-        case "single-player":
-            await gameStartAnimation(game);
-            game.last_time = Date.now();
-            await singleplayerGameLoop(game);
-            await gameConfettiAnimation(game);
+	if (game.mode === "single-player") {
+		await gameStartAnimation(game);
+		game.last_time = Date.now();
+		await singleplayerGameLoop(game);
+		await gameConfettiAnimation(game);
+		setGameOver(true);
+	} else if ( game.mode === "multiplayer" && game.lobbySize == 2) {
+		multiplayerMessageHandler(MyWebSocket, game, setUserQueue, setUserData);
+		await gameStartAnimation(game);
+		game.last_time = Date.now();
+		await multiplayer2GameLoop(game);
+		await gameConfettiAnimation(game);
             setGameOver(true);
-            break;
-        case "multiplayer":
-            multiplayerMessageHandler(MyWebSocket, game, setUserQueue, setUserData);
-            await gameStartAnimation(game);
-            game.last_time = Date.now();
-            await multiplayerGameLoop(game);
-            await gameConfettiAnimation(game);
-            setGameOver(true);
-            break;
-    }
-}
-
-function createSinglePlayerGame(ctx, userInfo, lobbySize) {
-    const player1 =
-        lobbySize == 1
-            ? new Player({
-                  x: PaddleStartX,
-                  y: ScreenHeight / 2 - PaddleHeight / 2,
-                  color: "red",
-                  keyUp: "ArrowUp",
-                  keyDown: "ArrowDown",
-                  info: userInfo,
-              })
-            : new Player({
-                  x: PaddleStartX,
-                  y: ScreenHeight / 2 - PaddleHeight / 2,
-                  color: "red",
-                  keyUp: "w",
-                  keyDown: "s",
-                  info: userInfo,
-              });
-
-    const player2 =
-        lobbySize == 1
-            ? new Cpu({
-                  x: ScreenWidth - PaddleStartX - PaddleWidth,
-                  y: ScreenHeight / 2 - PaddleHeight / 2,
-                  color: "blue",
-              })
-            : new Player({
-                  x: ScreenWidth - PaddleStartX - PaddleWidth,
-                  y: ScreenHeight / 2 - PaddleHeight / 2,
-                  color: "blue",
-                  keyUp: "ArrowUp",
-                  keyDown: "ArrowDown",
-                  info: 0,
-              });
-
-    return new Game({
-        ctx: ctx,
-        ball: new Ball({
-            x: ScreenWidth / 2,
-            y: ScreenHeight / 2,
-            color: "white",
-        }),
-        player1: player1,
-        player2: player2,
-        mode: "single-player",
-        host_id: null,
-        lobbySize: lobbySize,
-    });
-}
-
-function createMultiPlayerGame(ctx, userData, userInfo, lobbySize) {
-    const host_id = userData[0].id;
-    let player1, player2;
-
-    if (host_id === userInfo.id) {
-        player1 = new Player({
-            x: PaddleStartX,
-            y: ScreenHeight / 2 - PaddleHeight / 2,
-            color: "red",
-            keyUp: "ArrowUp",
-            keyDown: "ArrowDown",
-            info: userInfo,
-        });
-        player2 = new Opponent({
-            x: ScreenWidth - PaddleStartX - PaddleWidth,
-            y: ScreenHeight / 2 - PaddleHeight / 2,
-            color: "blue",
-            keyUp: "ArrowUp",
-            keyDown: "ArrowDown",
-            info: 0,
-        });
-    } else {
-        player1 = new Player({
-            x: ScreenWidth - PaddleStartX - PaddleWidth,
-            y: ScreenHeight / 2 - PaddleHeight / 2,
-            color: "blue",
-            keyUp: "ArrowUp",
-            keyDown: "ArrowDown",
-            info: userInfo,
-        });
-        player2 = new Opponent({
-            x: PaddleStartX,
-            y: ScreenHeight / 2 - PaddleHeight / 2,
-            color: "red",
-            keyUp: "ArrowUp",
-            keyDown: "ArrowDown",
-            info: 0,
-        });
-    }
-
-    return new Game({
-        ctx: ctx,
-        ball: new Ball({
-            x: ScreenWidth / 2,
-            y: ScreenHeight / 2,
-            color: "white",
-        }),
-        player1: player1,
-        player2: player2,
-        mode: "multiplayer",
-        host_id: host_id,
-        lobbySize: lobbySize,
-    });
+	} else if ( game.mode === "multiplayer" && game.lobbySize == 4) {
+		multiplayerMessageHandler(MyWebSocket, game, setUserQueue, setUserData);
+		await gameStartAnimation(game);
+		game.last_time = Date.now();
+		await multiplayer4GameLoop(game);
+		await gameConfettiAnimation(game);
+		setGameOver(true);
+	}
 }
 
 function singleplayerGameLoop(game) {
@@ -212,7 +109,7 @@ function singleplayerGameLoop(game) {
     });
 }
 
-function multiplayerGameLoop(game) {
+function multiplayer2GameLoop(game) {
 	return new Promise((resolve) => {
         const playPong = () => {
             if (game.over || !MyWebSocket.ws) {
@@ -255,10 +152,8 @@ function multiplayerGameLoop(game) {
 		
 				if (game.player1.info.id === game.host_id &&
 				   (game.player1.score === 5 || game.player2.score === 5)) {
-					game.winner =
-						game.player1.score > game.player2.score
-							? game.player1.info.username
-							: game.player2.info.username
+					const players = [game.player1, game.player2];
+					game.winner = getPlayerWithMostGoals(players).info.username;
 					game.over = true;
 					sendHostMessage(game);
 					resolve();
@@ -280,9 +175,92 @@ function multiplayerGameLoop(game) {
     });
 }
 
+function multiplayer4GameLoop(game) {
+	return new Promise((resolve) => {
+        const playPong = () => {
+            if (game.over || !MyWebSocket.ws) {
+				resolve();
+			} else if (!game.paused) {
+				let current_time = Date.now();
+				let dt = (current_time - game.last_time) / 1000;
+		
+				clearBackground(game.ctx);
+				game.drawGoal(0, GoalWidth, "white");
+				game.drawGoal(ScreenWidth - GoalWidth, ScreenWidth, "white");
+				game.drawGoal(GoalWidth, 0, "white");
+				game.drawGoal(ScreenHeight - GoalWidth, ScreenHeight, "white");
+		
+				game.ball.update(game, dt);
+				game.player1.update(dt);
+		
+				if (game.player1.info.id === game.host_id) {
+					sendHostMessage(game);
+				} else {
+					sendNonHostMessage(game);
+				}
+		
+				if (game.player1.info.id === game.host_id) {
+					checkPlayer1Collision(game.ball, game.player1);
+					checkPlayer2Collision(game.ball, game.player2);
+				}
+		
+				if (game.player1.info.id === game.host_id) {
+					game.drawScore(game.player1, ScreenWidth / 2 - 0.08 * ScreenWidth);
+					game.drawScore(game.player2, ScreenWidth / 2 + 0.08 * ScreenWidth);
+				} else {
+					game.drawScore(game.player2, ScreenWidth / 2 - 0.08 * ScreenWidth);
+					game.drawScore(game.player1, ScreenWidth / 2 + 0.08 * ScreenWidth);
+				}
+		
+				if (game.player1.info.id === game.host_id) {
+					sendHostMessage(game);
+				} else {
+					sendNonHostMessage(game);
+				}
+		
+				if (game.player1.info.id === game.host_id &&
+				   (game.player1.score === 5 || game.player2.score === 5 ||
+					game.player3.score === 5 || game.player3.score === 5)) {
+					const players = [game.player1, game.player2, game.player3, game.player4];
+					game.winner = getPlayerWithMostGoals(players).info.username;
+					game.over = true;
+					sendHostMessage(game);
+					resolve();
+				}
+		
+				game.ball.draw(game.ctx);
+				game.player1.draw(game.ctx);
+				game.player2.draw(game.ctx);
+				game.player3.draw(game.ctx);
+				game.player4.draw(game.ctx);
+			}
+		
+			game.last_time = Date.now();
+
+            if (!game.over) {
+                window.requestAnimationFrame(playPong);
+            }
+        };
+
+        window.requestAnimationFrame(playPong);
+    });
+}
+
 export function clearBackground(ctx) {
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, ScreenWidth, ScreenHeight);
+}
+
+function getPlayerWithMostGoals(players) {
+    let highestScoringPlayer = players[0];
+
+    for (let i = 1; i < players.length; i++) {
+        if (players[i].score > highestScoringPlayer.score) {
+            highestScoringPlayer = players[i];
+        }
+    }
+
+    return highestScoringPlayer;
 }
 
 export function sendHostMessage(game) {
@@ -299,6 +277,8 @@ export function sendHostMessage(game) {
             ball_speed_y: game.ball.speed_y,
             player1_score: game.player1.score,
             player2_score: game.player2.score,
+			player3_score: game.player3.score,
+			player4_score: game.player4.score,
             paused: game.paused,
             over: game.over,
 			winner: game.winner,

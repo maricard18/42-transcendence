@@ -1,5 +1,5 @@
 import { GoalWidth, ScreenHeight, ScreenWidth } from "../Game/variables";
-import { clearBackground } from "../Game/pongGameCode";
+import { clearBackground } from "../Game/pongGame";
 import { getToken } from "./tokens";
 
 export var MyWebSocket = {};
@@ -71,22 +71,18 @@ export function multiplayerMessageHandler(MyWebSocket, game, setUserQueue, setUs
 
                 if (jsonData["type"] === "user.message") {
                     const gameData = jsonData["data"]["game"];
-                    game.player2.x =
-                        (gameData["player1_x"] / gameData["screen_width"]) * ScreenWidth;
-                    game.player2.y =
-                        (gameData["player1_y"] / gameData["screen_height"]) * ScreenHeight;
+                    game.player2.x = (gameData["player1_x"] / gameData["screen_width"]) * ScreenWidth;
+                    game.player2.y = (gameData["player1_y"] / gameData["screen_height"]) * ScreenHeight;
 
                     if (gameData["id"] == game.host_id) {
-                        game.ball.x =
-                            (gameData["ball_x"] / gameData["screen_width"]) * ScreenWidth;
-                        game.ball.y =
-                            (gameData["ball_y"] / gameData["screen_height"]) * ScreenHeight;
-                        game.ball.speed_x =
-                            (gameData["ball_speed_x"] / gameData["screen_width"]) * ScreenWidth;
-                        game.ball.speed_y =
-                            (gameData["ball_speed_y"] / gameData["screen_height"]) * ScreenHeight;
+                        game.ball.x = (gameData["ball_x"] / gameData["screen_width"]) * ScreenWidth;
+                        game.ball.y = (gameData["ball_y"] / gameData["screen_height"]) * ScreenHeight;
+                        game.ball.speed_x = (gameData["ball_speed_x"] / gameData["screen_width"]) * ScreenWidth;
+                        game.ball.speed_y = (gameData["ball_speed_y"] / gameData["screen_height"]) * ScreenHeight;
                         game.player1.score = gameData["player2_score"];
                         game.player2.score = gameData["player1_score"];
+						game.player3.score = gameData["player3_score"];
+						game.player4.score = gameData["player4_score"];
 						game.paused = gameData["paused"];
                         game.over = gameData["over"];
 						game.winner = gameData["winner"];

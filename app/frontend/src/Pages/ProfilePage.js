@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 import NavButton, { LogoutButton } from "../components/NavButton";
-import NavButton, { LogoutButton } from "../components/NavButton";
 import { DefaultAvatar } from "../components/Avatar";
 import { UserInfoContext, AuthContext } from "../components/Context";
 import { decode, getToken } from "../functions/tokens";

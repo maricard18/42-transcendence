@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useContext, useState } from "react";
-import { createGameObject, startGame } from "../Game/pongGameCode";
+import { createGameObject, startGame } from "../Game/pongGame";
 import { useLocation, Navigate } from "react-router-dom";
 import { UserDataContext, UserInfoContext, UserQueueContext } from "../components/Context";
 import { closeWebsocket } from "../functions/websocket";

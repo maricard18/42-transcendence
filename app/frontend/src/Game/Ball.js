@@ -30,20 +30,34 @@ export class Ball {
         this.x += this.speed_x * dt;
         this.y += this.speed_y * dt;
 
-        if (
-            (this.y - this.radius <= 0 && this.speed_y < 0) ||
-            (this.y + this.radius >= ScreenHeight && this.speed_y > 0)
-        ) {
-            this.speed_y *= -1;
-        }
+		if (game.lobbySize != 4) {
+			if ((this.y - this.radius <= 0 && this.speed_y < 0) ||
+            	(this.y + this.radius >= ScreenHeight && this.speed_y > 0)) {
+            	this.speed_y *= -1;
+        	}
 
-        if (this.x + this.radius >= ScreenWidth && this.speed_x > 0) {
-			game.player1.score += 1;
-			this.reset(game);
-        } else if (this.x - this.radius <= 0 && this.speed_x < 0) {
-            game.player2.score += 1;
-            this.reset(game);
-        }
+			if (this.x + this.radius >= ScreenWidth && this.speed_x > 0) {
+				game.player1.score += 1;
+				this.reset(game);
+			} else if (this.x - this.radius <= 0 && this.speed_x < 0) {
+				game.player2.score += 1;
+				this.reset(game);
+			}
+		} else {
+			if (this.x + this.radius >= ScreenWidth && this.speed_x > 0) {
+				game.player1.score += 1;
+				this.reset(game);
+			} else if (this.y + this.radius >= ScreenHeight && this.speed_y > 0) {
+				game.player2.score += 1;
+				this.reset(game);
+			} else if (this.x - this.radius <= 0 && this.speed_x < 0) {
+				game.player3.score += 1;
+				this.reset(game);
+			} else if (this.y - this.radius <= 0 && this.speed_y < 0) {
+				game.player4.score += 1;
+				this.reset(game);
+			}
+		}
     }
 
     reset(game) {
@@ -54,6 +68,13 @@ export class Ball {
 			game.player1.y = game.player1.initial_y;
 			game.player2.x = game.player2.initial_x;
 			game.player2.y = game.player2.initial_y;
+
+			if (game.lobbySize == 4) {
+				game.player3.x = game.player3.initial_x;
+				game.player3.y = game.player3.initial_y;
+				game.player4.x = game.player4.initial_x;
+				game.player4.y = game.player4.initial_y;
+			}
 			
 			if (game.player1.score > game.player2.score) {
 				this.speed_y = getRandomDirection();

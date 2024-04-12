@@ -1,7 +1,6 @@
 import { gameStartAnimation } from "./animations";
 import { Ball } from "./Ball";
-import { Player } from "./Player1";
-import { Cpu, Opponent } from "./Player2";
+import { Player, Cpu, Opponent } from "./Player";
 import { Game } from "./Game";
 import { checkPlayer1Collision, checkPlayer2Collision } from "./collision";
 import {
@@ -11,7 +10,7 @@ import {
     drawScore,
     sendHostMessage,
     sendNonHostMessage,
-} from "./pongGameCode";
+} from "./pongGame";
 import {
     paddleHeightScalar,
     paddlewidthScalar,
