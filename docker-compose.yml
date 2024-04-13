@@ -136,16 +136,11 @@ services:
       - SERVERNAME=localhost
       - PORT=80
       - MODSEC_RULE_ENGINE=On
-      - MODSEC_RESP_BODY_ACCESS=On
-      - PARANOIA=1
-      - BLOCKING_PARANOIA=1
+      - BLOCKING_PARANOIA=2
       - ANOMALY_INBOUND=5
       - ANOMALY_OUTBOUND=4
     env_file:
       - .env
-    volumes:
-    - ./app/waf/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf:/etc/modsecurity.d/owasp-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf
-    - ./app/waf/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf:/etc/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf
     profiles: [ "dev" ]
     depends_on:
       - django-backend-dev
