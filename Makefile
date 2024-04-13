@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: bsilva-c <bsilva-c@student.42porto.com>    +#+  +:+       +#+         #
+#    By: wcorrea- <wcorrea-@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/02/15 17:36:39 by bsilva-c          #+#    #+#              #
-#    Updated: 2024/02/15 18:42:45 by bsilva-c         ###   ########.fr        #
+#    Updated: 2024/04/13 20:43:01 by wcorrea-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,7 +27,8 @@ else
 COMMAND = docker compose
 endif
 
-all: build up
+all: build up tester
+		
 build:
 	@$(COMMAND) build --no-cache
 up: build
@@ -50,6 +51,7 @@ fclean: confirm
 	if [ -n "$$images" ]; then \
 		docker image rm $$images -f; \
 	fi
+	@rm -rf $(PWD)/nikto/
 
 db-migrations:
 
@@ -69,4 +71,8 @@ confirm:
 		exit 1; \
 	fi
 
-.PHONY: all build up down start stop ps rm re clean fclean db-migrations confirm
+tester:
+	@git clone https://github.com/sullo/nikto > /dev/null 2>&1 || true
+	@alias nikto="$PWD/nikto/program/nikto.pl -h"
+
+.PHONY: all build up down start stop ps rm re clean fclean db-migrations confirm tester
