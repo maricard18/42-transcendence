@@ -133,7 +133,10 @@ services:
     networks:
       - transcendence-dev
     volumes:
-      - ./app/security/proxy.conf:/etc/nginx/conf.d/proxy.conf:ro
+      - ./app/waf/modsecurity:/etc/modsecurity
+      - ./app/waf/modsecurity.d/main.conf:/etc/modsecurity.d/main.conf
+      - ./app/waf/modsecurity.d/modsecurity.conf:/etc/modsecurity.d/modsecurity.conf
+      - ./app/waf/nginx/proxy.conf:/etc/nginx/conf.d/proxy.conf
     profiles: [ "dev" ]
     depends_on:
       - django-backend-dev
