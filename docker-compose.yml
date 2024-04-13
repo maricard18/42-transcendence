@@ -135,30 +135,21 @@ services:
     environment:
       - SERVERNAME=localhost
       - PORT=80
+      - MODSEC_RULE_ENGINE=On
+      - MODSEC_RESP_BODY_ACCESS=On
+      - PARANOIA=1
+      - BLOCKING_PARANOIA=1
+      - ANOMALY_INBOUND=5
+      - ANOMALY_OUTBOUND=4
     env_file:
       - .env
-    # volumes:
-    #   - ./app/waf/modsecurity:/etc/modsecurity
-    #   - ./app/waf/modsecurity.d/main.conf:/etc/modsecurity.d/main.conf
-    #   - ./app/waf/modsecurity.d/modsecurity.conf:/etc/modsecurity.d/modsecurity.conf
-    #   - ./app/waf/nginx/proxy.conf:/etc/nginx/conf.d/proxy.conf
+    volumes:
+    - ./app/waf/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf:/etc/modsecurity.d/owasp-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf
+    - ./app/waf/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf:/etc/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf
     profiles: [ "dev" ]
     depends_on:
       - django-backend-dev
-
-  # zap-proxy:
-  #   container_name: zap-proxy
-  #   image: owasp/zap2docker-stable
-  #   command: zap-webswing.sh -port 8080 
-  #   ports:
-  #     - "8080:8080"
-  #   networks:
-  #     - transcendence-dev
-  #   depends_on:
-  #     django-backend-dev:
-  #       condition: service_started
-  #   profiles: [ "dev" ]
-  #   restart: on-failure
+    restart: on-failure
 
   ############# TOOLS #############
   ############# PROD #############
@@ -205,6 +196,20 @@ services:
         condition: service_healthy
     profiles: [ "dev", "tools" ]
     restart: on-failure
+  
+  # zap-proxy:
+  #   container_name: zap-proxy
+  #   image: owasp/zap2docker-stable
+  #   command: zap-webswing.sh -port 8080 
+  #   ports:
+  #     - "8080:8080"
+  #   networks:
+  #     - transcendence-dev
+  #   depends_on:
+  #     modsecurity-dev:
+  #       condition: service_started
+  #   profiles: [ "dev", "tools" ]
+  #   restart: on-failure
 
 networks:
   transcendence:
