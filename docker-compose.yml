@@ -134,9 +134,9 @@ services:
       - transcendence-dev
     environment:
       - SERVERNAME=localhost
-      - BACKEND=http://django-backend-dev:8000
       - PORT=80
-
+    env_file:
+      - .env
     # volumes:
     #   - ./app/waf/modsecurity:/etc/modsecurity
     #   - ./app/waf/modsecurity.d/main.conf:/etc/modsecurity.d/main.conf
