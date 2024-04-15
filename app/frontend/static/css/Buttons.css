@@ -1,9 +1,9 @@
 .primary-button {
     color: white;
-    background-color: #520dc2;
-    border-color: #520dc2;
-    width: 220px;
-	font-weight: bold;
+    background-color: #520dc2 !important;
+    border-color: #520dc2 !important;
+    width: 220px !important;
+	font-weight: bold !important;
 }
 
 .primary-button:hover,
@@ -16,10 +16,10 @@
 
 .secondary-button {
     color: white;
-    background-color: #9461e6;
-    border-color: #9461e6;
-    width: 220px;
-	font-weight: bold;
+    background-color: #9461e6 !important;
+    border-color: #9461e6 !important;
+    width: 220px !important;
+	font-weight: bold !important;
 }
 
 .secondary-button:hover,
@@ -32,10 +32,10 @@
 
 .white-button {
     color: #343A40;
-    background-color: white;
-    border-color: white;
-    width: 220px;
-	font-weight: bold;
+    background-color: white !important;
+    border-color: white !important;
+    width: 220px !important;
+	font-weight: bold !important;
 }
 
 .white-button:hover,
