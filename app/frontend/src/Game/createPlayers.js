@@ -131,21 +131,25 @@ export function createMultiPlayer4GameObjects(ctx, userData, userInfo, lobbySize
 			info: userData[1],
 		});
 		player3 = new InvertedOpponent({
-			x: ScreenWidth / 2 - PaddleWidth / 2,
-            y: ScreenHeight - PaddleStartX - PaddleHeight,
-            color: "yellow",
-            keyRigth: "ArrowRigth",
-            keyLeft: "ArrowLeft",
-            info: userData[2],
-        });
+			x: ScreenWidth / 2 - PaddleHeight / 2,
+			y: PaddleStartX,
+			color: "green",
+			keyRight: "ArrowRight",
+			keyLeft: "ArrowLeft",
+			info: userData[2],
+		});
 		player4 = new InvertedOpponent({
-            x: ScreenWidth / 2 - PaddleWidth / 2,
-            y: PaddleStartX,
-            color: "green",
-            keyRigth: "ArrowRigth",
+			x: ScreenWidth / 2 - PaddleHeight / 2,
+            y: ScreenHeight - PaddleStartX - PaddleWidth,
+            color: "yellow",
+            keyRight: "ArrowRight",
             keyLeft: "ArrowLeft",
             info: userData[3],
         });
+		console.log("ScreenHeight:", ScreenHeight);
+		console.log("PaddleHeight:", PaddleHeight);
+		console.log("PaddleWidth", PaddleWidth);
+		console.log("PaddleStartx:", PaddleStartX);
     } else if (userInfo.id === userData[1].id) {
 		player1 = new Opponent({
             x: PaddleStartX,
@@ -164,18 +168,18 @@ export function createMultiPlayer4GameObjects(ctx, userData, userInfo, lobbySize
 			info: userData[1],
 		});
 		player3 = new InvertedOpponent({
-			x: ScreenWidth / 2 - PaddleWidth / 2,
-            y: ScreenHeight - PaddleStartX - PaddleHeight,
-            color: "yellow",
-            keyRigth: "ArrowRigth",
-            keyLeft: "ArrowLeft",
-            info: userData[2],
-        });
+			x: ScreenWidth / 2 - PaddleHeight / 2,
+			y: PaddleStartX,
+			color: "green",
+			keyRight: "ArrowRight",
+			keyLeft: "ArrowLeft",
+			info: userData[2],
+		});
 		player4 = new InvertedOpponent({
-            x: ScreenWidth / 2 - PaddleWidth / 2,
-            y: PaddleStartX,
-            color: "green",
-            keyRigth: "ArrowRigth",
+			x: ScreenWidth / 2 - PaddleHeight / 2,
+            y: ScreenHeight - PaddleStartX - PaddleWidth,
+            color: "yellow",
+            keyRight: "ArrowRight",
             keyLeft: "ArrowLeft",
             info: userData[3],
         });
@@ -196,19 +200,19 @@ export function createMultiPlayer4GameObjects(ctx, userData, userInfo, lobbySize
 			keyDown: "ArrowDown",
 			info: userData[1],
 		});
-		player3 = new InvertedPlayer({
-			x: ScreenWidth / 2 - PaddleWidth / 2,
-            y: ScreenHeight - PaddleStartX - PaddleHeight,
+		player3 = new InvertedOpponent({
+			x: ScreenWidth / 2 - PaddleHeight / 2,
+			y: PaddleStartX,
+			color: "green",
+			keyRight: "ArrowRight",
+			keyLeft: "ArrowLeft",
+			info: userData[2],
+		});
+		player4 = new InvertedPlayer({
+			x: ScreenWidth / 2 - PaddleHeight / 2,
+            y: ScreenHeight - PaddleStartX - PaddleWidth,
             color: "yellow",
-            keyRigth: "ArrowRigth",
-            keyLeft: "ArrowLeft",
-            info: userData[2],
-        });
-		player4 = new InvertedOpponent({
-            x: ScreenWidth / 2 - PaddleWidth / 2,
-            y: PaddleStartX,
-            color: "green",
-            keyRigth: "ArrowRigth",
+            keyRight: "ArrowRight",
             keyLeft: "ArrowLeft",
             info: userData[3],
         });
@@ -229,19 +233,19 @@ export function createMultiPlayer4GameObjects(ctx, userData, userInfo, lobbySize
 			keyDown: "ArrowDown",
 			info: userData[1],
 		});
-		player3 = new InvertedOpponent({
-			x: ScreenWidth / 2 - PaddleWidth / 2,
-            y: ScreenHeight - PaddleStartX - PaddleHeight,
+		player3 = new InvertedPlayer({
+			x: ScreenWidth / 2 - PaddleHeight / 2,
+			y: PaddleStartX,
+			color: "green",
+			keyRight: "ArrowRight",
+			keyLeft: "ArrowLeft",
+			info: userData[2],
+		});
+		player4 = new InvertedOpponent({
+			x: ScreenWidth / 2 - PaddleHeight / 2,
+            y: ScreenHeight - PaddleStartX - PaddleWidth,
             color: "yellow",
-            keyRigth: "ArrowRigth",
-            keyLeft: "ArrowLeft",
-            info: userData[2],
-        });
-		player4 = new InvertedPlayer({
-            x: ScreenWidth / 2 - PaddleWidth / 2,
-            y: PaddleStartX,
-            color: "green",
-            keyRigth: "ArrowRigth",
+            keyRight: "ArrowRight",
             keyLeft: "ArrowLeft",
             info: userData[3],
         });

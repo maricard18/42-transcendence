@@ -1,5 +1,5 @@
-import { GoalWidth, ScreenHeight, ScreenWidth } from "../Game/variables";
-import { clearBackground, sendNonHostMessage } from "../Game/pongGame";
+import { ScreenHeight, ScreenWidth } from "../Game/variables";
+import { sendNonHostMessage } from "../Game/pongGame";
 import { getToken } from "./tokens";
 
 export var MyWebSocket = {};
@@ -73,61 +73,39 @@ export function multiplayerMessageHandler(MyWebSocket, game, setUserQueue, setUs
                 if (jsonData["type"] === "user.message") {
 					const gameData = jsonData["data"]["game"];
 					
-					if (game.lobbySize == 2) {
-						if (gameData["index"] == 2) {
-							game.player2.x = (gameData["player_x"] / gameData["screen_width"]) * ScreenWidth;
-							game.player2.y = (gameData["player_y"] / gameData["screen_height"]) * ScreenHeight;
-						}
-						
-						if (gameData["id"] == game.host_id) {
-							game.player1.x = (gameData["player_x"] / gameData["screen_width"]) * ScreenWidth;
-							game.player1.y = (gameData["player_y"] / gameData["screen_height"]) * ScreenHeight;
-							game.ball.x = (gameData["ball_x"] / gameData["screen_width"]) * ScreenWidth;
-							game.ball.y = (gameData["ball_y"] / gameData["screen_height"]) * ScreenHeight;
-							game.ball.speed_x = (gameData["ball_speed_x"] / gameData["screen_width"]) * ScreenWidth;
-							game.ball.speed_y = (gameData["ball_speed_y"] / gameData["screen_height"]) * ScreenHeight;
-							game.player1.score = gameData["player1_score"];
-							game.player2.score = gameData["player2_score"];
-							game.paused = gameData["paused"];
-							game.over = gameData["over"];
-							game.winner = gameData["winner"];
-	
-							if (game.paused) {
-								updateOpponentScreen(game);
-								sendNonHostMessage(game, userData, userInfo);
-							}
-						}
-					} else {
-						if (gameData["index"] == 2) {
-							game.player2.x = (gameData["player_x"] / gameData["screen_width"]) * ScreenWidth;
-							game.player2.y = (gameData["player_y"] / gameData["screen_height"]) * ScreenHeight;
-						} else if (gameData["index"] == 3) {
-							game.player3.x = (gameData["player_x"] / gameData["screen_width"]) * ScreenWidth;
-							game.player3.y = (gameData["player_y"] / gameData["screen_height"]) * ScreenHeight;
-						} else if (gameData["index"] == 4) {
-							game.player4.x = (gameData["player_x"] / gameData["screen_width"]) * ScreenWidth;
-							game.player4.y = (gameData["player_y"] / gameData["screen_height"]) * ScreenHeight;
-						}
-						
-						if (gameData["id"] == game.host_id) {
-							game.player1.x = (gameData["player_x"] / gameData["screen_width"]) * ScreenWidth;
-							game.player1.y = (gameData["player_y"] / gameData["screen_height"]) * ScreenHeight;
-							game.ball.x = (gameData["ball_x"] / gameData["screen_width"]) * ScreenWidth;
-							game.ball.y = (gameData["ball_y"] / gameData["screen_height"]) * ScreenHeight;
-							game.ball.speed_x = (gameData["ball_speed_x"] / gameData["screen_width"]) * ScreenWidth;
-							game.ball.speed_y = (gameData["ball_speed_y"] / gameData["screen_height"]) * ScreenHeight;
-							game.player1.score = gameData["player1_score"];
-							game.player2.score = gameData["player2_score"];
+					if (gameData["index"] == 2) {
+						game.player2.x = (gameData["player_x"] / gameData["screen_width"]) * ScreenWidth;
+						game.player2.y = (gameData["player_y"] / gameData["screen_height"]) * ScreenHeight;
+					} else if (gameData["index"] == 3) {
+						game.player3.x = (gameData["player_x"] / gameData["screen_width"]) * ScreenWidth;
+						game.player3.y = (gameData["player_y"] / gameData["screen_height"]) * ScreenHeight;
+					} else if (gameData["index"] == 4) {
+						game.player4.x = (gameData["player_x"] / gameData["screen_width"]) * ScreenWidth;
+						game.player4.y = (gameData["player_y"] / gameData["screen_height"]) * ScreenHeight;
+					}
+					
+					if (gameData["id"] == game.host_id) {
+						game.player1.x = (gameData["player_x"] / gameData["screen_width"]) * ScreenWidth;
+						game.player1.y = (gameData["player_y"] / gameData["screen_height"]) * ScreenHeight;
+						game.ball.x = (gameData["ball_x"] / gameData["screen_width"]) * ScreenWidth;
+						game.ball.y = (gameData["ball_y"] / gameData["screen_height"]) * ScreenHeight;
+						game.ball.speed_x = (gameData["ball_speed_x"] / gameData["screen_width"]) * ScreenWidth;
+						game.ball.speed_y = (gameData["ball_speed_y"] / gameData["screen_height"]) * ScreenHeight;
+						game.player1.score = gameData["player1_score"];
+						game.player2.score = gameData["player2_score"];
+
+						if (gameData["player3_score"] && gameData["player4_score"]) {
 							game.player3.score = gameData["player3_score"];
 							game.player4.score = gameData["player4_score"];
-							game.paused = gameData["paused"];
-							game.over = gameData["over"];
-							game.winner = gameData["winner"];
-	
-							if (game.paused) {
-								updateOpponentScreen(game);
-								sendNonHostMessage(game, userData, userInfo);
-							}
+						}
+
+						game.paused = gameData["paused"];
+						game.over = gameData["over"];
+						game.winner = gameData["winner"];
+
+						if (game.paused) {
+							updateOpponentScreen(game);
+							sendNonHostMessage(game, userData, userInfo);
 						}
 					}
                 }
@@ -157,24 +135,25 @@ export function multiplayerMessageHandler(MyWebSocket, game, setUserQueue, setUs
 }
 
 function updateOpponentScreen(game) {
-	clearBackground(game.ctx);
-	game.drawGoal(0, GoalWidth, "white");
-	game.drawGoal(ScreenWidth - GoalWidth, ScreenWidth, "white");
+	game.clear();
+	game.drawGoals("white");
 
 	if (game.lobbySize == 2) {
 		game.drawScore(game.player1, ScreenWidth / 2 - 0.08 * ScreenWidth);
 		game.drawScore(game.player2, ScreenWidth / 2 + 0.08 * ScreenWidth);
 	} else {
-		game.drawScore(game.player1, ScreenWidth / 4 - 0.08 * ScreenWidth);
+		game.drawScore(game.player1, ScreenWidth / 4);
 		game.drawScore(game.player2, ScreenWidth / 2 - 0.08 * ScreenWidth);
 		game.drawScore(game.player3, ScreenWidth / 2 + 0.08 * ScreenWidth);
-		game.drawScore(game.player4, ScreenWidth / 4 + 0.08 * ScreenWidth);
+		game.drawScore(game.player4, ScreenWidth - ScreenWidth / 4);
 	}
 	
 	if (game.player1.score !== 5 && game.player2.score !== 5 && game.lobbySize == 2) {
 		game.player2.x = game.player2.initial_x;
 		game.player2.y = game.player2.initial_y;
 		game.ball.draw(game.ctx);
+		game.player1.draw(game.ctx);
+		game.player2.draw(game.ctx);
 	} else if (game.player1.score !== 5 && game.player2.score !== 5 && game.lobbySize == 4) {
 		game.player2.x = game.player2.initial_x;
 		game.player2.y = game.player2.initial_y;
@@ -183,12 +162,12 @@ function updateOpponentScreen(game) {
 		game.player4.x = game.player4.initial_x;
 		game.player4.y = game.player4.initial_y;
 		game.ball.draw(game.ctx);
+		game.player1.draw(game.ctx);
+		game.player2.draw(game.ctx);
+		game.player3.draw(game.ctx);
+		game.player4.draw(game.ctx);
 	}
 	
-	game.player1.draw(game.ctx);
-	game.player2.draw(game.ctx);
-	game.player3.draw(game.ctx);
-	game.player4.draw(game.ctx);
 }
 
 export function sendMessage(ws, message) {

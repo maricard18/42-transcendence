@@ -5,6 +5,7 @@ import {
     ScreenHeight,
     keys,
 	ScreenWidth,
+	GoalWidth,
 } from "./variables";
 
 export class Player {
@@ -15,6 +16,8 @@ export class Player {
         this.keyUp = keyUp;
         this.keyDown = keyDown;
         this.info = info;
+		this.image = new Image();
+		this.image.src = "/path/here";
 		this.initial_x = x;
         this.initial_y = y;
         this.width = PaddleWidth;
@@ -31,10 +34,11 @@ export class Player {
         ctx.rect(this.x, this.y, this.width, this.height);
         ctx.fillStyle = this.color;
         ctx.fill();
+		//ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
     }
 
     update(dt) {
-        if (keys[this.keyUp] && this.y >= 0) {
+        if (keys[this.keyUp] && this.y >= GoalWidth) {
             if (this.speed < this.max_speed) {
                 this.speed *= this.acceleration;
             } else {
@@ -44,7 +48,7 @@ export class Player {
             this.y -= this.speed * dt;
         }
 
-        if (keys[this.keyDown] && this.y + this.height <= ScreenHeight) {
+        if (keys[this.keyDown] && this.y + this.height <= ScreenHeight - GoalWidth) {
             if (this.speed < this.max_speed) {
                 this.speed *= this.acceleration;
             } else {
@@ -119,7 +123,7 @@ export class InvertedPlayer {
     }
 
     update(dt) {
-        if (keys[this.keyLeft] && this.x >= 0) {
+        if (keys[this.keyLeft] && this.x >= GoalWidth) {
             if (this.speed < this.max_speed) {
                 this.speed *= this.acceleration;
             } else {
@@ -129,8 +133,8 @@ export class InvertedPlayer {
             this.x -= this.speed * dt;
         }
 
-        if (keys[this.keyRight] && this.x + this.width <= ScreenWidth) {
-            if (this.speed < this.max_speed) {
+        if (keys[this.keyRight] && this.x + this.width <= ScreenWidth - GoalWidth) {
+			if (this.speed < this.max_speed) {
                 this.speed *= this.acceleration;
             } else {
                 this.speed = this.max_speed;

@@ -26,8 +26,8 @@ export var GoalWidth;
 export const keys = {
     ArrowUp: false,
     ArrowDown: false,
-    ArrowLeft: false,
     ArrowRight: false,
+    ArrowLeft: false,
     w: false,
     s: false,
 };
@@ -38,7 +38,7 @@ export function updateVariables(canvas) {
     PaddleSpeed = canvas.height;
     PaddleStartX = PaddleStartXScalar * canvas.width;
     PaddleHeight = paddleHeightScalar * canvas.height;
-    PaddleWidth = paddlewidthScalar * canvas.width;
+    PaddleWidth = PaddleHeight * (4 / 16);
     ballRadius = ballRadiusScalar * canvas.width;
     BallSpeedX = ballSpeedXScalar * canvas.width;
     BallSpeedY = ballSpeedYScalar * canvas.height;

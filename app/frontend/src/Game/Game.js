@@ -1,4 +1,4 @@
-import { ScreenHeight, ScreenWidth } from "./variables";
+import { GoalWidth, ScreenHeight, ScreenWidth } from "./variables";
 
 export class Game {
     constructor({ ctx, ball, player1, player2, player3, player4, mode, host_id, lobbySize }) {
@@ -17,9 +17,17 @@ export class Game {
 		this.winner = null;
     }
 
-    drawGoal(xi, xf, color) {
+	clear() {
+		this.ctx.fillStyle = "black";
+    	this.ctx.fillRect(0, 0, ScreenWidth, ScreenHeight);
+	}
+
+    drawGoals(color) {
         this.ctx.beginPath();
-        this.ctx.rect(xi, 0, xf, ScreenHeight);
+        this.ctx.rect(0, 0, GoalWidth, ScreenHeight);
+		this.ctx.rect(ScreenWidth - GoalWidth, 0, GoalWidth, ScreenHeight);
+		this.ctx.rect(0, 0, ScreenWidth, GoalWidth);
+		this.ctx.rect(0, ScreenHeight - GoalWidth, ScreenWidth, GoalWidth);
         this.ctx.fillStyle = color;
         this.ctx.fill();
     }

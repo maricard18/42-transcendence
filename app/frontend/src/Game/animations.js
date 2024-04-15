@@ -10,9 +10,8 @@ export function gameStartAnimation(game) {
                 (current_time - game.last_time) / 1000
             );
 
-            clearBackground(game.ctx);
-            game.drawGoal(0, GoalWidth, "white");
-            game.drawGoal(ScreenWidth - GoalWidth, ScreenWidth, "white");
+            game.clear();
+            game.drawGoals("white");
 
             game.ctx.font = `${0.3 * ScreenWidth}px Arial`;
             game.ctx.fillStyle = "white";
@@ -69,7 +68,7 @@ export function gameConfettiAnimation(game) {
                 (current_time - game.last_time) / 1000
             );
 
-            clearBackground(game.ctx);
+            game.clear();
             game.player1.draw(game.ctx);
             game.player2.draw(game.ctx);
             game.drawScore(game.player1, ScreenWidth / 2 - 0.08 * ScreenWidth);
@@ -83,12 +82,7 @@ export function gameConfettiAnimation(game) {
                     particle.size,
                     particle.size
                 );
-                game.drawGoal(0, GoalWidth, "white");
-                game.drawGoal(
-                    ScreenWidth - GoalWidth,
-                    ScreenWidth,
-                    "white"
-                );
+                game.drawGoals("white");
 
                 particle.x += particle.speedX;
                 particle.y += particle.speedY;

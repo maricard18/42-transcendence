@@ -63,9 +63,8 @@ function singleplayerGameLoop(game) {
                 let current_time = Date.now();
                 let dt = (current_time - game.last_time) / 1000;
 
-                clearBackground(game.ctx);
-                game.drawGoal(0, GoalWidth, "white");
-                game.drawGoal(ScreenWidth - GoalWidth, ScreenWidth, "white");
+                game.clear();
+                game.drawGoals("white");
 
                 game.ball.update(game, dt);
 				game.player1.update(dt);
@@ -117,9 +116,8 @@ function multiplayer2GameLoop(game, userData, userInfo) {
 				let current_time = Date.now();
 				let dt = (current_time - game.last_time) / 1000;
 		
-				clearBackground(game.ctx);
-				game.drawGoal(0, GoalWidth, "white");
-				game.drawGoal(ScreenWidth - GoalWidth, ScreenWidth, "white");
+				game.clear();
+				game.drawGoals("white")
 		
 				if (userInfo.id === game.host_id) {
 					game.ball.update(game, dt);
@@ -183,10 +181,7 @@ function multiplayer4GameLoop(game, userData, userInfo) {
 				let dt = (current_time - game.last_time) / 1000;
 		
 				clearBackground(game.ctx);
-				game.drawGoal(0, GoalWidth, "white");
-				game.drawGoal(ScreenWidth - GoalWidth, ScreenWidth, "white");
-				game.drawGoal(GoalWidth, 0, "white");
-				game.drawGoal(ScreenHeight - GoalWidth, ScreenHeight, "white");
+				game.drawGoals("white")
 		
 				if (userInfo.id === game.host_id) {
 					game.ball.update(game, dt);
@@ -212,10 +207,10 @@ function multiplayer4GameLoop(game, userData, userInfo) {
 					checkInvertedPlayer2Collision(game.ball, game.player4);
 				}
 		
-				game.drawScore(game.player1, ScreenWidth / 4 - 0.08 * ScreenWidth);
+				game.drawScore(game.player1, ScreenWidth / 4);
 				game.drawScore(game.player2, ScreenWidth / 2 - 0.08 * ScreenWidth);
 				game.drawScore(game.player3, ScreenWidth / 2 + 0.08 * ScreenWidth);
-				game.drawScore(game.player4, ScreenWidth / 4 + 0.08 * ScreenWidth);
+				game.drawScore(game.player4, ScreenWidth - ScreenWidth / 4);
 		
 				if (userInfo.id === game.host_id) {
 					sendHostMessage(game);
