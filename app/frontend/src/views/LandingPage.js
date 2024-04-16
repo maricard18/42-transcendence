@@ -1,6 +1,4 @@
 import AbstractView from "./AbstractView";
-import * as Buttons from "../com/Buttons";
-import * as Icons from "../com/Icons";
 import fetchData from "../functions/fetchData";
 
 export default class LandingPage extends AbstractView {
@@ -32,8 +30,8 @@ export default class LandingPage extends AbstractView {
 		const link = await this.createLink();
 	
 		return `
-			<div class="container">
-				${this.loading ? 
+			<div class="container" id="landing-page">
+				${this.loading ? 	
 				`<loading-icon size="5rem"></loading-icon>` :
 				`
 				<div class="center">
@@ -44,16 +42,15 @@ export default class LandingPage extends AbstractView {
 						</h6>
 						<div class="mb-2">
 							<nav-button 
-								class="primary-button"
+								template="primary-button"
 								page="/sign-up"
 								value="Sign up"
-								data-link
 							>
 							</nav-button>
 						</div>
 						<div class="mb-2">
 							<nav-button 
-								class="secondary-button"
+								template="secondary-button"
 								page="${link}"
 								value="Sign up with 42"
 							>
@@ -64,7 +61,7 @@ export default class LandingPage extends AbstractView {
 								Already have an account? 
 								<nav-link 
 									href="/login"
-									class="login"
+									template="login"
 									value="Log in"
 								>
 								</nav-link>

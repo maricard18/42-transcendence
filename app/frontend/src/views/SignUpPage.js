@@ -1,199 +1,159 @@
 import AbstractView from "./AbstractView";
-import * as Buttons from "../com/Buttons";
-import * as Icons from "../com/Icons";
-import fetchData from "../functions/fetchData";
+import { validateSignUpForm } from "../functions/validateForms";
+import { navigateTo } from "../index.js";
 
-export default class SignUp extends AbstractView {
+export default class SignUpPage extends AbstractView {
     constructor() {
         super();
         this.setTitle("Sign up");
-		this.loading = true;
+        this._loading = true;
+        this._formData = {
+            username: "",
+            email: "",
+            password: "",
+            confirmPassword: "",
+        };
+        this._errors = {};
+
+        this.observer = new MutationObserver(this.defineCallback.bind(this));
+        this.observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+        });
     }
 
-	async getHtml() {
-		const link = await this.createLink();
-	
-		return `
-			<div class="container">
-            <div class="center">
-                <div class="d-flex flex-column justify-content-center">
-                    <div class="mb-3">
-                        <h1 class="header mb-4">Sign Up</h1>
-                    </div>
-                    <form>
-                        <div class="position-relative">
-							${this.errors ? `<p class="form-error">${this.errors.message}</p>` : ''}
-                            <div class="mb-1">
-								<input-box
-									type="email"
-									template=${this.errors.email ? "input-error" : ""}
-									value=${formData.email}
-								>
-								<input-box>
-                                <Input
-                                    type="email"
-                                    id="email"
-                                    template={errors.email ? "input-error" : ""}
-                                    value={formData.email}
-                                    setValue={(value) =>
-                                        setFormData({
-                                            ...formData,
-                                            email: value,
-                                        })
-                                    }
-                                >
-                                    email
-                                </Input>
-                            </div>
-                            <div class="mb-1">
-                                <Input
-                                    type="password"
-                                    id="password"
-                                    template={
-                                        errors.password ? "input-error" : ""
-                                    }
-                                    value={formData.password}
-                                    setValue={(value) =>
-                                        setFormData({
-                                            ...formData,
-                                            password: value,
-                                        })
-                                    }
-                                >
-                                    password
-                                </Input>
-                            </div>
-                            <div class="mb-1">
-                                <Input
-                                    type="password"
-                                    id="confirm-password"
-                                    template={
-                                        errors.confirmPassword
-                                            ? "input-error"
-                                            : ""
-                                    }
-                                    value={formData.confirmPassword}
-                                    setValue={(value) =>
-                                        setFormData({
-                                            ...formData,
-                                            confirmPassword: value,
-                                        })
-                                    }
-                                >
-                                    confirm password
-                                </Input>
-                            </div>
-                            <div>
-                                <SubmitButton
-                                    template="secondary-button"
-                                    onClick={handleValidation}
-                                >
-                                    Next
-                                </SubmitButton>
-                            </div>
+    get formData() {
+        return this._formData;
+    }
+
+    set formData(value) {
+        this._formData = value;
+    }
+
+    get errors() {
+        return this._errors;
+    }
+
+    set errors(value) {
+        this._errors = value;
+        this.render();
+    }
+
+    async handleValidation() {
+        const newErrors = validateSignUpForm(this.formData);
+        this.errors = newErrors;
+		console.log(newErrors);
+		console.log(this.formData)
+        document.querySelectorAll("input").forEach((inputBox) => {
+            inputBox.setAttribute(
+                "value",
+                this.formData[inputBox.getAttribute("id")]
+            );
+        });
+
+		if (!newErrors.message) {
+			navigateTo("/create-profile");
+		} else {
+			this.render();
+		}
+    }
+
+    defineCallback() {
+        document.querySelectorAll("input-box").forEach((inputBox) => {
+            inputBox.addEventListener("inputValueChanged", (event) => {
+                this.formData = {
+                    ...this.formData,
+                    [event.detail.id]: event.detail.value,
+                };
+            });
+        });
+		
+        const submitButton = document.querySelector("submit-button");
+		if (submitButton) {
+			submitButton.addEventListener("buttonWasClicked", (event) => {
+				this.handleValidation();
+			});
+		}
+
+		window.addEventListener("keydown", (event) => {
+			if (event.key === "Enter") {
+				this.handleValidation();
+			}
+		});
+    }
+
+    async render() {
+        document.querySelector("#sign-up-page").innerHTML =
+            await this.getHtml();
+    }
+
+    async getHtml() {
+        return `
+            <div class="container" id="sign-up-page">
+                <div class="center">
+                    <div class="d-flex flex-column justify-content-center">
+                        <div class="mb-3">
+                            <h1 class="header mb-4">Sign Up</h1>
                         </div>
-                    </form>
+                        <form>
+                            <div class="position-relative">
+                                ${
+                                    Object.keys(this.errors).length !== 0
+                                        ? `<p class="form-error">${this.errors.message}</p>`
+                                        : ""
+                                }
+                                <div class="mb-1">
+                                    <input-box
+                                        id="email"
+                                        type="email"
+                                        template="${
+                                            this.errors.email
+                                                ? "input-error"
+                                                : ""
+                                        }"
+                                        placeholder="email"
+                                        value="${this.formData.email}"
+                                    ></input-box>
+                                </div>
+								<div class="mb-1">
+                                    <input-box
+                                        id="password"
+                                        type="password"
+                                        template="${
+                                            this.errors.password
+                                                ? "input-error"
+                                                : ""
+                                        }"
+                                        placeholder="password"
+                                        value="${this.formData.password}"
+                                    ></input-box>
+                                </div>
+								<div class="mb-1">
+                                    <input-box
+                                        id="confirmPassword"
+                                        type="password"
+                                        template="${
+                                            this.errors.confirmPassword
+                                                ? "input-error"
+                                                : ""
+                                        }"
+                                        placeholder="confirm password"
+                                        value="${this.formData.confirmPassword}"
+                                    ></input-box>
+                                </div>
+								<div class="mt-2">
+									<submit-button
+										type="button"
+										template="primary-button"
+										value="Next"
+									>
+									</submit-button>	
+								</div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
-		`;
-	}
-}
-
-export default function SignUpPage() {
-    const navigate = useNavigate();
-    const [errors, setErrors] = useState({});
-    const { formData, setFormData } = useContext(FormDataContext);
-
-    const handleValidation = async () => {
-        const newErrors = validateSignUpForm(formData, setFormData);
-        setErrors(newErrors);
-
-        if (!newErrors.message) {
-            navigate("/create-profile");
-        }
-    };
-
-    checkEnterButton(handleValidation);
-
-    return (
-        <div className="container">
-            <div className="center">
-                <div className="d-flex flex-column justify-content-center">
-                    <div className="mb-3">
-                        <h1 className="header mb-4">Sign Up</h1>
-                    </div>
-                    <form>
-                        <div className="position-relative">
-                            {errors && (
-                                <p className="form-error">{errors.message}</p>
-                            )}
-                            <div className="mb-1">
-                                <Input
-                                    type="email"
-                                    id="email"
-                                    template={errors.email ? "input-error" : ""}
-                                    value={formData.email}
-                                    setValue={(value) =>
-                                        setFormData({
-                                            ...formData,
-                                            email: value,
-                                        })
-                                    }
-                                >
-                                    email
-                                </Input>
-                            </div>
-                            <div className="mb-1">
-                                <Input
-                                    type="password"
-                                    id="password"
-                                    template={
-                                        errors.password ? "input-error" : ""
-                                    }
-                                    value={formData.password}
-                                    setValue={(value) =>
-                                        setFormData({
-                                            ...formData,
-                                            password: value,
-                                        })
-                                    }
-                                >
-                                    password
-                                </Input>
-                            </div>
-                            <div className="mb-1">
-                                <Input
-                                    type="password"
-                                    id="confirm-password"
-                                    template={
-                                        errors.confirmPassword
-                                            ? "input-error"
-                                            : ""
-                                    }
-                                    value={formData.confirmPassword}
-                                    setValue={(value) =>
-                                        setFormData({
-                                            ...formData,
-                                            confirmPassword: value,
-                                        })
-                                    }
-                                >
-                                    confirm password
-                                </Input>
-                            </div>
-                            <div>
-                                <SubmitButton
-                                    template="secondary-button"
-                                    onClick={handleValidation}
-                                >
-                                    Next
-                                </SubmitButton>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    );
+        `;
+    }
 }

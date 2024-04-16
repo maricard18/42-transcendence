@@ -1,5 +1,3 @@
-import "bootstrap/dist/css/bootstrap.css";
-
 export class Input extends HTMLElement {
     constructor() {
         super();
@@ -9,22 +7,31 @@ export class Input extends HTMLElement {
         this.render();
     }
 
-    handleChange() {
-        console.log("Value changed!");
-    }
+    handleChange(event) {
+		const value = event.target.value;
+		const id = this.getAttribute("id");
+		this.setAttribute("value", value);
+		this.querySelector("input").setAttribute("value", value);
+		this.dispatchEvent(
+			new CustomEvent("inputValueChanged", { detail: { id, value }, bubbles: true })
+		);
+	}
+	
 
     render() {
 		const div = document.createElement("div");
-		div.setAttribute("class", "justify-content-center mb-3");
-		this.appendChild(div);
-		const input = document.createElement("input");
-		input.setAttribute("type", this.getAttribute("type"));
-		input.setAttribute("class", `form-control primary-form ${this.getAttribute("class")}`);
-		input.setAttribute("placeholder", this.getAttribute("placeholder"));
-		input.addEventListener("input", this.handleChange.bind(this));
-		input.setAttribute("value", this.getAttribute("value"));
+        div.setAttribute("class", "justify-content-center mb-3");
+        this.appendChild(div);
+        const input = document.createElement("input");
+        input.setAttribute("id", this.getAttribute("id"));
+        input.setAttribute("type", this.getAttribute("type"));
+        input.setAttribute(
+            "class",
+            `form-control primary-form ${this.getAttribute("template")}`
+        );
+        input.setAttribute("placeholder", this.getAttribute("placeholder"));
+        input.setAttribute("value", this.getAttribute("value"));
         this.appendChild(input);
+        this.addEventListener("input", this.handleChange.bind(this));
     }
 }
-
-customElements.define("input-box", Input);

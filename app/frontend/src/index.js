@@ -1,37 +1,39 @@
 import LandingPage from "./views/LandingPage";
+import SignUpPage from "./views/SignUpPage";
+import "./functions/defineComponents.js";
 import "bootstrap/dist/css/bootstrap.css";
 
-export function navigateTo(url) {
-    history.pushState(null, "", url);
-    router();
-};
 
 const router = async () => {
     const routes = [
         { path: "/", view: LandingPage },
+		{ path: "/sign-up", view: SignUpPage },
+		{ path: "/create-profile", view: SignUpPage },
     ];
-
-    // Test each route for potential match
+	
     const potentialMatches = routes.map(route => {
-        return {
+		return {
             route: route,
             match: location.pathname === route.path
         };
     });
-
-	console.log(potentialMatches);
-
+	
     let match = potentialMatches.find(potentialMatch => potentialMatch.match);
-
+	
     if (!match) {
-        match = {
-            route: routes[0],
+		match = {
+			route: routes[0],
         };
     }
-
+	
     const view = new match.route.view;
-
+	
     document.querySelector("#app").innerHTML = await view.getHtml();
+};
+
+export function navigateTo(url) {
+	history.pushState(null, "", url);
+	router();
 };
 
 window.addEventListener("popstate", router);

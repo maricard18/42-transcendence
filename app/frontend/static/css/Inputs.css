@@ -4,7 +4,7 @@
     margin-right: auto;
 }
 
-.primary-form:user-invalid {
+.input-error {
     width: 220px;
     outline: 1px solid red;
 }
