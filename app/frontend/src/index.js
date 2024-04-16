@@ -1,8 +1,8 @@
 import LandingPage from "./views/LandingPage";
 import "bootstrap/dist/css/bootstrap.css";
 
-const navigateTo = url => {
-    history.pushState(null, null, url);
+export function navigateTo(url) {
+    history.pushState(null, "", url);
     router();
 };
 
@@ -38,9 +38,9 @@ window.addEventListener("popstate", router);
 
 document.addEventListener("DOMContentLoaded", () => {
     document.body.addEventListener("click", e => {
-        if (e.target.matches("[data-link]")) {
-            e.preventDefault();
-            navigateTo(e.target.href);
+        if (e.target.matches("a")) {
+			e.preventDefault();
+			navigateTo(e.target.getAttribute('href'));
         }
     });
 

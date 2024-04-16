@@ -1,8 +1,10 @@
+import { navigateTo } from "..";
 import "../../static/css/Buttons.css";
 
 export class NavButton extends HTMLElement {
     constructor() {
         super();
+		this.addEventListener("click", this.handleClickTo.bind(this));
     }
 
     connectedCallback() {
@@ -10,10 +12,14 @@ export class NavButton extends HTMLElement {
     }
 
     handleClickTo() {
-        console.log(`Navigating to ${this.getAttribute("page")}`);
-        const page = this.getAttribute("page");
-        window.location.href = page;
-    }
+		const page = this.getAttribute("page");
+		if (page.startsWith('http://') || page.startsWith('https://')) {
+			console.log("42 Auth:", page);
+			window.location.href = page;
+		} else {
+			navigateTo(page);
+		}
+	}
 
     render() {
         const button = document.createElement("button");
@@ -23,34 +29,56 @@ export class NavButton extends HTMLElement {
             `btn btn-primary ${this.getAttribute("class")}`
         );
         button.textContent = `${this.getAttribute("value")}`;
-        button.addEventListener("click", this.handleClickTo.bind(this));
         this.appendChild(button);
     }
 }
 
 customElements.define("nav-button", NavButton);
 
+export class SubmitButton extends HTMLElement {
+	constructor() {
+		super();
+		this.addEventListener("click", this.handleClick.bind(this));
+	}
+
+	connectedCallback() {
+		this.render();
+	}
+
+	handleClick() {
+		// handle click to send submission
+	}
+
+	render() {
+		const button = document.createElement("button");
+		button.setAttribute("type", "button");
+		button.setAttribute(
+			"class",
+			`btn btn-primary ${this.getAttribute("class")}`
+		);
+		button.textContent = `${this.getAttribute("value")}`;
+		button.addEventListener("click", this.handleClick.bind(this));
+		this.appendChild(button);
+	}
+}
+
+customElements.define("submit-button", SubmitButton);
+
 export class NavLink extends HTMLElement {
     constructor() {
         super();
-        this.addEventListener("click", this.handleClick.bind(this));
     }
 
     connectedCallback() {
         this.render();
     }
 
-    handleClick() {
-        const href = this.getAttribute("href");
-        history.pushState(null, "", href);
-    }
-
     render() {
-        this.innerHTML = `<a href="${this.getAttribute(
-            "href"
-        )}" class="${this.getAttribute("class")}">${this.getAttribute(
-            "value"
-        )}</a>`;
+        const href = this.getAttribute("href");
+        const className = this.getAttribute("class");
+        const value = this.getAttribute("value");
+    
+        this.innerHTML = `<a href="${href}" class="${className}">${value}</a>`;
     }
 }
 

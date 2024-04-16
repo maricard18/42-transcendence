@@ -47,6 +47,7 @@ export default class LandingPage extends AbstractView {
 								class="primary-button"
 								page="/sign-up"
 								value="Sign up"
+								data-link
 							>
 							</nav-button>
 						</div>
