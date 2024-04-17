@@ -1,10 +1,13 @@
+import "../../static/css/Inputs.css";
+
 export class Input extends HTMLElement {
     constructor() {
         super();
+		this.addEventListener("input", this.handleChange.bind(this));
     }
 
     connectedCallback() {
-        this.render();
+        this.getHtml();
     }
 
     handleChange(event) {
@@ -13,12 +16,12 @@ export class Input extends HTMLElement {
 		this.setAttribute("value", value);
 		this.querySelector("input").setAttribute("value", value);
 		this.dispatchEvent(
-			new CustomEvent("inputValueChanged", { detail: { id, value }, bubbles: true })
+			new CustomEvent("inputChanged", { detail: { id, value }, bubbles: true })
 		);
 	}
 	
 
-    render() {
+    getHtml() {
 		const div = document.createElement("div");
         div.setAttribute("class", "justify-content-center mb-3");
         this.appendChild(div);
@@ -32,6 +35,5 @@ export class Input extends HTMLElement {
         input.setAttribute("placeholder", this.getAttribute("placeholder"));
         input.setAttribute("value", this.getAttribute("value"));
         this.appendChild(input);
-        this.addEventListener("input", this.handleChange.bind(this));
     }
 }

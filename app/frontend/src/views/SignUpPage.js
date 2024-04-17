@@ -7,13 +7,7 @@ export default class SignUpPage extends AbstractView {
         super();
         this.setTitle("Sign up");
         this._loading = true;
-        this._formData = {
-            username: "",
-            email: "",
-            password: "",
-            confirmPassword: "",
-        };
-        this._errors = {};
+		this._errors = {};
 
         this.observer = new MutationObserver(this.defineCallback.bind(this));
         this.observer.observe(document.body, {
@@ -23,11 +17,11 @@ export default class SignUpPage extends AbstractView {
     }
 
     get formData() {
-        return this._formData;
+        return AbstractView.formData;
     }
 
     set formData(value) {
-        this._formData = value;
+        AbstractView.formData = value;
     }
 
     get errors() {
@@ -42,8 +36,6 @@ export default class SignUpPage extends AbstractView {
     async handleValidation() {
         const newErrors = validateSignUpForm(this.formData);
         this.errors = newErrors;
-		console.log(newErrors);
-		console.log(this.formData)
         document.querySelectorAll("input").forEach((inputBox) => {
             inputBox.setAttribute(
                 "value",
@@ -52,6 +44,7 @@ export default class SignUpPage extends AbstractView {
         });
 
 		if (!newErrors.message) {
+			this.removeCallbacks();
 			navigateTo("/create-profile");
 		} else {
 			this.render();
@@ -59,32 +52,53 @@ export default class SignUpPage extends AbstractView {
     }
 
     defineCallback() {
-        document.querySelectorAll("input-box").forEach((inputBox) => {
-            inputBox.addEventListener("inputValueChanged", (event) => {
-                this.formData = {
-                    ...this.formData,
-                    [event.detail.id]: event.detail.value,
-                };
-            });
-        });
-		
-        const submitButton = document.querySelector("submit-button");
-		if (submitButton) {
-			submitButton.addEventListener("buttonWasClicked", (event) => {
-				this.handleValidation();
-			});
-		}
-
-		window.addEventListener("keydown", (event) => {
+		this.inputChangedCallback = (event) => {
+			this.formData = {
+				...this.formData,
+				[event.detail.id]: event.detail.value,
+			};
+		};
+	
+		this.buttonClickedCallback = (event) => {
+			this.handleValidation();
+		};
+	
+		this.keydownCallback = (event) => {
 			if (event.key === "Enter") {
 				this.handleValidation();
 			}
+		};
+	
+		document.querySelectorAll("input-box").forEach((inputBox) => {
+			inputBox.addEventListener("inputChanged", this.inputChangedCallback);
 		});
-    }
+	
+		const submitButton = document.querySelector("submit-button");
+		if (submitButton) {
+			submitButton.addEventListener("buttonClicked", this.buttonClickedCallback);
+		}
+	
+		window.addEventListener("keydown", this.keydownCallback);
+	}
+
+	removeCallbacks() {
+		document.querySelectorAll("input-box").forEach((inputBox) => {
+			inputBox.removeEventListener("inputChanged", this.inputChangedCallback);
+		});
+	
+		const submitButton = document.querySelector("submit-button");
+		if (submitButton) {
+			submitButton.removeEventListener("buttonClicked", this.buttonClickedCallback);
+		}
+	
+		window.removeEventListener("keydown", this.keydownCallback);
+	}
 
     async render() {
-        document.querySelector("#sign-up-page").innerHTML =
-            await this.getHtml();
+        const element = document.querySelector("#sign-up-page");
+		if (element) {
+			element.innerHTML = await this.getHtml();
+		}
     }
 
     async getHtml() {
@@ -141,7 +155,7 @@ export default class SignUpPage extends AbstractView {
                                         value="${this.formData.confirmPassword}"
                                     ></input-box>
                                 </div>
-								<div class="mt-2">
+								<div class="mt-3">
 									<submit-button
 										type="button"
 										template="primary-button"

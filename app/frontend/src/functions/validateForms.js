@@ -36,7 +36,6 @@ export function validateSignUpForm(formData) {
         formData.confirmPassword = "";
     }
 
-    console.log(formData);
     return errors;
 }
 

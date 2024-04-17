@@ -4,10 +4,10 @@ export class CheckIcon extends HTMLElement {
     }
 
     connectedCallback() {
-        this.render();
+        this.getHtml();
     }
 
-    render() {
+    getHtml() {
 		const div = document.createElement('div');
 		div.innerHTML = `
 			<svg
@@ -33,10 +33,10 @@ export class CloseIcon extends HTMLElement {
 	}
 
 	connectedCallback() {
-		this.render();
+		this.getHtml();
 	}
 
-	render() {
+	getHtml() {
 		const div = document.createElement('div');
 		div.innerHTML = `
 			<svg
@@ -62,10 +62,10 @@ export class LoadingIcon extends HTMLElement {
     }
 
     connectedCallback() {
-        this.render();
+        this.getHtml();
     }
 
-    render() {
+    getHtml() {
 		const div = document.createElement('div');
 		div.setAttribute("class", "center");
 		div.innerHTML = `

@@ -1,5 +1,5 @@
 import { navigateTo } from "../index.js";
-//import "../../static/css/Buttons.css";
+import "../../static/css/Buttons.css";
 
 export class NavButton extends HTMLElement {
     constructor() {
@@ -8,7 +8,7 @@ export class NavButton extends HTMLElement {
     }
 
     connectedCallback() {
-        this.render();
+        this.getHtml();
     }
 
     handleClickTo() {
@@ -21,7 +21,7 @@ export class NavButton extends HTMLElement {
         }
     }
 
-    render() {
+    getHtml() {
         const button = document.createElement("button");
         button.setAttribute("type", "button");
         button.setAttribute(
@@ -40,20 +40,20 @@ export class SubmitButton extends HTMLElement {
     }
 
     connectedCallback() {
-        this.render();
+        this.getHtml();
     }
 
     handleClick(e) {
         e.preventDefault();
         this.dispatchEvent(
-            new CustomEvent("buttonWasClicked", {
+            new CustomEvent("buttonClicked", {
                 detail: true,
                 bubbles: true,
             })
         );
     }
 
-    render() {
+    getHtml() {
         const button = document.createElement("button");
         button.setAttribute("type", "button");
         button.setAttribute(
@@ -71,10 +71,10 @@ export class NavLink extends HTMLElement {
     }
 
     connectedCallback() {
-        this.render();
+        this.getHtml();
     }
 
-    render() {
+    getHtml() {
         const href = this.getAttribute("href");
         const className = this.getAttribute("template");
         const value = this.getAttribute("value");
