@@ -1,7 +1,7 @@
 import AbstractView from "./AbstractView.js";
-import { navigateTo } from "../index.js";
 import fetchData from "../functions/fetchData.js";
 import handleResponse from "../functions/authenticationErrors.js";
+import { navigateTo } from "../index.js";
 import { createToken } from "../functions/tokens.js";
 
 export default class CreateProfilePage extends AbstractView {
@@ -9,14 +9,26 @@ export default class CreateProfilePage extends AbstractView {
         super();
         this.setTitle("Create Profile");
         this._loading = true;
+		this._callbacksRemoved = true;
         this._errors = {};
 		this._avatar = null;
-
-        this.observer = new MutationObserver(this.defineCallback.bind(this));
+		console.log(AbstractView.formData)
+		
+		if (Object.values(AbstractView.formData).every((value) => value === "")) {
+			navigateTo("/sign-up");
+			return ;
+		}
+        
+		this.observer = new MutationObserver(this.defineCallback.bind(this));
         this.observer.observe(document.body, {
             childList: true,
             subtree: true,
         });
+
+		window.onbeforeunload = () => {
+			this.removeCallbacks();
+			this.disconnectObserver()
+		};
     }
 
     get formData() {
@@ -25,6 +37,14 @@ export default class CreateProfilePage extends AbstractView {
 
     set formData(value) {
         AbstractView.formData = value;
+    }
+
+	get userInfo() {
+        return AbstractView.userInfo;
+    }
+
+    set userInfo(value) {
+        AbstractView.userInfo = value;
     }
 
     get errors() {
@@ -53,11 +73,9 @@ export default class CreateProfilePage extends AbstractView {
             newErrors.username = 1;
             this.formData.username = "";
             this.errors = newErrors;
-        } else if (
-            this.formData.username.length < 4 ||
-            this.formData.username.length > 12
-        ) {
-            newErrors.message = "Username must have 4-12 characters";
+        } else if (this.formData.username.length < 3 ||
+            	this.formData.username.length > 12) {
+            newErrors.message = "Username must have 3-12 characters";
             newErrors.username = 1;
             this.formData.username = "";
             this.errors = newErrors;
@@ -84,6 +102,8 @@ export default class CreateProfilePage extends AbstractView {
                 formDataToSend.append("avatar", this.avatar);
             }
 
+			console.log("DataToBeSent:", formDataToSend);
+
             const response = await fetchData(
                 "/api/users",
                 "POST",
@@ -93,41 +113,40 @@ export default class CreateProfilePage extends AbstractView {
 
             if (response.ok) {
 				console.log("user created!")
-                // await createToken(formData, setAuthed);
-                //setUserInfo({
-                //    username: this.formData.username,
-                //    email: this.formData.email,
-                //    avatar: this.avatar ? URL.createObjectURL(this.avatar) : null,
-                //    id: null,
-                //});
-                //navigateTo("/menu");
+                await createToken(this.formData, this.authed);
+                this.userInfo = {
+                    username: this.formData.username,
+                    email: this.formData.email,
+                    avatar: this.avatar ? URL.createObjectURL(this.avatar) : null,
+                    id: null,
+                };
+				this.removeCallbacks();
+				this.disconnectObserver();
+                navigateTo("/home");
             } else {
                 newErrors = await handleResponse(response, this.formData);
                 this.errors = newErrors;
-				this.render();
             }
         }
     };
 
 	defineCallback() {
+		if (!this._callbacksRemoved) {
+			return ;
+		}
+
 		this.inputChangedCallback = (event) => {
-			this.formData = {
-				...this.formData,
-				"username": event.detail.value,
-			};
-			console.log(this.formData);
+			this.formData.username = event.detail.value;
 		};
-		
 		this.avatarChangedCallback = (event) => {
 			this.avatar = event.detail;
-		};
-	
+		};	
 		this.buttonClickedCallback = (event) => {
 			this.handleValidation();
-		};
-	
+		};	
 		this.keydownCallback = (event) => {
 			if (event.key === "Enter") {
+				event.preventDefault();
 				this.handleValidation();
 			}
 		};
@@ -136,18 +155,16 @@ export default class CreateProfilePage extends AbstractView {
 		if (inputBox) {
 			inputBox.addEventListener("inputChanged", this.inputChangedCallback);
 		};
-
 		const avatarBox = document.querySelector("avatar-box");
 		if (avatarBox) {
 			avatarBox.addEventListener("avatarChanged", this.avatarChangedCallback)
 		}
-	
 		const submitButton = document.querySelector("submit-button");
 		if (submitButton) {
 			submitButton.addEventListener("buttonClicked", this.buttonClickedCallback);
 		}
-	
 		window.addEventListener("keydown", this.keydownCallback);
+		this._callbacksRemoved = false;
 	}
 
 	removeCallbacks() {
@@ -167,9 +184,16 @@ export default class CreateProfilePage extends AbstractView {
 		}
 	
 		window.removeEventListener("keydown", this.keydownCallback);
+		this._callbacksRemoved = true;
+	}
+
+	disconnectObserver() {
+		this.observer.disconnect();
 	}
 
     async render() {
+		this.removeCallbacks();
+
         const element = document.querySelector("#create-profile-page");
 		if (element) {
 			element.innerHTML = await this.getHtml();
@@ -183,7 +207,10 @@ export default class CreateProfilePage extends AbstractView {
 					<div class="d-flex flex-column justify-content-center">
 						<form>
 							<div class="mb-5">
-								<avatar-box></avatar-box>
+							${this.avatar ? 
+								`<avatar-box avatar="${URL.createObjectURL(this.avatar)}"></avatar-box>`
+								: `<avatar-box></avatar-box>`
+							}
 							</div>
 							<div class="position-relative">
 								${

@@ -1,14 +1,18 @@
 import LandingPage from "./views/LandingPage";
+import LoginPage from "./views/LoginPage.js";
 import SignUpPage from "./views/SignUpPage";
 import CreateProfilePage from "./views/CreateProfilePage.js";
+import HomePage from "./views/HomePage.js";
 import "./functions/defineComponents.js";
 import "bootstrap/dist/css/bootstrap.css";
 
 const router = async () => {
     const routes = [
         { path: "/", view: LandingPage },
+		{ path: "/login", view: LoginPage },
 		{ path: "/sign-up", view: SignUpPage },
 		{ path: "/create-profile", view: CreateProfilePage },
+		{ path: "/home", view: HomePage },
     ];
 	
     const potentialMatches = routes.map(route => {
@@ -25,9 +29,8 @@ const router = async () => {
 			route: routes[0],
         };
     }
-	
+
     const view = new match.route.view;
-	
     document.querySelector("#app").innerHTML = await view.getHtml();
 };
 

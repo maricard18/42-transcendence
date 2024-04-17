@@ -4,25 +4,31 @@ export class Avatar extends HTMLElement {
     constructor() {
         super();
         this.addEventListener("input", this.handleChange.bind(this));
-		this._avatar = null;
-		this._url = null;
+        this._avatar = null;
+
+        //const avatar = this.getAttribute("avatar");
+        //if (avatar) {
+        //    this._url = avatar;
+        //} else {
+        //    this._url = null;
+        //}
     }
 
-	get avatar() {
-		return this._avatar;
-	}
+    get avatar() {
+        return this._avatar;
+    }
 
-	set avatar(value) {
-		this._avatar = value;
-	}
+    set avatar(value) {
+        this._avatar = value;
+    }
 
-	get url() {
-		return this._url;
-	}
+    get url() {
+        return this._url;
+    }
 
-	set url(value) {
-		this._url = value;
-	}
+    set url(value) {
+        this._url = value;
+    }
 
     connectedCallback() {
         this.render();
@@ -31,8 +37,8 @@ export class Avatar extends HTMLElement {
     handleChange(event) {
         const file = event.target.files[0];
         if (file) {
-			this.avatar = file;
-			this.url = URL.createObjectURL(file);
+            this.avatar = file;
+            this.url = URL.createObjectURL(file);
             this.render();
         }
         this.dispatchEvent(
@@ -44,11 +50,11 @@ export class Avatar extends HTMLElement {
     }
 
     render() {
-		this.innerHTML = this.getHtml();
+        this.innerHTML = this.getHtml();
     }
 
-	getHtml() {
-		return `
+    getHtml() {
+        return `
 			<figure>
 				<input
 					type="file"
@@ -73,7 +79,7 @@ export class Avatar extends HTMLElement {
 				</label>
 			</figure>
 		`;
-	}
+    }
 }
 
 export class BaseAvatar extends HTMLElement {
@@ -85,9 +91,9 @@ export class BaseAvatar extends HTMLElement {
         this.render();
     }
 
-	render() {
-		this.innerHTML = this.getHtml();
-	}
+    render() {
+        this.innerHTML = this.getHtml();
+    }
 
     getHtml() {
         return `

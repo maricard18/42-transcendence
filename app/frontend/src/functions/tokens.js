@@ -1,11 +1,11 @@
 import Cookies from "js-cookie";
 import fetchData from "./fetchData";
 
-export async function createToken(userData, setAuthed) {
+export async function createToken(formData, authed) {
     const formDataToSend = new FormData();
     formDataToSend.append("grant_type", "password");
-    formDataToSend.append("username", userData.username);
-    formDataToSend.append("password", userData.password);
+    formDataToSend.append("username", formData.username);
+    formDataToSend.append("password", formData.password);
 
     const response = await fetchData(
         "/auth/token",
@@ -16,14 +16,14 @@ export async function createToken(userData, setAuthed) {
 
     if (!response.ok) {
         console.log("Error: failed to create authentication token.");
-        logout(setAuthed);
+        logout(authed);
         return;
     }
 
-    await setToken(response, setAuthed);
+    await setToken(response, authed);
 }
 
-export async function setToken(response, setAuthed) {
+export async function setToken(response, authed) {
     try {
         const jsonData = await response.json();
         const accessToken = jsonData["access_token"];
@@ -44,19 +44,19 @@ export async function setToken(response, setAuthed) {
             //! https:// -> secure: true,
         });
 
-        setAuthed(true);
+        authed = true;
     } catch (error) {
         console.log("Error: failed to set Cookies");
-        logout(setAuthed);
+        logout(authed);
         return;
     }
 }
 
-export async function refreshToken(setAuthed) {
+export async function refreshToken(authed) {
     const refreshToken = Cookies.get("refresh_token");
     if (!refreshToken) {
         console.log("Error: refresh_token doesn't exist.");
-        logout(setAuthed);
+        logout(authed);
         return;
     }
 
@@ -73,20 +73,20 @@ export async function refreshToken(setAuthed) {
 
     if (!response.ok) {
         console.log("Error: failed to refresh access_token.");
-        logout(setAuthed);
+        logout(authed);
         return;
     }
 
-    await setToken(response, setAuthed);
+    await setToken(response, authed);
 }
 
-export async function getToken(setAuthed) {
+export async function getToken(authed) {
     const accessToken = Cookies.get("access_token");
 
     if (accessToken && (await testToken(accessToken))) {
         return accessToken;
     } else {
-        await refreshToken(setAuthed);
+        await refreshToken(authed);
         const newAccessToken = Cookies.get("access_token");
         return newAccessToken;
     }
@@ -124,8 +124,8 @@ export function decode(accessToken) {
     return JSON.parse(atob(accessToken.split(".")[1]));
 }
 
-export function logout(setAuthed) {
+export function logout(authed) {
     Cookies.remove("access_token");
     Cookies.remove("refresh_token");
-    setAuthed(false);
+    authed = false;
 }

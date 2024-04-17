@@ -7,13 +7,19 @@ export default class SignUpPage extends AbstractView {
         super();
         this.setTitle("Sign up");
         this._loading = true;
-		this._errors = {};
+		this._callbacksRemoved = true;
+        this._errors = {};
 
         this.observer = new MutationObserver(this.defineCallback.bind(this));
         this.observer.observe(document.body, {
             childList: true,
             subtree: true,
         });
+
+		window.onbeforeunload = () => {
+			this.removeCallbacks();
+			this.disconnectObserver()
+		};
     }
 
     get formData() {
@@ -35,7 +41,10 @@ export default class SignUpPage extends AbstractView {
 
     async handleValidation() {
         const newErrors = validateSignUpForm(this.formData);
-        this.errors = newErrors;
+        if (Object.values(newErrors).length !== 0) {
+            this.errors = newErrors;
+        }
+
         document.querySelectorAll("input").forEach((inputBox) => {
             inputBox.setAttribute(
                 "value",
@@ -43,62 +52,88 @@ export default class SignUpPage extends AbstractView {
             );
         });
 
-		if (!newErrors.message) {
-			this.removeCallbacks();
-			navigateTo("/create-profile");
-		} else {
-			this.render();
-		}
+        if (!newErrors.message) {
+            this.removeCallbacks();
+			this.disconnectObserver();
+            navigateTo("/create-profile");
+        } else {
+            this.render();
+        }
     }
 
     defineCallback() {
-		this.inputChangedCallback = (event) => {
-			this.formData = {
-				...this.formData,
-				[event.detail.id]: event.detail.value,
-			};
-		};
-	
+		if (!this._callbacksRemoved){
+			return ;
+		}
+
+        this.inputChangedCallback = (event) => {
+            this.formData = {
+                ...this.formData,
+                [event.detail.id]: event.detail.value,
+            };
+        };
+        
 		this.buttonClickedCallback = (event) => {
-			this.handleValidation();
-		};
-	
+            this.handleValidation();
+        };
+        
 		this.keydownCallback = (event) => {
-			if (event.key === "Enter") {
+            if (event.key === "Enter") {
+				event.preventDefault();
 				this.handleValidation();
 			}
-		};
-	
-		document.querySelectorAll("input-box").forEach((inputBox) => {
-			inputBox.addEventListener("inputChanged", this.inputChangedCallback);
-		});
-	
-		const submitButton = document.querySelector("submit-button");
-		if (submitButton) {
-			submitButton.addEventListener("buttonClicked", this.buttonClickedCallback);
-		}
-	
-		window.addEventListener("keydown", this.keydownCallback);
-	}
+        };
 
-	removeCallbacks() {
-		document.querySelectorAll("input-box").forEach((inputBox) => {
-			inputBox.removeEventListener("inputChanged", this.inputChangedCallback);
-		});
-	
-		const submitButton = document.querySelector("submit-button");
-		if (submitButton) {
-			submitButton.removeEventListener("buttonClicked", this.buttonClickedCallback);
-		}
-	
-		window.removeEventListener("keydown", this.keydownCallback);
+        document.querySelectorAll("input-box").forEach((inputBox) => {
+            inputBox.addEventListener(
+                "inputChanged",
+                this.inputChangedCallback
+            );
+        });
+
+        const submitButton = document.querySelector("submit-button");
+        if (submitButton) {
+            submitButton.addEventListener(
+                "buttonClicked",
+                this.buttonClickedCallback
+            );
+        }
+
+        window.addEventListener("keydown", this.keydownCallback);
+		this._callbacksRemoved = false;
+    }
+
+    removeCallbacks() {
+        document.querySelectorAll("input-box").forEach((inputBox) => {
+            inputBox.removeEventListener(
+                "inputChanged",
+                this.inputChangedCallback
+            );
+        });
+
+        const submitButton = document.querySelector("submit-button");
+        if (submitButton) {
+            submitButton.removeEventListener(
+                "buttonClicked",
+                this.buttonClickedCallback
+            );
+        }
+
+        window.removeEventListener("keydown", this.keydownCallback);
+		this._callbacksRemoved = true;
+    }
+
+	disconnectObserver() {
+		this.observer.disconnect();
 	}
 
     async render() {
+        this.removeCallbacks();
+
         const element = document.querySelector("#sign-up-page");
-		if (element) {
-			element.innerHTML = await this.getHtml();
-		}
+        if (element) {
+            element.innerHTML = await this.getHtml();
+        }
     }
 
     async getHtml() {

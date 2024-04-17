@@ -64,8 +64,8 @@ export function validateProfileUserForm(formData) {
     if (formData.email === "") {
         errors.message = "Please fill in all required fields";
         errors.email = 1;
-    } else if (formData.username.length < 4 || formData.username.length > 12) {
-        errors.message = "Username must have 4-12 characters";
+    } else if (formData.username.length < 3 || formData.username.length > 12) {
+        errors.message = "Username must have 3-12 characters";
         errors.username = 1;
         formData.username = "";
     } else if (!usernamePattern.test(formData.username)) {

@@ -1,12 +1,12 @@
-import React, {useContext, useState} from "react";
+import React, { useContext, useState } from "react";
 import Input from "../components/Input";
 import SubmitButton from "../components/SubmitButton";
-import {validateLoginForm} from "../functions/validateForms";
-import {useNavigate} from "react-router-dom";
-import fetchData, {checkEnterButton} from "../functions/fetchData";
+import { validateLoginForm } from "../functions/validateForms";
+import { useNavigate } from "react-router-dom";
+import fetchData, { checkEnterButton } from "../functions/fetchData";
 import handleResponse from "../functions/authenticationErrors";
-import {setToken} from "../functions/tokens";
-import {AuthContext} from "../components/Context";
+import { setToken } from "../functions/tokens";
+import { AuthContext } from "../components/Context";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
 
@@ -24,16 +24,16 @@ export default function LoginPage() {
         setErrors(newErrors);
 
         if (!newErrors.message) {
-			const formDataToSend = new FormData();
-			formDataToSend.append('grant_type', 'password');
-			formDataToSend.append('username', formData.username);
-			formDataToSend.append('password', formData.password);
+            const formDataToSend = new FormData();
+            formDataToSend.append("grant_type", "password");
+            formDataToSend.append("username", formData.username);
+            formDataToSend.append("password", formData.password);
 
             const response = await fetchData(
                 "/auth/token",
                 "POST",
                 null,
-				formDataToSend
+                formDataToSend
             );
 
             if (response.ok) {
