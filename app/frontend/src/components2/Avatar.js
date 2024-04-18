@@ -29,7 +29,7 @@ export class Avatar extends HTMLElement {
     }
 
     connectedCallback() {
-        this.render();
+        this.innerHTML = this.getHtml();
     }
 
     handleChange(event) {
@@ -37,46 +37,57 @@ export class Avatar extends HTMLElement {
         if (file) {
             this.avatar = file;
             this.url = URL.createObjectURL(file);
-            this.render();
-        }
-        this.dispatchEvent(
-            new CustomEvent("avatarChanged", {
-                detail: this.avatar,
-                bubbles: true,
-            })
-        );
-    }
 
-    render() {
-        this.innerHTML = this.getHtml();
+            const avatar = this.querySelector("base-avatar-box");
+            if (avatar) {
+                avatar.remove();
+                const label = document.querySelector("label");
+                const img = document.createElement("img");
+                img.setAttribute("src", this._url);
+                img.setAttribute("alt", "Avatar Preview");
+                img.setAttribute("width", "200");
+                img.setAttribute("height", "200");
+                img.setAttribute("class", "avatar-border-lg");
+                img.setAttribute("style", "border-radius: 50%");
+                label.appendChild(img);
+            } else {
+                const img = document.querySelector("img");
+                img.setAttribute("src", this._url);
+            }
+        }
     }
 
     getHtml() {
-        return `
-			<figure>
-				<input
-					type="file"
-					id="avatar"
-					name="avatar"
-					accept="image/png, image/jpeg, image/jpg"
-					hidden
-				></input>
-				<label for="avatar">
-				${
-                    this.url
-                        ? `<img
-						src=${this.url}
-						alt="Avatar preview"
-						width="200"
-						height="200"
-						class="avatar-border-lg"
-						style="border-radius: 50%"
-						/>`
-                        : `<base-avatar-box size="200"></base-avatar-box>`
-                }
-				</label>
-			</figure>
-		`;
+        const figure = document.createElement("figure");
+
+        const input = document.createElement("input");
+        input.setAttribute("type", "file");
+        input.setAttribute("id", "avatar");
+        input.setAttribute("name", "avatar");
+        input.setAttribute("accept", "image/png, image/jpeg, image/jpg");
+        input.setAttribute("hidden", "");
+        figure.appendChild(input);
+
+        const label = document.createElement("label");
+        label.setAttribute("for", "avatar");
+
+        if (this._url) {
+            const img = document.createElement("img");
+            img.setAttribute("src", this._url);
+            img.setAttribute("alt", "Avatar Preview");
+            img.setAttribute("width", "200");
+            img.setAttribute("height", "200");
+            img.setAttribute("class", "avatar-border-lg");
+            img.setAttribute("style", "border-radius: 50%");
+            label.appendChild(img);
+        } else {
+            const avatar = document.createElement("base-avatar-box");
+            avatar.setAttribute("size", "200");
+            label.appendChild(avatar);
+        }
+        figure.appendChild(label);
+
+        return figure.outerHTML;
     }
 }
 
@@ -105,9 +116,9 @@ export class BaseAvatar extends HTMLElement {
 			>
 				<path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
 				<path
-				fill="evenodd"
-				d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"
-			/>
+					fill="evenodd"
+					d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"
+				/>
 			</svg>
 		`;
     }

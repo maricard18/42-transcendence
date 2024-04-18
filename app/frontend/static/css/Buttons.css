@@ -1,48 +1,48 @@
-.primary-button {
+.primary-button.extra-btn-class {
     color: white;
-    background-color: #520dc2 !important;
-    border-color: #520dc2 !important;
-    width: 220px !important;
-	font-weight: bold !important;
+    background-color: #520dc2;
+    border-color: #520dc2;
+    width: 220px;
+	font-weight: bold;
 }
 
-.primary-button:hover,
-.primary-button:active{
+.primary-button.extra-btn-class:hover,
+.primary-button.extra-btn-class:active{
     color: white;
-    background-color: #3e0d8e !important;
-    border-color: #3e0d8e !important;
+    background-color: #3e0d8e;
+    border-color: #3e0d8e;
     transition: 0.5s;
 }
 
-.secondary-button {
+.secondary-button.extra-btn-class {
     color: white;
-    background-color: #9461e6 !important;
-    border-color: #9461e6 !important;
-    width: 220px !important;
-	font-weight: bold !important;
+    background-color: #9461e6;
+    border-color: #9461e6;
+    width: 220px;
+	font-weight: bold;
 }
 
-.secondary-button:hover,
-.secondary-button:active {
+.secondary-button.extra-btn-class:hover,
+.secondary-button.extra-btn-class:active {
     color: white;
-    background-color: #7439d2 !important;
-    border-color: #7439d2 !important;
+    background-color: #7439d2;
+    border-color: #7439d2;
 	transition: 0.5s;
 }
 
-.white-button {
+.white-button.extra-btn-class {
     color: #343A40;
-    background-color: white !important;
-    border-color: white !important;
-    width: 220px !important;
-	font-weight: bold !important;
+    background-color: white;
+    border-color: white;
+    width: 220px;
+	font-weight: bold;
 }
 
-.white-button:hover,
-.white-button:active {
+.white-button.extra-btn-class:hover,
+.white-button.extra-btn-class:active {
     color: white;
-    background-color: #7439d2 !important;
-    border-color: #7439d2 !important;
+    background-color: #7439d2;
+    border-color: #7439d2;
 }
 
 .btn-small {

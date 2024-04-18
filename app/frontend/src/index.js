@@ -6,11 +6,11 @@ import "bootstrap/dist/js/bootstrap.bundle.js";
 
 const router = async () => {
     const potentialMatches = routes.map((route) => {
-		let url = location.pathname;
-		if (location.pathname.indexOf("?") >= 0) {
-			url = location.pathname.substring(location.pathname.indexOf("?"));
-			console.log(url);
-		}
+        let url = location.pathname;
+        if (location.pathname.indexOf("?") >= 0) {
+            url = location.pathname.substring(location.pathname.indexOf("?"));
+            console.log(url);
+        }
 
         return {
             route: route,

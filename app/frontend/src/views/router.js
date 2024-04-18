@@ -7,28 +7,38 @@ import NavigationBar from "./NavigationBar.js";
 import HomePage from "./HomePage.js";
 
 export const routes = [
-	{ 
-		path: "/", 
-		view: LandingPage 
-	},
-	{ 
-		path: "/login", 
-		view: LoginPage 
-	},
-	{ 
-		path: "/login/42", 
-		view: Login42Page 
-	},
-	{ 
-		path: "/sign-up", 
-		view: SignUpPage 
-	},
-	{ 
-		path: "/create-profile", 
-		view: CreateProfilePage 
-	},
-	{ 
-		path: "/home", 
-		view: NavigationBar 
-	},
+    {
+        path: "/",
+        view: LandingPage,
+    },
+    {
+        path: "/login",
+        view: LoginPage,
+    },
+    {
+        path: "/login/42",
+        view: Login42Page,
+    },
+    {
+        path: "/sign-up",
+        view: SignUpPage,
+    },
+    {
+        path: "/create-profile",
+        view: CreateProfilePage,
+    },
+    {
+        path: "/home",
+        view: NavigationBar,
+        children: [
+            {
+                path: "",
+                view: HomePage,
+            },
+			{
+                path: "/",
+                view: HomePage,
+            },
+        ],
+    },
 ];

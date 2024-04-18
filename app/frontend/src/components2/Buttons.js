@@ -44,7 +44,7 @@ export class LogoutButton extends HTMLElement {
     }
 
     handleClickTo() {
-		logout(AbstractView.authed);
+		logout(AbstractView.authed); //! check if this works
         navigateTo("/");
     }
 

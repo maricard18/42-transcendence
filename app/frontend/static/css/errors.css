@@ -15,11 +15,15 @@
     font-size: 13px;
 	font-weight: bold;
     font-family: "Source Sans 3", sans-serif;
-	top: -25px;
+	top: -20px;
 	text-align: center;
     width: 100%;
 }
 
 .input-error {
     border: 2px solid red;
+}
+
+.position-relative {
+    position: relative;
 }

@@ -42,7 +42,7 @@ export default class LandingPage extends AbstractView {
 						</h6>
 						<div class="mb-2">
 							<nav-button 
-								template="primary-button"
+								template="primary-button extra-btn-class"
 								page="/sign-up"
 								value="Sign up"
 							>
@@ -50,7 +50,7 @@ export default class LandingPage extends AbstractView {
 						</div>
 						<div class="mb-2">
 							<nav-button 
-								template="secondary-button"
+								template="secondary-button extra-btn-class"
 								page="${link}"
 								value="Sign up with 42"
 							>

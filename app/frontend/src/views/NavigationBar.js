@@ -1,4 +1,5 @@
 import { navigateTo } from "../index";
+import { routes } from "./router";
 import AbstractView from "./AbstractView";
 import getUserInfo from "../functions/getUserInfo";
 
@@ -6,8 +7,10 @@ export default class NavigationBar extends AbstractView {
     constructor() {
         super();
         this.setTitle("Home");
-        this.loading = true;
-		this.callbackRunned = false;
+        this._loading = true;
+        this._callbackRunned = false;
+        this._view = new routes[5].children[0].view();
+		this._navigationContent;
 
         this.observer = new MutationObserver(this.defineCallback.bind(this));
         this.observer.observe(document.body, {
@@ -29,11 +32,11 @@ export default class NavigationBar extends AbstractView {
     }
 
     async defineCallback() {
-		if (this.callbackRunned) {
-			return;
-		}
+        if (this._callbackRunned) {
+            return;
+        }
 
-		this.callbackRunned = true;
+        this._callbackRunned = true;
         const fetchUserInfo = async () => {
             const userData = await getUserInfo(AbstractView.authed);
 
@@ -44,49 +47,78 @@ export default class NavigationBar extends AbstractView {
                     avatar: userData.avatar,
                     id: userData.id,
                 };
-                this.loading = false;
-				console.log("User info collected")
-				console.log(this.userInfo);
-				this.render();
+                this._loading = false;
+				this.loadDOMChanges();
+                console.log("User info was collected");
+                console.log("info:", this.userInfo);
             } else {
                 console.log("Error: failed to fetch user data.");
             }
         };
 
-		console.log(this.userInfo);
-        if (Object.values(AbstractView.userInfo).some((element) => element === "")) {
+        let emptyFieldExists = false;
+        Object.keys(AbstractView.userInfo).forEach((key) => {
+            if (key !== "avatar" && !AbstractView.userInfo[key]) {
+                emptyFieldExists = true;
+            }
+        });
+
+        if (emptyFieldExists) {
             fetchUserInfo();
         } else {
-            this.loading = false;
-			console.log("No User info collected")
-			this.render();
+            this._loading = false;
+			this.loadDOMChanges();
+            console.log("User info already collected");
+			console.log(this.userInfo);
         }
     }
+
+	loadDOMChanges() {
+		const navigationBar = document.getElementById("navigation-bar");
+		if (navigationBar) {
+			navigationBar.innerHTML = this._navigationContent;
+		}
+	}
 
     disconnectObserver() {
         this.observer.disconnect();
     }
 
-	async render() {
-        const element = document.querySelector("#navigation-bar");
-        if (element) {
-            element.innerHTML = await this.getHtml();
-        }
-    }
-
-
     async getHtml() {
-        if (!AbstractView.authed.value) {
-			console.log("Not Authenticated")
-            navigateTo("/");
-        }
+        const div = document.createElement("div");
+        div.setAttribute("class", "container-fluid");
 
-        return `
-		<div class="container-fluid" id="navigation-bar">
-		${
-            this.loading
-                ? `<loading-icon size="5rem"></loading-icon>`
-                : `<div>
+        const navigationBar = document.createElement("div");
+        navigationBar.setAttribute("class", "container-fluid");
+        navigationBar.setAttribute("id", "navigation-bar");
+
+		const avatarContainer = document.createElement("div");
+		avatarContainer.setAttribute("class", "d-flex align-items-center mb-3");
+
+		if (this.userInfo.avatar) {
+			const avatarElement = document.createElement("img");
+			avatarElement.setAttribute("class", "avatar-border-sm");
+			avatarElement.setAttribute("alt", "Avatar preview");
+			avatarElement.setAttribute("width", "40");
+			avatarElement.setAttribute("height", "40");
+			avatarElement.setAttribute("style", "border-radius: 50%");
+			avatarElement.setAttribute("src", this.userInfo.avatar);
+			avatarContainer.appendChild(avatarElement);
+		} else {
+			const baseAvatar = document.createElement("base-avatar");
+			baseAvatar.setAttribute("size", "40");
+			avatarContainer.appendChild(baseAvatar);
+		}
+
+        const h6 = document.createElement("h6");
+        h6.setAttribute("class", "username-text ms-2 mt-1"); 
+		const b = document.createElement("b");
+		b.innerText = this.userInfo.username
+        h6.appendChild(b);
+        avatarContainer.appendChild(h6);
+
+		this._navigationContent = 
+			`<div>
 				<nav class="navbar navbar-dark navbar-layout fixed-top">
 					<p>
 						<nav-link
@@ -105,55 +137,45 @@ export default class NavigationBar extends AbstractView {
 						>
 							<span class="navbar-toggler-icon"></span>
 						</button>
-						<div class="dropdown-menu dropdown-menu-end menu-box">
+						<div class="dropdown-menu dropdown-menu-end menu-box extra-menu-class">
 							<div
 								class="btn-group-vertical d-flex flex-column"
 								role="group"
 								aria-label="Vertical button group"
 							>
-								<div class="d-flex align-items-center mb-3">
-									${
-                                        this.userInfo.avatar
-                                            ? `<img
-												src=${this.userInfo.avatar}
-												alt="Avatar preview"
-												width="40"
-												height="40"
-												class="avatar-border-sm"
-												style="border-radius: 50%"
-											/>`
-                                            : `<base-avatar
-												size="40"
-											><base-avatar>`
-                                    }
-									<h6 class="username-text ms-2 mt-1">
-										<b>${this.userInfo.username}</b>
-									</h6>
-								</div>
+								${avatarContainer.outerHTML}
 								<nav-button
-									template="white-button"
-									page="/menu"
+									template="white-button extra-btn-class"
+									page="/home"
 									value="Home"
 								></nav-button>
 								<nav-button
-									template="white-button"
-									page="/menu/profile/username"
+									template="white-button extra-btn-class"
+									page="/home/profile/username"
 									value="Profile"
 								></nav-button>
 								<logout-button 
-									template="white-button"
+									template="white-button extra-btn-class"
 									value="Logout"
 								></logout-button>
 							</div>
 						</div>
 					</div>
 				</nav>
-				<div>
-					<h1>Other components</h1>
+				<div class="center">
+					${await this._view.getHtml()}
 				</div>
-			</div>`
-        }
-		</div>
-        `;
+			</div>`;
+
+		if (this._loading) {
+			const loading = document.createElement("loading-icon");
+			loading.setAttribute("size", "5rem");
+			navigationBar.appendChild(loading);
+		} else {
+			navigationBar.innerHTML = this._navigationContent;
+		}
+        
+		div.appendChild(navigationBar);
+		return div.outerHTML;
     }
 }

@@ -45,7 +45,6 @@ export async function setToken(response, authed) {
         });
 
         authed.value = true;
-		console.log("User Authenticated!", authed);
     } catch (error) {
         console.log("Error: failed to set Cookies");
         logout(authed);
