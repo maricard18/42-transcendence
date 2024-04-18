@@ -1,3 +1,4 @@
+import { navigateTo } from "../index";
 import AbstractView from "./AbstractView";
 
 export default class HomePage extends AbstractView {
@@ -7,6 +8,10 @@ export default class HomePage extends AbstractView {
     }
 
     async getHtml() {
+		if (!AbstractView.authed.value) {
+			navigateTo("/");
+		}
+
         return `
 			<div class="container">
 				<div class="

@@ -25,8 +25,6 @@ export class CheckIcon extends HTMLElement {
     }
 }
 
-customElements.define("check-icon", CheckIcon);
-
 export class CloseIcon extends HTMLElement {
 	constructor() {
 		super();
@@ -54,8 +52,6 @@ export class CloseIcon extends HTMLElement {
 	}
 }
 
-customElements.define("close-icon", CloseIcon);
-
 export class LoadingIcon extends HTMLElement {
     constructor() {
         super();
@@ -80,5 +76,3 @@ export class LoadingIcon extends HTMLElement {
 		this.appendChild(div);
 	}
 }
-
-customElements.define("loading-icon", LoadingIcon);

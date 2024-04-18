@@ -1,7 +1,9 @@
 export default class AbstractView {
     constructor() {}
-
-	static authed = false;
+	
+	static authed = {
+		value: false,
+	}
 
 	static formData = {
 		username: "",

@@ -5,7 +5,7 @@ export default class LandingPage extends AbstractView {
     constructor() {
         super();
         this.setTitle("Landing Page");
-		this.loading = true;
+        this.loading = true;
     }
 
     async createLink() {
@@ -19,22 +19,22 @@ export default class LandingPage extends AbstractView {
             url += "&redirect_uri=" + encodeURIComponent(data["redirect_uri"]);
             url += "&response_type=code";
 
-			this.loading = false;
+            this.loading = false;
             return url;
         } else {
             console.log("Error getting env vars!");
         }
     }
 
-	async getHtml() {
-		const link = await this.createLink();
-	
-		return `
-			<div class="container" id="landing-page">
-				${this.loading ? 	
-				`<loading-icon size="5rem"></loading-icon>` :
-				`
-				<div class="center">
+    async getHtml() {
+        const link = await this.createLink();
+
+        return `
+		<div class="container" id="landing-page">
+			${
+                this.loading
+                    ? `<loading-icon size="5rem"></loading-icon>`
+                    : `<div class="center">
 					<div class="d-flex flex-column justify-content-center">
 						<h1 class="header">Transcendence</h1>
 						<h6 class="sub-header mb-5">
@@ -69,8 +69,9 @@ export default class LandingPage extends AbstractView {
 						</div>
 					</div>
 				</div>
-				`}
-			</div>
+			`
+            }
+		</div>
 		`;
-	}
+    }
 }

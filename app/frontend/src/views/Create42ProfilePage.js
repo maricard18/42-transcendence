@@ -4,7 +4,7 @@ import handleResponse from "../functions/authenticationErrors";
 import { navigateTo } from "../index";
 import { createToken } from "../functions/tokens";
 
-export default class CreateProfilePage extends AbstractView {
+export default class Create42ProfilePage extends AbstractView {
     constructor() {
         super();
         this.setTitle("Create Profile");

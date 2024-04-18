@@ -44,7 +44,8 @@ export async function setToken(response, authed) {
             //! https:// -> secure: true,
         });
 
-        authed = true;
+        authed.value = true;
+		console.log("User Authenticated!", authed);
     } catch (error) {
         console.log("Error: failed to set Cookies");
         logout(authed);
@@ -127,5 +128,5 @@ export function decode(accessToken) {
 export function logout(authed) {
     Cookies.remove("access_token");
     Cookies.remove("refresh_token");
-    authed = false;
+    authed.value = false;
 }

@@ -1,17 +1,15 @@
-import "../../static/css/Avatar.css";
-
 export class Avatar extends HTMLElement {
     constructor() {
         super();
         this.addEventListener("input", this.handleChange.bind(this));
         this._avatar = null;
 
-        //const avatar = this.getAttribute("avatar");
-        //if (avatar) {
-        //    this._url = avatar;
-        //} else {
-        //    this._url = null;
-        //}
+        const avatar = this.getAttribute("avatar");
+        if (avatar) {
+            this._url = avatar;
+        } else {
+            this._url = null;
+        }
     }
 
     get avatar() {

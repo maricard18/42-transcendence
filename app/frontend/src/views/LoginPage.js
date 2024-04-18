@@ -1,9 +1,9 @@
-import AbstractView from "./AbstractView.js";
-import fetchData from "../functions/fetchData.js";
-import handleResponse from "../functions/authenticationErrors.js";
-import { navigateTo } from "../index.js";
-import { setToken } from "../functions/tokens.js";
-import { validateLoginForm } from "../functions/validateForms.js";
+import AbstractView from "./AbstractView";
+import fetchData from "../functions/fetchData";
+import handleResponse from "../functions/authenticationErrors";
+import { navigateTo } from "../index";
+import { setToken } from "../functions/tokens";
+import { validateLoginForm } from "../functions/validateForms";
 
 export default class LoginPage extends AbstractView {
     constructor() {
@@ -11,8 +11,8 @@ export default class LoginPage extends AbstractView {
         this.setTitle("Login");
         this._loading = true;
         this._callbacksRemoved = true;
+        this._insideRequest = false;
         this._errors = {};
-        console.log(AbstractView.formData);
 
         this.observer = new MutationObserver(this.defineCallback.bind(this));
         this.observer.observe(document.body, {
@@ -20,10 +20,10 @@ export default class LoginPage extends AbstractView {
             subtree: true,
         });
 
-		window.onbeforeunload = () => {
-			this.removeCallbacks();
-			this.disconnectObserver()
-		};
+        window.onbeforeunload = () => {
+            this.removeCallbacks();
+            this.disconnectObserver();
+        };
     }
 
     get formData() {
@@ -34,17 +34,29 @@ export default class LoginPage extends AbstractView {
         AbstractView.formData = value;
     }
 
+	get authed() {
+        return AbstractView.authed;
+    }
+
+    set authed(value) {
+        AbstractView.authed = value;
+    }
+
     get errors() {
         return this._errors;
     }
 
     set errors(value) {
         this._errors = value;
-        this.render();
     }
 
     async handleValidation() {
-        const newErrors = validateLoginForm(this.formData);
+        if (this._insideRequest) {
+            return;
+        }
+
+        this._insideRequest = true;
+        let newErrors = validateLoginForm(this.formData);
         if (Object.values(newErrors).length !== 0) {
             this.errors = newErrors;
         }
@@ -70,15 +82,20 @@ export default class LoginPage extends AbstractView {
             );
 
             if (response.ok) {
-                await setToken(response, AbstractView.authed);
+                await setToken(response, this.authed);
                 this.removeCallbacks();
                 this.disconnectObserver();
                 navigateTo("/home");
             } else {
                 newErrors = await handleResponse(response, this.formData);
                 this.errors = newErrors;
+                this.render();
             }
+        } else {
+            this.render();
         }
+
+        this._insideRequest = false;
     }
 
     defineCallback() {
@@ -91,7 +108,6 @@ export default class LoginPage extends AbstractView {
                 ...this.formData,
                 [event.detail.id]: event.detail.value,
             };
-			console.log(this.formData)
         };
 
         this.buttonClickedCallback = (event) => {
@@ -100,9 +116,9 @@ export default class LoginPage extends AbstractView {
 
         this.keydownCallback = (event) => {
             if (event.key === "Enter") {
-				event.preventDefault();
-				this.handleValidation();
-			}
+                event.preventDefault();
+                this.handleValidation();
+            }
         };
 
         document.querySelectorAll("input-box").forEach((inputBox) => {
