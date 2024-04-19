@@ -50,9 +50,7 @@ export default class CreateProfilePage extends AbstractView {
         };
 
         this.avatarCallback = (event) => {
-            this.avatar = event.detail;
-			const avatar = document.querySelector("avatar-box");
-			avatar.setAttribute("avatar", this.avatar);
+            this._avatar = event.detail;
         };
 
         this.buttonClickedCallback = () => {
@@ -76,7 +74,7 @@ export default class CreateProfilePage extends AbstractView {
 
         const avatarBox = document.querySelector("avatar-box");
         if (avatarBox) {
-            avatarBox.addEventListener("avatarChanged", this.avatarCallback);
+            avatarBox.addEventListener("avatar-change", this.avatarCallback);
         }
 
         const submitButton = document.querySelector("submit-button");
@@ -98,7 +96,7 @@ export default class CreateProfilePage extends AbstractView {
 
         const avatarBox = document.querySelector("avatar-box");
         if (avatarBox) {
-            avatarBox.removeEventListener("avatarChanged", this.inputCallback);
+            avatarBox.removeEventListener("avatar-change", this.inputCallback);
         }
 
         const submitButton = document.querySelector("submit-button");
@@ -151,6 +149,8 @@ export default class CreateProfilePage extends AbstractView {
 			const id = input.getAttribute("id");
 			if (this.errors[id]) {
 				input.classList.add("input-error");
+				input.setAttribute("value", "");
+				input.value = "";
 			}
         }
     }
@@ -167,9 +167,6 @@ export default class CreateProfilePage extends AbstractView {
         if (this._insideRequest) {
             return;
         }
-
-		console.log("here")
-		console.log(this.formData)
 
         this._insideRequest = true;
         const usernamePattern = /^[a-zA-Z0-9@.+_-]+$/;
@@ -201,7 +198,7 @@ export default class CreateProfilePage extends AbstractView {
             formDataToSend.append("email", this.formData.email);
             formDataToSend.append("password", this.formData.password);
 
-            if (this.avatar) {
+            if (this._avatar) {
                 formDataToSend.append("avatar", this.avatar);
             }
 
@@ -217,13 +214,14 @@ export default class CreateProfilePage extends AbstractView {
             if (response.ok) {
                 console.log("user created!");
                 await createToken(this.formData, AbstractView.authed);
+				const data = await response.json();
                 this.userInfo = {
                     username: this.formData.username,
                     email: this.formData.email,
-                    avatar: this.avatar
-                        ? URL.createObjectURL(this.avatar)
+                    avatar: this._avatar
+                        ? URL.createObjectURL(this._avatar)
                         : null,
-                    id: null,
+                    id: data["id"],
                 };
                 this.removeCallbacks();
                 navigateTo("/home");

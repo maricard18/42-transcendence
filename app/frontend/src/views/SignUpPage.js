@@ -106,9 +106,11 @@ export default class SignUpPage extends AbstractView {
 
             const inputList = document.querySelectorAll("input");
             inputList.forEach((input) => {
-                const id = input.getAttribute("id");
+				const id = input.getAttribute("id");
                 if (this.errors[id]) {
                     input.classList.add("input-error");
+                    input.setAttribute("value", "");
+                    input.value = "";
                 }
             });
         }

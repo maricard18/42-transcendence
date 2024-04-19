@@ -50,9 +50,21 @@ export class Avatar extends HTMLElement {
                 img.setAttribute("class", "avatar-border-lg");
                 img.setAttribute("style", "border-radius: 50%");
                 label.appendChild(img);
+				this.dispatchEvent(
+                    new CustomEvent("avatar-change", {
+                        detail: file,
+                        bubbles: true,
+                    })
+                );
             } else {
                 const img = document.querySelector("img");
                 img.setAttribute("src", this._url);
+                this.dispatchEvent(
+                    new CustomEvent("avatar-change", {
+                        detail: file,
+                        bubbles: true,
+                    })
+                );
             }
         }
     }

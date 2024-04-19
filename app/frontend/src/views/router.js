@@ -9,23 +9,23 @@ import HomePage from "./HomePage.js";
 export const routes = [
     {
         path: "/",
-        view: LandingPage,
+        view: LandingPage
     },
     {
         path: "/login",
-        view: LoginPage,
+        view: LoginPage
     },
     {
-        path: "/login/42",
-        view: Login42Page,
+        path: "/login-42",
+        view: Login42Page
     },
     {
         path: "/sign-up",
-        view: SignUpPage,
+        view: SignUpPage
     },
     {
         path: "/create-profile",
-        view: CreateProfilePage,
+        view: CreateProfilePage
     },
     {
         path: "/home",
@@ -34,11 +34,59 @@ export const routes = [
             {
                 path: "",
                 view: HomePage,
+				children: [
+					{
+						path: "",
+					},
+					{
+						path: "/pong-game/options",
+					},
+					{
+						path: "pong-game/single-player",
+					},
+					{
+						path: "pong-game/multiplayer",
+					},
+					{
+						path: "pong-game/multiplayer/waiting-room/2",
+					},
+					{
+						path: "pong-game/multiplayer/waiting-room/2",
+					},
+					{
+						path: "pong-game/single-player-tournament",
+					},
+					{
+						path: "pong-game/multiplayer-tournament",
+					}
+				]
             },
 			{
-                path: "/",
-                view: HomePage,
+                path: "/profile",
+				children: [
+					{
+						path: "/username",
+					},
+					{
+						path: "/password",
+					}
+				]
             },
-        ],
-    },
+			{
+                path: "pong-game/play/single-player/1",
+            },
+            {
+                path: "pong-game/play/single-player/2",
+            },
+            {
+                path: "pong-game/play/multiplayer/2",
+            },
+            {
+                path: "pong-game/play/multiplayer/4",
+            },
+            {
+                path: "pong-game/play",
+            }
+        ]
+    }
 ];

@@ -112,6 +112,8 @@ export default class LoginPage extends AbstractView {
                 const id = input.getAttribute("id");
                 if (this.errors[id]) {
                     input.classList.add("input-error");
+                    input.setAttribute("value", "");
+                    input.value = "";
                 }
             });
         }

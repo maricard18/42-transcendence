@@ -8,9 +8,9 @@ export default class HomePage extends AbstractView {
     }
 
     async getHtml() {
-		if (!AbstractView.authed.value) {
-			navigateTo("/");
-		}
+		//if (!AbstractView.authed.value) {
+		//	navigateTo("/");
+		//}
 
         return `
 			<div class="container">

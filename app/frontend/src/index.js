@@ -4,31 +4,62 @@ import "../static/css/index.css";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.bundle.js";
 
+//const router = async () => {
+//	let url = location.pathname;
+//	let match = findMatch(url, routes)
+
+
+
+    //const potentialMatches = routes.map((route) => {
+    //    let url = location.pathname;
+    //    if (location.pathname.indexOf("?") >= 0) {
+    //        url = location.pathname.substring(location.pathname.indexOf("?"));
+    //        console.log(url);
+    //    }
+
+    //    return {
+    //        route: route,
+    //        match: url === route.path,
+    //    };
+    //});
+
+    //let match = potentialMatches.find((potentialMatch) => potentialMatch.match);
+
+    //if (!match) {
+    //    match = {
+    //        route: routes[0],
+    //    };
+    //}
+
+    //const view = new match.route.view();
+    //document.querySelector("#app").innerHTML = await view.getHtml();
+//};
+
 const router = async () => {
-    const potentialMatches = routes.map((route) => {
-        let url = location.pathname;
-        if (location.pathname.indexOf("?") >= 0) {
-            url = location.pathname.substring(location.pathname.indexOf("?"));
-            console.log(url);
-        }
-
-        return {
-            route: route,
-            match: url === route.path,
-        };
-    });
-
-    let match = potentialMatches.find((potentialMatch) => potentialMatch.match);
+    const url = location.pathname;
+    let match = findMatch(url, routes);
+	console.log(match)
 
     if (!match) {
-        match = {
-            route: routes[0],
-        };
+		// if authed routes[5]
+        match = { route: routes[0] };
     }
 
-    const view = new match.route.view();
+    let view;
+    if (match.child) {
+        view = new match.route.view(new match.child.route.view());
+    } else {
+        view = new match.route.view();
+    }
+
     document.querySelector("#app").innerHTML = await view.getHtml();
 };
+
+function findMatch(url, routes) {
+    
+
+    return longestMatch;
+}
 
 export function navigateTo(url) {
     history.pushState(null, "", url);
