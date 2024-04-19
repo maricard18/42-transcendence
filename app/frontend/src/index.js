@@ -4,65 +4,84 @@ import "../static/css/index.css";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.bundle.js";
 
-//const router = async () => {
-//	let url = location.pathname;
-//	let match = findMatch(url, routes)
-
-
-
-    //const potentialMatches = routes.map((route) => {
-    //    let url = location.pathname;
-    //    if (location.pathname.indexOf("?") >= 0) {
-    //        url = location.pathname.substring(location.pathname.indexOf("?"));
-    //        console.log(url);
-    //    }
-
-    //    return {
-    //        route: route,
-    //        match: url === route.path,
-    //    };
-    //});
-
-    //let match = potentialMatches.find((potentialMatch) => potentialMatch.match);
-
-    //if (!match) {
-    //    match = {
-    //        route: routes[0],
-    //    };
-    //}
-
-    //const view = new match.route.view();
-    //document.querySelector("#app").innerHTML = await view.getHtml();
-//};
-
 const router = async () => {
     const url = location.pathname;
-    let match = findMatch(url, routes);
-	console.log(match)
+    let matches = findMatch(url, routes);
+    console.log("finalObject:", matches);
 
-    if (!match) {
-		// if authed routes[5]
-        match = { route: routes[0] };
+    if (!matches || matches.length === 0) {
+        // if authed -> [{ route: routes[5] }]
+        matches = [{ route: routes[0] }];
     }
 
-    let view;
-    if (match.child) {
-        view = new match.route.view(new match.child.route.view());
+    let view = [];
+    if (matches.length > 1) {
+        for (let i = matches.length - 1; i >= 0; i--) {
+            const match = matches[i];
+
+            if (Array.isArray(match.view)) {
+                if (i === matches.length - 1) {
+                    view = match.view.map((viewClass) => new viewClass());
+                } else {
+                    view = match.view.map((viewClass) => new viewClass(view));
+                }
+            } else {
+                if (i === matches.length - 1) {
+                    view = new match.view();
+                } else {
+                    view = new match.view(view);
+                }
+            }
+        }
     } else {
-        view = new match.route.view();
+        view = new matches[0].view();
     }
 
     document.querySelector("#app").innerHTML = await view.getHtml();
 };
 
-function findMatch(url, routes) {
-    
+function findMatch(url, routes, previousMatches = []) {
+    let longestMatch = -1;
+    let index = -1;
 
-    return longestMatch;
+    for (let i in routes) {
+        const urlToCheck = routes[i].path;
+        const urlExists = url.startsWith(urlToCheck);
+
+        if (urlExists && urlToCheck.length > longestMatch) {
+            index = i;
+            longestMatch = urlToCheck.length;
+        }
+    }
+
+    if (index > -1) {
+        const matchedRoute = routes[index];
+        const newUrl = url.slice(matchedRoute.path.length);
+        previousMatches.push({
+            path: matchedRoute.path,
+            view: matchedRoute.view,
+        });
+
+        if (matchedRoute.children) {
+            return findMatch(newUrl, matchedRoute.children, previousMatches);
+        } else {
+            return previousMatches;
+        }
+    } else {
+        if (previousMatches) {
+            return previousMatches;
+        }
+    }
+
+    return null;
 }
 
 export function navigateTo(url) {
-    history.pushState(null, "", url);
+	if (url === "-1") {
+		history.back();
+	} else {
+		history.pushState(null, "", url);
+	}
     router();
 }
 

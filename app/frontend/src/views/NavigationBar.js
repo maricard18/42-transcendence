@@ -1,5 +1,4 @@
 import { navigateTo } from "../index";
-import { routes } from "./router";
 import AbstractView from "./AbstractView";
 import getUserInfo from "../functions/getUserInfo";
 
@@ -48,10 +47,7 @@ export default class NavigationBar extends AbstractView {
                     avatar: userData.avatar,
                     id: userData.id,
                 };
-                console.log("User info was collected");
-                console.log("info:", this.userInfo);
                 this._loading = false;
-                console.log(this.userInfo);
                 await this.loadDOMChanges();
             } else {
                 console.log("Error: failed to fetch user data.");
@@ -68,34 +64,36 @@ export default class NavigationBar extends AbstractView {
         if (emptyFieldExists) {
             fetchUserInfo();
         } else {
-            console.log("User info already collected, loading changes");
             this._loading = false;
             await this.loadDOMChanges();
             console.log(this.userInfo);
         }
     }
 
+	disconnectObserver() {
+        this.observer.disconnect();
+    }
+
     async loadDOMChanges() {
-		const navigationBar = document.getElementById("navigation-bar");
-		const loading = document.querySelector("loading-icon");
-		if (loading) {
-			console.log("removing loading icon");
-			loading.remove();
-			const navigationContent = await this.navigationBarContent();
-			navigationBar.appendChild(navigationContent);
-			return ;
-		}
+        const navigationBar = document.getElementById("navigation-bar");
+        const loading = document.querySelector("loading-icon");
+        if (loading) {
+            loading.remove();
+            const navigationContent = await this.navigationBarContent();
+            navigationBar.appendChild(navigationContent);
+            return;
+        }
 
         const avatarElement = document.querySelector("img");
         const baseAvatar = document.querySelector("base-avatar-box");
         const h6 = document.querySelector("h6");
-		h6.innerText = this.userInfo.username;
+        h6.innerText = this.userInfo.username;
 
         if (avatarElement) {
-			console.log("Updated avatar")
+            console.log("Updated avatar");
             avatarElement.setAttribute("src", this.userInfo.avatar);
         } else {
-			console.log("removed default avatar and added new one")
+            console.log("removed default avatar and added new one");
             baseAvatar.remove();
             const avatarElement = document.createElement("img");
             avatarElement.setAttribute("class", "avatar-border-sm");
@@ -108,18 +106,13 @@ export default class NavigationBar extends AbstractView {
         }
     }
 
-    disconnectObserver() {
-        this.observer.disconnect();
-    }
-
-	async navigationBarContent() {
-		let navigationContent = document.createElement("div");
-		const avatarContainer = document.createElement("div");
+    async navigationBarContent() {
+        let navigationContent = document.createElement("div");
+        const avatarContainer = document.createElement("div");
         avatarContainer.setAttribute("id", "avatar-container");
         avatarContainer.setAttribute("class", "d-flex align-items-center mb-3");
 
         if (this.userInfo.avatar) {
-			console.log("Found an avatar");
             const avatarElement = document.createElement("img");
             avatarElement.setAttribute("class", "avatar-border-sm");
             avatarElement.setAttribute("alt", "Avatar preview");
@@ -129,7 +122,6 @@ export default class NavigationBar extends AbstractView {
             avatarElement.setAttribute("src", this.userInfo.avatar);
             avatarContainer.appendChild(avatarElement);
         } else {
-            console.log("No avatar");
             const baseAvatar = document.createElement("base-avatar-box");
             baseAvatar.setAttribute("size", "40");
             avatarContainer.appendChild(baseAvatar);
@@ -186,39 +178,31 @@ export default class NavigationBar extends AbstractView {
 					</div>
 				</div>
 			</nav>
-			<div class="center">
-				${await this._view.getHtml()}
-			</div>
+			${await this._view.getHtml()}
 		`;
 
         return navigationContent;
-	}
+    }
 
-	loadingComponent() {
-		const loading = document.createElement("loading-icon");
-		loading.setAttribute("size", "5rem");
-		return loading;
-	}
+    loadingComponent() {
+        const loading = document.createElement("loading-icon");
+        loading.setAttribute("size", "5rem");
+        return loading;
+    }
 
     async getHtml() {
-        const div = document.createElement("div");
-        div.setAttribute("class", "container-fluid");
-
         const navigationBar = document.createElement("div");
         navigationBar.setAttribute("class", "container-fluid");
         navigationBar.setAttribute("id", "navigation-bar");
 
-		if (this._loading) {
-            console.log("Loading");
+        if (this._loading) {
             const loading = this.loadingComponent();
             navigationBar.appendChild(loading);
-			div.appendChild(navigationBar);
-			return div.outerHTML;
-		} else {
-			const navigationBarContent = await this.navigationBarContent();
-			navigationBar.appendChild(navigationBarContent);
-			div.appendChild(navigationBar);
-			return div.outerHTML;
-		}
+            return navigationBar.outerHTML;
+        } else {
+            const navigationBarContent = await this.navigationBarContent();
+            navigationBar.appendChild(navigationBarContent);
+            return navigationBar.outerHTML;
+        }
     }
 }

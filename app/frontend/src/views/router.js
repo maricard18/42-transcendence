@@ -5,27 +5,29 @@ import SignUpPage from "./SignUpPage";
 import CreateProfilePage from "./CreateProfilePage.js";
 import NavigationBar from "./NavigationBar.js";
 import HomePage from "./HomePage.js";
+import { Game1, Game2 } from "./Games.js";
+import { GameMenuOptions, MultiplayerOptions, SinglePlayerOptions, TournamentOptions } from "./GameOptions.js";
 
 export const routes = [
     {
         path: "/",
-        view: LandingPage
+        view: LandingPage,
     },
     {
         path: "/login",
-        view: LoginPage
+        view: LoginPage,
     },
     {
         path: "/login-42",
-        view: Login42Page
+        view: Login42Page,
     },
     {
         path: "/sign-up",
-        view: SignUpPage
+        view: SignUpPage,
     },
     {
         path: "/create-profile",
-        view: CreateProfilePage
+        view: CreateProfilePage,
     },
     {
         path: "/home",
@@ -34,59 +36,67 @@ export const routes = [
             {
                 path: "",
                 view: HomePage,
-				children: [
-					{
-						path: "",
-					},
-					{
-						path: "/pong-game/options",
-					},
-					{
-						path: "pong-game/single-player",
-					},
-					{
-						path: "pong-game/multiplayer",
-					},
-					{
-						path: "pong-game/multiplayer/waiting-room/2",
-					},
-					{
-						path: "pong-game/multiplayer/waiting-room/2",
-					},
-					{
-						path: "pong-game/single-player-tournament",
-					},
-					{
-						path: "pong-game/multiplayer-tournament",
-					}
-				]
+                children: [
+                    {
+                        path: "",
+                        view: [Game1, Game2],
+                    },
+                    {
+                        path: "/pong-game",
+                        view: [Game1, GameMenuOptions],
+                    },
+                    {
+                        path: "/pong-game/single-player",
+						view: [Game1, SinglePlayerOptions],
+                    },
+                    {
+                        path: "/pong-game/multiplayer",
+						view: [Game1, MultiplayerOptions],
+                    },
+                    {
+                        path: "/pong-game/multiplayer/waiting-room/2",
+                    },
+                    {
+                        path: "/pong-game/multiplayer/waiting-room/2",
+                    },
+                    {
+                        path: "/pong-game/single-player/tournament",
+						view: [Game1, TournamentOptions],
+                    },
+                    {
+                        path: "/pong-game/multiplayer/tournament",
+						view: [Game1, TournamentOptions],
+                    },
+                ],
             },
-			{
+            {
                 path: "/profile",
-				children: [
-					{
-						path: "/username",
-					},
-					{
-						path: "/password",
-					}
-				]
-            },
-			{
-                path: "pong-game/play/single-player/1",
-            },
-            {
-                path: "pong-game/play/single-player/2",
+                view: SignUpPage,
+                children: [
+                    {
+                        path: "/username",
+                        view: CreateProfilePage,
+                    },
+                    {
+                        path: "/password",
+                    },
+                ],
             },
             {
-                path: "pong-game/play/multiplayer/2",
+                path: "/pong-game/play/single-player/1",
             },
             {
-                path: "pong-game/play/multiplayer/4",
+                path: "/pong-game/play/single-player/2",
             },
             {
-                path: "pong-game/play",
-            }
-        ]
-    }
+                path: "/pong-game/play/multiplayer/2",
+            },
+            {
+                path: "/pong-game/play/multiplayer/4",
+            },
+            {
+                path: "/pong-game/play",
+            },
+        ],
+    },
 ];
