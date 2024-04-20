@@ -8,6 +8,7 @@ import { validateLoginForm } from "../functions/validateForms";
 export default class LoginPage extends AbstractView {
     constructor() {
         super();
+		AbstractView.clean();
         this.setTitle("Login");
 		this._parentNode = null;
         this._loading = true;
@@ -45,10 +46,7 @@ export default class LoginPage extends AbstractView {
             const id = event.target.getAttribute("id");
             const value = event.target.value;
             event.target.setAttribute("value", value);
-            this._formData = {
-                ...this._formData,
-                [id]: value,
-            };
+            this._formData[id] = value;
         };
 
         this.buttonClickedCallback = () => {

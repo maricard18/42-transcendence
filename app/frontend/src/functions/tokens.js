@@ -48,7 +48,7 @@ export async function setToken(response) {
         AbstractView.authed = true;
     } catch (error) {
         console.log("Error: failed to set Cookies");
-        logout(authed);
+        logout();
         return;
     }
 }
@@ -98,19 +98,8 @@ export function decode(accessToken) {
 }
 
 export function logout() {
+	console.log("here")
     Cookies.remove("access_token");
     Cookies.remove("refresh_token");
-    AbstractView.userInfo = {
-        id: "",
-        username: "",
-        email: "",
-        id: "",
-    };
-	AbstractView.formData = {
-        username: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-    };
     AbstractView.authed = false;
 }

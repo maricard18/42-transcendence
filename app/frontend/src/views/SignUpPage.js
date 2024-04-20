@@ -5,6 +5,7 @@ import { navigateTo } from "../index";
 export default class SignUpPage extends AbstractView {
     constructor() {
         super();
+        AbstractView.clean();
         this.setTitle("Sign Up");
         this._parentNode = null;
         this._callbacksDefined = false;
@@ -56,14 +57,12 @@ export default class SignUpPage extends AbstractView {
         if (inputList && inputList.length && !this._inputCallback) {
             this._inputCallback = true;
             this._parentNode.querySelectorAll("input").forEach((input) => {
-				console.log("SignUp - added input callback");
                 input.addEventListener("input", this.inputCallback);
             });
         }
 
         const submitButton = this._parentNode.querySelector("submit-button");
         if (submitButton && !this._clickCallback) {
-			console.log("SignUp - added click callback");
             this._clickCallback = true;
             submitButton.addEventListener(
                 "buttonClicked",
@@ -73,7 +72,6 @@ export default class SignUpPage extends AbstractView {
 
         if (!this._enterCallback) {
             this._enterCallback = true;
-			console.log("SignUp - added enter callback");
             window.addEventListener("keydown", this.keydownCallback);
         }
     }
@@ -84,20 +82,17 @@ export default class SignUpPage extends AbstractView {
         }
 
         this._parentNode.querySelectorAll("input").forEach((input) => {
-			console.log("SignUp - removed input callback");
             input.removeEventListener("input", this.inputCallback);
         });
 
         const submitButton = this._parentNode.querySelector("submit-button");
         if (submitButton) {
-			console.log("SignUp - removed click callback");
             submitButton.removeEventListener(
                 "buttonClicked",
                 this.buttonClickedCallback
             );
         }
 
-		console.log("SignUp - removed enter callback");
         window.removeEventListener("keydown", this.keydownCallback);
 
         this._inputCallback = false;
@@ -143,8 +138,6 @@ export default class SignUpPage extends AbstractView {
 
         if (!newErrors.message) {
             this.removeCallbacks();
-			console.log(AbstractView.formData)
-			console.log("Navigating to Create Profile");
             navigateTo("/create-profile");
         }
 

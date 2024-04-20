@@ -19,6 +19,21 @@ export default class AbstractView {
         avatar: "",
     };
 
+	static clean() {
+		this.formData = {
+			username: "",
+			email: "",
+			password: "",
+			confirmPassword: "",
+		};
+		this.userInfo = {
+			id: "",
+			username: "",
+			email: "",
+			avatar: "",
+		};
+	}
+
     setTitle(title) {
         document.title = title;
     }
