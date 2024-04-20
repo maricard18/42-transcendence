@@ -4,15 +4,10 @@ import AbstractView from "./AbstractView";
 export default class HomePage extends AbstractView {
     constructor(view) {
         super();
-        this._view = view; // Corrected assignment
-        this.setTitle("Home");
+        this._view = view;
     }
 
     async getHtml() {
-		if (!AbstractView.authed) {
-			navigateTo("/");
-		}
-		
         return `
             <div class="container">
                 <div class="

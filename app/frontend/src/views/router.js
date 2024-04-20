@@ -5,8 +5,9 @@ import SignUpPage from "./SignUpPage";
 import CreateProfilePage from "./CreateProfilePage.js";
 import NavigationBar from "./NavigationBar.js";
 import HomePage from "./HomePage.js";
-import { Game1, Game2 } from "./Games.js";
-import { GameMenuOptions, MultiplayerOptions, SinglePlayerOptions, TournamentOptions } from "./GameOptions.js";
+import { Game1, Game2 } from "../components2/Games.js";
+import { GameMenuOptions, MultiplayerOptions, SinglePlayerOptions, TournamentOptions } from "../components2/GameOptions.js";
+import ProfilePage from "./ProfilePage.js";
 
 export const routes = [
     {
@@ -71,11 +72,10 @@ export const routes = [
             },
             {
                 path: "/profile",
-                view: SignUpPage,
+                view: ProfilePage,
                 children: [
                     {
                         path: "/username",
-                        view: CreateProfilePage,
                     },
                     {
                         path: "/password",

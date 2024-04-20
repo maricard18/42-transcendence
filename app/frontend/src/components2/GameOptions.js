@@ -1,9 +1,8 @@
-import AbstractView from "./AbstractView";
+import AbstractView from "../views/AbstractView";
 
 export class GameMenuOptions extends AbstractView {
     constructor() {
         super();
-        this.setTitle("Menu");
     }
 
     async getHtml() {
@@ -40,7 +39,6 @@ export class GameMenuOptions extends AbstractView {
 export class SinglePlayerOptions extends AbstractView {
     constructor() {
         super();
-        this.setTitle("Menu");
     }
 
     async getHtml() {
@@ -71,7 +69,7 @@ export class SinglePlayerOptions extends AbstractView {
 				<div>
 					<nav-button 
 						template="secondary-button extra-btn-class" 
-                        page="/home/pong-game/options"
+                        page="/home/pong-game"
 						value="Back"
 					></nav-button>
 				</div>
@@ -115,7 +113,7 @@ export class MultiplayerOptions extends AbstractView {
 				<div>
 					<nav-button 
 						template="secondary-button extra-btn-class" 
-                        page="/home/pong-game/options"
+                        page="/home/pong-game"
 						value="Back"
 					></nav-button>
 				</div>

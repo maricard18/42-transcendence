@@ -1,11 +1,11 @@
-import { navigateTo } from "../index";
 import AbstractView from "./AbstractView";
 import getUserInfo from "../functions/getUserInfo";
+import { getPageTitle } from "../functions/fetchData";
 
 export default class NavigationBar extends AbstractView {
     constructor(view) {
         super();
-        this.setTitle("Home");
+        this.setTitle(getPageTitle(location.pathname));
         this._loading = true;
         this._callbackRunned = false;
         this._view = view;
@@ -66,7 +66,6 @@ export default class NavigationBar extends AbstractView {
         } else {
             this._loading = false;
             await this.loadDOMChanges();
-            console.log(this.userInfo);
         }
     }
 
@@ -167,7 +166,7 @@ export default class NavigationBar extends AbstractView {
 							></nav-button>
 							<nav-button
 								template="white-button extra-btn-class"
-								page="/home/profile/username"
+								page="/home/profile"
 								value="Profile"
 							></nav-button>
 							<logout-button 
