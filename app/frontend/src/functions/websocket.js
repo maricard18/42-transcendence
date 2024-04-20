@@ -1,6 +1,6 @@
-import { ScreenHeight, ScreenWidth } from "../Game/variables";
-import { clearBackground, drawGoal, drawScore } from "../Game/pongGameCode";
-import { getToken } from "./tokens";
+import {ScreenHeight, ScreenWidth} from "../Game/variables";
+import {clearBackground, drawGoal, drawScore} from "../Game/pongGameCode";
+import {getToken} from "./tokens";
 
 export var MyWebSocket = {};
 
@@ -12,8 +12,11 @@ export async function connectWebsocket(
     setWsCreated
 ) {
     const token = await getToken(setAuthed);
+
+    const protocol = window.location.protocol === "http:" ? "ws:" : "wss:";
     const host = window.location.host;
-    MyWebSocket.ws = new WebSocket("ws://" + host + "/ws/games/1/queue/2", [
+
+    MyWebSocket.ws = new WebSocket(protocol + "//" + host + "/ws/games/1/queue/2", [
         "Authorization",
         token,
     ]);

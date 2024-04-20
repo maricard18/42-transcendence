@@ -9,9 +9,10 @@ export default async function fetchData(endpoint, method, headers = {}, body = n
     if (body) {
 		fetchOptions.body = body;
     }
-	
-	const host = window.location.host;
-    const response = await fetch("http://" + host + endpoint, fetchOptions);
+
+    const protocol = window.location.protocol;
+    const host = window.location.host;
+    const response = await fetch(protocol + "//" + host + endpoint, fetchOptions);
 
     return response;
 }

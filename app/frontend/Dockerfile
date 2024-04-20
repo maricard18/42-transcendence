@@ -22,16 +22,16 @@ WORKDIR /app/frontend/
 
 CMD ["npm", "run", "dev"]
 
-# SECOND STAGE -- WEBPACK BUILD
-FROM node:20.11.0-alpine3.18 as prod
+# SECOND STAGE -- PROD
+FROM gcr.io/distroless/nodejs20-debian12 as prod
 LABEL authors="bsilva-c"
 
 ENV NODE_PATH="/node_modules/"
 ENV NODE_ENV="production"
 
 COPY --from=build /usr/local/lib/node_modules/ /node_modules/
-COPY --from=build /app/frontend/ /tmp/app/frontend/
+COPY --from=build /app/frontend/ /app/frontend/
 
-WORKDIR /tmp/app/frontend/
+WORKDIR /app/frontend/
 
-CMD ["sh", "./tools/entrypoint.sh"]
+CMD ["/node_modules/webpack/bin/webpack.js", "--mode", "production"]
