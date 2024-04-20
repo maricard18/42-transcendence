@@ -41,7 +41,7 @@ export class Avatar extends HTMLElement {
             const avatar = this.querySelector("base-avatar-box");
             if (avatar) {
                 avatar.remove();
-                const label = document.querySelector("label");
+                const label = this.querySelector("label");
                 const img = document.createElement("img");
                 img.setAttribute("src", this._url);
                 img.setAttribute("alt", "Avatar Preview");
@@ -57,7 +57,7 @@ export class Avatar extends HTMLElement {
                     })
                 );
             } else {
-                const img = document.querySelector("img");
+                const img = this.querySelector("img");
                 img.setAttribute("src", this._url);
                 this.dispatchEvent(
                     new CustomEvent("avatar-change", {

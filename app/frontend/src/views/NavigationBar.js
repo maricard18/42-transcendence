@@ -1,16 +1,16 @@
 import AbstractView from "./AbstractView";
 import getUserInfo from "../functions/getUserInfo";
 import { getPageTitle } from "../functions/fetchData";
+import { navigateTo } from "..";
 
 export default class NavigationBar extends AbstractView {
     constructor(view) {
         super();
         this.setTitle(getPageTitle(location.pathname));
-        this._loading = true;
-        this._callbackRunned = false;
         this._view = view;
-        this._navigationContent;
-        this._avatarContainer;
+		this._loading = true;
+        this._callbackRunned = false;
+        this._avatarContainerCallback = false;
 
         this.observer = new MutationObserver(this.defineCallback.bind(this));
         this.observer.observe(document.body, {
@@ -23,15 +23,20 @@ export default class NavigationBar extends AbstractView {
         };
     }
 
-    get userInfo() {
-        return AbstractView.userInfo;
-    }
-
-    set userInfo(value) {
-        AbstractView.userInfo = value;
-    }
-
     async defineCallback() {
+		if (!AbstractView.authed) {
+			navigateTo("/");
+		}
+
+        const avatarContainer = document.getElementById("avatar-container");
+        if (avatarContainer && !this._avatarContainerCallback) {
+            this._avatarContainerCallback = true;
+            avatarContainer.addEventListener(
+                "avatar-container",
+                this.loadNavigationBarMenuChanges
+            );
+        }
+
         if (this._callbackRunned) {
             return;
         }
@@ -41,7 +46,7 @@ export default class NavigationBar extends AbstractView {
             const userData = await getUserInfo(AbstractView.authed);
 
             if (userData) {
-                this.userInfo = {
+                AbstractView.userInfo = {
                     username: userData.username,
                     email: userData.email,
                     avatar: userData.avatar,
@@ -69,8 +74,29 @@ export default class NavigationBar extends AbstractView {
         }
     }
 
-	disconnectObserver() {
+    disconnectObserver() {
         this.observer.disconnect();
+    }
+
+    loadNavigationBarMenuChanges() {
+        const avatarElement = document.querySelector("img");
+        const baseAvatar = document.querySelector("base-avatar-box");
+        const h6 = document.querySelector("h6");
+        h6.innerText = AbstractView.userInfo.username;
+
+        if (avatarElement) {
+            avatarElement.setAttribute("src", AbstractView.userInfo.avatar);
+        } else {
+            baseAvatar.remove();
+            const avatarElement = document.createElement("img");
+            avatarElement.setAttribute("class", "avatar-border-sm");
+            avatarElement.setAttribute("alt", "Avatar preview");
+            avatarElement.setAttribute("width", "40");
+            avatarElement.setAttribute("height", "40");
+            avatarElement.setAttribute("style", "border-radius: 50%");
+            avatarElement.setAttribute("src", AbstractView.userInfo.avatar);
+            h6.parentNode.insertBefore(avatarElement, h6);
+        }
     }
 
     async loadDOMChanges() {
@@ -83,26 +109,7 @@ export default class NavigationBar extends AbstractView {
             return;
         }
 
-        const avatarElement = document.querySelector("img");
-        const baseAvatar = document.querySelector("base-avatar-box");
-        const h6 = document.querySelector("h6");
-        h6.innerText = this.userInfo.username;
-
-        if (avatarElement) {
-            console.log("Updated avatar");
-            avatarElement.setAttribute("src", this.userInfo.avatar);
-        } else {
-            console.log("removed default avatar and added new one");
-            baseAvatar.remove();
-            const avatarElement = document.createElement("img");
-            avatarElement.setAttribute("class", "avatar-border-sm");
-            avatarElement.setAttribute("alt", "Avatar preview");
-            avatarElement.setAttribute("width", "40");
-            avatarElement.setAttribute("height", "40");
-            avatarElement.setAttribute("style", "border-radius: 50%");
-            avatarElement.setAttribute("src", this.userInfo.avatar);
-            h6.parentNode.insertBefore(avatarElement, h6);
-        }
+        this.loadNavigationBarMenuChanges();
     }
 
     async navigationBarContent() {
@@ -111,14 +118,14 @@ export default class NavigationBar extends AbstractView {
         avatarContainer.setAttribute("id", "avatar-container");
         avatarContainer.setAttribute("class", "d-flex align-items-center mb-3");
 
-        if (this.userInfo.avatar) {
+        if (AbstractView.userInfo.avatar) {
             const avatarElement = document.createElement("img");
             avatarElement.setAttribute("class", "avatar-border-sm");
             avatarElement.setAttribute("alt", "Avatar preview");
             avatarElement.setAttribute("width", "40");
             avatarElement.setAttribute("height", "40");
             avatarElement.setAttribute("style", "border-radius: 50%");
-            avatarElement.setAttribute("src", this.userInfo.avatar);
+            avatarElement.setAttribute("src", AbstractView.userInfo.avatar);
             avatarContainer.appendChild(avatarElement);
         } else {
             const baseAvatar = document.createElement("base-avatar-box");
@@ -129,7 +136,7 @@ export default class NavigationBar extends AbstractView {
         const h6 = document.createElement("h6");
         h6.setAttribute("class", "username-text ms-2 mt-1");
         const b = document.createElement("b");
-        b.innerText = this.userInfo.username;
+        b.innerText = AbstractView.userInfo.username;
         h6.appendChild(b);
         avatarContainer.appendChild(h6);
 
@@ -166,7 +173,7 @@ export default class NavigationBar extends AbstractView {
 							></nav-button>
 							<nav-button
 								template="white-button extra-btn-class"
-								page="/home/profile"
+								page="/home/profile/username"
 								value="Profile"
 							></nav-button>
 							<logout-button 

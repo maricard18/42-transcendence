@@ -9,10 +9,18 @@ export default class LoginPage extends AbstractView {
     constructor() {
         super();
         this.setTitle("Login");
+		this._parentNode = null;
         this._loading = true;
-        this._callbacksDefined = false;
         this._insideRequest = false;
+		this._inputCallback = false;
+        this._clickCallback = false;
+        this._enterCallback = false;
+		
         this._errors = {};
+		this._formData = {
+			username: "",
+			password: ""
+		};
 
         this._observer = new MutationObserver(this.defineCallback.bind(this));
         this._observer.observe(document.body, {
@@ -26,18 +34,19 @@ export default class LoginPage extends AbstractView {
     }
 
     defineCallback() {
-        if (this._callbacksDefined) {
+        const parentNode = document.getElementById("login-page");
+        if (parentNode) {
+            this._parentNode = parentNode;
+        } else {
             return;
         }
 
-        this._callbacksDefined = true;
-
-        this.inputCallback = (event, input) => {
-            const id = input.getAttribute("id");
+        this.inputCallback = (event) => {
+            const id = event.target.getAttribute("id");
             const value = event.target.value;
-            input.setAttribute("value", value);
-            this.formData = {
-                ...this.formData,
+            event.target.setAttribute("value", value);
+            this._formData = {
+                ...this._formData,
                 [id]: value,
             };
         };
@@ -53,21 +62,27 @@ export default class LoginPage extends AbstractView {
             }
         };
 
-        document.querySelectorAll("input").forEach((input) => {
-            input.addEventListener("input", (event) =>
-                this.inputCallback(event, input)
-            );
-        });
+        const inputList = this._parentNode.querySelectorAll("input");
+		if (inputList && inputList.length && !this._inputCallback) {
+			this._inputCallback = true;
+			this._parentNode.querySelectorAll("input").forEach((input) => {
+				input.addEventListener("input", this.inputCallback);
+			});
+		}
 
-        const submitButton = document.querySelector("submit-button");
-        if (submitButton) {
+        const submitButton = this._parentNode.querySelector("submit-button");
+        if (submitButton && !this._clickCallback) {
+            this._clickCallback = true;
             submitButton.addEventListener(
                 "buttonClicked",
                 this.buttonClickedCallback
             );
         }
 
-        window.addEventListener("keydown", this.keydownCallback);
+        if (!this._enterCallback) {
+            this._enterCallback = true;
+            window.addEventListener("keydown", this.keydownCallback);
+        }
     }
 
     removeCallbacks() {
@@ -88,14 +103,6 @@ export default class LoginPage extends AbstractView {
         this._observer.disconnect();
     }
 
-    get formData() {
-        return AbstractView.formData;
-    }
-
-    set formData(value) {
-        AbstractView.formData = value;
-    }
-
     get errors() {
         return this._errors;
     }
@@ -112,8 +119,8 @@ export default class LoginPage extends AbstractView {
                 const id = input.getAttribute("id");
                 if (this.errors[id]) {
                     input.classList.add("input-error");
-                    input.setAttribute("value", "");
-                    input.value = "";
+                } else if (input.classList.contains("input-error")) {
+                    input.classList.remove("input-error");
                 }
             });
         }
@@ -125,17 +132,17 @@ export default class LoginPage extends AbstractView {
         }
 
         this._insideRequest = true;
-        let newErrors = validateLoginForm(this.formData);
+        let newErrors = validateLoginForm(this._formData);
         if (Object.values(newErrors).length !== 0) {
             this.errors = newErrors;
         }
 
         if (!newErrors.message) {
-            console.log(this.formData);
+            console.log(this._formData);
             const formDataToSend = new FormData();
             formDataToSend.append("grant_type", "password");
-            formDataToSend.append("username", this.formData.username);
-            formDataToSend.append("password", this.formData.password);
+            formDataToSend.append("username", this._formData.username);
+            formDataToSend.append("password", this._formData.password);
 
             const response = await fetchData(
                 "/auth/token",
@@ -149,7 +156,7 @@ export default class LoginPage extends AbstractView {
                 this.removeCallbacks();
                 navigateTo("/home");
             } else {
-                newErrors = await handleResponse(response, this.formData);
+                newErrors = await handleResponse(response, this._formData);
                 this.errors = newErrors;
             }
         }

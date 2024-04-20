@@ -8,13 +8,19 @@ export default class CreateProfilePage extends AbstractView {
     constructor() {
         super();
         this.setTitle("Create Profile");
-        this._loading = true;
         this._callbacksDefined = false;
         this._insideRequest = false;
+        this._inputCallback = false;
+        this._avatarCallback = false;
+        this._clickCallback = false;
+        this._enterCallback = false;
+
         this._errors = {};
         this._avatar = null;
 
-        if (Object.values(AbstractView.formData).every((value) => value === "")) {
+        if (
+            Object.values(AbstractView.formData).every((value) => value === "")
+        ) {
             setTimeout(() => {
                 navigateTo("/sign-up");
             }, 0);
@@ -33,7 +39,10 @@ export default class CreateProfilePage extends AbstractView {
     }
 
     defineCallback() {
-        if (this._callbacksDefined) {
+        const parentNode = document.getElementById("create-profile-page");
+        if (parentNode) {
+            this._parentNode = parentNode;
+        } else {
             return;
         }
 
@@ -43,8 +52,8 @@ export default class CreateProfilePage extends AbstractView {
             const id = input.getAttribute("id");
             const value = event.target.value;
             input.setAttribute("value", value);
-            this.formData = {
-                ...this.formData,
+            AbstractView.formData = {
+                ...AbstractView.formData,
                 [id]: value,
             };
         };
@@ -64,42 +73,53 @@ export default class CreateProfilePage extends AbstractView {
             }
         };
 
-        const inputList = document.querySelectorAll("input");
-		const input = inputList[inputList.length - 1];
-        if (input) {
+        const inputList = this._parentNode.querySelectorAll("input");
+        const input = inputList[inputList.length - 1];
+        if (input && !this._inputCallback) {
+            this._inputCallback = true;
             input.addEventListener("input", (event) =>
                 this.inputCallback(event, input)
             );
         }
 
-        const avatarBox = document.querySelector("avatar-box");
-        if (avatarBox) {
+        const avatarBox = this._parentNode.querySelector("avatar-box");
+        if (avatarBox && !this._avatarCallback) {
+            this._avatarCallback = true;
             avatarBox.addEventListener("avatar-change", this.avatarCallback);
         }
 
-        const submitButton = document.querySelector("submit-button");
-        if (submitButton) {
+        const submitButton = this._parentNode.querySelector("submit-button");
+        if (submitButton && !this._clickCallback) {
+            this._clickCallback = true;
             submitButton.addEventListener(
                 "buttonClicked",
                 this.buttonClickedCallback
             );
         }
 
-        window.addEventListener("keydown", this.keydownCallback);
+        if (!this._enterCallback) {
+            this._enterCallback = true;
+            window.addEventListener("keydown", this.keydownCallback);
+        }
     }
 
     removeCallbacks() {
-        const input = document.querySelector("input").lastChild;
+        if (!this._parentNode) {
+            return;
+        }
+
+        const inputList = this._parentNode.querySelectorAll("input");
+        const input = inputList[inputList.length - 1];
         if (input) {
             input.removeEventListener("input", this.inputCallback);
         }
 
-        const avatarBox = document.querySelector("avatar-box");
+        const avatarBox = this._parentNode.querySelector("avatar-box");
         if (avatarBox) {
             avatarBox.removeEventListener("avatar-change", this.inputCallback);
         }
 
-        const submitButton = document.querySelector("submit-button");
+        const submitButton = this._parentNode.querySelector("submit-button");
         if (submitButton) {
             submitButton.removeEventListener(
                 "buttonClicked",
@@ -109,27 +129,11 @@ export default class CreateProfilePage extends AbstractView {
 
         window.removeEventListener("keydown", this.keydownCallback);
 
-        this.disconnectObserver();
-    }
-
-    disconnectObserver() {
+        this._inputCallback = false;
+        this._avatarCallback = false;
+        this._clickCallback = false;
+        this._enterCallback = false;
         this._observer.disconnect();
-    }
-
-    get formData() {
-        return AbstractView.formData;
-    }
-
-    set formData(value) {
-        AbstractView.formData = value;
-    }
-
-    get userInfo() {
-        return AbstractView.userInfo;
-    }
-
-    set userInfo(value) {
-        AbstractView.userInfo = value;
     }
 
     get errors() {
@@ -140,18 +144,17 @@ export default class CreateProfilePage extends AbstractView {
         this._errors = value;
 
         if (this.errors.message) {
-            const p = document.querySelector("p");
+            const p = this._parentNode.querySelector("p");
             p.innerText = this.errors.message;
 
-            const inputList = document.querySelectorAll("input");
-			const input = inputList[inputList.length - 1];
-			console.log(input)
-			const id = input.getAttribute("id");
-			if (this.errors[id]) {
-				input.classList.add("input-error");
-				input.setAttribute("value", "");
-				input.value = "";
-			}
+            const inputList = this._parentNode.querySelectorAll("input");
+            const input = inputList[inputList.length - 1];
+            const id = input.getAttribute("id");
+            if (this.errors[id]) {
+                input.classList.add("input-error");
+            } else if (input.classList.contains("input-error")) {
+                input.classList.remove("input-error");
+            }
         }
     }
 
@@ -172,37 +175,35 @@ export default class CreateProfilePage extends AbstractView {
         const usernamePattern = /^[a-zA-Z0-9@.+_-]+$/;
         let newErrors = {};
 
-        if (this.formData.username === "") {
+        if (AbstractView.formData.username === "") {
             newErrors.message = "Please fill in all required fields";
             newErrors.username = 1;
-            this.formData.username = "";
+            AbstractView.formData.username = "";
             this.errors = newErrors;
         } else if (
-            this.formData.username.length < 3 ||
-            this.formData.username.length > 12
+            AbstractView.formData.username.length < 3 ||
+            AbstractView.formData.username.length > 12
         ) {
             newErrors.message = "Username must have 3-12 characters";
             newErrors.username = 1;
-            this.formData.username = "";
+            AbstractView.formData.username = "";
             this.errors = newErrors;
-        } else if (!usernamePattern.test(this.formData.username)) {
+        } else if (!usernamePattern.test(AbstractView.formData.username)) {
             newErrors.message = "Username has invalid characters";
             newErrors.username = 1;
-            this.formData.username = "";
+            AbstractView.formData.username = "";
             this.errors = newErrors;
         }
 
         if (!newErrors.message) {
             const formDataToSend = new FormData();
-            formDataToSend.append("username", this.formData.username);
-            formDataToSend.append("email", this.formData.email);
-            formDataToSend.append("password", this.formData.password);
+            formDataToSend.append("username", AbstractView.formData.username);
+            formDataToSend.append("email", AbstractView.formData.email);
+            formDataToSend.append("password", AbstractView.formData.password);
 
             if (this._avatar) {
                 formDataToSend.append("avatar", this.avatar);
             }
-
-            console.log("DataToBeSent:", formDataToSend);
 
             const response = await fetchData(
                 "/api/users",
@@ -212,12 +213,11 @@ export default class CreateProfilePage extends AbstractView {
             );
 
             if (response.ok) {
-                console.log("user created!");
-                await createToken(this.formData, AbstractView.authed);
-				const data = await response.json();
-                this.userInfo = {
-                    username: this.formData.username,
-                    email: this.formData.email,
+                await createToken(AbstractView.formData, AbstractView.authed);
+                const data = await response.json();
+                AbstractView.userInfo = {
+                    username: AbstractView.formData.username,
+                    email: AbstractView.formData.email,
                     avatar: this._avatar
                         ? URL.createObjectURL(this._avatar)
                         : null,
@@ -226,7 +226,10 @@ export default class CreateProfilePage extends AbstractView {
                 this.removeCallbacks();
                 navigateTo("/home");
             } else {
-                newErrors = await handleResponse(response, this.formData);
+                newErrors = await handleResponse(
+                    response,
+                    AbstractView.formData
+                );
                 this.errors = newErrors;
             }
         }

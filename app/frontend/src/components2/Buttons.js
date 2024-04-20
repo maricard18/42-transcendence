@@ -1,6 +1,6 @@
-import { navigateTo } from "../index.js";
-import { logout } from "../functions/tokens.js";
-import AbstractView from "../views/AbstractView.js";
+import { navigateTo } from "../index";
+import { logout } from "../functions/tokens";
+import AbstractView from "../views/AbstractView";
 
 export class NavButton extends HTMLElement {
     constructor() {

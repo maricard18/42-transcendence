@@ -5,9 +5,16 @@ import SignUpPage from "./SignUpPage";
 import CreateProfilePage from "./CreateProfilePage.js";
 import NavigationBar from "./NavigationBar.js";
 import HomePage from "./HomePage.js";
-import { Game1, Game2 } from "../components2/Games.js";
-import { GameMenuOptions, MultiplayerOptions, SinglePlayerOptions, TournamentOptions } from "../components2/GameOptions.js";
 import ProfilePage from "./ProfilePage.js";
+import ChangeUserInfo from "../components2/ChangeUserInfo.js";
+import ChangePassword from "../components2/ChangePassword.js";
+import { Game1, Game2 } from "../components2/Games.js";
+import {
+    GameMenuOptions,
+    MultiplayerOptions,
+    SinglePlayerOptions,
+    TournamentOptions,
+} from "../components2/GameOptions.js";
 
 export const routes = [
     {
@@ -48,11 +55,11 @@ export const routes = [
                     },
                     {
                         path: "/pong-game/single-player",
-						view: [Game1, SinglePlayerOptions],
+                        view: [Game1, SinglePlayerOptions],
                     },
                     {
                         path: "/pong-game/multiplayer",
-						view: [Game1, MultiplayerOptions],
+                        view: [Game1, MultiplayerOptions],
                     },
                     {
                         path: "/pong-game/multiplayer/waiting-room/2",
@@ -62,11 +69,11 @@ export const routes = [
                     },
                     {
                         path: "/pong-game/single-player/tournament",
-						view: [Game1, TournamentOptions],
+                        view: [Game1, TournamentOptions],
                     },
                     {
                         path: "/pong-game/multiplayer/tournament",
-						view: [Game1, TournamentOptions],
+                        view: [Game1, TournamentOptions],
                     },
                 ],
             },
@@ -76,9 +83,11 @@ export const routes = [
                 children: [
                     {
                         path: "/username",
+                        view: ChangeUserInfo,
                     },
                     {
                         path: "/password",
+                        view: ChangePassword,
                     },
                 ],
             },

@@ -7,7 +7,6 @@ import "bootstrap/dist/js/bootstrap.bundle.js";
 const router = async () => {
     const url = location.pathname;
     let matches = findMatch(url, routes);
-    console.log("finalObject:", matches);
 
     if (!matches || matches.length === 0) {
         // if authed -> [{ route: routes[5] }]

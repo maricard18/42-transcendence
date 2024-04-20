@@ -8,19 +8,26 @@ export default class Login42Page extends AbstractView {
         super();
         this.setTitle("Login 42");
         this._loading = true;
-		this._callbacksRemoved = true;
-		this._insideRequest = false;
+		this._callbackDefined = false;
 
-		this.observer = new MutationObserver(this.defineCallback.bind(this));
-        this.observer.observe(document.body, {
+		this._observer = new MutationObserver(this.defineCallback.bind(this));
+        this._observer.observe(document.body, {
             childList: true,
             subtree: true,
         });
+
+		window.onbeforeunload = () => {
+            this.disconnectObserver();
+        };
     }
 
 	async defineCallback() {
-        const query = window.location.search;
+		if (this._callbackDefined) {
+			return ;
+		}
 
+		this._callbackDefined = true;
+        const query = window.location.search;
 		const response = await fetchData(
 			"/auth/sso/101010/callback" + query + "&action=register",
 			"GET",
@@ -28,12 +35,12 @@ export default class Login42Page extends AbstractView {
 		);
 
 		if (response.ok) {
-			await setToken(response, setAuthed);
+			await setToken(response, AbstractView.authed);
 			this.disconnectObserver();
 			navigateTo("/menu");
 		} else {
 			if (response.status === 409) {
-				await setToken(response, setAuthed);
+				await setToken(response, AbstractView.authed);
 				this.disconnectObserver();
 				navigateTo("/create-profile/42");
 			} else {
@@ -45,7 +52,7 @@ export default class Login42Page extends AbstractView {
 	}
 
 	disconnectObserver() {
-        this.observer.disconnect();
+        this._observer.disconnect();
     }
 
     async getHtml() {

@@ -33,22 +33,6 @@ export default class Create42ProfilePage extends AbstractView {
 		};
     }
 
-    get formData() {
-        return AbstractView.formData;
-    }
-
-    set formData(value) {
-        AbstractView.formData = value;
-    }
-
-	get userInfo() {
-        return AbstractView.userInfo;
-    }
-
-    set userInfo(value) {
-        AbstractView.userInfo = value;
-    }
-
     get errors() {
         return this._errors;
     }
@@ -74,35 +58,35 @@ export default class Create42ProfilePage extends AbstractView {
         const usernamePattern = /^[a-zA-Z0-9@.+_-]+$/;
         let newErrors = {};
 
-        if (this.formData.username === "") {
+        if (AbstractView.formData.username === "") {
             newErrors.message = "Please fill in all required fields";
             newErrors.username = 1;
-            this.formData.username = "";
+            AbstractView.formData.username = "";
             this.errors = newErrors;
-        } else if (this.formData.username.length < 3 ||
-            	this.formData.username.length > 12) {
+        } else if (AbstractView.formData.username.length < 3 ||
+            	AbstractView.formData.username.length > 12) {
             newErrors.message = "Username must have 3-12 characters";
             newErrors.username = 1;
-            this.formData.username = "";
+            AbstractView.formData.username = "";
             this.errors = newErrors;
-        } else if (!usernamePattern.test(this.formData.username)) {
+        } else if (!usernamePattern.test(AbstractView.formData.username)) {
             newErrors.message = "Username has invalid characters";
             newErrors.username = 1;
-            this.formData.username = "";
+            AbstractView.formData.username = "";
             this.errors = newErrors;
         }
 
 		const inputBox = document.querySelector("input");
         inputBox.setAttribute(
 			"value",
-			this.formData["username"]
+			AbstractView.formData["username"]
 		);
 
         if (!newErrors.message) {
             const formDataToSend = new FormData();
-            formDataToSend.append("username", this.formData.username);
-            formDataToSend.append("email", this.formData.email);
-            formDataToSend.append("password", this.formData.password);
+            formDataToSend.append("username", AbstractView.formData.username);
+            formDataToSend.append("email", AbstractView.formData.email);
+            formDataToSend.append("password", AbstractView.formData.password);
 
             if (this.avatar) {
                 formDataToSend.append("avatar", this.avatar);
@@ -119,10 +103,10 @@ export default class Create42ProfilePage extends AbstractView {
 
             if (response.ok) {
 				console.log("user created!")
-                await createToken(this.formData, this.authed);
-                this.userInfo = {
-                    username: this.formData.username,
-                    email: this.formData.email,
+                await createToken(AbstractView.formData, this.authed);
+                AbstractView.userInfo = {
+                    username: AbstractView.formData.username,
+                    email: AbstractView.formData.email,
                     avatar: this.avatar ? URL.createObjectURL(this.avatar) : null,
                     id: null,
                 };
@@ -130,7 +114,7 @@ export default class Create42ProfilePage extends AbstractView {
 				this.disconnectObserver();
                 navigateTo("/home");
             } else {
-                newErrors = await handleResponse(response, this.formData);
+                newErrors = await handleResponse(response, AbstractView.formData);
                 this.errors = newErrors;
 				this.render();
             }
@@ -147,7 +131,7 @@ export default class Create42ProfilePage extends AbstractView {
 		}
 
 		this.inputChangedCallback = (event) => {
-			this.formData.username = event.detail.value;
+			AbstractView.formData.username = event.detail.value;
 		};
 		this.avatarChangedCallback = (event) => {
 			this.avatar = event.detail;
@@ -239,7 +223,7 @@ export default class Create42ProfilePage extends AbstractView {
                                                 : ""
                                         }"
                                         placeholder="username"
-                                        value="${this.formData.username}"
+                                        value="${AbstractView.formData.username}"
                                     ></input-box>
                                 </div>
 								<div class="mt-3">

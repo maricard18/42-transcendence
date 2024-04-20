@@ -1,19 +1,25 @@
-import AbstractView from "./AbstractView";
-import { validateSignUpForm } from "../functions/validateForms";
-import { navigateTo } from "../index";
+import AbstractView from "../views/AbstractView";
+import { validateProfilePasswordForm } from "../functions/validateForms";
+import fetchData from "../functions/fetchData";
+import { getToken } from "../functions/tokens";
 
-export default class SignUpPage extends AbstractView {
+export default class ChangePassword extends AbstractView {
     constructor() {
         super();
-        this.setTitle("Sign up");
-		this._parentNode = null;
-        this._callbacksDefined = false;
+        this._loading = true;
+        this._parentNode = null;
         this._insideRequest = false;
-        this._inputCallback = false;
-        this._clickCallback = false;
-        this._enterCallback = false;
-        
-		this._errors = {};
+
+		this._inputCallback = false;
+		this._clickCallback = false;
+		this._enterCallback = false;
+
+        this._errors = {};
+        this._success = {};
+        this._formData = {
+            password: "",
+            confirmPassword: "",
+        };
 
         this._observer = new MutationObserver(this.defineCallback.bind(this));
         this._observer.observe(document.body, {
@@ -27,19 +33,21 @@ export default class SignUpPage extends AbstractView {
     }
 
     defineCallback() {
-        const parentNode = document.getElementById("sign-up-page");
-        if (parentNode) {
-            this._parentNode = parentNode;
-        } else {
-            return;
-        }
+		const parentNode = document.getElementById("change-user-info");
+
+		if (parentNode) {
+			this._parentNode = parentNode;
+		} else {
+			return ;
+		}
 
         this.inputCallback = (event) => {
+			console.log(AbstractView.userInfo)
             const id = event.target.getAttribute("id");
             const value = event.target.value;
             event.target.setAttribute("value", value);
-            AbstractView.formData = {
-                ...AbstractView.formData,
+            this._formData = {
+                ...this._formData,
                 [id]: value,
             };
         };
@@ -55,14 +63,13 @@ export default class SignUpPage extends AbstractView {
             }
         };
 
-		const inputList = this._parentNode.querySelectorAll("input");
+        const inputList = this._parentNode.querySelectorAll("input");
 		if (inputList && inputList.length && !this._inputCallback) {
 			this._inputCallback = true;
-			this._parentNode.querySelectorAll("input").forEach((input) => {
+			inputList.forEach((input) => {
 				input.addEventListener("input", this.inputCallback);
 			});
 		}
-
         const submitButton = this._parentNode.querySelector("submit-button");
         if (submitButton && !this._clickCallback) {
 			this._clickCallback = true;
@@ -71,17 +78,16 @@ export default class SignUpPage extends AbstractView {
                 this.buttonClickedCallback
             );
         }
-
-		if (!this._enterCallback) {
+        if (!this._enterCallback) {
 			this._enterCallback = true;
 			window.addEventListener("keydown", this.keydownCallback);
-		}
+    	}
     }
 
     removeCallbacks() {
 		if (!this._parentNode) {
-            return;
-        }
+			return ;
+		}
 
         this._parentNode.querySelectorAll("input").forEach((input) => {
             input.removeEventListener("input", this.inputCallback);
@@ -97,9 +103,9 @@ export default class SignUpPage extends AbstractView {
 
         window.removeEventListener("keydown", this.keydownCallback);
 
-		this._inputCallback = false;
-        this._clickCallback = false;
-        this._enterCallback = false;
+        this._inputCallback = false;
+		this._clickCallback = false;
+		this._enterCallback = false;
         this._observer.disconnect();
     }
 
@@ -112,14 +118,43 @@ export default class SignUpPage extends AbstractView {
 
         if (this.errors.message) {
             const p = this._parentNode.querySelector("p");
+			if (p.classList.contains("form-success")) {
+				p.classList.remove("form-success");
+			}
+            p.classList.add("form-error");
             p.innerText = this.errors.message;
 
             const inputList = this._parentNode.querySelectorAll("input");
             inputList.forEach((input) => {
-				const id = input.getAttribute("id");
+                const id = input.getAttribute("id");
                 if (this.errors[id]) {
                     input.classList.add("input-error");
+					this._formData[id] = input.value;
                 } else if (input.classList.contains("input-error")) {
+                    input.classList.remove("input-error");
+                }
+            });
+        }
+    }
+
+    get success() {
+        return this._success;
+    }
+
+    set success(value) {
+        this._success = value;
+
+        if (this.success.message) {
+            const p = this._parentNode.querySelector("p");
+			if (p.classList.contains("form-error")) {
+				p.classList.remove("form-error");
+			}
+            p.classList.add("form-success");
+            p.innerText = this.success.message;
+
+            const inputList = this._parentNode.querySelectorAll("input");
+            inputList.forEach((input) => {
+                if (input.classList.contains("input-error")) {
                     input.classList.remove("input-error");
                 }
             });
@@ -132,39 +167,48 @@ export default class SignUpPage extends AbstractView {
         }
 
         this._insideRequest = true;
-        const newErrors = validateSignUpForm(AbstractView.formData);
+        const newErrors = validateProfilePasswordForm(this._formData);
         if (Object.values(newErrors).length !== 0) {
             this.errors = newErrors;
         }
 
-        if (!newErrors.message) {
-            this.removeCallbacks();
-            navigateTo("/create-profile");
+		if (!newErrors.message) {
+            const formDataToSend = new FormData();
+            formDataToSend.append("password", this._formData.password);
+
+            const accessToken = await getToken(AbstractView.authed);
+            const headers = {
+                Authorization: `Bearer ${accessToken}`,
+            };
+
+            const response = await fetchData(
+                "/api/users/" + AbstractView.userInfo.id,
+                "PUT",
+                headers,
+                formDataToSend
+            );
+
+			if (response.ok) {
+                this.success = { message: "Changes saved" };
+            } else {
+                newErrors = await handleResponse(response, this._formData);
+				this.success = {};
+                this.errors = newErrors;
+            }
         }
 
         this._insideRequest = false;
     }
 
-    async getHtml() {
+    getHtml() {
         return `
-		<div class="container" id="sign-up-page">
-			<div class="center">
-				<div class="d-flex flex-column justify-content-center">
-					<div class="mb-5">
-						<h1 class="header">Sign Up</h1>
-					</div>
+			<div class="d-flex flex-column" id="change-user-info">
+				<h4 class="sub-text mb-5">
+					<b>Edit your information here</b>
+				</h4>
 					<form>
 						<div class="position-relative">
 							<p class="form-error"></p>
-						</div>
-						<div class="mb-3">
-							<input
-								id="email"
-								type="email"
-								class="form-control primary-form"
-								placeholder="email"
-								value=""
-							/>
 						</div>
 						<div class="mb-3">
 							<input
@@ -188,14 +232,13 @@ export default class SignUpPage extends AbstractView {
 							<submit-button
 								type="button"
 								template="primary-button extra-btn-class"
-								value="Next"
+								value="Save changes"
 							>
 							</submit-button>	
 						</div>
 					</form>
 				</div>
 			</div>
-		</div>
         `;
     }
 }

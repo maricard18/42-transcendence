@@ -1,4 +1,3 @@
-import { navigateTo } from "../index";
 import AbstractView from "./AbstractView";
 
 export default class HomePage extends AbstractView {

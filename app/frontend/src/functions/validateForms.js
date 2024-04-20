@@ -5,35 +5,30 @@ const emailPattern =
 export function validateSignUpForm(formData) {
     const errors = {};
 
-    if (formData.email === "") {
+    if (formData.email === "" || formData.password === "" || formData.confirmPassword === "") {
         errors.message = "Please fill in all required fields";
-        errors.email = 1;
-    }
-    if (formData.password === "") {
-        errors.message = "Please fill in all required fields";
-        errors.password = 1;
-    }
-    if (formData.confirmPassword === "") {
-        errors.message = "Please fill in all required fields";
-        errors.confirmPassword = 1;
+		if (formData.email === "") {
+			errors.email = 1;
+		}
+		if (formData.password === "") {
+			errors.password = 1;
+		}
+		if (formData.confirmPassword === "") {
+			errors.confirmPassword = 1;
+		}
     } else if (formData.email.length < 6 || formData.email.length > 64) {
         errors.message = "Email must have 6-64 characters";
         errors.email = 1;
-        formData.email = "";
     } else if (!emailPattern.test(formData.email)) {
         errors.message = "Email not valid";
         errors.email = 1;
-        formData.email = "";
     } else if (formData.password.length < 4 || formData.password.length > 32) {
         errors.message = "Password must have 4-32 characters";
         errors.password = 1;
-        errors.confirmPassword = 1;
-        formData.password = "";
-        formData.confirmPassword = "";
     } else if (formData.password !== formData.confirmPassword) {
         errors.message = "Passwords don't match";
+		errors.password = 1;
         errors.confirmPassword = 1;
-        formData.confirmPassword = "";
     }
 
     return errors;
@@ -55,31 +50,28 @@ export function validateLoginForm(formData) {
 }
 
 export function validateProfileUserForm(formData) {
-    const errors = {};
-
-    if (formData.username === "") {
-        errors.message = "Please fill in all required fields";
-        errors.username = 1;
-    }
-    if (formData.email === "") {
-        errors.message = "Please fill in all required fields";
-        errors.email = 1;
+	const errors = {};
+	
+    if (formData.username === "" || formData.email === "") {
+		errors.message = "Please fill in all required fields";
+		if (formData.username === "") {
+			errors.username = 1;
+		}
+		if (formData.email === "") {
+			errors.email = 1;
+		}
     } else if (formData.username.length < 3 || formData.username.length > 12) {
         errors.message = "Username must have 3-12 characters";
         errors.username = 1;
-        formData.username = "";
     } else if (!usernamePattern.test(formData.username)) {
         errors.message = "Username has invalid characters";
         errors.username = 1;
-        formData.username = "";
     } else if (formData.email.length < 6 || formData.email.length > 64) {
         errors.message = "Email must have 6-64 characters";
         errors.email = 1;
-        formData.email = "";
     } else if (!emailPattern.test(formData.email)) {
         errors.message = "Email not valid";
         errors.email = 1;
-        formData.email = "";
     }
 
     return errors;
@@ -88,23 +80,22 @@ export function validateProfileUserForm(formData) {
 export function validateProfilePasswordForm(formData) {
     const errors = {};
 
-    if (formData.password === "") {
+    if (formData.password === "" || formData.confirmPassword === "") {
         errors.message = "Please fill in all required fields";
-        errors.password = 1;
-    }
-    if (formData.confirmPassword === "") {
-        errors.message = "Please fill in all required fields";
-        errors.confirmPassword = 1;
+		if (formData.password === "") {
+			errors.password = 1;
+		}
+		if (formData.confirmPassword === "") {
+			errors.confirmPassword = 1;
+		}
     } else if (formData.password.length < 4 || formData.password.length > 32) {
         errors.message = "Password must have 4-32 characters";
         errors.password = 1;
         errors.confirmPassword = 1;
-        formData.password = "";
-        formData.confirmPassword = "";
     } else if (formData.password !== formData.confirmPassword) {
         errors.message = "Passwords don't match";
+		errors.password = 1;
         errors.confirmPassword = 1;
-        formData.confirmPassword = "";
     }
 
     return errors;

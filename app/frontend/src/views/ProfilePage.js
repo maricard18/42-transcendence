@@ -1,13 +1,16 @@
 import AbstractView from "./AbstractView";
-import { getToken, decode } from "../functions/tokens";
+import { getToken } from "../functions/tokens";
+import fetchData from "../functions/fetchData";
 
 export default class ProfilePage extends AbstractView {
-    constructor() {
+    constructor(view) {
         super();
+		this._view = view;
         this._loading = true;
-        this._callbacksDefined = false;
+        this._avatarCallback = false;
         this._insideRequest = false;
-        this._errors = {};
+        
+		this._errors = {};
         this._avatar = AbstractView.userInfo.avatar;
 
         this._observer = new MutationObserver(this.defineCallback.bind(this));
@@ -22,41 +25,25 @@ export default class ProfilePage extends AbstractView {
     }
 
     defineCallback() {
-        if (this._callbacksDefined) {
-            return;
-        }
-
-        this._callbacksDefined = true;
-
         this.avatarCallback = (event) => {
-			console.log("avatar changed")
             this._avatar = event.detail;
 			this.changeAvatar();
         };
 
         const avatarBox = document.querySelector("avatar-box");
-        if (avatarBox) {
+        if (avatarBox && !this._avatarCallback) {
+			this._avatarCallback = true;
             avatarBox.addEventListener("avatar-change", this.avatarCallback);
         }
-
-        window.addEventListener("keydown", this.keydownCallback);
     }
 
     removeCallbacks() {
         const avatarBox = document.querySelector("avatar-box");
         if (avatarBox) {
-            avatarBox.removeEventListener("avatar-change", this.inputCallback);
+            avatarBox.removeEventListener("avatar-change", this.avatarCallback);
         }
 
         this._observer.disconnect();
-    }
-
-    get userInfo() {
-        return AbstractView.userInfo;
-    }
-
-    set userInfo(value) {
-        AbstractView.userInfo = value;
     }
 
     get avatar() {
@@ -77,27 +64,22 @@ export default class ProfilePage extends AbstractView {
 			const formDataToSend = new FormData();
 			formDataToSend.append("avatar", this.avatar);
 
-            console.log("DataToBeSent:", formDataToSend);
-
-			const accessToken = await getToken(setAuthed);
-			const decodedToken = decode(accessToken);
+			const accessToken = await getToken(AbstractView.authed);
 			const headers = {
 				Authorization: `Bearer ${accessToken}`,
 			};
 
 			const response = await fetchData(
-				"/api/users/" + decodedToken["user_id"],
+				"/api/users/" + AbstractView.userInfo.id,
 				"PUT",
 				headers,
 				formDataToSend
 			);
 
             if (response.ok) {
-                this.userInfo = {
-                    ...this.userInfo,
-                    avatar: URL.createObjectURL(this._avatar)
-                };
-                this.removeCallbacks();
+				AbstractView.userInfo.avatar = URL.createObjectURL(this._avatar);
+				const avatarContainer = document.getElementById("avatar-container");
+				avatarContainer.dispatchEvent(new CustomEvent("avatar-container"));
             } else {
 				console.log("Error: failed to fetch user data.");
             }
@@ -150,20 +132,10 @@ export default class ProfilePage extends AbstractView {
 						</div>
 					</div>
 				</div>
+				<div class="d-flex flex-column justify-content-center">
+					${this._view.getHtml()}
+				</div>
 			</div>
         `;
     }
 }
-
-{/*<div class="d-flex flex-column justify-content-center">
-				${await (async () => {
-					if (this._view.length > 1) {
-						const htmlArray = await Promise.all(
-							this._view.map((view) => view.getHtml())
-						);
-						return htmlArray.join("");
-					} else {
-						return await this._view.getHtml();
-					}
-				})()}
-				</div>*/}

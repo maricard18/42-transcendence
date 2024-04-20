@@ -29,7 +29,6 @@ export class Game1 extends AbstractView {
 		this.handleGameClick = (event) => {
 			event.preventDefault();
 			const a = document.getElementById("pong-game-a");
-			console.log(a);
 			const href = a.getAttribute("href");
 			Game1.gameSelected = true;
 			this.removeCallbacks();
