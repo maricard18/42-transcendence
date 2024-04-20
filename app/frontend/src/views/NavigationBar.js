@@ -1,6 +1,7 @@
 import AbstractView from "./AbstractView";
 import getUserInfo from "../functions/getUserInfo";
 import { getPageTitle } from "../functions/fetchData";
+import { logout } from "../functions/tokens";
 import { navigateTo } from "..";
 
 export default class NavigationBar extends AbstractView {
@@ -8,7 +9,7 @@ export default class NavigationBar extends AbstractView {
         super();
         this.setTitle(getPageTitle(location.pathname));
         this._view = view;
-		this._loading = true;
+        this._loading = true;
         this._callbackRunned = false;
         this._avatarContainerCallback = false;
 
@@ -24,10 +25,6 @@ export default class NavigationBar extends AbstractView {
     }
 
     async defineCallback() {
-		if (!AbstractView.authed) {
-			navigateTo("/");
-		}
-
         const avatarContainer = document.getElementById("avatar-container");
         if (avatarContainer && !this._avatarContainerCallback) {
             this._avatarContainerCallback = true;
@@ -56,6 +53,8 @@ export default class NavigationBar extends AbstractView {
                 await this.loadDOMChanges();
             } else {
                 console.log("Error: failed to fetch user data.");
+                logout();
+                navigateTo("/");
             }
         };
 

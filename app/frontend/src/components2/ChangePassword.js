@@ -176,7 +176,7 @@ export default class ChangePassword extends AbstractView {
             const formDataToSend = new FormData();
             formDataToSend.append("password", this._formData.password);
 
-            const accessToken = await getToken(AbstractView.authed);
+            const accessToken = await getToken();
             const headers = {
                 Authorization: `Bearer ${accessToken}`,
             };
@@ -192,7 +192,6 @@ export default class ChangePassword extends AbstractView {
                 this.success = { message: "Changes saved" };
             } else {
                 newErrors = await handleResponse(response, this._formData);
-				this.success = {};
                 this.errors = newErrors;
             }
         }

@@ -8,7 +8,6 @@ export default class CreateProfilePage extends AbstractView {
     constructor() {
         super();
         this.setTitle("Create Profile");
-        this._callbacksDefined = false;
         this._insideRequest = false;
         this._inputCallback = false;
         this._avatarCallback = false;
@@ -17,15 +16,6 @@ export default class CreateProfilePage extends AbstractView {
 
         this._errors = {};
         this._avatar = null;
-
-        if (
-            Object.values(AbstractView.formData).every((value) => value === "")
-        ) {
-            setTimeout(() => {
-                navigateTo("/sign-up");
-            }, 0);
-            return;
-        }
 
         this._observer = new MutationObserver(this.defineCallback.bind(this));
         this._observer.observe(document.body, {
@@ -46,16 +36,11 @@ export default class CreateProfilePage extends AbstractView {
             return;
         }
 
-        this._callbacksDefined = true;
-
         this.inputCallback = (event, input) => {
             const id = input.getAttribute("id");
             const value = event.target.value;
             input.setAttribute("value", value);
-            AbstractView.formData = {
-                ...AbstractView.formData,
-                [id]: value,
-            };
+            AbstractView.formData[id] = value;
         };
 
         this.avatarCallback = (event) => {
@@ -77,6 +62,8 @@ export default class CreateProfilePage extends AbstractView {
         const input = inputList[inputList.length - 1];
         if (input && !this._inputCallback) {
             this._inputCallback = true;
+            console.log("CreateProfile - added input callback");
+            console.log(AbstractView.formData);
             input.addEventListener("input", (event) =>
                 this.inputCallback(event, input)
             );
@@ -85,12 +72,14 @@ export default class CreateProfilePage extends AbstractView {
         const avatarBox = this._parentNode.querySelector("avatar-box");
         if (avatarBox && !this._avatarCallback) {
             this._avatarCallback = true;
+            console.log("CreateProfile - added avtar callback");
             avatarBox.addEventListener("avatar-change", this.avatarCallback);
         }
 
         const submitButton = this._parentNode.querySelector("submit-button");
         if (submitButton && !this._clickCallback) {
             this._clickCallback = true;
+            console.log("CreateProfile - added click callback");
             submitButton.addEventListener(
                 "buttonClicked",
                 this.buttonClickedCallback
@@ -99,7 +88,21 @@ export default class CreateProfilePage extends AbstractView {
 
         if (!this._enterCallback) {
             this._enterCallback = true;
+            console.log("CreateProfile - added enter callback");
             window.addEventListener("keydown", this.keydownCallback);
+        }
+
+        if (AbstractRange.formData) {
+            console.log(AbstractView.formData);
+            if (
+                Object.values(AbstractView.formData).every(
+                    (value) => value === ""
+                )
+            ) {
+                navigateTo("/sign-up");
+            } else {
+                this.loadDOMChanges();
+            }
         }
     }
 
@@ -111,22 +114,26 @@ export default class CreateProfilePage extends AbstractView {
         const inputList = this._parentNode.querySelectorAll("input");
         const input = inputList[inputList.length - 1];
         if (input) {
+            console.log("CreateProfile - removed input callback");
             input.removeEventListener("input", this.inputCallback);
         }
 
         const avatarBox = this._parentNode.querySelector("avatar-box");
         if (avatarBox) {
+            console.log("CreateProfile - removed avtar callback");
             avatarBox.removeEventListener("avatar-change", this.inputCallback);
         }
 
         const submitButton = this._parentNode.querySelector("submit-button");
         if (submitButton) {
+            console.log("CreateProfile - removed click callback");
             submitButton.removeEventListener(
                 "buttonClicked",
                 this.buttonClickedCallback
             );
         }
 
+        console.log("CreateProfile - removed enter callback");
         window.removeEventListener("keydown", this.keydownCallback);
 
         this._inputCallback = false;
@@ -152,6 +159,7 @@ export default class CreateProfilePage extends AbstractView {
             const id = input.getAttribute("id");
             if (this.errors[id]) {
                 input.classList.add("input-error");
+                AbstractView.formData[id] = input.value;
             } else if (input.classList.contains("input-error")) {
                 input.classList.remove("input-error");
             }
@@ -213,7 +221,7 @@ export default class CreateProfilePage extends AbstractView {
             );
 
             if (response.ok) {
-                await createToken(AbstractView.formData, AbstractView.authed);
+                await createToken(AbstractView.formData);
                 const data = await response.json();
                 AbstractView.userInfo = {
                     username: AbstractView.formData.username,
@@ -237,39 +245,60 @@ export default class CreateProfilePage extends AbstractView {
         this._insideRequest = false;
     }
 
-    async getHtml() {
+    loadDOMChanges() {
+        const parentNode = document.getElementById("create-profile-page");
+        const loadingIcon = parentNode.querySelector("loading-icon");
+        if (loadingIcon) {
+            loadingIcon.remove();
+            parentNode.innerHTML = this.loadChangeUserInfoContent();
+        }
+    }
+
+    loadCreateProfilePageContent() {
         return `
-		<div class="container" id="create-profile-page">
-			<div class="center">
-				<div class="d-flex flex-column justify-content-center">
-					<div class="mb-5">
-						<avatar-box></avatar-box>
+			<div class="container" id="create-profile-page">
+				<div class="center">
+					<div class="d-flex flex-column justify-content-center">
+						<div class="mb-5">
+							<avatar-box></avatar-box>
+						</div>
+						<form>
+							<div class="position-relative">
+								<p class="form-error"></p>
+							</div>
+							<div class="mb-3">
+								<input
+									id="username"
+									type="username"
+									class="form-control primary-form"
+									placeholder="username"
+									value=""
+								/>
+							</div>
+							<div class="mt-3">
+								<submit-button
+									type="button"
+									template="primary-button extra-btn-class"
+									value="Next"
+								>
+								</submit-button>    
+							</div>
+						</form>
 					</div>
-					<form>
-						<div class="position-relative">
-							<p class="form-error"></p>
-						</div>
-						<div class="mb-3">
-							<input
-								id="username"
-								type="username"
-								class="form-control primary-form"
-								placeholder="username"
-								value=""
-							/>
-						</div>
-						<div class="mt-3">
-							<submit-button
-								type="button"
-								template="primary-button extra-btn-class"
-								value="Next"
-							>
-							</submit-button>    
-						</div>
-					</form>
 				</div>
 			</div>
-		</div>
-        `;
+		`;
+    }
+
+    async getHtml() {
+        if (this._loading) {
+            return `
+				<div class="container" id="create-profile-page">
+					<loading-icon size="5rem"></loading-icon>
+				</div>
+			`;
+        } else {
+            return this.loadCreateProfilePageContent();
+        }
     }
 }

@@ -119,6 +119,7 @@ export default class LoginPage extends AbstractView {
                 const id = input.getAttribute("id");
                 if (this.errors[id]) {
                     input.classList.add("input-error");
+					this._formData[id] = input.value;
                 } else if (input.classList.contains("input-error")) {
                     input.classList.remove("input-error");
                 }
@@ -138,7 +139,6 @@ export default class LoginPage extends AbstractView {
         }
 
         if (!newErrors.message) {
-            console.log(this._formData);
             const formDataToSend = new FormData();
             formDataToSend.append("grant_type", "password");
             formDataToSend.append("username", this._formData.username);
@@ -152,7 +152,7 @@ export default class LoginPage extends AbstractView {
             );
 
             if (response.ok) {
-                await setToken(response, AbstractView.authed);
+                await setToken(response);
                 this.removeCallbacks();
                 navigateTo("/home");
             } else {

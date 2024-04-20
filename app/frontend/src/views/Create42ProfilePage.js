@@ -103,7 +103,7 @@ export default class Create42ProfilePage extends AbstractView {
 
             if (response.ok) {
 				console.log("user created!")
-                await createToken(AbstractView.formData, this.authed);
+                await createToken(AbstractView.formData);
                 AbstractView.userInfo = {
                     username: AbstractView.formData.username,
                     email: AbstractView.formData.email,

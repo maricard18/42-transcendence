@@ -84,11 +84,9 @@ export default class ChangeUserInfo extends AbstractView {
             window.addEventListener("keydown", this.keydownCallback);
         }
 
-        if (
-            AbstractView.userInfo.username &&
+        if (AbstractView.userInfo.username &&
             AbstractView.userInfo.email &&
-            this._loading
-        ) {
+            this._loading) {
             this._loading = false;
             this._formData.username = AbstractView.userInfo.username;
             this._formData.email = AbstractView.userInfo.email;
@@ -212,7 +210,7 @@ export default class ChangeUserInfo extends AbstractView {
                 return;
             }
 
-            const accessToken = await getToken(AbstractView.authed);
+            const accessToken = await getToken();
             const headers = {
                 Authorization: `Bearer ${accessToken}`,
             };

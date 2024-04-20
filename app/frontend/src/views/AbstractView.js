@@ -1,9 +1,9 @@
+import { getToken } from "../functions/tokens";
+
 export default class AbstractView {
     constructor() {}
 
-    static authed = {
-        value: false,
-    };
+    static authed = false;
 
     static formData = {
         username: "",

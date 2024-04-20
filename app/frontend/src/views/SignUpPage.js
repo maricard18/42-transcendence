@@ -5,15 +5,15 @@ import { navigateTo } from "../index";
 export default class SignUpPage extends AbstractView {
     constructor() {
         super();
-        this.setTitle("Sign up");
-		this._parentNode = null;
+        this.setTitle("Sign Up");
+        this._parentNode = null;
         this._callbacksDefined = false;
         this._insideRequest = false;
         this._inputCallback = false;
         this._clickCallback = false;
         this._enterCallback = false;
-        
-		this._errors = {};
+
+        this._errors = {};
 
         this._observer = new MutationObserver(this.defineCallback.bind(this));
         this._observer.observe(document.body, {
@@ -38,10 +38,7 @@ export default class SignUpPage extends AbstractView {
             const id = event.target.getAttribute("id");
             const value = event.target.value;
             event.target.setAttribute("value", value);
-            AbstractView.formData = {
-                ...AbstractView.formData,
-                [id]: value,
-            };
+            AbstractView.formData[id] = value;
         };
 
         this.buttonClickedCallback = (event) => {
@@ -55,49 +52,55 @@ export default class SignUpPage extends AbstractView {
             }
         };
 
-		const inputList = this._parentNode.querySelectorAll("input");
-		if (inputList && inputList.length && !this._inputCallback) {
-			this._inputCallback = true;
-			this._parentNode.querySelectorAll("input").forEach((input) => {
-				input.addEventListener("input", this.inputCallback);
-			});
-		}
+        const inputList = this._parentNode.querySelectorAll("input");
+        if (inputList && inputList.length && !this._inputCallback) {
+            this._inputCallback = true;
+            this._parentNode.querySelectorAll("input").forEach((input) => {
+				console.log("SignUp - added input callback");
+                input.addEventListener("input", this.inputCallback);
+            });
+        }
 
         const submitButton = this._parentNode.querySelector("submit-button");
         if (submitButton && !this._clickCallback) {
-			this._clickCallback = true;
+			console.log("SignUp - added click callback");
+            this._clickCallback = true;
             submitButton.addEventListener(
                 "buttonClicked",
                 this.buttonClickedCallback
             );
         }
 
-		if (!this._enterCallback) {
-			this._enterCallback = true;
-			window.addEventListener("keydown", this.keydownCallback);
-		}
+        if (!this._enterCallback) {
+            this._enterCallback = true;
+			console.log("SignUp - added enter callback");
+            window.addEventListener("keydown", this.keydownCallback);
+        }
     }
 
     removeCallbacks() {
-		if (!this._parentNode) {
+        if (!this._parentNode) {
             return;
         }
 
         this._parentNode.querySelectorAll("input").forEach((input) => {
+			console.log("SignUp - removed input callback");
             input.removeEventListener("input", this.inputCallback);
         });
 
         const submitButton = this._parentNode.querySelector("submit-button");
         if (submitButton) {
+			console.log("SignUp - removed click callback");
             submitButton.removeEventListener(
                 "buttonClicked",
                 this.buttonClickedCallback
             );
         }
 
+		console.log("SignUp - removed enter callback");
         window.removeEventListener("keydown", this.keydownCallback);
 
-		this._inputCallback = false;
+        this._inputCallback = false;
         this._clickCallback = false;
         this._enterCallback = false;
         this._observer.disconnect();
@@ -116,9 +119,10 @@ export default class SignUpPage extends AbstractView {
 
             const inputList = this._parentNode.querySelectorAll("input");
             inputList.forEach((input) => {
-				const id = input.getAttribute("id");
+                const id = input.getAttribute("id");
                 if (this.errors[id]) {
                     input.classList.add("input-error");
+                    AbstractView.formData[id] = input.value;
                 } else if (input.classList.contains("input-error")) {
                     input.classList.remove("input-error");
                 }
@@ -139,6 +143,8 @@ export default class SignUpPage extends AbstractView {
 
         if (!newErrors.message) {
             this.removeCallbacks();
+			console.log(AbstractView.formData)
+			console.log("Navigating to Create Profile");
             navigateTo("/create-profile");
         }
 

@@ -64,7 +64,7 @@ export default class ProfilePage extends AbstractView {
 			const formDataToSend = new FormData();
 			formDataToSend.append("avatar", this.avatar);
 
-			const accessToken = await getToken(AbstractView.authed);
+			const accessToken = await getToken();
 			const headers = {
 				Authorization: `Bearer ${accessToken}`,
 			};

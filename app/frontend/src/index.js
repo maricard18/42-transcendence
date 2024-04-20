@@ -1,4 +1,6 @@
+import AbstractView from "./views/AbstractView";
 import { routes } from "./views/router";
+import { getToken } from "./functions/tokens";
 import "./functions/defineComponents";
 import "../static/css/index.css";
 import "bootstrap/dist/css/bootstrap.css";
@@ -7,11 +9,12 @@ import "bootstrap/dist/js/bootstrap.bundle.js";
 const router = async () => {
     const url = location.pathname;
     let matches = findMatch(url, routes);
+	console.log("finalObjects:", matches);
 
-    if (!matches || matches.length === 0) {
-        // if authed -> [{ route: routes[5] }]
-        matches = [{ route: routes[0] }];
-    }
+	if (!await hasPermission(matches)) {
+		return ;
+	}
+    
 
     let view = [];
     if (matches.length > 1) {
@@ -75,12 +78,36 @@ function findMatch(url, routes, previousMatches = []) {
     return null;
 }
 
+async function hasPermission(matches) {
+    let fullUrl = "";
+    matches.forEach((route) => fullUrl += route.path);
+
+    const baseUrl = matches[0].path;
+    const accessToken = await getToken(AbstractView.authed);
+
+    if (accessToken) {
+        AbstractView.authed = true;
+    } else {
+        AbstractView.authed = false;
+    }
+
+    if (baseUrl === "/home" && !AbstractView.authed) {
+        navigateTo("/");
+		return false;
+    } else if (baseUrl !== "/home" && AbstractView.authed) {
+        navigateTo("/home");
+		return false;
+    }
+
+	return true;
+}
+
 export function navigateTo(url) {
-	if (url === "-1") {
-		history.back();
-	} else {
-		history.pushState(null, "", url);
-	}
+    if (url === "-1") {
+        history.back();
+    } else {
+        history.pushState(null, "", url);
+    }
     router();
 }
 

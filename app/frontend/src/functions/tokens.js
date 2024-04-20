@@ -1,7 +1,8 @@
 import Cookies from "js-cookie";
 import fetchData from "./fetchData";
+import AbstractView from "../views/AbstractView";
 
-export async function createToken(formData, authed) {
+export async function createToken(formData) {
     const formDataToSend = new FormData();
     formDataToSend.append("grant_type", "password");
     formDataToSend.append("username", formData.username);
@@ -16,14 +17,14 @@ export async function createToken(formData, authed) {
 
     if (!response.ok) {
         console.log("Error: failed to create authentication token.");
-        logout(authed);
+        logout();
         return;
     }
 
-    await setToken(response, authed);
+    await setToken(response);
 }
 
-export async function setToken(response, authed) {
+export async function setToken(response) {
     try {
         const jsonData = await response.json();
         const accessToken = jsonData["access_token"];
@@ -44,7 +45,7 @@ export async function setToken(response, authed) {
             //! https:// -> secure: true,
         });
 
-        authed.value = true;
+        AbstractView.authed = true;
     } catch (error) {
         console.log("Error: failed to set Cookies");
         logout(authed);
@@ -52,11 +53,11 @@ export async function setToken(response, authed) {
     }
 }
 
-export async function refreshToken(authed) {
+export async function refreshToken() {
     const refreshToken = Cookies.get("refresh_token");
     if (!refreshToken) {
         console.log("Error: refresh_token doesn't exist.");
-        logout(authed);
+        logout();
         return;
     }
 
@@ -73,59 +74,43 @@ export async function refreshToken(authed) {
 
     if (!response.ok) {
         console.log("Error: failed to refresh access_token.");
-        logout(authed);
+        logout();
         return;
     }
 
-    await setToken(response, authed);
+    await setToken(response);
 }
 
-export async function getToken(authed) {
+export async function getToken() {
     const accessToken = Cookies.get("access_token");
 
-    if (accessToken && (await testToken(accessToken))) {
+    if (accessToken) {
         return accessToken;
     } else {
-        await refreshToken(authed);
+        await refreshToken();
         const newAccessToken = Cookies.get("access_token");
         return newAccessToken;
     }
-}
-
-export async function testToken(accessToken) {
-    let decodeToken;
-
-    try {
-        decodeToken = decode(accessToken);
-    } catch (error) {
-        console.log("Error: failed to decode access token while testing it's validity.");
-        return false;
-    }
-
-    const headers = {
-        Authorization: `Bearer ${accessToken}`,
-    };
-
-    const response = await fetchData(
-        "/api/users/" + decodeToken["user_id"],
-        "GET",
-        headers
-    );
-
-    if (!response.ok) {
-        console.log("Error: access token it's not valid.");
-        return false;
-    }
-
-    return true;
 }
 
 export function decode(accessToken) {
     return JSON.parse(atob(accessToken.split(".")[1]));
 }
 
-export function logout(authed) {
+export function logout() {
     Cookies.remove("access_token");
     Cookies.remove("refresh_token");
-    authed.value = false;
+    AbstractView.userInfo = {
+        id: "",
+        username: "",
+        email: "",
+        id: "",
+    };
+	AbstractView.formData = {
+        username: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+    };
+    AbstractView.authed = false;
 }
