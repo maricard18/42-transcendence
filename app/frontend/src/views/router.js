@@ -47,35 +47,58 @@ export const routes = [
                 children: [
                     {
                         path: "",
-                        view: [Game1, Game2],
+                        view: [Game1, Game2]
                     },
                     {
-                        path: "/pong-game",
-                        view: [Game1, GameMenuOptions],
+                        path: "/pong",
+                        view: [Game1, GameMenuOptions]
                     },
                     {
-                        path: "/pong-game/single-player",
-                        view: [Game1, SinglePlayerOptions],
+                        path: "/pong/single-player",
+                        view: [Game1, SinglePlayerOptions]
                     },
                     {
-                        path: "/pong-game/multiplayer",
-                        view: [Game1, MultiplayerOptions],
+                        path: "/pong/multiplayer",
+                        view: [Game1, MultiplayerOptions]
                     },
                     {
-                        path: "/pong-game/multiplayer/waiting-room/2",
+                        path: "/pong/multiplayer/waiting-room/2",
                     },
                     {
-                        path: "/pong-game/multiplayer/waiting-room/2",
+                        path: "/pong/multiplayer/waiting-room/4",
                     },
                     {
-                        path: "/pong-game/single-player/tournament",
-                        view: [Game1, TournamentOptions],
+                        path: "/pong/single-player/tournament",
+                        view: [Game1, TournamentOptions]
                     },
                     {
-                        path: "/pong-game/multiplayer/tournament",
-                        view: [Game1, TournamentOptions],
+                        path: "/pong/multiplayer/tournament",
+                        view: [Game1, TournamentOptions]
                     },
-                ],
+					{
+                        path: "/tic-tac-toe",
+                        view: [GameMenuOptions, Game2]
+                    },
+                    {
+                        path: "/tic-tac-toe/single-player",
+                        view: [SinglePlayerOptions, Game2]
+                    },
+                    {
+                        path: "/tic-tac-toe/multiplayer",
+                        view: [MultiplayerOptions, Game2]
+                    },
+                    {
+                        path: "/tic-tac-toe/multiplayer/waiting-room/2",
+                    },
+                    {
+                        path: "/tic-tac-toe/single-player/tournament",
+                        view: [TournamentOptions, Game2]
+                    },
+                    {
+                        path: "/tic-tac-toe/multiplayer/tournament",
+                        view: [TournamentOptions, Game2]
+                    }
+                ]
             },
             {
                 path: "/profile",
@@ -88,24 +111,30 @@ export const routes = [
                     {
                         path: "/password",
                         view: ChangePassword,
-                    },
-                ],
+                    }
+                ]
             },
             {
-                path: "/pong-game/play/single-player/1",
+                path: "/pong/play/single-player/1",
             },
             {
-                path: "/pong-game/play/single-player/2",
+                path: "/pong/play/single-player/2",
             },
             {
-                path: "/pong-game/play/multiplayer/2",
+                path: "/pong/play/multiplayer/2",
             },
             {
-                path: "/pong-game/play/multiplayer/4",
+                path: "/pong/play/multiplayer/4",
+            },
+			{
+                path: "/tic-tac-toe/play/single-player/1",
             },
             {
-                path: "/pong-game/play",
+                path: "/tic-tac-toe/play/single-player/2",
             },
-        ],
-    },
+            {
+                path: "/tic-tac-toe/play/multiplayer/2",
+            },
+        ]
+    }
 ];

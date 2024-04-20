@@ -28,14 +28,14 @@ export class Game1 extends AbstractView {
 
 		this.handleGameClick = (event) => {
 			event.preventDefault();
-			const a = document.getElementById("pong-game-a");
+			const a = document.getElementById("pong-a");
 			const href = a.getAttribute("href");
 			Game1.gameSelected = true;
 			this.removeCallbacks();
 			navigateTo(href);
 		}
 
-        const img = document.getElementById("pong-game-img");
+        const img = document.getElementById("pong-img");
         if (img) {
             this._callbackRunned = true;
             img.addEventListener("click", this.handleGameClick);
@@ -43,7 +43,7 @@ export class Game1 extends AbstractView {
     }
 
     removeCallbacks() {
-        const img = document.getElementById("pong-game-img");
+        const img = document.getElementById("pong-img");
         if (img) {
             img.removeEventListener("click", this.handleGameClick);
         }
@@ -61,7 +61,7 @@ export class Game1 extends AbstractView {
 			<div class="d-flex flex-column col-md-6">
 				<div class="p-3 p-lg-5 pd-xl-0">
 					<img
-						id="pong-game-img"
+						id="pong-img"
 						class="square"
 						src="/static/images/pong.png"
 					/>
@@ -73,11 +73,11 @@ export class Game1 extends AbstractView {
 				<div class="d-flex flex-column col-md-6">
 					<div class="p-3 p-lg-5 pd-xl-0">
 						<a
-							id="pong-game-a"
-							href="/home/pong-game"
+							id="pong-a"
+							href="/home/pong"
 						>
 							<img
-								id="pong-game-img"
+								id="pong-img"
 								class="square game"
 								src="/static/images/pong.png"
 							/>
@@ -117,7 +117,6 @@ export class Game2 extends AbstractView {
 		this.handleGameClick = (event) => {
 			event.preventDefault();
 			const a = document.getElementById("tic-tac-toe-a");
-			console.log(a);
 			const href = a.getAttribute("href");
 			Game2.gameSelected = true;
 			this.removeCallbacks();
@@ -150,7 +149,7 @@ export class Game2 extends AbstractView {
 			<div class="d-flex flex-column col-md-6">
 				<div class="p-3 p-lg-5 pd-xl-0">
 					<img
-						class="square game"
+						class="square"
 						src="/static/images/tictactoe.png"
 					/>
 				</div>
@@ -162,7 +161,7 @@ export class Game2 extends AbstractView {
 					<div class="p-3 p-lg-5 pd-xl-0">
 						<a
 							id="tic-tac-toe-a"
-							href="/home/pong-game"
+							href="/home/tic-tac-toe"
 							disabeld
 						>
 						<img
