@@ -1,61 +1,70 @@
+import AbstractView from "../views/AbstractView";
 import { ScreenHeight, ScreenWidth } from "../Game/variables";
 import { sendNonHostMessage } from "../Game/pongGame";
 import { getToken } from "./tokens";
 
 export var MyWebSocket = {};
 
-export async function connectWebsocket(
-    setAuthed,
-    setUserQueue,
-    setUserReadyList,
-    setUserData,
-    setWsCreated,
-	lobbySize
-) {
-    const token = await getToken(setAuthed);
+export async function connectWebsocket(lobbySize) {
+    const token = await getToken();
     const host = window.location.host;
-    MyWebSocket.ws = new WebSocket("ws://" + host + "/ws/games/1/queue/" + lobbySize, [
-        "Authorization",
-        token,
-    ]);
+	const parentNode = document.getElementById("waiting-room");
+
+	MyWebSocket.ws = new WebSocket(
+		"ws://" + host + "/ws/games/1/queue/" + lobbySize, 
+		["Authorization", token]
+	);
 
     MyWebSocket.ws.onopen = () => {
-        setWsCreated(true);
+        AbstractView.wsCreated = true;
+		AbstractView.wsConnectionStarted = false;
+		console.log("Created websocket");
+		parentNode.dispatchEvent( new CustomEvent ("waiting-room-callback"));
+    };
+
+	MyWebSocket.ws.onerror = (error) => {
+		AbstractView.wsConnectionStarted = false;
+        console.error("Error while connecting to the WS:", error);
     };
 
     MyWebSocket.ws.onmessage = (event) => {
-        //console.log("SYSTEM", JSON.parse(event.data));
+        console.log("SYSTEM", JSON.parse(event.data));
 
         try {
             const jsonData = JSON.parse(event.data);
 
             if (jsonData["type"] === "system.grouping") {
                 const playerList = jsonData["data"]["players"];
-                setUserQueue(playerList);
+                AbstractView.userQueue = playerList;
+				parentNode.dispatchEvent( new CustomEvent ("waiting-room-callback"));
             }
             if (jsonData["type"] === "user.message") {
                 const playerReadyList = jsonData["data"]["state"];
-                setUserReadyList((prevState) => ({
-                    ...prevState,
-                    ...playerReadyList,
-                }));
+				AbstractView.userReadyList = {
+					...AbstractView.userReadyList,
+					...playerReadyList
+				}
+				parentNode.dispatchEvent( new CustomEvent ("waiting-room-callback"));
             }
             if (jsonData["type"] === "system.message") {
                 const playerList = jsonData["data"];
                 if (playerList["message"] === "user.disconnected") {
-                    setUserData([]);
-                    setUserQueue((prevState) => {
-                        const newState = { ...prevState };
-                        for (let key in newState) {
-                            if (newState[key] === playerList["user_id"]) {
-                                delete newState[key];
-                                break;
-                            }
-                        }
-                        return newState;
-                    });
+                    AbstractView.userData = {};
+                    const newState = { ...AbstractView.userQueue };
+					for (let key in newState) {
+						if (newState[key] === playerList["user_id"]) {
+							delete newState[key];
+							break;
+						}
+					}
+					AbstractView.userQueue = newState;
+					parentNode.dispatchEvent( new CustomEvent ("waiting-room-callback"));
                 }
             }
+
+			//console.log("userQueue:", AbstractView.userQueue);
+			//console.log("userData:", AbstractView.userData);
+			//console.log("userReadyList:", AbstractView.userReadyList);
         } catch (error) {
             console.log(error);
         }
@@ -182,5 +191,6 @@ export function closeWebsocket() {
     if (MyWebSocket.ws) {
         MyWebSocket.ws.close();
         delete MyWebSocket.ws;
+		AbstractView.wsCreated = false;
     }
 }

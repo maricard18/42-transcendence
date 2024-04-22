@@ -15,6 +15,7 @@ import {
     SinglePlayerOptions,
     TournamentOptions,
 } from "../components2/GameOptions.js";
+import WaitingRoom from "./WaitingRoom.js";
 
 export const routes = [
     {
@@ -63,9 +64,11 @@ export const routes = [
                     },
                     {
                         path: "/pong/multiplayer/waiting-room/2",
+						view: [Game1, WaitingRoom]
                     },
                     {
                         path: "/pong/multiplayer/waiting-room/4",
+						view: [Game1, WaitingRoom]
                     },
                     {
                         path: "/pong/single-player/tournament",
@@ -89,6 +92,7 @@ export const routes = [
                     },
                     {
                         path: "/tic-tac-toe/multiplayer/waiting-room/2",
+						view: [WaitingRoom, Game2]
                     },
                     {
                         path: "/tic-tac-toe/single-player/tournament",

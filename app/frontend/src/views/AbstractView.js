@@ -19,6 +19,12 @@ export default class AbstractView {
         avatar: "",
     };
 
+	static userQueue = {};
+	static userData = {};   
+	static userReadyList = {};
+	static wsCreated = false;
+	static wsConnectionStarted = false;
+
 	static clean() {
 		this.formData = {
 			username: "",

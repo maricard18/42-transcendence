@@ -98,7 +98,6 @@ export function decode(accessToken) {
 }
 
 export function logout() {
-	console.log("here")
     Cookies.remove("access_token");
     Cookies.remove("refresh_token");
     AbstractView.authed = false;
