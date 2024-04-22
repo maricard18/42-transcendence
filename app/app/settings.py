@@ -14,22 +14,40 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
+from common.utils import get_file_content
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = str(os.environ.get('DJANGO_SECRET_KEY'))
+SECRET_KEY = str(get_file_content(os.environ.get('DJANGO_SECRET_FILE')))
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(os.environ.get('DJANGO_DEBUG'))
+DEBUG = False if os.environ.get('DJANGO_DEBUG') == "False" else True
+
+ALLOWED_HOSTS = list(os.environ.get('DJANGO_ALLOWED_HOSTS', default=[]))
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'frontend/static/')
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'frontend/media/')
 
 APPEND_SLASH = False
 
-ALLOWED_HOSTS = list(os.environ.get('DJANGO_ALLOWED_HOSTS', default=[]))
+SECURE_SSL_REDIRECT = True
+
+SECURE_HSTS_SECONDS = 30 if DEBUG else 2_592_000  # Unit is seconds; 30s for testing, 30 days for production
+SECURE_HSTS_PRELOAD = True
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+
+CSRF_COOKIE_SECURE = True
 
 # Django default apps
 INSTALLED_APPS = [
@@ -93,9 +111,9 @@ ASGI_APPLICATION = "app.asgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': str(os.environ.get('POSTGRES_DB')),
-        'USER': str(os.environ.get('POSTGRES_USER')),
-        'PASSWORD': str(os.environ.get('POSTGRES_PASSWORD')),
+        'NAME': str(get_file_content(os.environ.get('POSTGRES_DB_FILE'))),
+        'USER': str(get_file_content(os.environ.get('POSTGRES_USER_FILE'))),
+        'PASSWORD': str(get_file_content(os.environ.get('POSTGRES_PASSWORD_FILE'))),
         'HOST': str(os.environ.get('POSTGRES_HOST')),
     }
 }
@@ -156,7 +174,7 @@ REST_FRAMEWORK = {
     'DEFAULT_METADATA_CLASS': 'rest_framework.metadata.SimpleMetadata'
 }
 
-JWT_SECRET_KEY = str(os.environ.get("DJANGO_JWT_SECRET_KEY"))
+JWT_SECRET_KEY = str(get_file_content(os.environ.get("DJANGO_JWT_SECRET_FILE")))
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),

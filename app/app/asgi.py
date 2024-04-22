@@ -9,17 +9,19 @@ https://docs.djangoproject.com/en/4.2/howto/deployment/asgi/
 
 import os
 
+import django
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.security.websocket import AllowedHostsOriginValidator
 from django.core.asgi import get_asgi_application
 from django.urls import re_path
 
-from .websocket.consumers import GameConsumer
-from .websocket.middleware import GameMiddleware, JWTAuthMiddleware
-
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'app.settings')
 
 django_asgi_app = get_asgi_application()
+django.setup()
+
+from .websocket.consumers import GameConsumer
+from .websocket.middleware import GameMiddleware, JWTAuthMiddleware
 
 application = ProtocolTypeRouter({
     # Django's ASGI application to handle traditional HTTP requests

@@ -6,6 +6,7 @@ from rest_framework import status, viewsets, serializers
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
+from common.utils import get_file_content
 from .models import SSO_User
 from .permissions import TokenPermission, SSOPermission
 from .serializers import AuthUserSerializer, APITokenObtainPairSerializer, TokenSerializer
@@ -155,7 +156,7 @@ class SSOViewSet(viewsets.ViewSet):
         response = requests.post('https://api.intra.42.fr/oauth/token', data={
             'grant_type': 'authorization_code',
             'client_id': os.environ.get('42_CLIENT_ID'),
-            'client_secret': os.environ.get('42_CLIENT_SECRET'),
+            'client_secret': get_file_content(os.environ.get('42_CLIENT_SECRET_FILE')),
             'code': code,
             'redirect_uri': os.environ.get('42_REDIRECT_URI')
         })
