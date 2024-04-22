@@ -1,9 +1,7 @@
 import AbstractView from "./AbstractView";
-import {
-    MyWebSocket,
-    closeWebsocket,
-    connectWebsocket,
-} from "../functions/websocket";
+import fetchData from "../functions/fetchData";
+import { getToken } from "../functions/tokens";
+import {closeWebsocket, connectWebsocket, MyWebSocket, sendMessage} from "../functions/websocket";
 import { navigateTo } from "..";
 
 export default class WaitingRoom extends AbstractView {
@@ -15,6 +13,7 @@ export default class WaitingRoom extends AbstractView {
         this._loading = true;
 		this._creatingConnection = false;
         this._callback = false;
+		this._wsCreatedRender = false;
         this._lobbyFull = false;
 
         this._observer = new MutationObserver(this.defineCallback.bind(this));
@@ -36,7 +35,7 @@ export default class WaitingRoom extends AbstractView {
 				this._callback = true;
 				this._parentNode.addEventListener(
 					"waiting-room-callback", 
-					this.waitingRoomVerifications.bind(this)
+					this.waitingRoomCallback.bind(this)
 				);
 			}
         } else {
@@ -64,20 +63,24 @@ export default class WaitingRoom extends AbstractView {
 			return ;
 		}
 
-		this._parentNode.removeEventListener("waiting-room-callback", this.waitingRoomVerifications);
+		this._parentNode.removeEventListener(
+			"waiting-room-callback", 
+			this.waitingRoomCallback
+		);
 
 		this._callback = false;
 		this._observer.disconnect();
 	}
 
-    waitingRoomVerifications() {
-		if (AbstractView.wsCreated) {
+    waitingRoomCallback() {
+		if (AbstractView.wsCreated && !this._wsCreatedRender) {
+			this._wsCreatedRender = true;
 			this.loadDOMChanges();
 		}
 
         if (!this._lobbyFull &&
             Object.keys(AbstractView.userQueue).length == this._lobbySize) {
-			console.log("Lobby Is full!");
+			console.log("Lobby full!");
             this._lobbyFull = true;
 			this.loadDOMChanges();
         } else if (this._lobbyFull &&
@@ -90,45 +93,43 @@ export default class WaitingRoom extends AbstractView {
             this.startConnectingProcess();
         }
 
+		console.log("userReadyList:", AbstractView.userReadyList);
         if (Object.keys(AbstractView.userQueue).length == this._lobbySize &&
             Object.keys(AbstractView.userReadyList).length == this._lobbySize) {
-            const allUsersReady = Object.values(AbstractViewuserReadyList).every(
+            const allUsersReady = Object.values(AbstractView.userReadyList).every(
 				(ready) => ready
 			);
 
-			console.log("allUsersReady?", allUsersReady);
+			console.log("allUsersReady? ", allUsersReady);
             
 			if (allUsersReady) {
                 navigateTo(
-                    "/home/pong-game/play/multiplayer/" + this._lobbySize
+                    "/home/pong/play/multiplayer/" + this._lobbySize
                 );
             }
         }
     }
 
     async loadDOMChanges() {
-		console.log("Loading DOM changes")
-		const parentNode = document.getElementById("waiting-room");
-        const loadingIcon = parentNode.querySelector("loading-icon");
+        const loadingIcon = this._parentNode.querySelector("loading-icon");
         if (loadingIcon) {
             loadingIcon.remove();
-            parentNode.innerHTML = this.loadWaitingRoomContent();
-        }
+            this._parentNode.innerHTML = this.loadWaitingRoomContent();
+        } else {
+			this._parentNode.innerHTML = this.loadWaitingRoomContent();
+		}
     }
 
     loadWaitingRoomContent() {
-		console.log(AbstractView.wsCreated)
+		console.log("wsCreated:", AbstractView.wsCreated)
+		console.log("lobbyFull:", this._lobbyFull)
         return `
 			<div class="p-3 p-lg-5 pd-xl-0">
 				<div class="d-flex flex-row justify-content-center mb-4">
 					<h3>Waiting for players</h3>
 				</div>
 				${(new PlayerQueue()).getHtml()}
-				${
-                    AbstractView.wsCreated
-                        ? (this._lobbyFull ? (new ReadyButton()).getHtml() : `<loading-icon size="3rem"></loading-icon>`)
-                        : `<loading-icon size="3rem"></loading-icon>`
-                }
+				${(this._lobbyFull ? (new ReadyButton()).getHtml() : ``)}
 			</div>
 		`;
     }
@@ -137,7 +138,7 @@ export default class WaitingRoom extends AbstractView {
         if (this._loading) {
             return `
 			<div class="d-flex flex-column col-md-6" id="waiting-room">
-				<loading-icon size="5rem"></loading-icon>
+				<loading-icon template="center" size="5rem"></loading-icon>
 			</div>
 			`;
         }
@@ -161,9 +162,9 @@ class PlayerQueue extends AbstractView {
             subtree: true,
         });
 
-        //window.onbeforeunload = () => {
-        //    this.removeCallbacks();
-        //};
+        window.onbeforeunload = () => {
+            this.removeCallbacks();
+        };
     }
 
     async defineCallback() {
@@ -174,7 +175,11 @@ class PlayerQueue extends AbstractView {
 				this._callback = true;
 				this._parentNode.addEventListener(
 					"player-queue-callback", 
-					this.waitingRoomVerifications.bind(this)
+					this.playerQueueCallback.bind(this)
+				);
+				this._parentNode.addEventListener(
+					"player-queue-refresh", 
+					this.loadDOMChanges.bind(this)
 				);
 			}
         } else {
@@ -182,100 +187,269 @@ class PlayerQueue extends AbstractView {
         }
     }
 
-    waitingRoomVerifications() {
-        //if (!this._lobbyFull &&
-        //    Object.keys(AbstractView.userQueue).length == this._lobbySize) {
-		//	console.log("Lobby Is full!");
-        //    this._lobbyFull = true;
-        //} else if (this._lobbyFull &&
-        //    Object.keys(AbstractView.userQueue).length != this._lobbySize) {
-		//	console.log("Opponent left!");
-        //    this._loading = true;
-        //    this._lobbyFull = false;
-        //    AbstractView.userData = {};
-        //    closeWebsocket();
-        //    this.startConnectingProcess();
-        //}
+	removeCallbacks() {
+		if (!this._parentNode) {
+			return ;
+		}
 
-        //if (Object.keys(AbstractView.userQueue).length == this._lobbySize &&
-        //    Object.keys(AbstractView.userReadyList).length == this._lobbySize) {
-        //    const allUsersReady = Object.values(AbstractViewuserReadyList).every(
-		//		(ready) => ready
-		//	);
+		this._parentNode.removeEventListener(
+			"player-queue-callback", 
+			this.playerQueueCallback
+		);
+		this._parentNode.removeEventListener(
+			"player-queue-refresh", 
+			this.loadDOMChanges
+		);
 
-		//	console.log("allUsersReady?", allUsersReady);
-            
-		//	if (allUsersReady) {
-        //        navigateTo(
-        //            "/home/pong-game/play/multiplayer/" + this._lobbySize
-        //        );
-        //    }
-        //}
+		this._callback = false;
+		this._observer.disconnect();
+	}
+
+    playerQueueCallback() {
+		const fetchUserData = async () => {
+            const data = await Promise.all(
+                Object.values(AbstractView.userQueue).map((value) =>
+                    value === AbstractView.userInfo.id
+                        ? AbstractView.userInfo
+                        : getUserData(value)
+                )
+            );
+			AbstractView.userData = data;
+			this._loading = false;
+			this.loadDOMChanges();
+        };
+
+        if (Object.values(AbstractView.userData).length != this._lobbySize) {
+            fetchUserData();
+        } else {
+            this._loading = false;
+			this.loadDOMChanges();
+        }
     }
 
     loadDOMChanges() {
 		const parentNode = document.getElementById("player-queue");
-        parentNode.innerHTML = this.loadPlayerQueueContent();
+        parentNode.innerHTML = this.loadPlayerQueue();
     }
 
-    loadPlayerQueueContent() {
+    loadPlayerQueue() {
         return `
-			<div class="d-flex flex-column justify-content-start align-items-start mb-3" id="player-queue">
+			<div class="justify-content-start align-items-start mb-3" id="player-queue">
 			${!this._loading && AbstractView.userData
 				? AbstractView.userData.map((data, index) =>
 					data.avatar ? (
-						`<React.Fragment key=${index}>
-							<div class="d-flex flex-row mb-2">
-								<img
-									src=${data.avatar}
-									alt="Avatar preview"
-									width="40"
-									height="40"
-									class="avatar-border-sm"
-									style="border-radius: 50%"
-								/>
-								<div class="d-flex flex-row justify-content-center">
-									<div class="username-text ms-3 mt-2">
-										<h5>${data.username}</h5>
-									</div>
-									<div class="ms-1 mt-2">
-										<CheckIfReady
-											data=${data}
-											userReadyList=${userReadyList}
-										/>
-									</div>
+						`<div class="d-flex flex-row justify-content-center mb-2" id="${index}">
+							<img
+								src=${data.avatar}
+								alt="Avatar preview"
+								width="40"
+								height="40"
+								class="avatar-border-sm"
+								style="border-radius: 50%"
+							/>
+							<div class="d-flex flex-row">
+								<div class="username-text ms-3 mt-2">
+									<h5>${data.username}</h5>
+									${Object.keys(AbstractView.userQueue).length == this._lobbySize
+										? (AbstractView.userReadyList[data.id]
+											? `<check-icon></check-icon>`
+											: `<close-icon></close-icon>`)
+										: ``}
 								</div>
 							</div>
-						</React.Fragment>`
+						</div>`
 					) : (
-						`<React.Fragment key=${index}>
-							<div class="d-flex flex-row mb-2">
-								<BaseAvatar
-									width="40"
-									height="40"
-									template=""
-								/>
-								<div class="d-flex flex-row">
-									<div class="username-text ms-3 mt-2">
-										<h5>${data.username}</h5>
-									</div>
-									<div class="ms-1 mt-2">
-										<CheckIfReady
-											data=${data}
-											userReadyList=${userReadyList}
-										/>
-									</div>
+						`<div class="d-flex flex-row justify-content-center mb-2" id="${index}">
+							<base-avatar-box size="40px"></base-avatar-box>
+							<div class="d-flex flex-row">
+								<div class="username-text ms-3 mt-2">
+									<h5>${data.username}</h5>
+									${Object.keys(AbstractView.userQueue).length == this._lobbySize
+										? (AbstractView.userReadyList[data.id]
+											? `<check-icon></check-icon>`
+											: `<close-icon></close-icon>`)
+										: ``}
 								</div>
 							</div>
-						</React.Fragment>`
-					).join(''))
+						</div>`
+					))
 				:  `<loading-icon size="3rem"></loading-icon>`}
 			</div>
 		`;
     }
 
     getHtml() {
-		console.log(this.loadPlayerQueueContent())
-        return this.loadPlayerQueueContent();
+        return this.loadPlayerQueue();
 	}
 }
+
+class ReadyButton extends AbstractView {
+	constructor(view) {
+        super();
+        this._view = view;
+        this._parentNode = null;
+        this._callback = false;
+		this._clickCallback = false;
+		this._readyState = false;
+
+        this._observer = new MutationObserver(this.defineCallback.bind(this));
+        this._observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+        });
+
+        window.onbeforeunload = () => {
+            this.removeCallbacks();
+        };
+    }
+
+    async defineCallback() {
+        const parentNode = document.getElementById("ready-button");
+        if (parentNode) {
+            this._parentNode = parentNode;
+			if (!this._callback) {
+				this._callback = true;
+				AbstractView.userReadyList = {
+					...AbstractView.userReadyList,
+					[AbstractView.userInfo.id]: false,
+				}
+
+				const message = {
+					state: {
+						[AbstractView.userInfo.id]: this._readyState,
+					},
+				};
+				sendMessage(MyWebSocket.ws, message);
+			}
+        } else {
+            return;
+        }
+
+		this.buttonClickedCallback = () => {
+			if (!this._readyState) {
+				AbstractView.userReadyList = {
+					...AbstractView.userReadyList,
+					[AbstractView.userInfo.id]: true
+				}
+				this._readyState = true;
+			} else {
+				AbstractView.userReadyList = {
+					...AbstractView.userReadyList,
+					[AbstractView.userInfo.id]: false
+				}
+				this._readyState = false;
+			}
+
+            const message = {
+				state: {
+					[AbstractView.userInfo.id]: this._readyState,
+				},
+			};
+			
+			sendMessage(MyWebSocket.ws, message);
+			const waitingRoomNode = document.getElementById("waiting-room");
+			waitingRoomNode.dispatchEvent( new CustomEvent ("waiting-room-callback"));
+			const playerQueueNode = document.getElementById("player-queue");
+			playerQueueNode.dispatchEvent( new CustomEvent ("player-queue-refresh"));
+			this.loadDOMChanges();
+        };
+
+		const button = this._parentNode.querySelector("button");
+        if (button && !this._clickCallback) {
+            this._clickCallback = true;
+            button.addEventListener(
+                "click",
+                this.buttonClickedCallback
+            );
+        }
+    }
+
+	removeCallbacks() {
+		if (!this._parentNode) {
+			return ;
+		}
+
+		const button = this._parentNode.querySelector("button");
+        if (button) {
+            button.removeEventListener(
+                "buttonClicked",
+                this.buttonClickedCallback
+            );
+        }
+
+		this._callback = false;
+		this._clickCallback = false;
+		this._observer.disconnect();
+	}
+
+    loadDOMChanges() {
+		const parentNode = document.getElementById("ready-button");
+        parentNode.innerHTML = this.loadReadyButton();
+		this._clickCallback = false;
+    }
+
+    loadReadyButton() {
+		let template;
+		if (this._readyState) {
+			template = "secondary-button extra-btn-class";
+		} else {
+			template = "primary-button extra-btn-class";
+		}
+
+        return `
+			<div class="mt-4" id="ready-button">
+				<button
+					type="button"
+					class="btn btn-primary ${template}"
+				>
+					${!this._readyState ? "Ready" : "Not ready"}
+				</button>
+			</div>
+		`;
+    }
+
+    getHtml() {
+        return this.loadReadyButton();
+	}
+}
+
+async function getUserData(value) {
+    let jsonData;
+
+    const headers = {
+        Authorization: `Bearer ${await getToken()}`,
+    };
+
+    const response = await fetchData("/api/users/" + value, "GET", headers);
+
+    if (!response.ok) {
+        console.log("Error: failed to fetch user data.");
+        return null;
+    }
+
+    try {
+        jsonData = await response.json();
+    } catch (error) {
+        console.log("Error: failed to parse response.");
+        return null;
+    }
+
+    const data = {
+        username: jsonData["username"],
+        email: jsonData["email"],
+        id: value,
+    };
+
+    if (jsonData["avatar"]) {
+        data["avatar"] = jsonData["avatar"]["link"];
+    }
+
+    return data;
+}
+
+{/*<div class="ms-1 mt-2">
+<CheckIfReady
+	data=${data}
+	userReadyList=${userReadyList}
+/>
+</div>*/}

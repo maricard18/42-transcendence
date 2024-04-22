@@ -9,13 +9,9 @@ import ProfilePage from "./ProfilePage.js";
 import ChangeUserInfo from "../components2/ChangeUserInfo.js";
 import ChangePassword from "../components2/ChangePassword.js";
 import { Game1, Game2 } from "../components2/Games.js";
-import {
-    GameMenuOptions,
-    MultiplayerOptions,
-    SinglePlayerOptions,
-    TournamentOptions,
-} from "../components2/GameOptions.js";
+import {GameMenuOptions, MultiplayerOptions, SinglePlayerOptions, TournamentOptions} from "../components2/GameOptions.js";
 import WaitingRoom from "./WaitingRoom.js";
+import Pong from "./Pong.js";
 
 export const routes = [
     {
@@ -120,15 +116,19 @@ export const routes = [
             },
             {
                 path: "/pong/play/single-player/1",
+				view: Pong
             },
             {
                 path: "/pong/play/single-player/2",
+				view: Pong
             },
             {
                 path: "/pong/play/multiplayer/2",
+				view: Pong
             },
             {
                 path: "/pong/play/multiplayer/4",
+				view: Pong
             },
 			{
                 path: "/tic-tac-toe/play/single-player/1",

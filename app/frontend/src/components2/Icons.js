@@ -63,7 +63,9 @@ export class LoadingIcon extends HTMLElement {
 
     getHtml() {
 		const div = document.createElement('div');
-		div.setAttribute("class", "center");
+		if (this.getAttribute("template")) {
+			div.setAttribute("class", this.getAttribute("template"));
+		}
 		div.innerHTML = `
 			<div
 				class="spinner-border ms-3 mt-2"

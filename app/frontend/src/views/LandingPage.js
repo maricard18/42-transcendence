@@ -33,7 +33,7 @@ export default class LandingPage extends AbstractView {
 		<div class="container" id="landing-page">
 			${
                 this.loading
-                    ? `<loading-icon size="5rem"></loading-icon>`
+                    ? `<loading-icon template="center" size="5rem"></loading-icon>`
                     : `<div class="center">
 					<div class="d-flex flex-column justify-content-center">
 						<h1 class="header">Transcendence</h1>

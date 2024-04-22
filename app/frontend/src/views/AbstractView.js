@@ -1,5 +1,3 @@
-import { getToken } from "../functions/tokens";
-
 export default class AbstractView {
     constructor() {}
 
@@ -24,6 +22,7 @@ export default class AbstractView {
 	static userReadyList = {};
 	static wsCreated = false;
 	static wsConnectionStarted = false;
+	static gameOver = false;
 
 	static clean() {
 		this.formData = {

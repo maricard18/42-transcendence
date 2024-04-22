@@ -293,7 +293,7 @@ export default class ChangeUserInfo extends AbstractView {
         if (this._loading) {
             return `
 				<div class="d-flex flex-column" id="change-user-info">
-					<loading-icon size="5rem"></loading-icon>
+					<loading-icon template="center" size="5rem"></loading-icon>
 				</div>
 			`;
         } else {

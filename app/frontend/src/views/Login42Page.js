@@ -58,7 +58,7 @@ export default class Login42Page extends AbstractView {
     async getHtml() {
         return `
 			<div class="container" id="login-42-page">
-				<loading-icon size="5rem"></loading-icon>
+				<loading-icon template="center" size="5rem"></loading-icon>
 			</div>
         `;
     }

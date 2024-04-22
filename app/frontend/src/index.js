@@ -9,7 +9,6 @@ import "bootstrap/dist/js/bootstrap.bundle.js";
 const router = async () => {
     const url = location.pathname;
     let matches = findMatch(url, routes);
-	console.log("finalObjects:", matches);
 
 	if (!await hasPermission(matches)) {
 		return ;

@@ -1,12 +1,13 @@
+import AbstractView from "../views/AbstractView";
 import { checkPlayer1Collision, checkPlayer2Collision, checkInvertedPlayer1Collision, checkInvertedPlayer2Collision } from "./collision";
 import { createSinglePlayerGameObjects, createMultiPlayer2GameObjects, createMultiPlayer4GameObjects } from "./createPlayers";
 import { MyWebSocket, sendMessage } from "../functions/websocket";
 import { multiplayerMessageHandler } from "../functions/websocket";
 import { gameConfettiAnimation, gameStartAnimation } from "./animations";
-import { GoalWidth, updateVariables } from "./variables";
+import { updateVariables } from "./variables";
 import { ScreenWidth, ScreenHeight, keys } from "./variables";
 
-export function createGameObject(canvas, gameMode, lobbySize, userData, userInfo) {
+export function createGameObject(canvas, gameMode, lobbySize,) {
     const ctx = canvas.getContext("2d");
 
     clearBackground(ctx);
@@ -24,35 +25,35 @@ export function createGameObject(canvas, gameMode, lobbySize, userData, userInfo
     });
 
     if (gameMode === "single-player") {
-        return createSinglePlayerGameObjects(ctx, userInfo, lobbySize);
+        return createSinglePlayerGameObjects(ctx, lobbySize);
     } else if ( gameMode === "multiplayer" && lobbySize == 2) {
-        return createMultiPlayer2GameObjects(ctx, userData, userInfo, lobbySize);
+        return createMultiPlayer2GameObjects(ctx, lobbySize);
     } else if ( gameMode === "multiplayer" && lobbySize == 4) {
-        return createMultiPlayer4GameObjects(ctx, userData, userInfo, lobbySize);
+        return createMultiPlayer4GameObjects(ctx, lobbySize);
     }
 }
 
-export async function startGame(game, setUserQueue, setUserData, setGameOver, userData, userInfo) {
+export async function startGame(game) {
 	if (game.mode === "single-player") {
 		await gameStartAnimation(game);
 		game.last_time = Date.now();
 		await singleplayerGameLoop(game);
 		await gameConfettiAnimation(game);
-		setGameOver(true);
+		AbstractView.gameOver = true;
 	} else if (game.mode === "multiplayer" && game.lobbySize == 2) {
-		multiplayerMessageHandler(MyWebSocket, game, setUserQueue, setUserData, userData, userInfo);
+		multiplayerMessageHandler(MyWebSocket, game);
 		await gameStartAnimation(game);
 		game.last_time = Date.now();
-		await multiplayer2GameLoop(game, userData, userInfo);
+		await multiplayer2GameLoop(game);
 		await gameConfettiAnimation(game);
-        setGameOver(true);
+        AbstractView.gameOver = true;
 	} else if (game.mode === "multiplayer" && game.lobbySize == 4) {
-		multiplayerMessageHandler(MyWebSocket, game, setUserQueue, setUserData, userData, userInfo);
+		multiplayerMessageHandler(MyWebSocket, game);
 		await gameStartAnimation(game);
 		game.last_time = Date.now();
-		await multiplayer4GameLoop(game, userData, userInfo);
+		await multiplayer4GameLoop(game);
 		await gameConfettiAnimation(game);
-		setGameOver(true);
+		AbstractView.gameOver = true;
 	}
 }
 
@@ -107,7 +108,7 @@ function singleplayerGameLoop(game) {
     });
 }
 
-function multiplayer2GameLoop(game, userData, userInfo) {
+function multiplayer2GameLoop(game) {
 	return new Promise((resolve) => {
         const playPong = () => {
             if (game.over || !MyWebSocket.ws) {
@@ -119,17 +120,17 @@ function multiplayer2GameLoop(game, userData, userInfo) {
 				game.clear();
 				game.drawGoals("white")
 		
-				if (userInfo.id === game.host_id) {
+				if (AbstractView.userInfo.id === game.host_id) {
 					game.ball.update(game, dt);
 					game.player1.update(dt);
 				} else {
 					game.player2.update(dt);
 				}
 		
-				if (userInfo.id === game.host_id) {
+				if (AbstractView.userInfo.id === game.host_id) {
 					sendHostMessage(game);
 				} else {
-					sendNonHostMessage(game, userData, userInfo);
+					sendNonHostMessage(game);
 				}
 		
 				if (game.player1.info.id === game.host_id) {
@@ -140,13 +141,13 @@ function multiplayer2GameLoop(game, userData, userInfo) {
 				game.drawScore(game.player1, ScreenWidth / 2 - 0.08 * ScreenWidth);
 				game.drawScore(game.player2, ScreenWidth / 2 + 0.08 * ScreenWidth);
 				
-				if (userInfo.id === game.host_id) {
+				if (AbstractView.userInfo.id === game.host_id) {
 					sendHostMessage(game);
 				} else {
-					sendNonHostMessage(game, userData, userInfo);
+					sendNonHostMessage(game);
 				}
 		
-				if (userInfo.id === game.host_id && 
+				if (AbstractView.userInfo.id === game.host_id && 
 				   (game.player1.score === 5 || game.player2.score === 5)) {
 					const players = [game.player1, game.player2];
 					game.winner = getPlayerWithMostGoals(players).info.username;
@@ -171,7 +172,7 @@ function multiplayer2GameLoop(game, userData, userInfo) {
     });
 }
 
-function multiplayer4GameLoop(game, userData, userInfo) {
+function multiplayer4GameLoop(game) {
 	return new Promise((resolve) => {
         const playPong = () => {
             if (game.over || !MyWebSocket.ws) {
@@ -183,24 +184,24 @@ function multiplayer4GameLoop(game, userData, userInfo) {
 				clearBackground(game.ctx);
 				game.drawGoals("white")
 		
-				if (userInfo.id === game.host_id) {
+				if (AbstractView.userInfo.id === game.host_id) {
 					game.ball.update(game, dt);
 					game.player1.update(dt);
-				} else if (userInfo.id === userData[1].id) {
+				} else if (AbstractView.userInfo.id === userData[1].id) {
 					game.player2.update(dt);
-				} else if (userInfo.id === userData[2].id) {
+				} else if (AbstractView.userInfo.id === userData[2].id) {
 					game.player3.update(dt);
-				} else if (userInfo.id === userData[3].id) {
+				} else if (AbstractView.userInfo.id === userData[3].id) {
 					game.player4.update(dt);
 				}
 		
-				if (userInfo.id === game.host_id) {
+				if (AbstractView.userInfo.id === game.host_id) {
 					sendHostMessage(game);
 				} else {
-					sendNonHostMessage(game, userData, userInfo);
+					sendNonHostMessage(game, userData, AbstractView.userInfo);
 				}
 		
-				if (userInfo.id === game.host_id) {
+				if (AbstractView.userInfo.id === game.host_id) {
 					checkPlayer1Collision(game.ball, game.player1);
 					checkPlayer2Collision(game.ball, game.player2);
 					checkInvertedPlayer1Collision(game.ball, game.player3);
@@ -212,13 +213,13 @@ function multiplayer4GameLoop(game, userData, userInfo) {
 				game.drawScore(game.player3, ScreenWidth / 2 + 0.08 * ScreenWidth);
 				game.drawScore(game.player4, ScreenWidth - ScreenWidth / 4);
 		
-				if (userInfo.id === game.host_id) {
+				if (AbstractView.userInfo.id === game.host_id) {
 					sendHostMessage(game);
 				} else {
-					sendNonHostMessage(game, userData, userInfo);
+					sendNonHostMessage(game);
 				}
 		
-				if (userInfo.id === game.host_id &&
+				if (AbstractView.userInfo.id === game.host_id &&
 				   (game.player1.score === 5 || game.player2.score === 5 ||
 					game.player3.score === 5 || game.player4.score === 5)) {
 					const players = [game.player1, game.player2, game.player3, game.player4];
@@ -313,8 +314,9 @@ export function sendHostMessage(game) {
     sendMessage(MyWebSocket.ws, message);
 }
 
-export function sendNonHostMessage(game, userData, userInfo) {
-	let playerIndex = userData.findIndex(element => element.id === userInfo.id) + 1;
+export function sendNonHostMessage(game) {
+	let playerIndex = AbstractView.userData.findIndex(
+		element => element.id === AbstractView.userInfo.id) + 1;
 	let player = game["player" + playerIndex];
 
     const message = {

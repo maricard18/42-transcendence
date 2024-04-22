@@ -9,16 +9,7 @@ export default class HomePage extends AbstractView {
     async getHtml() {
         return `
             <div class="container">
-                <div class="
-                    d-flex 
-                    flex-column 
-                    flex-md-row 
-                    align-items-center 
-                    justify-content-center 
-                    justify-content-md-evenly 
-                    vh-100
-                    row"
-                >
+                <div class="d-flex flex-column flex-md-row  align-items-center justify-content-center justify-content-md-evenly vh-100 row">
                 ${await (async () => {
                     if (this._view.length > 1) {
                         const htmlArray = await Promise.all(
@@ -34,4 +25,3 @@ export default class HomePage extends AbstractView {
         `;
     }
 }
-
