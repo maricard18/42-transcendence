@@ -222,6 +222,25 @@ services:
         condition: service_started
     profiles: [ "dev" ]
     restart: on-failure
+  
+  vault-dev:
+    container_name: vault-dev
+    image: hashicorp/vault:latest
+    ports:
+      - 8200:8200
+    environment:
+      VAULT_ADDR: http://vault-dev:8200
+      VAULT_API_ADDR: http://vault-dev:8200
+      VAULT_DEV_ROOT_TOKEN_ID: temp_token
+    networks:
+      - transcendence-dev
+    cap_add:
+      - IPC_LOCK
+    profiles: [ "dev" ]
+    depends_on:
+      - modsecurity-dev
+    restart: on-failure
+
 
   ############# TOOLS #############
   ############# PROD #############
