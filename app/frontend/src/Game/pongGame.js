@@ -187,18 +187,18 @@ function multiplayer4GameLoop(game) {
 				if (AbstractView.userInfo.id === game.host_id) {
 					game.ball.update(game, dt);
 					game.player1.update(dt);
-				} else if (AbstractView.userInfo.id === userData[1].id) {
+				} else if (AbstractView.userInfo.id === AbstractView.userData[1].id) {
 					game.player2.update(dt);
-				} else if (AbstractView.userInfo.id === userData[2].id) {
+				} else if (AbstractView.userInfo.id === AbstractView.userData[2].id) {
 					game.player3.update(dt);
-				} else if (AbstractView.userInfo.id === userData[3].id) {
+				} else if (AbstractView.userInfo.id === AbstractView.userData[3].id) {
 					game.player4.update(dt);
 				}
 		
 				if (AbstractView.userInfo.id === game.host_id) {
 					sendHostMessage(game);
 				} else {
-					sendNonHostMessage(game, userData, AbstractView.userInfo);
+					sendNonHostMessage(game);
 				}
 		
 				if (AbstractView.userInfo.id === game.host_id) {

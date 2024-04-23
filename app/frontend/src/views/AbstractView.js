@@ -7,7 +7,7 @@ export default class AbstractView {
 	static userReadyList = {};
 	static wsCreated = false;
 	static wsConnectionStarted = false;
-	static gameOver = false;
+	static gameOver = null;
 	static previousLocation = null;
     static formData = {
         username: "",
@@ -29,6 +29,7 @@ export default class AbstractView {
 		this.wsCreated = false;
 		this.wsConnectionStarted = false;
 		this.previousLocation = null;
+		this.gameOver = null;
 	}
 
 	static cleanUserData() {

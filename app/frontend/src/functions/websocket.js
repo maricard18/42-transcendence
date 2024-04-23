@@ -5,7 +5,8 @@ import { getToken } from "./tokens";
 
 export var MyWebSocket = {};
 
-export async function connectWebsocket(lobbySize) {
+export async function connectWebsocket() {
+	const lobbySize = location.pathname.substring(location.pathname.length - 1);
     const token = await getToken();
     const host = window.location.host;
 	const waitingRoomNode = document.getElementById("waiting-room");
@@ -18,7 +19,6 @@ export async function connectWebsocket(lobbySize) {
     MyWebSocket.ws.onopen = () => {
         AbstractView.wsCreated = true;
 		AbstractView.wsConnectionStarted = false;
-		console.log("Created websocket");
 		waitingRoomNode.dispatchEvent( new CustomEvent ("waiting-room-callback"));
     };
 

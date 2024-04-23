@@ -7,7 +7,7 @@ import { navigateTo } from "..";
 export default class WaitingRoom extends AbstractView {
     constructor() {
         super();
-		AbstractView.gameOver = false;
+		AbstractView.gameOver = null;
         this._location = location.pathname;
         this._lobbySize = this._location.substring(this._location.length - 1);
         this._parentNode = null;
@@ -46,7 +46,7 @@ export default class WaitingRoom extends AbstractView {
         this.startConnectingProcess = async () => {
 			AbstractView.wsConnectionStarted = true;
 			try {
-				await connectWebsocket(this._lobbySize);
+				await connectWebsocket();
 				AbstractView.previousLocation = this._location;
 			} catch(error) {
 				console.log(error);
@@ -102,6 +102,7 @@ export default class WaitingRoom extends AbstractView {
 			);
             
 			if (allUsersReady) {
+				AbstractView.gameOver = false;
                 navigateTo(
                     "/home/pong/play/multiplayer/" + this._lobbySize
                 );
@@ -443,10 +444,3 @@ async function getUserData(value) {
 
     return data;
 }
-
-{/*<div class="ms-1 mt-2">
-<CheckIfReady
-	data=${data}
-	userReadyList=${userReadyList}
-/>
-</div>*/}
