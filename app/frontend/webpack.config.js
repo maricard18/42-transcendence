@@ -36,8 +36,8 @@ module.exports = {
   resolve: {
     fallback: {
       "fs": require.resolve("browserify-fs"),
-      "tls": require.resolve("tls-browserify"),
-      "net": require.resolve("net-browserify")
+      "tls": false,
+      "net": false
     }
   }
 };
