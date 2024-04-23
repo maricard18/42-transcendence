@@ -2,27 +2,25 @@ export default class AbstractView {
     constructor() {}
 
     static authed = false;
-
-    static formData = {
-        username: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-    };
-
-    static userInfo = {
-        id: "",
-        username: "",
-        email: "",
-        avatar: "",
-    };
-
 	static userQueue = {};
 	static userData = {};   
 	static userReadyList = {};
 	static wsCreated = false;
 	static wsConnectionStarted = false;
 	static gameOver = false;
+	static previousLocation = null;
+    static formData = {
+        username: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+    };
+    static userInfo = {
+        id: "",
+        username: "",
+        email: "",
+        avatar: "",
+    };
 
 	static clean() {
 		this.formData = {

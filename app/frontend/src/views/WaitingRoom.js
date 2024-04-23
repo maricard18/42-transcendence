@@ -46,6 +46,7 @@ export default class WaitingRoom extends AbstractView {
 			AbstractView.wsConnectionStarted = true;
 			try {
 				await connectWebsocket(this._lobbySize);
+				AbstractView.previousLocation = this._location;
 			} catch(error) {
 				console.log(error);
 			}
@@ -85,7 +86,7 @@ export default class WaitingRoom extends AbstractView {
 			this.loadDOMChanges();
         } else if (this._lobbyFull &&
             Object.keys(AbstractView.userQueue).length != this._lobbySize) {
-			console.log("Opponent left!");
+			console.log("Opponent left, closing WebSocket");
             this._loading = true;
             this._lobbyFull = false;
             AbstractView.userData = {};
@@ -93,14 +94,11 @@ export default class WaitingRoom extends AbstractView {
             this.startConnectingProcess();
         }
 
-		console.log("userReadyList:", AbstractView.userReadyList);
         if (Object.keys(AbstractView.userQueue).length == this._lobbySize &&
             Object.keys(AbstractView.userReadyList).length == this._lobbySize) {
             const allUsersReady = Object.values(AbstractView.userReadyList).every(
 				(ready) => ready
 			);
-
-			console.log("allUsersReady? ", allUsersReady);
             
 			if (allUsersReady) {
                 navigateTo(
@@ -121,8 +119,6 @@ export default class WaitingRoom extends AbstractView {
     }
 
     loadWaitingRoomContent() {
-		console.log("wsCreated:", AbstractView.wsCreated)
-		console.log("lobbyFull:", this._lobbyFull)
         return `
 			<div class="p-3 p-lg-5 pd-xl-0">
 				<div class="d-flex flex-row justify-content-center mb-4">

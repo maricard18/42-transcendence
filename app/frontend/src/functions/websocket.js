@@ -37,8 +37,8 @@ export async function connectWebsocket(lobbySize) {
             if (jsonData["type"] === "system.grouping") {
                 const playerList = jsonData["data"]["players"];
                 AbstractView.userQueue = playerList;
-				waitingRoomNode.dispatchEvent( new CustomEvent ("waiting-room-callback"));
-				playerQueueNode.dispatchEvent( new CustomEvent ("player-queue-callback"));
+				customWaitingRoomCallback();
+				customPlayerQueueCallback();
             }
             if (jsonData["type"] === "user.message") {
                 const playerReadyList = jsonData["data"]["state"];
@@ -46,9 +46,8 @@ export async function connectWebsocket(lobbySize) {
 					...AbstractView.userReadyList,
 					...playerReadyList
 				}
-				console.log("userReadyListWs:", AbstractView.userReadyList);
-				waitingRoomNode.dispatchEvent( new CustomEvent ("waiting-room-callback"));
-				playerQueueNode.dispatchEvent( new CustomEvent ("player-queue-callback"));
+				customWaitingRoomCallback();
+				customPlayerQueueCallback();
             }
             if (jsonData["type"] === "system.message") {
                 const playerList = jsonData["data"];
@@ -62,8 +61,8 @@ export async function connectWebsocket(lobbySize) {
 						}
 					}
 					AbstractView.userQueue = newState;
-					waitingRoomNode.dispatchEvent( new CustomEvent ("waiting-room-callback"));
-					playerQueueNode.dispatchEvent( new CustomEvent ("player-queue-callback"));
+					customWaitingRoomCallback();
+					customPlayerQueueCallback();
                 }
             }
 
@@ -195,5 +194,23 @@ export function closeWebsocket() {
         MyWebSocket.ws.close();
         delete MyWebSocket.ws;
 		AbstractView.wsCreated = false;
+		AbstractView.previousLocation = null;
+		AbstractView.userData = {};
+		AbstractView.userQueue = {};
+		AbstractView.userReadyList = {};
     }
+}
+
+function customWaitingRoomCallback() {
+	const waitingRoomNode = document.getElementById("waiting-room");
+	if (waitingRoomNode) {
+		waitingRoomNode.dispatchEvent( new CustomEvent ("waiting-room-callback"))
+	}
+}
+
+function customPlayerQueueCallback() {
+	const playerQueueNode = document.getElementById("player-queue");
+	if (playerQueueNode) {
+		playerQueueNode.dispatchEvent( new CustomEvent ("player-queue-callback"));
+	}
 }

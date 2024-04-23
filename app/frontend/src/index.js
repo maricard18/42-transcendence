@@ -1,6 +1,7 @@
 import AbstractView from "./views/AbstractView";
 import { routes } from "./views/router";
 import { getToken } from "./functions/tokens";
+import { closeWebsocket } from "./functions/websocket";
 import "./functions/defineComponents";
 import "../static/css/index.css";
 import "bootstrap/dist/css/bootstrap.css";
@@ -9,6 +10,11 @@ import "bootstrap/dist/js/bootstrap.bundle.js";
 const router = async () => {
     const url = location.pathname;
     let matches = findMatch(url, routes);
+
+	if (hasWebSocket(matches)) {
+		console.log("closing wescoket")
+		closeWebsocket();
+	}
 
 	if (!await hasPermission(matches)) {
 		return ;
@@ -98,6 +104,32 @@ async function hasPermission(matches) {
     }
 
 	return true;
+}
+
+function hasWebSocket(matches) {
+	let fullUrl = "";
+    matches.forEach((route) => fullUrl += route.path);
+
+	console.log("FullUrl:", fullUrl);
+	console.log("AbstarctViewPreviousLocation:", AbstractView.previousLocation);
+
+	if (fullUrl !== "/home/pong/multiplayer/waiting-room/2" &&
+		fullUrl !== "/home/pong/multiplayer/waiting-room/4" &&
+		fullUrl !== "/home/tic-tac-toe/multiplayer/waiting-room/2" &&
+		fullUrl !== "/home/pong/play/multiplayer/2" &&
+		fullUrl !== "/home/pong/play/multiplayer/4" &&
+		fullUrl !== "/home/tic-tac-toe/play/multiplayer/2" &&
+		(AbstractView.previousLocation === "/home/pong/multiplayer/waiting-room/2" ||
+	   	AbstractView.previousLocation === "/home/pong/multiplayer/waiting-room/4" ||
+	   	AbstractView.previousLocation === "/home/tic-tac-toe/multiplayer/waiting-room/2" ||
+	   	AbstractView.previousLocation === "/home/pong/play/multiplayer/2" ||
+	   	AbstractView.previousLocation === "/home/pong/play/multiplayer/4" ||
+	   	AbstractView.previousLocation === "/home/tic-tac-toe/play/multiplayer/2")) {
+		console.log("user has a websocket open!")
+		return true;
+	} else {
+		return false;
+	}
 }
 
 export function navigateTo(url) {

@@ -11,6 +11,7 @@ export default class Pong extends AbstractView {
 		this._location = location.pathname;
 		this._gameMode = this._location.match(/\/([^\/]+)\/[^\/]+$/)[1];
 		this._lobbySize = this._location.substring(this._location.length - 1);
+		AbstractView.previousLocation = this._location;
 		this._aspectRatioRectangle = 4 / 3;
     	this._aspectRatioSquare = 1;
 		this._maxWidth = 1280,
@@ -29,6 +30,7 @@ export default class Pong extends AbstractView {
         });
 
         window.onbeforeunload = () => {
+			console.log("Going to refresh the page")
 			this._observer.disconnect();
         };
 
