@@ -9,6 +9,7 @@ export default class ProfilePage extends AbstractView {
         this._loading = true;
         this._avatarCallback = false;
         this._insideRequest = false;
+		console.log("construction:", AbstractView.userInfo)
         
 		this._errors = {};
         this._avatar = AbstractView.userInfo.avatar;

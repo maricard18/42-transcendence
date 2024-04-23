@@ -7,6 +7,7 @@ import { navigateTo } from "..";
 export default class WaitingRoom extends AbstractView {
     constructor() {
         super();
+		AbstractView.gameOver = false;
         this._location = location.pathname;
         this._lobbySize = this._location.substring(this._location.length - 1);
         this._parentNode = null;

@@ -7,6 +7,10 @@ export class Game1 extends AbstractView {
 	constructor() {
 		super();
         this._callbackRunned = false;
+
+		if (location.pathname !== "/home") {
+			Game1.gameSelected = true;
+		}
 		
 		if (location.pathname === "/home") {
 			this._observer = new MutationObserver(this.loadCallbacks.bind(this));
@@ -58,16 +62,16 @@ export class Game1 extends AbstractView {
 
 		if (Game1.gameSelected) {
 			return `
-			<div class="d-flex flex-column col-md-6">
-				<div class="p-3 p-lg-5 pd-xl-0">
-					<img
-						id="pong-img"
-						class="square"
-						src="/static/images/pong.png"
-					/>
+				<div class="d-flex flex-column col-md-6">
+					<div class="p-3 p-lg-5 pd-xl-0">
+						<img
+							id="pong-img"
+							class="square"
+							src="/static/images/pong.png"
+						/>
+					</div>
 				</div>
-			</div>
-        `;
+			`;
 		} else {
 			return `
 				<div class="d-flex flex-column col-md-6">
@@ -95,6 +99,10 @@ export class Game2 extends AbstractView {
 	constructor() {
 		super();
         this._callbackRunned = false;
+
+		if (location.pathname !== "/home") {
+			Game2.gameSelected = true;
+		}
 		
 		if (location.pathname === "/home") {
 			this._observer = new MutationObserver(this.loadCallbacks.bind(this));
@@ -146,15 +154,15 @@ export class Game2 extends AbstractView {
 
 		if (Game2.gameSelected) {
 			return `
-			<div class="d-flex flex-column col-md-6">
-				<div class="p-3 p-lg-5 pd-xl-0">
-					<img
-						class="square"
-						src="/static/images/tictactoe.png"
-					/>
+				<div class="d-flex flex-column col-md-6">
+					<div class="p-3 p-lg-5 pd-xl-0">
+						<img
+							class="square"
+							src="/static/images/tictactoe.png"
+						/>
+					</div>
 				</div>
-			</div>
-        `;
+        	`;
 		} else {
 			return `
 				<div class="d-flex flex-column col-md-6">

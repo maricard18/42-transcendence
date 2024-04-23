@@ -22,7 +22,16 @@ export default class AbstractView {
         avatar: "",
     };
 
-	static clean() {
+	static cleanGameData() {
+		this.userQueue = {};
+		this.userData = {};   
+		this.userReadyList = {};
+		this.wsCreated = false;
+		this.wsConnectionStarted = false;
+		this.previousLocation = null;
+	}
+
+	static cleanUserData() {
 		this.formData = {
 			username: "",
 			email: "",

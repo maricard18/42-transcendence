@@ -1,5 +1,4 @@
 import AbstractView from "./AbstractView";
-import { navigateTo } from "..";
 import { createGameObject } from "../Game/pongGame";
 import { startGame } from "../Game/pongGame";
 
@@ -12,6 +11,7 @@ export default class Pong extends AbstractView {
 		this._gameMode = this._location.match(/\/([^\/]+)\/[^\/]+$/)[1];
 		this._lobbySize = this._location.substring(this._location.length - 1);
 		AbstractView.previousLocation = this._location;
+		AbstractView.gameOver = false;
 		this._aspectRatioRectangle = 4 / 3;
     	this._aspectRatioSquare = 1;
 		this._maxWidth = 1280,
@@ -64,7 +64,7 @@ export default class Pong extends AbstractView {
         const parentNode = document.getElementById("pong");
         if (parentNode) {
             this._parentNode = parentNode;
-			if (!this._gameRunning) {
+			if (!this._gameRunning && !AbstractView.gameOver) {
 				this._gameRunning = true;
 				await this.startPongGame();
 				this.loadDOMChanges();
@@ -75,14 +75,24 @@ export default class Pong extends AbstractView {
     }
 
 	async startPongGame() {
-		const canvas = document.querySelector("canvas");
-		this._game = createGameObject(canvas, this._gameMode, this._lobbySize);
-		await startGame(this._game);
+		if (this._gameMode === "single-player" ||
+			(this._gameMode === "multiplayer" &&
+			Object.values(AbstractView.userQueue).length == this._lobbySize)) {
+			const canvas = document.querySelector("canvas");
+			this._game = createGameObject(canvas, this._gameMode, this._lobbySize);
+			await startGame(this._game);
+		} else {
+			console.log("You refreshed the page");
+			AbstractView.cleanGameData();
+			AbstractView.gameOver = true;
+		}
 	};
 
 	loadDOMChanges() {
 		const parentNode = document.getElementById("pong");
-		parentNode.innerHTML = this.loadPong();
+		if (parentNode) {
+			parentNode.outerHTML = this.loadPong();
+		}
 	}
 
 	loadPong() {

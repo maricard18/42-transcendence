@@ -110,13 +110,7 @@ function hasWebSocket(matches) {
 	let fullUrl = "";
     matches.forEach((route) => fullUrl += route.path);
 
-	console.log("FullUrl:", fullUrl);
-	console.log("AbstarctViewPreviousLocation:", AbstractView.previousLocation);
-
-	if (fullUrl !== "/home/pong/multiplayer/waiting-room/2" &&
-		fullUrl !== "/home/pong/multiplayer/waiting-room/4" &&
-		fullUrl !== "/home/tic-tac-toe/multiplayer/waiting-room/2" &&
-		fullUrl !== "/home/pong/play/multiplayer/2" &&
+	if (fullUrl !== "/home/pong/play/multiplayer/2" &&
 		fullUrl !== "/home/pong/play/multiplayer/4" &&
 		fullUrl !== "/home/tic-tac-toe/play/multiplayer/2" &&
 		(AbstractView.previousLocation === "/home/pong/multiplayer/waiting-room/2" ||

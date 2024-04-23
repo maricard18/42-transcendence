@@ -7,7 +7,7 @@ import { gameConfettiAnimation, gameStartAnimation } from "./animations";
 import { updateVariables } from "./variables";
 import { ScreenWidth, ScreenHeight, keys } from "./variables";
 
-export function createGameObject(canvas, gameMode, lobbySize,) {
+export function createGameObject(canvas, gameMode, lobbySize) {
     const ctx = canvas.getContext("2d");
 
     clearBackground(ctx);
@@ -315,6 +315,10 @@ export function sendHostMessage(game) {
 }
 
 export function sendNonHostMessage(game) {
+	if (!Object.keys(AbstractView.userData).length) {
+		return;
+	}
+
 	let playerIndex = AbstractView.userData.findIndex(
 		element => element.id === AbstractView.userInfo.id) + 1;
 	let player = game["player" + playerIndex];

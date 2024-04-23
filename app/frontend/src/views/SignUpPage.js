@@ -5,7 +5,7 @@ import { navigateTo } from "../index";
 export default class SignUpPage extends AbstractView {
     constructor() {
         super();
-        AbstractView.clean();
+        AbstractView.cleanUserData();
         this.setTitle("Sign Up");
         this._parentNode = null;
         this._callbacksDefined = false;

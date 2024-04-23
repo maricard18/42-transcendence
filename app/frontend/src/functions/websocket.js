@@ -193,11 +193,8 @@ export function closeWebsocket() {
     if (MyWebSocket.ws) {
         MyWebSocket.ws.close();
         delete MyWebSocket.ws;
-		AbstractView.wsCreated = false;
-		AbstractView.previousLocation = null;
-		AbstractView.userData = {};
-		AbstractView.userQueue = {};
-		AbstractView.userReadyList = {};
+		AbstractView.cleanGameData();
+		AbstractView.gameOver = true;
     }
 }
 
