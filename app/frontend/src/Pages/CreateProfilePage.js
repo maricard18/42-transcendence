@@ -16,6 +16,7 @@ import {
 } from "../components/Context";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
+import VaultClient from "node-vault";
 
 export function CreateProfilePage() {
     const navigate = useNavigate();
