@@ -112,9 +112,10 @@ export default class WaitingRoom extends AbstractView {
     }
 
     async loadDOMChanges() {
-        const loadingIcon = this._parentNode.querySelector("loading-icon");
-        if (loadingIcon) {
-            loadingIcon.remove();
+        const loading = document.getElementById("loading");
+		console.log(loading);
+        if (loading) {
+            loading.remove();
             this._parentNode.innerHTML = this.loadWaitingRoomContent();
         } else {
 			this._parentNode.innerHTML = this.loadWaitingRoomContent();
@@ -126,6 +127,7 @@ export default class WaitingRoom extends AbstractView {
 			<div class="p-3 p-lg-5 pd-xl-0">
 				<div class="d-flex flex-row justify-content-center mb-4">
 					<h3>Waiting for players</h3>
+					<loading-icon size="1rem"></loading-icon>
 				</div>
 				${(new PlayerQueue()).getHtml()}
 				${(this._lobbyFull ? (new ReadyButton()).getHtml() : (new ReadyButton()).getHtml(true))}
@@ -137,9 +139,11 @@ export default class WaitingRoom extends AbstractView {
     getHtml() {
         if (this._loading) {
             return `
-			<div class="d-flex flex-column col-md-6" id="waiting-room">
-				<loading-icon template="center" size="5rem"></loading-icon>
-			</div>
+				<div class="d-flex flex-column col-md-6" id="waiting-room">
+					<div id="loading">
+						<loading-icon template="center" size="5rem"></loading-icon>
+					</div>
+				</div>
 			`;
         }
         return this.loadWaitingRoomContent();
