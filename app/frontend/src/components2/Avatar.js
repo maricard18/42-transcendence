@@ -34,7 +34,15 @@ export class Avatar extends HTMLElement {
 
     handleChange(event) {
         const file = event.target.files[0];
+        const svg = this.querySelector("svg");
+
         if (file) {
+            const validFileTypes = ["image/jpeg", "image/png", "image/jpg"];
+            if (!validFileTypes.includes(file.type)) {
+				alert("file not valid :(");
+				return;
+			}
+
             this.avatar = file;
             this.url = URL.createObjectURL(file);
 
@@ -50,7 +58,7 @@ export class Avatar extends HTMLElement {
                 img.setAttribute("class", "avatar-border-lg");
                 img.setAttribute("style", "border-radius: 50%");
                 label.appendChild(img);
-				this.dispatchEvent(
+                this.dispatchEvent(
                     new CustomEvent("avatar-change", {
                         detail: file,
                         bubbles: true,

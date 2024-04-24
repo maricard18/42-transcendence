@@ -40,7 +40,7 @@ export function getPageTitle(path) {
             return "Pong Single Player";
         case "/home/pong/multiplayer":
             return "Pong Multiplayer";
-		case "/home/pong/multiplayer/wating-room/2":
+		case "/home/pong/multiplayer/waiting-room/2":
 			return "Pong Multiplayer Waiting Room";
 		case "/home/pong/multiplayer/waiting-room/4":
 			return "Pong Multiplayer Waiting Room";
@@ -48,13 +48,13 @@ export function getPageTitle(path) {
             return "Pong Single Player Tournament";
         case "/home/pong/multiplayer/tournament":
             return "Pong Multiplayer Tournament";
-		case "/pong/play/single-player/1":
+		case "/home/pong/play/single-player/1":
 			return "Pong Single Player 1 player";
-		case "/pong/play/single-player/2":
+		case "/home/pong/play/single-player/2":
 			return "Pong Single Player 2 players";
-		case "/pong/play/multiplayer/2":
+		case "/home/pong/play/multiplayer/2":
 			return "Pong Multiplayer 2 players";
-		case "/pong/play/multiplayer/4":
+		case "/home/pong/play/multiplayer/4":
 			return "Pong Multiplayer 4 players";
         case "/home/profile/username":
             return "Profile";

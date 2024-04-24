@@ -175,12 +175,6 @@ function multiplayer2GameLoop(game) {
 					checkPlayer1Collision(game);
 					checkPlayer2Collision(game);
 				}
-				
-				if (AbstractView.userInfo.id === game.host_id) {
-					sendHostMessage(game);
-				} else {
-					sendNonHostMessage(game);
-				}
 		
 				if (AbstractView.userInfo.id === game.host_id && 
 				   (game.player1.score === 5 || game.player2.score === 5)) {
@@ -241,17 +235,6 @@ function multiplayer4GameLoop(game) {
 					checkPlayer2Collision(game);
 					checkInvertedPlayer3Collision(game);
 					checkInvertedPlayer4Collision(game);
-				}
-		
-				game.drawScore(game.player1, ScreenWidth / 4);
-				game.drawScore(game.player2, ScreenWidth / 2 - 0.08 * ScreenWidth);
-				game.drawScore(game.player3, ScreenWidth / 2 + 0.08 * ScreenWidth);
-				game.drawScore(game.player4, ScreenWidth - ScreenWidth / 4);
-		
-				if (AbstractView.userInfo.id === game.host_id) {
-					sendHostMessage(game);
-				} else {
-					sendNonHostMessage(game);
 				}
 		
 				if (AbstractView.userInfo.id === game.host_id &&

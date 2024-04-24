@@ -68,8 +68,7 @@ export default class LandingPage extends AbstractView {
 							</p>
 						</div>
 					</div>
-				</div>
-			`
+				</div>`
             }
 		</div>
 		`;

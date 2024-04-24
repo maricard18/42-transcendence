@@ -42,7 +42,6 @@ export default class ChangePassword extends AbstractView {
 		}
 
         this.inputCallback = (event) => {
-			console.log(AbstractView.userInfo)
             const id = event.target.getAttribute("id");
             const value = event.target.value;
             event.target.setAttribute("value", value);

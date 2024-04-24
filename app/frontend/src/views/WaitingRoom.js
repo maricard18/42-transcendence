@@ -8,7 +8,7 @@ import { navigateTo } from "..";
 export default class WaitingRoom extends AbstractView {
     constructor() {
         super();
-		AbstractView.gameOver = null;
+		AbstractView.cleanGameData();
         this._location = location.pathname;
         this._lobbySize = this._location.substring(this._location.length - 1);
         this._parentNode = null;
@@ -113,7 +113,6 @@ export default class WaitingRoom extends AbstractView {
 
     async loadDOMChanges() {
         const loading = document.getElementById("loading");
-		console.log(loading);
         if (loading) {
             loading.remove();
             this._parentNode.innerHTML = this.loadWaitingRoomContent();
@@ -131,7 +130,6 @@ export default class WaitingRoom extends AbstractView {
 				</div>
 				${(new PlayerQueue()).getHtml()}
 				${(this._lobbyFull ? (new ReadyButton()).getHtml() : (new ReadyButton()).getHtml(true))}
-				${(new PongGameMenu()).getHtml()}
 			</div>
 		`;
     }
