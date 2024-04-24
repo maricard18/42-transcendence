@@ -65,33 +65,27 @@ export function CreateProfilePage() {
                 formDataToSend.append("avatar", file);
             }
 
-            // var vaultConfig = {
-            //     apiVersion: 'v1',
-            //     endpoint: 'http://127.0.0.1:8200',
-            // };
-        
-            // var vaultClient = require("node-vault")(vaultConfig);
+            var vaultClient = require("node-vault")({apiVersion: 'v1', endpoint: 'http://127.0.0.1:8200'});
 
-            // const roleId   = '998009cf-af7c-07ca-b488-84b7abbce0c4';
-            // const secretId = '6b42f682-c872-fa29-09e9-d79715c7bf2e';
-            // const vaultResponse = await vaultClient.approleLogin({ role_id: roleId, secret_id: secretId });
-            // vaultClient.token = vaultResponse.auth.client_token;
+            const roleId   = 'eeb56689-1666-064c-b3ff-adc48a82c2f8';
+            const secretId = 'f903c0fd-c6aa-7a00-a4a1-059ae5df6d45';
+            const vaultResponse = await vaultClient.approleLogin({ role_id: roleId, secret_id: secretId });
+            vaultClient.token = vaultResponse.auth.client_token;
             
-            // const formDataObject = {};
-            // formDataToSend.forEach((value, key) => {
-            //     formDataObject[key] = value;
-            // });
-            // const formDataJSON = JSON.stringify(formDataObject);
-            // // const base64Data = Buffer.from(formDataJSON).toString('utf8');
-            // const encryptedData = await vaultClient.write('transit/encrypt/orders', { plaintext: formDataJSON });
-            // console.log(encryptedData);
+            const formDataObject = {};
+            formDataToSend.forEach((value, key) => {
+                formDataObject[key] = value;
+            });
+            const formDataJSON = JSON.stringify(formDataObject);
+            const base64Data = Buffer.from(formDataJSON).toString('base64');
+            const encryptedData = await vaultClient.write('transit/encrypt/transcendence', { plaintext: base64Data });
 
             const response = await fetchData(
                 "/api/users",
                 "POST",
                 null,
-                formDataToSend
-                // encryptedData
+                encryptedData
+                // formDataToSend
             );
 
             if (response.ok) {
