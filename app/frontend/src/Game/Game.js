@@ -15,6 +15,7 @@ export class Game {
         this.paused = true;
         this.over = false;
 		this.winner = null;
+		this.lastTouch = null;
     }
 
 	clear() {

@@ -46,16 +46,24 @@ export class Ball {
 			}
 		} else {
 			if (this.x + this.radius >= ScreenWidth && this.speed_x > 0) {
-				game.player1.score += 1;
+				if (game.lastTouch !== null) {
+					game[game.lastTouch].score += 1;
+				}
 				this.reset(game);
 			} else if (this.x - this.radius <= 0 && this.speed_x < 0) {
-				game.player2.score += 1;
+				if (game.lastTouch !== null) {
+					game[game.lastTouch].score += 1;
+				}
 				this.reset(game);
 			} else if (this.y + this.radius >= ScreenHeight && this.speed_y > 0) {
-				game.player3.score += 1;
+				if (game.lastTouch !== null) {
+					game[game.lastTouch].score += 1;
+				}
 				this.reset(game);
 			} else if (this.y - this.radius <= 0 && this.speed_y < 0) {
-				game.player4.score += 1;
+				if (game.lastTouch !== null) {
+					game[game.lastTouch].score += 1;
+				}
 				this.reset(game);
 			}
 		}
@@ -65,6 +73,7 @@ export class Ball {
 		if (game.player1.score !== 5 && game.player2.score !== 5) {
 			this.x = ScreenWidth / 2;
 			this.y = ScreenHeight / 2;
+			game.lastTouch = null;
 			game.player1.x = game.player1.initial_x;
 			game.player1.y = game.player1.initial_y;
 			game.player2.x = game.player2.initial_x;

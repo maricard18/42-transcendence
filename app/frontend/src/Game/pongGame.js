@@ -1,5 +1,5 @@
 import AbstractView from "../views/AbstractView";
-import { checkPlayer1Collision, checkPlayer2Collision, checkInvertedPlayer1Collision, checkInvertedPlayer2Collision } from "./collision";
+import { checkPlayer1Collision, checkPlayer2Collision, checkInvertedPlayer3Collision, checkInvertedPlayer4Collision } from "./collision";
 import { createSinglePlayerGameObjects, createMultiPlayer2GameObjects, createMultiPlayer4GameObjects } from "./createPlayers";
 import { MyWebSocket, sendMessage } from "../functions/websocket";
 import { multiplayerMessageHandler } from "../functions/websocket";
@@ -94,16 +94,19 @@ function singleplayerGameLoop(game) {
 					);
 				}
 
-                checkPlayer1Collision(game.ball, game.player1);
-                checkPlayer2Collision(game.ball, game.player2);
+                checkPlayer1Collision(game);
+                checkPlayer2Collision(game);
 
                 if (game.player1.score === 5 || game.player2.score === 5) {
-                    game.winner =
-                        game.player1.score > game.player2.score
-                            ? game.player1.info.username
-                            : game.lobbySize == 1
-                            ? "Computer"
-                            : "Player 2";
+					game.winner = (
+						game.lobbySize == 2
+    					? (game.player1.score > game.player2.score 
+							? "Opponent" 
+							: game.player2.info.username)
+    					: (game.player1.score > game.player2.score 
+							? game.player1.info.username 
+							: "CPU")
+						);
                     game.over = true;
                     resolve();
                 }
@@ -169,8 +172,8 @@ function multiplayer2GameLoop(game) {
 				}
 		
 				if (game.player1.info.id === game.host_id) {
-					checkPlayer1Collision(game.ball, game.player1);
-					checkPlayer2Collision(game.ball, game.player2);
+					checkPlayer1Collision(game);
+					checkPlayer2Collision(game);
 				}
 				
 				if (AbstractView.userInfo.id === game.host_id) {
@@ -234,10 +237,10 @@ function multiplayer4GameLoop(game) {
 				}
 		
 				if (AbstractView.userInfo.id === game.host_id) {
-					checkPlayer1Collision(game.ball, game.player1);
-					checkPlayer2Collision(game.ball, game.player2);
-					checkInvertedPlayer1Collision(game.ball, game.player3);
-					checkInvertedPlayer2Collision(game.ball, game.player4);
+					checkPlayer1Collision(game);
+					checkPlayer2Collision(game);
+					checkInvertedPlayer3Collision(game);
+					checkInvertedPlayer4Collision(game);
 				}
 		
 				game.drawScore(game.player1, ScreenWidth / 4);

@@ -1,145 +1,157 @@
 import { BallTopSpeedX, BallTopSpeedY } from "./variables";
 
-export function checkPlayer1Collision(ball, player)
+export function checkPlayer1Collision(game)
 {
-	if (ball.speed_x < 0 &&
-		ball.x - ball.radius <= player.x + player.width &&
-		ball.x + ball.radius >= player.x + player.width &&
-    	ball.y + ball.radius >= player.y && 
-		ball.y - ball.radius <= player.y + player.height) {
-		if (ball.speed_x < -BallTopSpeedX) {
-			ball.speed_x = BallTopSpeedX;
+	if (game.ball.speed_x < 0 &&
+		game.ball.x - game.ball.radius <= game.player1.x + game.player1.width &&
+		game.ball.x + game.ball.radius >= game.player1.x + game.player1.width &&
+    	game.ball.y + game.ball.radius >= game.player1.y && 
+		game.ball.y - game.ball.radius <= game.player1.y + game.player1.height) {
+		game.lastTouch = "player1";
+		if (game.ball.speed_x < -BallTopSpeedX) {
+			game.ball.speed_x = BallTopSpeedX;
 		} else {
-			ball.speed_x *= -ball.acceleration;
+			game.ball.speed_x *= -game.ball.acceleration;
 		}
 			
-		const y_velocity = (ball.y - (player.y + player.height / 2)) / (player.height / 2) * ball.speed_x;
+		const y_velocity = (game.ball.y - (game.player1.y + game.player1.height / 2)) / (game.player1.height / 2) * game.ball.speed_x;
 		if (y_velocity > BallTopSpeedY) {
-			ball.speed_y = BallTopSpeedY;
+			game.ball.speed_y = BallTopSpeedY;
 		} else if (y_velocity < -BallTopSpeedY) {
-			ball.speed_y = -BallTopSpeedY;
+			game.ball.speed_y = -BallTopSpeedY;
 		} else {
-			ball.speed_y = y_velocity;
+			game.ball.speed_y = y_velocity;
 		}
 	}	
-	else if (ball.speed_y > 0 && ball.speed_x < 0 &&
-		ball.x - ball.radius <= player.x + player.width &&
-		ball.y + ball.radius >= player.y &&
-		ball.y - ball.radius <= player.y) {
-		ball.speed_y *= -ball.acceleration;
+	else if (game.ball.speed_y > 0 && game.ball.speed_x < 0 &&
+		game.ball.x - game.ball.radius <= game.player1.x + game.player1.width &&
+		game.ball.y + game.ball.radius >= game.player1.y &&
+		game.ball.y - game.ball.radius <= game.player1.y) {
+		game.lastTouch = "player1";
+		game.ball.speed_y *= -game.ball.acceleration;
 	}
-	else if (ball.speed_y < 0 && ball.speed_x < 0 &&
-		ball.x - ball.radius <= player.x + player.width &&
-		ball.y - ball.radius <= player.y + player.height &&
-		ball.y + ball.radius >= player.y + player.height) {
-		ball.speed_y *= -ball.acceleration;
+	else if (game.ball.speed_y < 0 && game.ball.speed_x < 0 &&
+		game.ball.x - game.ball.radius <= game.player1.x + game.player1.width &&
+		game.ball.y - game.ball.radius <= game.player1.y + game.player1.height &&
+		game.ball.y + game.ball.radius >= game.player1.y + game.player1.height) {
+		game.lastTouch = "player1";
+		game.ball.speed_y *= -game.ball.acceleration;
 	}
 }
 
-export function checkPlayer2Collision(ball, player)
+export function checkPlayer2Collision(game)
 {
-	if (ball.speed_x > 0 &&
-		ball.x + ball.radius >= player.x &&
-		ball.x - ball.radius <= player.x &&
-    	ball.y + ball.radius >= player.y && 
-		ball.y - ball.radius <= player.y + player.height) {
-		if (ball.speed_x > BallTopSpeedX) {
-			ball.speed_x = -BallTopSpeedX;
+	if (game.ball.speed_x > 0 &&
+		game.ball.x + game.ball.radius >= game.player2.x &&
+		game.ball.x - game.ball.radius <= game.player2.x &&
+    	game.ball.y + game.ball.radius >= game.player2.y && 
+		game.ball.y - game.ball.radius <= game.player2.y + game.player2.height) {
+		game.lastTouch = "player2";
+		if (game.ball.speed_x > BallTopSpeedX) {
+			game.ball.speed_x = -BallTopSpeedX;
 		} else {
-			ball.speed_x *= -ball.acceleration;
+			game.ball.speed_x *= -game.ball.acceleration;
 		}
 
-		const y_velocity = -(ball.y - (player.y + player.height / 2)) / (player.height / 2) * ball.speed_x;
+		const y_velocity = -(game.ball.y - (game.player2.y + game.player2.height / 2)) / (game.player2.height / 2) * game.ball.speed_x;
 		if (y_velocity > BallTopSpeedY) {
-			ball.speed_y = BallTopSpeedY;
+			game.ball.speed_y = BallTopSpeedY;
 		} else if (y_velocity < -BallTopSpeedY) {
-			ball.speed_y = -BallTopSpeedY;
+			game.ball.speed_y = -BallTopSpeedY;
 		} else {
-			ball.speed_y = y_velocity;
+			game.ball.speed_y = y_velocity;
 		}
 	}
-	else if (ball.speed_y > 0 && ball.speed_x > 0 &&
-		ball.x + ball.radius >= player.x &&
-		ball.y + ball.radius >= player.y &&
-		ball.y - ball.radius <= player.y) {
-		ball.speed_y *= -ball.acceleration;
+	else if (game.ball.speed_y > 0 && game.ball.speed_x > 0 &&
+		game.ball.x + game.ball.radius >= game.player2.x &&
+		game.ball.y + game.ball.radius >= game.player2.y &&
+		game.ball.y - game.ball.radius <= game.player2.y) {
+		game.lastTouch = "player2";
+		game.ball.speed_y *= -game.ball.acceleration;
 	}
-	else if (ball.speed_y < 0 && ball.speed_x > 0 &&
-		ball.x + ball.radius >= player.x &&
-		ball.y - ball.radius <= player.y + player.height &&
-		ball.y + ball.radius >= player.y + player.height) {
-		ball.speed_y *= -ball.acceleration;
+	else if (game.ball.speed_y < 0 && game.ball.speed_x > 0 &&
+		game.ball.x + game.ball.radius >= game.player2.x &&
+		game.ball.y - game.ball.radius <= game.player2.y + game.player2.height &&
+		game.ball.y + game.ball.radius >= game.player2.y + game.player2.height) {
+		game.lastTouch = "player2";
+		game.ball.speed_y *= -game.ball.acceleration;
 	}
 }
 
-export function checkInvertedPlayer1Collision(ball, player)
+export function checkInvertedPlayer3Collision(game)
 {
-	if (ball.speed_y < 0 &&
-		ball.y - ball.radius <= player.y + player.height &&
-		ball.y + ball.radius >= player.y + player.height &&
-    	ball.x + ball.radius >= player.x && 
-		ball.x - ball.radius <= player.x + player.width) {
-		if (ball.speed_y < -BallTopSpeedY) {
-			ball.speed_y = BallTopSpeedY;
+	if (game.ball.speed_y < 0 &&
+		game.ball.y - game.ball.radius <= game.player3.y + game.player3.height &&
+		game.ball.y + game.ball.radius >= game.player3.y + game.player3.height &&
+    	game.ball.x + game.ball.radius >= game.player3.x && 
+		game.ball.x - game.ball.radius <= game.player3.x + game.player3.width) {
+		game.lastTouch = "player3";
+		if (game.ball.speed_y < -BallTopSpeedY) {
+			game.ball.speed_y = BallTopSpeedY;
 		} else {
-			ball.speed_y *= -ball.acceleration;
+			game.ball.speed_y *= -game.ball.acceleration;
 		}
 			
-		const x_velocity = (ball.x - (player.x + player.width / 2)) / (player.width / 2) * ball.speed_x;
+		const x_velocity = (game.ball.x - (game.player3.x + game.player3.width / 2)) / (game.player3.width / 2) * game.ball.speed_x;
 		if (x_velocity > BallTopSpeedX) {
-			ball.speed_x = BallTopSpeedX;
+			game.ball.speed_x = BallTopSpeedX;
 		} else if (x_velocity < -BallTopSpeedX) {
-			ball.speed_x = -BallTopSpeedX;
+			game.ball.speed_x = -BallTopSpeedX;
 		} else {
-			ball.speed_x = x_velocity;
+			game.ball.speed_x = x_velocity;
 		}
 	}	
-	else if (ball.speed_x > 0 && ball.speed_y < 0 &&
-		ball.y - ball.radius <= player.y + player.height &&
-		ball.x + ball.radius >= player.x &&
-		ball.x - ball.radius <= player.x) {
-		ball.speed_x *= -ball.acceleration;
+	else if (game.ball.speed_x > 0 && game.ball.speed_y < 0 &&
+		game.ball.y - game.ball.radius <= game.player3.y + game.player3.height &&
+		game.ball.x + game.ball.radius >= game.player3.x &&
+		game.ball.x - game.ball.radius <= game.player3.x) {
+		game.lastTouch = "player3";
+		game.ball.speed_x *= -game.ball.acceleration;
 	}
-	else if (ball.speed_x < 0 && ball.speed_y < 0 &&
-		ball.y - ball.radius <= player.y + player.height &&
-		ball.x - ball.radius <= player.x + player.width &&
-		ball.x + ball.radius >= player.x + player.width) {
-		ball.speed_x *= -ball.acceleration;
+	else if (game.ball.speed_x < 0 && game.ball.speed_y < 0 &&
+		game.ball.y - game.ball.radius <= game.player3.y + game.player3.height &&
+		game.ball.x - game.ball.radius <= game.player3.x + game.player3.width &&
+		game.ball.x + game.ball.radius >= game.player3.x + game.player3.width) {
+		game.lastTouch = "player3";
+		game.ball.speed_x *= -game.ball.acceleration;
 	}
 }
 
-export function checkInvertedPlayer2Collision(ball, player)
+export function checkInvertedPlayer4Collision(game)
 {
-	if (ball.speed_y > 0 &&
-		ball.y + ball.radius >= player.y &&
-		ball.y - ball.radius <= player.y &&
-    	ball.x + ball.radius >= player.x && 
-		ball.x - ball.radius <= player.x + player.width) {
-		if (ball.speed_y > BallTopSpeedY) {
-			ball.speed_y = -BallTopSpeedY;
+	if (game.ball.speed_y > 0 &&
+		game.ball.y + game.ball.radius >= game.player4.y &&
+		game.ball.y - game.ball.radius <= game.player4.y &&
+    	game.ball.x + game.ball.radius >= game.player4.x && 
+		game.ball.x - game.ball.radius <= game.player4.x + game.player4.width) {
+		game.lastTouch = "player4";
+		if (game.ball.speed_y > BallTopSpeedY) {
+			game.ball.speed_y = -BallTopSpeedY;
 		} else {
-			ball.speed_y *= -ball.acceleration;
+			game.ball.speed_y *= -game.ball.acceleration;
 		}
 
-		const x_velocity = -(ball.x - (player.x + player.width / 2)) / (player.width / 2) * ball.speed_y;
+		const x_velocity = -(game.ball.x - (game.player4.x + game.player4.width / 2)) / (game.player4.width / 2) * game.ball.speed_y;
 		if (x_velocity > BallTopSpeedX) {
-			ball.speed_x = BallTopSpeedX;
+			game.ball.speed_x = BallTopSpeedX;
 		} else if (x_velocity < -BallTopSpeedX) {
-			ball.speed_x = -BallTopSpeedX;
+			game.ball.speed_x = -BallTopSpeedX;
 		} else {
-			ball.speed_x = x_velocity;
+			game.ball.speed_x = x_velocity;
 		}
 	}
-	else if (ball.speed_x > 0 && ball.speed_y > 0 &&
-		ball.y + ball.radius >= player.y &&
-		ball.x + ball.radius >= player.x &&
-		ball.x - ball.radius <= player.x) {
-		ball.speed_x *= -ball.acceleration;
+	else if (game.ball.speed_x > 0 && game.ball.speed_y > 0 &&
+		game.ball.y + game.ball.radius >= game.player4.y &&
+		game.ball.x + game.ball.radius >= game.player4.x &&
+		game.ball.x - game.ball.radius <= game.player4.x) {
+		game.lastTouch = "player4";
+		game.ball.speed_x *= -game.ball.acceleration;
 	}
-	else if (ball.speed_x < 0 && ball.speed_y > 0 &&
-		ball.y + ball.radius >= player.y &&
-		ball.x - ball.radius <= player.x+ player.width &&
-		ball.x + ball.radius >= player.x + player.width) {
-		ball.speed_x *= -ball.acceleration;
+	else if (game.ball.speed_x < 0 && game.ball.speed_y > 0 &&
+		game.ball.y + game.ball.radius >= game.player4.y &&
+		game.ball.x - game.ball.radius <= game.player4.x+ game.player4.width &&
+		game.ball.x + game.ball.radius >= game.player4.x + game.player4.width) {
+		game.lastTouch = "player4";
+		game.ball.speed_x *= -game.ball.acceleration;
 	}
 }

@@ -1,5 +1,6 @@
 import AbstractView from "./AbstractView";
 import fetchData from "../functions/fetchData";
+import PongGameMenu from "../components2/PongGameMenu";
 import { getToken } from "../functions/tokens";
 import {closeWebsocket, connectWebsocket, MyWebSocket, sendMessage} from "../functions/websocket";
 import { navigateTo } from "..";
@@ -127,7 +128,8 @@ export default class WaitingRoom extends AbstractView {
 					<h3>Waiting for players</h3>
 				</div>
 				${(new PlayerQueue()).getHtml()}
-				${(this._lobbyFull ? (new ReadyButton()).getHtml() : ``)}
+				${(this._lobbyFull ? (new ReadyButton()).getHtml() : (new ReadyButton()).getHtml(true))}
+				${(new PongGameMenu()).getHtml()}
 			</div>
 		`;
     }
@@ -236,7 +238,7 @@ class PlayerQueue extends AbstractView {
 			${!this._loading && AbstractView.userData
 				? AbstractView.userData.map((data, index) =>
 					data.avatar ? (
-						`<div class="d-flex flex-row justify-content-center mb-2" id="${index}">
+						`<div class="d-flex flex-row justify-content-center align-items-center mb-2">
 							<img
 								src=${data.avatar}
 								alt="Avatar preview"
@@ -245,29 +247,31 @@ class PlayerQueue extends AbstractView {
 								class="avatar-border-sm"
 								style="border-radius: 50%"
 							/>
-							<div class="d-flex flex-row">
-								<div class="username-text ms-3 mt-2">
-									<h5>${data.username}</h5>
-									${Object.keys(AbstractView.userQueue).length == this._lobbySize
-										? (AbstractView.userReadyList[data.id]
-											? `<check-icon></check-icon>`
-											: `<close-icon></close-icon>`)
-										: ``}
-								</div>
+							<div class="username-text ms-3 mt-2">
+								<h5>${data.username}</h5>
+							</div>
+							<div class="ms-2">
+								${Object.keys(AbstractView.userQueue).length == this._lobbySize
+									? (AbstractView.userReadyList[data.id]
+										? `<check-icon></check-icon>`
+										: `<close-icon></close-icon>`)
+									: ``
+								}
 							</div>
 						</div>`
 					) : (
-						`<div class="d-flex flex-row justify-content-center mb-2" id="${index}">
+						`<div class="d-flex flex-row justify-content-center align-items-center mb-2">
 							<base-avatar-box size="40px"></base-avatar-box>
-							<div class="d-flex flex-row">
-								<div class="username-text ms-3 mt-2">
-									<h5>${data.username}</h5>
-									${Object.keys(AbstractView.userQueue).length == this._lobbySize
-										? (AbstractView.userReadyList[data.id]
-											? `<check-icon></check-icon>`
-											: `<close-icon></close-icon>`)
-										: ``}
-								</div>
+							<div class="username-text ms-3 mt-2">
+								<h5>${data.username}</h5>
+							</div>
+							<div class="ms-2">
+								${Object.keys(AbstractView.userQueue).length == this._lobbySize
+									? (AbstractView.userReadyList[data.id]
+										? `<check-icon></check-icon>`
+										: `<close-icon></close-icon>`)
+									: ``
+								}
 							</div>
 						</div>`
 					))
@@ -386,28 +390,29 @@ class ReadyButton extends AbstractView {
 		this._clickCallback = false;
     }
 
-    loadReadyButton() {
+    loadReadyButton(disabled = false) {
 		let template;
 		if (this._readyState) {
 			template = "secondary-button extra-btn-class";
 		} else {
 			template = "primary-button extra-btn-class";
 		}
-
-        return `
+	
+		return `
 			<div class="mt-4" id="ready-button">
 				<button
 					type="button"
 					class="btn btn-primary ${template}"
+					${disabled ? 'disabled' : ''}
 				>
 					${!this._readyState ? "Ready" : "Not ready"}
 				</button>
 			</div>
 		`;
-    }
+	}
 
-    getHtml() {
-        return this.loadReadyButton();
+    getHtml(disabled = false) {
+		return this.loadReadyButton(disabled);
 	}
 }
 

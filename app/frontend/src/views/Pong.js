@@ -243,7 +243,7 @@ class DisplayUsernames extends AbstractView {
 									<h3>${AbstractView.userInfo.username}</h3>
 								</div>
 								<div class="username-text ms-5 mt-2">
-									<h1 id="player1"></h1>
+									<h1 id="player1">0</h1>
 								</div>
 							</div>`
                             : `<div class="d-flex justify-content-center align-content-center ms-5">
@@ -252,13 +252,13 @@ class DisplayUsernames extends AbstractView {
 									<h3>${AbstractView.userInfo.username}</h3>
 								</div>
 								<div class="username-text ms-5 mt-2">
-									<h1 id="player1"></h1>
+									<h1 id="player1">0</h1>
 								</div>
 							</div>`
                     }
 					<div class="d-flex justify-content-center align-content-center me-5 mb-2">
 						<div class="username-text me-5 mt-2">
-							<h1 id="player2"></h1>
+							<h1 id="player2">0</h1>
 						</div>
 						<div class="username-text me-3 mt-2">
 							<h3>CPU</h3>
@@ -290,14 +290,14 @@ class DisplayUsernames extends AbstractView {
 							<h3>opponent</h3>
 						</div>
 						<div class="username-text ms-5 mt-2">
-							<h1 id="player1"></h1>
+							<h1 id="player1">0</h1>
 						</div>
 					</div>
 					${
                         AbstractView.userInfo.avatar
                             ? `<div class="d-flex justify-content-center align-content-center me-5 mb-2">
 								<div class="username-text me-5 mt-2">
-									<h1 id="player2"></h1>
+									<h1 id="player2">0</h1>
 								</div>
 								<div class="username-text me-3 mt-2">
 									<h3>${AbstractView.userInfo.username}</h3>
@@ -313,7 +313,7 @@ class DisplayUsernames extends AbstractView {
 							</div>`
                             : `<div class="d-flex justify-content-center align-content-center me-5">
 								<div class="username-text me-5 mt-2">
-									<h1 id="player2"></h1>
+									<h1 id="player2">0</h1>
 								</div>
 								<div class="username-text me-3 mt-2">
 									<h3>${AbstractView.userInfo.username}</h3>
@@ -341,7 +341,7 @@ class DisplayUsernames extends AbstractView {
 									<h3>${AbstractView.userData[0].username}</h3>
 								</div>
 								<div class="username-text ms-5 mt-2">
-									<h1 id="player1"></h1>
+									<h1 id="player1">0</h1>
 								</div>
 							</div>`
                             : `<div class="d-flex justify-content-center align-content-center ms-5 mb-2">
@@ -350,7 +350,7 @@ class DisplayUsernames extends AbstractView {
 									<h3>${AbstractView.userData[0].username}</h3>
 								</div>
 								<div class="username-text ms-5 mt-2">
-									<h1 id="player1"></h1>
+									<h1 id="player1">0</h1>
 								</div>
 							</div>`
                     }
@@ -358,7 +358,7 @@ class DisplayUsernames extends AbstractView {
                         AbstractView.userData[1].avatar
                             ? `<div class="d-flex justify-content-center align-content-center me-5 mb-2">
 								<div class="username-text me-5 mt-2">
-									<h1 id="player2"></h1>
+									<h1 id="player2">0</h1>
 								</div>
 								<div class="username-text me-3 mt-2">
 									<h3>${AbstractView.userData[1].username}</h3>
@@ -374,7 +374,7 @@ class DisplayUsernames extends AbstractView {
 							</div>`
                             : `<div class="d-flex justify-content-center align-content-center me-5 mb-2">
 								<div class="username-text me-5 mt-2">
-									<h1 id="player2"></h1>
+									<h1 id="player2">0</h1>
 								</div>
 								<div class="username-text me-3 mt-2">
 									<h3>${AbstractView.userData[1].username}</h3>

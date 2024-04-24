@@ -1,5 +1,4 @@
-import { clearBackground } from "./pongGame";
-import { GoalWidth, ScreenHeight, ScreenWidth } from "./variables";
+import { ScreenHeight, ScreenWidth } from "./variables";
 import { MyWebSocket } from "../functions/websocket";
 
 export function gameStartAnimation(game) {
@@ -18,12 +17,61 @@ export function gameStartAnimation(game) {
             game.ctx.textAlign = "center";
             game.ctx.textBaseline = "middle";
             game.ctx.fillText(
-                3 - elapsedTime,
+                5 - elapsedTime,
                 ScreenWidth / 2,
-                ScreenHeight / 2
+                2 * ScreenHeight / 5
             );
 
-            if (elapsedTime < 3 && !game.over) {
+			game.ctx.font = `bold ${0.03 * ScreenWidth}px Arial`;
+            game.ctx.fillStyle = "white";
+            game.ctx.textAlign = "center";
+            game.ctx.textBaseline = "middle";
+            game.ctx.fillText(
+                "FIRST TO 5 GOALS WINS",
+                ScreenWidth / 2,
+                6 * ScreenHeight / 9
+            );
+
+			if (game.lobbySize == 1 || 
+				(game.mode === "multiplayer" && game.lobbySize == 2)) {
+				game.ctx.font = `bold ${0.025 * ScreenWidth}px Arial`;
+				game.ctx.fillStyle = "white";
+				game.ctx.textAlign = "center";
+				game.ctx.textBaseline = "middle";
+				game.ctx.fillText(
+					"↑ and ↓ keys to move the player",
+					ScreenWidth / 2,
+					7 * ScreenHeight / 9
+				);
+			} else if (game.lobbySize == 2) {
+				game.ctx.font = `bold ${0.025 * ScreenWidth}px Arial`;
+				game.ctx.fillStyle = "white";
+				game.ctx.textAlign = "center";
+				game.ctx.textBaseline = "middle";
+				game.ctx.fillText(
+					"w and s keys",
+					2 * ScreenWidth / 6,
+					7 * ScreenHeight / 9
+				);
+				game.ctx.fillText(
+					"to move the player",
+					2 * ScreenWidth / 6,
+					7 * ScreenHeight / 9 + 0.025 * ScreenWidth
+				);
+				
+				game.ctx.fillText(
+					"↑ and ↓ keys",
+					4 * ScreenWidth / 6,
+					7 * ScreenHeight / 9
+				);
+				game.ctx.fillText(
+					"to move the player",
+					4 * ScreenWidth / 6,
+					7 * ScreenHeight / 9 + 0.025 * ScreenWidth
+				);
+			}
+
+            if (elapsedTime < 5 && !game.over) {
                 window.requestAnimationFrame(animate);
             } else {
                 game.paused = false;
@@ -71,8 +119,13 @@ export function gameConfettiAnimation(game) {
             game.clear();
             game.player1.draw(game.ctx);
             game.player2.draw(game.ctx);
-            game.drawScore(game.player1, ScreenWidth / 2 - 0.08 * ScreenWidth);
-			game.drawScore(game.player2, ScreenWidth / 2 + 0.08 * ScreenWidth);
+
+			if (game.player3) {
+				game.player3.draw(game.ctx);
+			}
+			if (game.player4) {
+				game.player4.draw(game.ctx);
+			}
 
             confettiParticles.forEach((particle) => {
                 game.ctx.fillStyle = particle.color;
@@ -89,11 +142,9 @@ export function gameConfettiAnimation(game) {
                 particle.speedY += 0.05;
             });
 
-            if (
-                elapsedTime < 5 &&
+            if (elapsedTime < 5 &&
                 (game.mode === "single-player" ||
-                    (game.mode === "multiplayer" && MyWebSocket.ws))
-            ) {
+                (game.mode === "multiplayer" && MyWebSocket.ws))) {
                 window.requestAnimationFrame(animate);
 				if (elapsedTime > 0.5) {
 					drawWinnerName(game.ctx);

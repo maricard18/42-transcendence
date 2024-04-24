@@ -1,4 +1,5 @@
-.primary-button.extra-btn-class {
+.primary-button.extra-btn-class,
+.primary-button.extra-btn-class:disabled {
     color: white;
     background-color: #520dc2;
     border-color: #520dc2;
@@ -43,6 +44,23 @@
     color: white;
     background-color: #7439d2;
     border-color: #7439d2;
+}
+
+.full-white-button.extra-btn-class {
+    color: #3e0d8e;
+    background-color: white;
+    border-color: white;
+    width: 220px;
+	font-weight: bold;
+}
+
+.full-white-button.extra-btn-class:hover,
+.full-white-button.extra-btn-class:active {
+    color: #3e0d8e;
+    background-color: #b0b0b0;
+    border-color: #b0b0b0;
+    width: 220px;
+	font-weight: bold;
 }
 
 .btn-small {

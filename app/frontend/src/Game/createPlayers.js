@@ -37,7 +37,7 @@ export function createSinglePlayerGameObjects(ctx, lobbySize) {
                   color: "blue",
                   keyUp: "ArrowUp",
                   keyDown: "ArrowDown",
-                  info: 0,
+                  info: AbstractView.userInfo,
               });
 
     return new Game({
