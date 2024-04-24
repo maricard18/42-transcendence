@@ -16,7 +16,6 @@ import {
 } from "../components/Context";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
-import VaultClient from "node-vault";
 
 export function CreateProfilePage() {
     const navigate = useNavigate();
@@ -25,7 +24,7 @@ export function CreateProfilePage() {
     const { setUserInfo } = useContext(UserInfoContext);
     const [errors, setErrors] = useState({});
     const [file, setFile] = useState();
-
+    
     useEffect(() => {
         if (Object.values(formData).every((value) => value === "")) {
             navigate("/sign-up");
@@ -35,7 +34,7 @@ export function CreateProfilePage() {
     const handleValidation = async () => {
         const usernamePattern = /^[a-zA-Z0-9@.+_-]+$/;
         let newErrors = {};
-
+        
         if (formData.username === "") {
             newErrors.message = "Please fill in all required fields";
             newErrors.username = 1;
@@ -55,22 +54,44 @@ export function CreateProfilePage() {
             setFormData({ ...formData, username: "" });
             setErrors(newErrors);
         }
-
+        
         if (!newErrors.message) {
             const formDataToSend = new FormData();
             formDataToSend.append("username", formData.username);
             formDataToSend.append("email", formData.email);
             formDataToSend.append("password", formData.password);
-
+            
             if (file) {
                 formDataToSend.append("avatar", file);
             }
+
+            // var vaultConfig = {
+            //     apiVersion: 'v1',
+            //     endpoint: 'http://127.0.0.1:8200',
+            // };
+        
+            // var vaultClient = require("node-vault")(vaultConfig);
+
+            // const roleId   = '998009cf-af7c-07ca-b488-84b7abbce0c4';
+            // const secretId = '6b42f682-c872-fa29-09e9-d79715c7bf2e';
+            // const vaultResponse = await vaultClient.approleLogin({ role_id: roleId, secret_id: secretId });
+            // vaultClient.token = vaultResponse.auth.client_token;
+            
+            // const formDataObject = {};
+            // formDataToSend.forEach((value, key) => {
+            //     formDataObject[key] = value;
+            // });
+            // const formDataJSON = JSON.stringify(formDataObject);
+            // // const base64Data = Buffer.from(formDataJSON).toString('utf8');
+            // const encryptedData = await vaultClient.write('transit/encrypt/orders', { plaintext: formDataJSON });
+            // console.log(encryptedData);
 
             const response = await fetchData(
                 "/api/users",
                 "POST",
                 null,
                 formDataToSend
+                // encryptedData
             );
 
             if (response.ok) {
