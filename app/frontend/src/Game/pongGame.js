@@ -202,6 +202,10 @@ function multiplayer2GameLoop(game) {
 }
 
 function multiplayer4GameLoop(game) {
+	const player1 = document.getElementById("player1");
+	const player2 = document.getElementById("player2");
+	const player3 = document.getElementById("player3");
+	const player4 = document.getElementById("player4");
 	return new Promise((resolve) => {
         const playPong = () => {
             if (game.over || !MyWebSocket.ws) {
@@ -222,6 +226,39 @@ function multiplayer4GameLoop(game) {
 					game.player3.update(dt);
 				} else if (AbstractView.userInfo.id === AbstractView.userData[3].id) {
 					game.player4.update(dt);
+				}
+
+				if (player1) {
+					player1.dispatchEvent(
+						new CustomEvent("player1", {
+							detail: game.player1.score,
+							bubbles: true,
+						})
+					);
+				}
+				if (player2) {
+					player2.dispatchEvent(
+						new CustomEvent("player2", {
+							detail: game.player2.score,
+							bubbles: true,
+						})
+					);
+				}
+				if (player3) {
+					player3.dispatchEvent(
+						new CustomEvent("player3", {
+							detail: game.player3.score,
+							bubbles: true,
+						})
+					);
+				}
+				if (player4) {
+					player4.dispatchEvent(
+						new CustomEvent("player4", {
+							detail: game.player4.score,
+							bubbles: true,
+						})
+					);
 				}
 		
 				if (AbstractView.userInfo.id === game.host_id) {

@@ -7,6 +7,7 @@ export default class ProfilePage extends AbstractView {
         super();
 		this._view = view;
         this._loading = true;
+		this._parentNode = null;
         this._avatarCallback = false;
         this._insideRequest = false;
         
@@ -25,12 +26,32 @@ export default class ProfilePage extends AbstractView {
     }
 
     defineCallback() {
+		const parentNode = document.getElementById("profile-page");
+		if (parentNode) {
+			this._parentNode = parentNode;
+		} else {
+			return ;
+		}
+
         this.avatarCallback = (event) => {
+			console.log("eventDetail:", event.detail);
+			if (!event.detail) {
+				const p = this._parentNode.querySelector("p");
+				
+				if (p.classList.contains("form-success")) {
+					p.classList.remove("form-success");
+				}
+				p.classList.add("form-error");
+				p.innerText = "Avatar upload failed";
+				setTimeout(() => { p.innerText = "" }, 3000);
+				return ;
+			}
+
             this._avatar = event.detail;
 			this.changeAvatar();
         };
 
-        const avatarBox = document.querySelector("avatar-box");
+        const avatarBox = this._parentNode.querySelector("avatar-box");
         if (avatarBox && !this._avatarCallback) {
 			this._avatarCallback = true;
             avatarBox.addEventListener("avatar-change", this.avatarCallback);
@@ -38,7 +59,11 @@ export default class ProfilePage extends AbstractView {
     }
 
     removeCallbacks() {
-        const avatarBox = document.querySelector("avatar-box");
+		if (!this._parentNode) {
+			return ;
+		}
+
+        const avatarBox = this._parentNode.querySelector("avatar-box");
         if (avatarBox) {
             avatarBox.removeEventListener("avatar-change", this.avatarCallback);
         }
@@ -80,8 +105,16 @@ export default class ProfilePage extends AbstractView {
 				AbstractView.userInfo.avatar = URL.createObjectURL(this._avatar);
 				const avatarContainer = document.getElementById("avatar-container");
 				avatarContainer.dispatchEvent(new CustomEvent("avatar-container"));
+				const p = this._parentNode.querySelector("p");
+				
+				if (p.classList.contains("form-error")) {
+					p.classList.remove("form-error");
+				}
+				p.classList.add("form-success");
+				p.innerText = "Changes saved";
+				setTimeout(() => { p.innerText = "" }, 3000);
             } else {
-				console.log("Error: failed to fetch user data.");
+				console.log("Error: failed to change avatar.");
             }
 		}
 
@@ -97,17 +130,21 @@ export default class ProfilePage extends AbstractView {
 		return `
 			<div
 				class="
-				d-flex 
-				flex-column 
-				flex-md-row 
-				align-items-center 
-				justify-content-center 
-				justify-content-md-evenly 
-				vh-100"
+					d-flex 
+					flex-column 
+					flex-md-row 
+					align-items-center 
+					justify-content-center 
+					justify-content-md-evenly 
+					vh-100"
+				id="profile-page"
 			>
 				<div class="d-flex flex-column">
 					<div class="mb-3">
 						${avatarElement.outerHTML}
+					</div>
+					<div class="position-relative mt-2">
+						<p class="form-error"></p>
 					</div>
 					<div class="box mt-3">
 						<div

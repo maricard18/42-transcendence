@@ -168,6 +168,8 @@ export default class ChangeUserInfo extends AbstractView {
                     input.classList.remove("input-error");
                 }
             });
+
+			setTimeout(() => { p.innerText = "" }, 3000);
         }
     }
 

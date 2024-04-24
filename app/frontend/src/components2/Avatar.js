@@ -34,12 +34,16 @@ export class Avatar extends HTMLElement {
 
     handleChange(event) {
         const file = event.target.files[0];
-        const svg = this.querySelector("svg");
 
         if (file) {
             const validFileTypes = ["image/jpeg", "image/png", "image/jpg"];
             if (!validFileTypes.includes(file.type)) {
-				alert("file not valid :(");
+				this.dispatchEvent(
+                    new CustomEvent("avatar-change", {
+                        detail: false,
+                        bubbles: true,
+                    })
+                );
 				return;
 			}
 
