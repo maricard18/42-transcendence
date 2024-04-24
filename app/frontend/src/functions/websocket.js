@@ -29,7 +29,6 @@ export async function connectWebsocket() {
 
     MyWebSocket.ws.onmessage = (event) => {
         //console.log("SYSTEM", JSON.parse(event.data));
-		const playerQueueNode = document.getElementById("player-queue");
 
         try {
             const jsonData = JSON.parse(event.data);
@@ -76,7 +75,12 @@ export async function connectWebsocket() {
 }
 
 export function multiplayerMessageHandler(MyWebSocket, game) {
-    if (MyWebSocket.ws) {
+	const player1 = document.getElementById("player1");
+	const player2 = document.getElementById("player2");
+	const player3 = document.getElementById("player3");
+	const player4 = document.getElementById("player4");
+    
+	if (MyWebSocket.ws) {
         MyWebSocket.ws.onmessage = (event) => {
             //console.log("GAME", JSON.parse(event.data));
 
@@ -116,6 +120,39 @@ export function multiplayerMessageHandler(MyWebSocket, game) {
 						game.over = gameData["over"];
 						game.winner = gameData["winner"];
 
+						if (player1) {
+							player1.dispatchEvent(
+								new CustomEvent("player1", {
+									detail: game.player1.score,
+									bubbles: true,
+								})
+							);
+						}
+						if (player2) {
+							player2.dispatchEvent(
+								new CustomEvent("player2", {
+									detail: game.player2.score,
+									bubbles: true,
+								})
+							);
+						}
+						if (player3) {
+							player3.dispatchEvent(
+								new CustomEvent("player3", {
+									detail: game.player3.score,
+									bubbles: true,
+								})
+							);
+						}
+						if (player4) {
+							player4.dispatchEvent(
+								new CustomEvent("player4", {
+									detail: game.player4.score,
+									bubbles: true,
+								})
+							);
+						}
+
 						if (game.paused) {
 							updateOpponentScreen(game);
 							sendNonHostMessage(game);
@@ -149,10 +186,7 @@ function updateOpponentScreen(game) {
 	game.clear();
 	game.drawGoals("white");
 
-	if (game.lobbySize == 2) {
-		game.drawScore(game.player1, ScreenWidth / 2 - 0.08 * ScreenWidth);
-		game.drawScore(game.player2, ScreenWidth / 2 + 0.08 * ScreenWidth);
-	} else {
+	if (game.lobbySize == 4) {
 		game.drawScore(game.player1, ScreenWidth / 4);
 		game.drawScore(game.player2, ScreenWidth / 2 - 0.08 * ScreenWidth);
 		game.drawScore(game.player3, ScreenWidth / 2 + 0.08 * ScreenWidth);

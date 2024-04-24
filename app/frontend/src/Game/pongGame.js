@@ -58,6 +58,8 @@ export async function startGame(game) {
 }
 
 function singleplayerGameLoop(game) {
+	const player1 = document.getElementById("player1");
+	const player2 = document.getElementById("player2");
     return new Promise((resolve) => {
         const playPong = () => {
             if (!game.paused) {
@@ -75,11 +77,25 @@ function singleplayerGameLoop(game) {
                     game.player2.update(dt);
                 }
 
+				if (player1) {
+					player1.dispatchEvent(
+						new CustomEvent("player1", {
+							detail: game.player1.score,
+							bubbles: true,
+						})
+					);
+				}
+				if (player2) {
+					player2.dispatchEvent(
+						new CustomEvent("player2", {
+							detail: game.player2.score,
+							bubbles: true,
+						})
+					);
+				}
+
                 checkPlayer1Collision(game.ball, game.player1);
                 checkPlayer2Collision(game.ball, game.player2);
-
-                game.drawScore(game.player1, ScreenWidth / 2 - 100);
-                game.drawScore(game.player2, ScreenWidth / 2 + 100);
 
                 if (game.player1.score === 5 || game.player2.score === 5) {
                     game.winner =
@@ -109,6 +125,8 @@ function singleplayerGameLoop(game) {
 }
 
 function multiplayer2GameLoop(game) {
+	const player1 = document.getElementById("player1");
+	const player2 = document.getElementById("player2");
 	return new Promise((resolve) => {
         const playPong = () => {
             if (game.over || !MyWebSocket.ws) {
@@ -126,6 +144,23 @@ function multiplayer2GameLoop(game) {
 				} else {
 					game.player2.update(dt);
 				}
+
+				if (player1) {
+					player1.dispatchEvent(
+						new CustomEvent("player1", {
+							detail: game.player1.score,
+							bubbles: true,
+						})
+					);
+				}
+				if (player2) {
+					player2.dispatchEvent(
+						new CustomEvent("player2", {
+							detail: game.player2.score,
+							bubbles: true,
+						})
+					);
+				}
 		
 				if (AbstractView.userInfo.id === game.host_id) {
 					sendHostMessage(game);
@@ -137,9 +172,6 @@ function multiplayer2GameLoop(game) {
 					checkPlayer1Collision(game.ball, game.player1);
 					checkPlayer2Collision(game.ball, game.player2);
 				}
-		
-				game.drawScore(game.player1, ScreenWidth / 2 - 0.08 * ScreenWidth);
-				game.drawScore(game.player2, ScreenWidth / 2 + 0.08 * ScreenWidth);
 				
 				if (AbstractView.userInfo.id === game.host_id) {
 					sendHostMessage(game);

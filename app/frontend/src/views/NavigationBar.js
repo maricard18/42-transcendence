@@ -192,6 +192,7 @@ export default class NavigationBar extends AbstractView {
     loadingComponent() {
         const loading = document.createElement("loading-icon");
         loading.setAttribute("size", "5rem");
+		loading.setAttribute("template", "center");
         return loading;
     }
 

@@ -8,7 +8,6 @@ import { validateLoginForm } from "../functions/validateForms";
 export default class LoginPage extends AbstractView {
     constructor() {
         super();
-		AbstractView.userData();
         this.setTitle("Login");
 		this._parentNode = null;
         this._loading = true;
