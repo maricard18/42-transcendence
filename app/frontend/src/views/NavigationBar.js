@@ -40,7 +40,7 @@ export default class NavigationBar extends AbstractView {
 
         this._callbackRunned = true;
         const fetchUserInfo = async () => {
-            const userData = await getUserInfo(AbstractView.authed);
+            const userData = await getUserInfo();
 
             if (userData) {
                 AbstractView.userInfo = {
@@ -88,7 +88,7 @@ export default class NavigationBar extends AbstractView {
         } else {
             baseAvatar.remove();
             const avatarElement = document.createElement("img");
-            avatarElement.setAttribute("class", "avatar-border-sm");
+            avatarElement.setAttribute("class", "white-border-sm");
             avatarElement.setAttribute("alt", "Avatar preview");
             avatarElement.setAttribute("width", "40");
             avatarElement.setAttribute("height", "40");
@@ -119,7 +119,7 @@ export default class NavigationBar extends AbstractView {
 
         if (AbstractView.userInfo.avatar) {
             const avatarElement = document.createElement("img");
-            avatarElement.setAttribute("class", "avatar-border-sm");
+            avatarElement.setAttribute("class", "white-border-sm");
             avatarElement.setAttribute("alt", "Avatar preview");
             avatarElement.setAttribute("width", "40");
             avatarElement.setAttribute("height", "40");
@@ -133,7 +133,7 @@ export default class NavigationBar extends AbstractView {
         }
 
         const h6 = document.createElement("h6");
-        h6.setAttribute("class", "username-text ms-3 mt-1");
+        h6.setAttribute("class", "username-text ms-2 mt-1");
         const b = document.createElement("b");
         b.innerText = AbstractView.userInfo.username;
         h6.appendChild(b);

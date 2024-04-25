@@ -10,7 +10,16 @@ export function gameStartAnimation(game) {
             );
 
             game.clear();
-            game.drawGoals("white");
+			game.drawGoals("white");
+            game.player1.draw(game.ctx);
+            game.player2.draw(game.ctx);
+
+			if (game.player3) {
+				game.player3.draw(game.ctx);
+			}
+			if (game.player4) {
+				game.player4.draw(game.ctx);
+			}
 
             game.ctx.font = `${0.3 * ScreenWidth}px Arial`;
             game.ctx.fillStyle = "white";

@@ -2,6 +2,7 @@ import AbstractView from "./AbstractView";
 import { getToken, logout } from "../functions/tokens";
 import fetchData from "../functions/fetchData";
 import { navigateTo } from "..";
+import getUserInfo from "../functions/getUserInfo";
 
 export default class ProfilePage extends AbstractView {
     constructor(view) {
@@ -12,6 +13,7 @@ export default class ProfilePage extends AbstractView {
         this._avatarCallback = false;
         this._modalCallback = false;
         this._deleteCallback = false;
+		this._clickCallback = false;
         this._insideRequest = false;
 
         this._errors = {};
@@ -77,16 +79,46 @@ export default class ProfilePage extends AbstractView {
             }
         };
 
+		this.removeAvatarCallback = async (event) => {
+			const formDataToSend = new FormData();
+            formDataToSend.append("avatar", null);
+
+            const accessToken = await getToken();
+            const headers = {
+                Authorization: `Bearer ${accessToken}`,
+            };
+
+            const response = await fetchData(
+                "/api/users/" + AbstractView.userInfo.id,
+                "PUT",
+                headers,
+                formDataToSend
+            );
+
+			if (response.ok) {
+				event.target.dispatchEvent(new CustomEvent("remove-avatar"));
+				this._clickCallback = false;
+			} else {
+				console.error("failed to remove avatar");
+			}
+		}
+
         const avatarBox = this._parentNode.querySelector("avatar-box");
         if (avatarBox && !this._avatarCallback) {
             this._avatarCallback = true;
             avatarBox.addEventListener("avatar-change", this.avatarCallback);
         }
 
-		const deleteButton = document.getElementById("delete-account-button");
-		if (deleteButton && !this._deleteCallback) {
+		const deleteAccountButton = document.getElementById("delete-account-button");
+		if (deleteAccountButton && !this._deleteCallback) {
 			this._deleteCallback = true;
-			deleteButton.addEventListener("click", this.deleteAccountCallback);
+			deleteAccountButton.addEventListener("click", this.deleteAccountCallback);
+		}
+
+		const deleteAvatarButton = document.getElementById("remove-avatar");
+		if (deleteAvatarButton && !this._clickCallback) {
+			this._clickCallback = true;
+			deleteAvatarButton.addEventListener("click", this.removeAvatarCallback);
 		}
     }
 
@@ -100,9 +132,9 @@ export default class ProfilePage extends AbstractView {
             avatarBox.removeEventListener("avatar-change", this.avatarCallback);
         }
 
-        const deleteButton = document.getElementById("delete-account-button");
-		if (deleteButton) {
-			deleteButton.removeEventListener("click", this.deleteAccountCallback);
+        const deleteAccountButton = document.getElementById("delete-account-button");
+		if (deleteAccountButton) {
+			deleteAccountButton.removeEventListener("click", this.deleteAccountCallback);
 		}
 
         this._observer.disconnect();

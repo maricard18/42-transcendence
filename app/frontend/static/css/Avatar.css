@@ -6,10 +6,31 @@
     filter: drop-shadow(0 0 8px #9461e6);
 }
 
-.avatar-border-lg {
+.white-border-lg {
 	outline: 4px solid white;
 }
 
-.avatar-border-sm {
-	outline: 1px solid white;
+.white-border-sm {
+	outline: 2px solid white;
+	border-radius: 50%;
+}
+
+.red-border-sm {
+	outline: 2px solid red;
+	border-radius: 50%;
+}
+
+.blue-border-sm {
+	outline: 2px solid blue;
+	border-radius: 50%;
+}
+
+.green-border-sm {
+	outline: 2px solid green;
+	border-radius: 50%;
+}
+
+.yellow-border-sm {
+	outline: 2px solid yellow;
+	border-radius: 50%;
 }

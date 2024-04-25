@@ -12,6 +12,7 @@ export default class CreateProfilePage extends AbstractView {
         this._inputCallback = false;
         this._avatarCallback = false;
         this._clickCallback = false;
+		this._removeCallback = false;
         this._enterCallback = false;
 
         this._errors = {};
@@ -20,7 +21,7 @@ export default class CreateProfilePage extends AbstractView {
 		if (Object.values(AbstractView.formData).every((value) => value === "")) {
             setTimeout(() => {
                 navigateTo("/sign-up");
-            }, 0);
+            }, 5);
             return;
         }
 
@@ -58,6 +59,12 @@ export default class CreateProfilePage extends AbstractView {
             this.handleValidation();
         };
 
+		this.removeAvatarCallback = (event) => {
+			event.target.dispatchEvent(new CustomEvent("remove-avatar"));
+			this.avatar = null;
+			this._removeCallback = false;
+		}
+
         this.keydownCallback = (event) => {
             if (event.key === "Enter") {
                 event.preventDefault();
@@ -89,6 +96,12 @@ export default class CreateProfilePage extends AbstractView {
             );
         }
 
+		const removeButton = this._parentNode.querySelector("#remove-avatar");
+		if (removeButton && !this._removeCallback) {
+			this._removeCallback = true;
+			removeButton.addEventListener("click", this.removeAvatarCallback);
+		}
+
         if (!this._enterCallback) {
             this._enterCallback = true;
             window.addEventListener("keydown", this.keydownCallback);
@@ -118,6 +131,12 @@ export default class CreateProfilePage extends AbstractView {
                 this.buttonClickedCallback
             );
         }
+
+		const removeButton = this._parentNode.querySelector("#remove-avatar");
+		if (removeButton && !this._removeCallback) {
+			this._removeCallback = true;
+			removeButton.removeEventListener("click", this.removeAvatarCallback);
+		}
 
         window.removeEventListener("keydown", this.keydownCallback);
 

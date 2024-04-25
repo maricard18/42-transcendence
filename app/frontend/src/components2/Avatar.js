@@ -1,8 +1,29 @@
 export class Avatar extends HTMLElement {
     constructor() {
         super();
-        this.addEventListener("input", this.handleChange.bind(this));
+		this._inputCallback = false;
+        this._clickCallback = false;
         this._avatar = null;
+
+		this._observer = new MutationObserver(() => {
+			const input = this.querySelector("input");
+			if (input && !this._inputCallback) {
+				this._inputCallback = true;
+				input.addEventListener("input", this.handleChange.bind(this));
+			}
+
+            const button = this.querySelector("button");
+            if (button && !this._clickCallback) {
+                this._clickCallback = true;
+                button.addEventListener("remove-avatar", this.removeAvatar.bind(this));
+            }
+        });
+
+        this._observer.observe(this, {
+            attributes: true,
+            childList: true,
+            subtree: true,
+        });
 
         const avatar = this.getAttribute("avatar");
         if (avatar) {
@@ -32,36 +53,64 @@ export class Avatar extends HTMLElement {
         this.innerHTML = this.getHtml();
     }
 
+	disconnectedCallback() {
+		this._observer.disconnect();
+	}
+
+    removeAvatar(event) {
+        const label = this.querySelector("label");
+        const avatar = document.createElement("base-avatar-box");
+        const img = this.querySelector("img");
+        img.remove();
+        event.target.remove();
+        this._clickCallback = false;
+        avatar.setAttribute("size", "200");
+        label.appendChild(avatar);
+    }
+
     handleChange(event) {
         const file = event.target.files[0];
 
         if (file) {
-            const validFileTypes = ["image/jpeg", "image/png", "image/jpg"];
+            const validFileTypes = ["image/jpeg", "image/jpg", "image/png"];
             if (!validFileTypes.includes(file.type)) {
-				this.dispatchEvent(
+                this.dispatchEvent(
                     new CustomEvent("avatar-change", {
                         detail: false,
                         bubbles: true,
                     })
                 );
-				return;
-			}
+                return;
+            }
 
             this.avatar = file;
             this.url = URL.createObjectURL(file);
 
-            const avatar = this.querySelector("base-avatar-box");
-            if (avatar) {
-                avatar.remove();
+            const avatarBox = this.querySelector("base-avatar-box");
+            if (avatarBox) {
+                avatarBox.remove();
                 const label = this.querySelector("label");
                 const img = document.createElement("img");
                 img.setAttribute("src", this._url);
                 img.setAttribute("alt", "Avatar Preview");
                 img.setAttribute("width", "200");
                 img.setAttribute("height", "200");
-                img.setAttribute("class", "avatar-border-lg");
+                img.setAttribute("class", "white-border-lg");
                 img.setAttribute("style", "border-radius: 50%");
                 label.appendChild(img);
+
+				const figure = this.querySelector("figure");
+                const button = document.createElement("button");
+                button.setAttribute("id", "remove-avatar");
+                button.setAttribute("type", "button");
+                button.setAttribute("class", "btn-close align-itens-bottom");
+                button.setAttribute("aria-label", "Close");
+                button.style.position = "absolute";
+                button.style.bottom = "10px";
+                button.style.right = "0";
+                button.style.backgroundColor = "white";
+                figure.appendChild(button);
+
                 this.dispatchEvent(
                     new CustomEvent("avatar-change", {
                         detail: file,
@@ -83,6 +132,7 @@ export class Avatar extends HTMLElement {
 
     getHtml() {
         const figure = document.createElement("figure");
+		figure.style.position = "relative";
 
         const input = document.createElement("input");
         input.setAttribute("type", "file");
@@ -101,9 +151,20 @@ export class Avatar extends HTMLElement {
             img.setAttribute("alt", "Avatar Preview");
             img.setAttribute("width", "200");
             img.setAttribute("height", "200");
-            img.setAttribute("class", "avatar-border-lg");
+            img.setAttribute("class", "white-border-lg");
             img.setAttribute("style", "border-radius: 50%");
             label.appendChild(img);
+
+            const button = document.createElement("button");
+            button.setAttribute("id", "remove-avatar");
+            button.setAttribute("type", "button");
+            button.setAttribute("class", "btn-close align-itens-bottom");
+            button.setAttribute("aria-label", "Close");
+            button.style.position = "absolute";
+            button.style.bottom = "10px";
+            button.style.right = "0";
+            button.style.backgroundColor = "white";
+            figure.appendChild(button);
         } else {
             const avatar = document.createElement("base-avatar-box");
             avatar.setAttribute("size", "200");
@@ -129,13 +190,17 @@ export class BaseAvatar extends HTMLElement {
     }
 
     getHtml() {
+        const template = this.getAttribute("template")
+            ? this.getAttribute("template")
+            : "";
+
         return `
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
 				width=${this.getAttribute("size")}
 				height=${this.getAttribute("size")}
 				fill="white"
-				class="bi bi-person-circle avatar"
+				class="bi bi-person-circle avatar ${template}"
 				viewBox="0 0 16 16"
 			>
 				<path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />

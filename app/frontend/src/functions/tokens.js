@@ -16,7 +16,7 @@ export async function createToken(formData) {
     );
 
     if (!response.ok) {
-        console.log("Error: failed to create authentication token.");
+        console.error("failed to create authentication token");
         logout();
         return;
     }
@@ -47,7 +47,7 @@ export async function setToken(response) {
 
         AbstractView.authed = true;
     } catch (error) {
-        console.log("Error: failed to set Cookies");
+        console.error("failed to set Cookies");
         logout();
         return;
     }
@@ -56,8 +56,10 @@ export async function setToken(response) {
 export async function refreshToken() {
     const refreshToken = Cookies.get("refresh_token");
     if (!refreshToken) {
-        console.log("Error: refresh_token doesn't exist.");
-        logout();
+		if (location.pathname.startsWith("/home")) {
+			console.error("refresh_token doesn't exist");
+			logout();
+		}
         return;
     }
 
@@ -73,7 +75,7 @@ export async function refreshToken() {
     );
 
     if (!response.ok) {
-        console.log("Error: failed to refresh access_token.");
+        console.error("failed to refresh access_token");
         logout();
         return;
     }
@@ -98,6 +100,7 @@ export function decode(accessToken) {
 }
 
 export function logout() {
+	console.log("Logged out, cleaning data")
     Cookies.remove("access_token");
     Cookies.remove("refresh_token");
 	AbstractView.cleanGameData();

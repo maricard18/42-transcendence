@@ -246,7 +246,7 @@ class PlayerQueue extends AbstractView {
 								alt="Avatar preview"
 								width="40"
 								height="40"
-								class="avatar-border-sm"
+								class="white-border-sm"
 								style="border-radius: 50%"
 							/>
 							<div class="username-text ms-3 mt-2">
