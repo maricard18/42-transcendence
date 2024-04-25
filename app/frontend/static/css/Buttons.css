@@ -41,9 +41,24 @@
 
 .white-button.extra-btn-class:hover,
 .white-button.extra-btn-class:active {
+    color: #343A40;
+    background-color: #e6e6e6;
+    border-color: #e6e6e6;
+}
+
+.red-button.extra-btn-class {
     color: white;
-    background-color: #7439d2;
-    border-color: #7439d2;
+    background-color: #8B0000;
+    border-color: #8B0000;
+    width: 220px;
+	font-weight: bold;
+}
+
+.red-button.extra-btn-class:hover,
+.red-button.extra-btn-class:active {
+    color: white;
+    background-color: #7A0000;
+    border-color: #7A0000;
 }
 
 .full-white-button.extra-btn-class {

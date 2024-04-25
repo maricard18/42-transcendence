@@ -100,5 +100,7 @@ export function decode(accessToken) {
 export function logout() {
     Cookies.remove("access_token");
     Cookies.remove("refresh_token");
+	AbstractView.cleanGameData();
+	AbstractView.cleanUserData();
     AbstractView.authed = false;
 }

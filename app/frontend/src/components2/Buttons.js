@@ -28,6 +28,9 @@ export class NavButton extends HTMLElement {
             "class",
             `btn btn-primary ${this.getAttribute("template")}`
         );
+		if (this.getAttribute("style")) {
+			button.setAttribute("style", this.getAttribute("style"));
+		}
         button.textContent = `${this.getAttribute("value")}`;
         this.appendChild(button);
     }
@@ -55,6 +58,9 @@ export class LogoutButton extends HTMLElement {
             "class",
             `btn btn-primary ${this.getAttribute("template")}`
         );
+		if (this.getAttribute("style")) {
+			button.setAttribute("style", this.getAttribute("style"));
+		}
 		button.textContent = `${this.getAttribute("value")}`;
         this.appendChild(button);
     }

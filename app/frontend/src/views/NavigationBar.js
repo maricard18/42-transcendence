@@ -133,7 +133,7 @@ export default class NavigationBar extends AbstractView {
         }
 
         const h6 = document.createElement("h6");
-        h6.setAttribute("class", "username-text ms-2 mt-1");
+        h6.setAttribute("class", "username-text ms-3 mt-1");
         const b = document.createElement("b");
         b.innerText = AbstractView.userInfo.username;
         h6.appendChild(b);
@@ -168,15 +168,18 @@ export default class NavigationBar extends AbstractView {
 							<nav-button
 								template="white-button extra-btn-class"
 								page="/home"
+								style="border-bottom: 0%; border-bottom-left-radius: 0; border-bottom-right-radius: 0;"
 								value="Home"
 							></nav-button>
 							<nav-button
 								template="white-button extra-btn-class"
 								page="/home/profile/username"
+								style="border-radius: 0%"
 								value="Profile"
 							></nav-button>
 							<logout-button 
-								template="white-button extra-btn-class"
+								template="primary-button extra-btn-class"
+								style="border-top: 0%; border-top-left-radius: 0; border-top-right-radius: 0;"
 								value="Logout"
 							></logout-button>
 						</div>
