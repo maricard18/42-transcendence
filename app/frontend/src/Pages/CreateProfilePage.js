@@ -16,6 +16,7 @@ import {
 } from "../components/Context";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
+import { vaultEncryptData } from "../functions/vaultAccess";
 
 export function CreateProfilePage() {
     const navigate = useNavigate();
@@ -65,27 +66,13 @@ export function CreateProfilePage() {
                 formDataToSend.append("avatar", file);
             }
 
-            var vaultClient = require("node-vault")({apiVersion: 'v1', endpoint: 'http://127.0.0.1:8200'});
-
-            const roleId   = 'eeb56689-1666-064c-b3ff-adc48a82c2f8';
-            const secretId = 'f903c0fd-c6aa-7a00-a4a1-059ae5df6d45';
-            const vaultResponse = await vaultClient.approleLogin({ role_id: roleId, secret_id: secretId });
-            vaultClient.token = vaultResponse.auth.client_token;
-            
-            const formDataObject = {};
-            formDataToSend.forEach((value, key) => {
-                formDataObject[key] = value;
-            });
-            const formDataJSON = JSON.stringify(formDataObject);
-            const base64Data = Buffer.from(formDataJSON).toString('base64');
-            const encryptedData = await vaultClient.write('transit/encrypt/transcendence', { plaintext: base64Data });
-
+            const encryptedData = await vaultEncryptData(formDataToSend);
             const response = await fetchData(
                 "/api/users",
                 "POST",
                 null,
-                encryptedData
-                // formDataToSend
+                // encryptedData // uncomment when setup vault on the backend side
+                formDataToSend
             );
 
             if (response.ok) {
