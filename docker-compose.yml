@@ -147,7 +147,7 @@ services:
     profiles: [ "dev" ]
     restart: on-failure
 
-  // TODO : Reference
+  #// TODO : Reference
   django-backend-dev: 
     container_name: django-backend-dev
     build:
@@ -224,7 +224,7 @@ services:
     profiles: [ "dev" ]
     restart: on-failure
   
-  // OPTIMIZE : Reference
+  #// OPTIMIZE : Reference
   vault-dev:
     container_name: vault-dev
     build:
@@ -235,18 +235,15 @@ services:
     environment:
       VAULT_ADDR: http://vault-dev:8200
       VAULT_API_ADDR: http://vault-dev:8200
-      VAULT_DEV_ROOT_TOKEN_ID_FILE: /run/secrets/vault_dev_root_token_id
-    secrets:
-      - vault_dev_root_token_id
-    volumes:
-      - ./vault:/tmp:ro
+      VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_DEV_ROOT_TOKEN_ID}
     networks:
       - transcendence-dev
     cap_add:
       - IPC_LOCK
-    profiles: [ "dev" ]
-    depends_on:
-      - modsecurity-dev
+    # profiles: [ "dev" ]
+    profiles: [ "test" ]
+    # depends_on:
+    #   - modsecurity-dev
     restart: on-failure
 
 
@@ -387,5 +384,3 @@ secrets:
     file: ./secrets/django-jwt-secret
   42_client_secret:
     file: ./secrets/42-client-secret
-  vault_dev_root_token_id:
-    file: ./secrets/vault-dev-root-token-id
