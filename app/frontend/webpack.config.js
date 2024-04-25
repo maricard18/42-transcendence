@@ -28,7 +28,9 @@ module.exports = {
   },
   plugins: [
     new webpack.DefinePlugin({
-      "process.env": JSON.stringify("production")
+      "process.env": JSON.stringify("production"),
+      "process.env.VAULT_ADDR": JSON.stringify(process.env.VAULT_ADDR),
+      "process.env.VAULT_TOKEN": JSON.stringify(process.env.VAULT_TOKEN)
     }),
     new NodePolyfillPlugin()
   ],

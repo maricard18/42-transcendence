@@ -1,12 +1,12 @@
 
 export var vaultClient = require("node-vault")({
     apiVersion: 'v1',
-    endpoint: 'http://127.0.0.1:8200' // TODO change to environment variable
+    endpoint: process.env.VAULT_ADDR
 });
 
 export async function connectToVault () {
     if (vaultClient.token === undefined) {
-        const token = 'YXzVXxaRqzT!W3tB-SR?{qL{o)mkBw9D-EdK@R1a}Wb]88Vdme'; // TODO change to environment variable
+        const token = process.env.VAULT_TOKEN;
         vaultClient.token = token;
 
         // Login with AppRole
