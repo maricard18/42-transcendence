@@ -37,7 +37,11 @@ export default class Login42Page extends AbstractView {
 		if (response.ok) {
 			await setToken(response);
 			this.disconnectObserver();
-			navigateTo("/menu");
+			if (AbstractView.previousLocation.startsWith("/home/profile")) {
+				navigateTo(AbstractView.previousLocation);
+			} else {
+				navigateTo("/menu");
+			}
 		} else {
 			if (response.status === 409) {
 				await setToken(response);

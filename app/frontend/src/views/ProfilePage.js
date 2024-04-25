@@ -7,6 +7,7 @@ import getUserInfo from "../functions/getUserInfo";
 export default class ProfilePage extends AbstractView {
     constructor(view) {
         super();
+		AbstractView.previousLocation = location.pathname;
         this._view = view;
         this._loading = true;
         this._parentNode = null;
@@ -197,7 +198,26 @@ export default class ProfilePage extends AbstractView {
         this._insideRequest = false;
     }
 
+	async createLink() {
+        const response = await fetchData("/get-env-vars", "GET", null, null);
+
+        if (response.ok) {
+            const data = await response.json();
+
+            let url = "https://api.intra.42.fr/oauth/authorize";
+            url += "?client_id=" + encodeURIComponent(data["client_id"]);
+            url += "&redirect_uri=" + encodeURIComponent(data["redirect_uri"]);
+            url += "&response_type=code";
+
+            this.loading = false;
+            return url;
+        } else {
+            console.log("Error getting env vars!");
+        }
+    }
+
     async getHtml() {
+		const link = await this.createLink();
         let avatarElement = document.createElement("avatar-box");
         if (AbstractView.userInfo.avatar) {
             avatarElement.setAttribute("avatar", AbstractView.userInfo.avatar);
@@ -239,6 +259,12 @@ export default class ProfilePage extends AbstractView {
 								page="/home/profile/password"
 								style="border-radius: 0%"
 								value="Change Password"
+							></nav-button>
+							<nav-button
+								template="secondary-button extra-btn-class"
+								page="${link}"
+								style="border-radius: 0%"
+								value="Link 42 Account"
 							></nav-button>
 							<logout-button 
 								template="primary-button extra-btn-class"

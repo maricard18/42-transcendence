@@ -2,7 +2,6 @@ import AbstractView from "./AbstractView";
 import { createGameObject } from "../Game/pongGame";
 import { startGame } from "../Game/pongGame";
 import { closeWebsocket } from "../functions/websocket";
-import { navigateTo } from "..";
 import { Display2Usernames, DisplayUsername } from "../components2/DisplayUsernames";
 
 export default class Pong extends AbstractView {
@@ -126,7 +125,17 @@ export default class Pong extends AbstractView {
 						</div>
 						${this._lobbySize == 4 ? new DisplayUsername().getHtml("player4") : ``}
 					</div>`
-                        : "<h1>Game Over</h1>"
+                        : `<div class="d-flex flex-column justify-content">
+								<h1>Game Finished</h1>
+								<div class="mt-5">
+									<nav-button 
+										template="primary-button extra-btn-class"
+										page="/home/pong"
+										style="width: 150px"
+										value="Pong menu"
+									></nav-button>
+								</div>
+							</div>`
                 }
 			</div>
         `;
@@ -153,7 +162,17 @@ export default class Pong extends AbstractView {
 						</div>
 						${new DisplayUsername().getHtml("player4")}
 					</div>`
-                        : "<h1>Game Over</h1>"
+                        : `<div class="d-flex flex-column justify-content">
+								<h1>Game Finished</h1>
+								<div class="mt-5">
+									<nav-button 
+										template="primary-button extra-btn-class"
+										page="/home/pong"
+										style="width: 150px"
+										value="Pong menu"
+									></nav-button>
+								</div>
+							</div>`
                 }
 			</div>
         `;
@@ -161,8 +180,8 @@ export default class Pong extends AbstractView {
 
     getHtml() {
         if (AbstractView.gameOver === null) {
-            closeWebsocket();
-            navigateTo("-1");
+			AbstractView.cleanGameData();
+			AbstractView.gameOver = true;
         }
 
 		if (this._lobbySize != 4) {

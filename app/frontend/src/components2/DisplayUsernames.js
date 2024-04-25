@@ -325,7 +325,7 @@ export class DisplayUsername extends AbstractView {
 							alt="Avatar preview"
 							width="50"
 							height="50"
-							class="white-border-sm"
+							class="red-border-sm"
 							style="border-radius: 50%"
 						/>
 						<div class="username-text ms-3 mt-2">
@@ -336,7 +336,10 @@ export class DisplayUsername extends AbstractView {
 						</div>
 					</div>`
 					: `<div class="d-flex align-content-center ms-5">
-						<base-avatar-box size="50px"></base-avatar-box>
+						<base-avatar-box 
+							size="50px"
+							template="red-border-sm"
+						></base-avatar-box>
 						<div class="username-text ms-3 mt-2">
 							<h3>${AbstractView.userData[0].username}</h3>
 						</div>
@@ -360,7 +363,7 @@ export class DisplayUsername extends AbstractView {
 						alt="Avatar preview"
 						width="50"
 						height="50"
-						class="white-border-sm"
+						class="blue-border-sm"
 						style="border-radius: 50%"
 					/>
 					<div class="username-text ms-3 mt-2">
@@ -371,7 +374,10 @@ export class DisplayUsername extends AbstractView {
 					</div>
 				</div>`
 				: `<div class="d-flex align-content-center ms-5">
-					<base-avatar-box size="50px"></base-avatar-box>
+					<base-avatar-box 
+						size="50px"
+						template="blue-border-sm"
+					></base-avatar-box>
 					<div class="username-text ms-3 mt-2">
 						<h3>${AbstractView.userData[1].username}</h3>
 					</div>
@@ -395,7 +401,7 @@ export class DisplayUsername extends AbstractView {
 							alt="Avatar preview"
 							width="50"
 							height="50"
-							class="white-border-sm"
+							class="green-border-sm"
 							style="border-radius: 50%"
 						/>
 						<div class="username-text ms-3 mt-2">
@@ -406,7 +412,10 @@ export class DisplayUsername extends AbstractView {
 						</div>
 					</div>`
 					: `<div class="d-flex align-content-center ms-5 mb-2">
-						<base-avatar-box size="50px"></base-avatar-box>
+						<base-avatar-box 
+							size="50px"
+							template="green-border-sm"
+						></base-avatar-box>
 						<div class="username-text ms-3 mt-2">
 							<h3>${AbstractView.userData[2].username}</h3>
 						</div>
@@ -430,7 +439,7 @@ export class DisplayUsername extends AbstractView {
 							alt="Avatar preview"
 							width="50"
 							height="50"
-							class="white-border-sm"
+							class="yellow-border-sm"
 							style="border-radius: 50%"
 						/>
 						<div class="username-text ms-3 mt-2">
@@ -441,7 +450,10 @@ export class DisplayUsername extends AbstractView {
 						</div>
 					</div>`
 					: `<div class="d-flex align-content-center ms-5 mb-2">
-						<base-avatar-box size="50px"></base-avatar-box>
+						<base-avatar-box 
+							size="50px"
+							template="yellow-border-sm"
+						></base-avatar-box>
 						<div class="username-text ms-3 mt-2">
 							<h3>${AbstractView.userData[3].username}</h3>
 						</div>
