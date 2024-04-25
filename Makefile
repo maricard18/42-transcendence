@@ -6,7 +6,7 @@
 #    By: wcorrea- <wcorrea-@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/02/15 17:36:39 by bsilva-c          #+#    #+#              #
-#    Updated: 2024/04/25 14:08:35 by wcorrea-         ###   ########.fr        #
+#    Updated: 2024/04/25 17:12:44 by wcorrea-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,8 +22,8 @@ endif
 
 
 ifeq ($(PROFILE),dev)
-# COMMAND = docker compose --profile dev
-COMMAND = docker compose --profile test
+COMMAND = docker compose --profile dev
+# COMMAND = docker compose --profile test
 else
 COMMAND = docker compose
 endif

@@ -1,15 +1,19 @@
 
 export var vaultClient = require("node-vault")({
     apiVersion: 'v1',
-    endpoint: 'http://127.0.0.1:8200' // change to environment variable
+    endpoint: 'http://127.0.0.1:8200' // TODO change to environment variable
 });
 
 export async function connectToVault () {
     if (vaultClient.token === undefined) {
-        const roleId   = 'e963469c-0f50-ac2d-b542-f19e78407b82'; // change to environment variable
-        const secretId = '679f2964-eaf6-857c-e1a9-29b6c5e5b39e'; // change to environment variable
-        const vaultResponse = await vaultClient.approleLogin({ role_id: roleId, secret_id: secretId });
-        vaultClient.token = vaultResponse.auth.client_token;
+        const token = 'YXzVXxaRqzT!W3tB-SR?{qL{o)mkBw9D-EdK@R1a}Wb]88Vdme'; // TODO change to environment variable
+        vaultClient.token = token;
+
+        // Login with AppRole
+        // const roleId   = 'role-id';
+        // const secretId = 'secret-id';
+        // const vaultResponse = await vaultClient.approleLogin({ role_id: roleId, secret_id: secretId });
+        // vaultClient.token = vaultResponse.auth.client_token;
     }
 }
 

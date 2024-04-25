@@ -240,10 +240,8 @@ services:
       - transcendence-dev
     cap_add:
       - IPC_LOCK
-    # profiles: [ "dev" ]
-    profiles: [ "test" ]
-    # depends_on:
-    #   - modsecurity-dev
+    profiles: [ "dev" ]
+    # profiles: [ "test" ]
     restart: on-failure
 
 
