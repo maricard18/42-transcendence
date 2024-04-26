@@ -234,7 +234,7 @@ services:
       - transcendence-dev
     volumes:
       - ./vault/config:/vault/config
-      - ./vault/data:/vault/data
+      # - ./vault/data:/vault/data
     command: ["vault", "server", "-config=/vault/config/vault-config.json"]
     cap_add:
       - IPC_LOCK
@@ -256,6 +256,8 @@ services:
       - ./vault/scripts:/vault/scripts
       - ./vault/keys:/vault/keys
       - ./vault/root:/vault/root
+      - ./vault/policies:/vault/policies
+      - ./vault/transcendence:/vault/transcendence
     depends_on:
       vault-dev:
         condition: service_started

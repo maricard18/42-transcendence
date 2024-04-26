@@ -6,7 +6,7 @@
 #    By: wcorrea- <wcorrea-@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/02/15 17:36:39 by bsilva-c          #+#    #+#              #
-#    Updated: 2024/04/26 23:31:09 by wcorrea-         ###   ########.fr        #
+#    Updated: 2024/04/27 00:23:31 by wcorrea-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -50,6 +50,12 @@ fclean: confirm
 	@images=$$(docker image ls -q "$(PROJECT_NAME)-*"); \
 	if [ -n "$$images" ]; then \
 		docker image rm $$images -f; \
+	fi
+	
+	@if [ "$(PROFILE)" = "dev" ]; then \
+		rm -rf ./vault/keys/*; \
+		rm -rf ./vault/transcendence/*; \
+		rm -rf ./vault/root/*; \
 	fi
 
 db-migrations:
