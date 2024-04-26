@@ -226,24 +226,41 @@ services:
   
   #// OPTIMIZE : Reference
   vault-dev:
+    image: hashicorp/vault:latest
     container_name: vault-dev
-    build:
-      context: vault/
-      target: dev
     ports:
       - 8200:8200
-    environment:
-      VAULT_ADDR: http://vault-dev:8200
-      VAULT_API_ADDR: http://vault-dev:8200
-      VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_DEV_ROOT_TOKEN_ID}
     networks:
       - transcendence-dev
+    volumes:
+      - ./vault/config:/vault/config
+      - ./vault/data:/vault/data
+    command: ["vault", "server", "-config=/vault/config/vault-config.json"]
     cap_add:
       - IPC_LOCK
-    profiles: [ "dev" ]
-    # profiles: [ "test" ]
-    restart: on-failure
+    # profiles: [ "dev" ]
+    profiles: [ "test" ]
 
+  vault-init-dev:
+    image: hashicorp/vault:latest
+    container_name: vault-init-dev
+    command:
+      - "sh"
+      - "-c"
+      - "vault/scripts/init.sh"
+    networks:
+      - transcendence-dev
+    environment:
+      VAULT_ADDR: http://vault-dev:8200
+    volumes:
+      - ./vault/scripts:/vault/scripts
+      - ./vault/keys:/vault/keys
+      - ./vault/root:/vault/root
+    depends_on:
+      vault-dev:
+        condition: service_started
+    # profiles: [ "dev" ]
+    profiles: [ "test" ]
 
   ############# TOOLS #############
   ############# PROD #############
