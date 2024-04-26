@@ -175,8 +175,7 @@ export default class ProfilePage extends AbstractView {
                 AbstractView.userInfo.avatar = URL.createObjectURL(
                     this._avatar
                 );
-                const avatarContainer =
-                    document.getElementById("avatar-container");
+                const avatarContainer = document.getElementById("avatar-container");
                 avatarContainer.dispatchEvent(
                     new CustomEvent("avatar-container")
                 );
@@ -301,25 +300,17 @@ export default class ProfilePage extends AbstractView {
 										></button>
 									</div>
 									<div class="modal-body">
-										<h6 
-											class="d-flex justify-content-start"
-										>
+										<h6 class="d-flex justify-content-start">
 											Are you sure you want to delete your account?
 										</h6>
-										<h6 
-											class="d-flex justify-content-start"
-										>
-											Click the Cancel button to abort this action.
+										<h6 class="d-flex justify-content-start">
+											This action is irreversible.
+										</h6>
+										<h6 class="d-flex justify-content-start">
+											Click the Cancel button to abort.
 										</h6>
 									</div>
 									<div class="modal-footer">
-										<button 
-											type="button" 
-											class="btn btn-secondary" 
-											data-bs-dismiss="modal"
-										>
-											Cancel
-										</button>
 										<button 
 											id="delete-account-button"
 											type="button"
@@ -327,6 +318,13 @@ export default class ProfilePage extends AbstractView {
 											style="width: 150px"
 										>
 											Delete Account
+										</button>
+										<button 
+											type="button" 
+											class="btn btn-secondary" 
+											data-bs-dismiss="modal"
+										>
+											Cancel
 										</button>
 									</div>
 									</div>

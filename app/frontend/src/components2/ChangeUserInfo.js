@@ -28,7 +28,6 @@ export default class ChangeUserInfo extends AbstractView {
         });
 
         window.onbeforeunload = () => {
-			console.log("Here")
             this.removeCallbacks();
         };
     }
@@ -45,10 +44,7 @@ export default class ChangeUserInfo extends AbstractView {
             const id = event.target.getAttribute("id");
             const value = event.target.value;
             event.target.setAttribute("value", value);
-            this._formData = {
-                ...this._formData,
-                [id]: value,
-            };
+            this._formData[id] = value;
         };
 
         this.buttonClickedCallback = (event) => {
@@ -227,8 +223,7 @@ export default class ChangeUserInfo extends AbstractView {
             if (response.ok) {
                 AbstractView.userInfo.username = this._formData.username;
                 AbstractView.userInfo.email = this._formData.email;
-                const avatarContainer =
-                    document.getElementById("avatar-container");
+                const avatarContainer = document.getElementById("avatar-container");
                 avatarContainer.dispatchEvent(
                     new CustomEvent("avatar-container")
                 );
@@ -247,8 +242,9 @@ export default class ChangeUserInfo extends AbstractView {
         const loadingIcon = parentNode.querySelector("loading-icon");
         if (loadingIcon) {
             loadingIcon.remove();
-            parentNode.innerHTML = this.loadChangeUserInfoContent();
         }
+		
+		parentNode.innerHTML = this.loadChangeUserInfoContent();
     }
 
     loadChangeUserInfoContent() {
@@ -299,7 +295,11 @@ export default class ChangeUserInfo extends AbstractView {
 				</div>
 			`;
         } else {
-            return this.loadChangeUserInfoContent();
+            return `
+				<div class="d-flex flex-column" id="change-user-info">
+					${this.loadChangeUserInfoContent()}
+				</div>
+			`;
         }
     }
 }

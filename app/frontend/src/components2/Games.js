@@ -1,5 +1,5 @@
-import { navigateTo } from "..";
 import AbstractView from "../views/AbstractView";
+import { navigateTo } from "..";
 
 export class Game1 extends AbstractView {
 	static gameSelected = false;
@@ -8,11 +8,11 @@ export class Game1 extends AbstractView {
 		super();
         this._callbackRunned = false;
 
-		if (location.pathname !== "/home") {
+		if (location.pathname !== "/home" && location.pathname !== "/home/") {
 			Game1.gameSelected = true;
 		}
 		
-		if (location.pathname === "/home") {
+		if (location.pathname === "/home" || location.pathname === "/home/") {
 			this._observer = new MutationObserver(this.loadCallbacks.bind(this));
 			this._observer.observe(document.body, {
 				childList: true,
@@ -100,11 +100,11 @@ export class Game2 extends AbstractView {
 		super();
         this._callbackRunned = false;
 
-		if (location.pathname !== "/home") {
+		if (location.pathname !== "/home" && location.pathname !== "/home/") {
 			Game2.gameSelected = true;
 		}
 		
-		if (location.pathname === "/home") {
+		if (location.pathname === "/home" || location.pathname === "/home/") {
 			this._observer = new MutationObserver(this.loadCallbacks.bind(this));
 			this._observer.observe(document.body, {
 				childList: true,

@@ -16,7 +16,7 @@ export async function createToken(formData) {
     );
 
     if (!response.ok) {
-        console.error("failed to create authentication token");
+        console.error("Error: failed to create authentication token");
         logout();
         return;
     }
@@ -47,7 +47,7 @@ export async function setToken(response) {
 
         AbstractView.authed = true;
     } catch (error) {
-        console.error("failed to set Cookies");
+        console.error("Error: failed to set Cookies");
         logout();
         return;
     }
@@ -57,7 +57,7 @@ export async function refreshToken() {
     const refreshToken = Cookies.get("refresh_token");
     if (!refreshToken) {
 		if (location.pathname.startsWith("/home")) {
-			console.error("refresh_token doesn't exist");
+			console.error("Error: refresh_token doesn't exist");
 			logout();
 		}
         return;
@@ -75,7 +75,7 @@ export async function refreshToken() {
     );
 
     if (!response.ok) {
-        console.error("failed to refresh access_token");
+        console.error("Error: failed to refresh access_token");
         logout();
         return;
     }
