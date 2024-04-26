@@ -7,7 +7,6 @@ export class Game1 extends AbstractView {
 	constructor() {
 		super();
         this._callbackRunned = false;
-		console.log("Rendering new html");
 
 		if (location.pathname !== "/home") {
 			Game1.gameSelected = true;

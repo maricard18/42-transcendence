@@ -7,6 +7,8 @@ import "../static/css/index.css";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.bundle.js";
 
+var oldView = [];
+
 const router = async () => {
     const url = location.pathname;
     let matches = findMatch(url, routes);
@@ -20,7 +22,7 @@ const router = async () => {
 		return ;
 	}
     
-    let view = [];
+	var view = [];
     if (matches.length > 1) {
         for (let i = matches.length - 1; i >= 0; i--) {
             const match = matches[i];
@@ -42,6 +44,8 @@ const router = async () => {
     } else {
         view = new matches[0].view();
     }
+
+	oldView = view;
 
     document.querySelector("#app").innerHTML = await view.getHtml();
 };
