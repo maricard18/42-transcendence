@@ -147,7 +147,7 @@ services:
     profiles: [ "dev" ]
     restart: on-failure
 
-  #// TODO : Reference
+  # TODO : Reference
   django-backend-dev: 
     container_name: django-backend-dev
     build:
@@ -224,7 +224,7 @@ services:
     profiles: [ "dev" ]
     restart: on-failure
   
-  #// OPTIMIZE : Reference
+  # OPTIMIZE : Reference
   vault-dev:
     image: hashicorp/vault:latest
     container_name: vault-dev
@@ -238,8 +238,8 @@ services:
     command: ["vault", "server", "-config=/vault/config/vault-config.json"]
     cap_add:
       - IPC_LOCK
-    # profiles: [ "dev" ]
-    profiles: [ "test" ]
+    profiles: [ "dev" ]
+    # profiles: [ "test" ]
 
   vault-init-dev:
     image: hashicorp/vault:latest
@@ -261,8 +261,8 @@ services:
     depends_on:
       vault-dev:
         condition: service_started
-    # profiles: [ "dev" ]
-    profiles: [ "test" ]
+    profiles: [ "dev" ]
+    # profiles: [ "test" ]
   
   # my_app:
   #   image: "alpine:latest"
@@ -376,6 +376,7 @@ services:
     profiles: [ "dev", "tools" ]
     restart: on-failure
 
+  # OPTIMIZE : Reference
   webpack-dev:
     container_name: webpack-dev
     build:
@@ -384,10 +385,12 @@ services:
     volumes:
       - ./app/frontend/:/app/frontend/:rw
     environment:
-      - VAULT_TOKEN=${VAULT_DEV_ROOT_TOKEN_ID}
-      - VAULT_ADDR=${VAULT_ADDR}
+      # - VAULT_TOKEN=${VAULT_DEV_ROOT_TOKEN_ID}
+      - VAULT_ADDR=http://vault-dev:8200
     depends_on:
       collectstatic-dev:
+        condition: service_completed_successfully
+      vault-init-dev:
         condition: service_completed_successfully
     profiles: [ "dev", "tools" ]
     restart: on-failure
