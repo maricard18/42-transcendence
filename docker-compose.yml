@@ -224,22 +224,17 @@ services:
     profiles: [ "dev" ]
     restart: on-failure
   
-  # OPTIMIZE : Reference
   vault-dev:
     image: hashicorp/vault:latest
     container_name: vault-dev
     ports:
       - 8200:8200
-    # networks:
-    #   - transcendence-dev
     volumes:
       - ./vault/config:/vault/config
-      # - ./vault/data:/vault/data
     command: ["vault", "server", "-config=/vault/config/vault-config.json"]
     cap_add:
       - IPC_LOCK
     profiles: [ "dev" ]
-    # profiles: [ "test" ]
 
   vault-init-dev:
     image: hashicorp/vault:latest
@@ -248,8 +243,6 @@ services:
       - "sh"
       - "-c"
       - "vault/scripts/init.sh"
-    # networks:
-    #   - transcendence-dev
     environment:
       VAULT_ADDR: http://vault-dev:8200
     volumes:
@@ -262,25 +255,7 @@ services:
       vault-dev:
         condition: service_started
     profiles: [ "dev" ]
-    # profiles: [ "test" ]
   
-  # my_app:
-  #   image: "alpine:latest"
-  #   container_name: my_app
-  #   command:
-  #     - "tail"
-  #     - "-f"
-  #     - "/dev/null"
-  #   environment:
-  #     VAULT_ADDR: http://vault-dev:8200
-  #     VAULT_VERSION:
-  #   volumes:
-  #     - ./vault/transcendence:/vault/transcendence
-  #   depends_on:
-  #     vault-init-dev:
-  #       condition: service_completed_successfully
-  #   profiles: [ "test" ]
-
   ############# TOOLS #############
   ############# PROD #############
   db-migrations:
