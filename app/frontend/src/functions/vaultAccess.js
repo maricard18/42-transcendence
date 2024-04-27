@@ -4,18 +4,14 @@ export var vaultClient = require("node-vault")({
     endpoint: process.env.VAULT_ADDR
 });
 
-// export async function connectToVault () {
-//     if (vaultClient.token === undefined) {
-//         const token = process.env.VAULT_TOKEN;
-//         vaultClient.token = token;
-
-        // Login with AppRole
-        // const roleId   = 'role-id';
-        // const secretId = 'secret-id';
-        // const vaultResponse = await vaultClient.approleLogin({ role_id: roleId, secret_id: secretId });
-        // vaultClient.token = vaultResponse.auth.client_token;
-//     }
-// }
+export async function connectToVault () {
+    if (vaultClient.token === undefined) {
+        const roleId   = process.env.VAULT_ROLE_ID;
+        const secretId = process.env.VAULT_SECRET_ID;
+        const vaultResponse = await vaultClient.approleLogin({ role_id: roleId, secret_id: secretId });
+        vaultClient.token = vaultResponse.auth.client_token;
+    }
+}
 
 export function convertFormDataToJSON(data) {
     const formDataObject = {};
@@ -30,7 +26,7 @@ export function encodeData(data) {
 }
 
 export async function vaultEncryptData(data) {
-    // await connectToVault();
+    await connectToVault();
     data = convertFormDataToJSON(data);
     return await vaultClient.write('transit/encrypt/transcendence', { plaintext: encodeData(data) }); // change to environment variable
 }
