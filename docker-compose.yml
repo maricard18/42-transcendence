@@ -230,8 +230,8 @@ services:
     container_name: vault-dev
     ports:
       - 8200:8200
-    networks:
-      - transcendence-dev
+    # networks:
+    #   - transcendence-dev
     volumes:
       - ./vault/config:/vault/config
       # - ./vault/data:/vault/data
@@ -248,8 +248,8 @@ services:
       - "sh"
       - "-c"
       - "vault/scripts/init.sh"
-    networks:
-      - transcendence-dev
+    # networks:
+    #   - transcendence-dev
     environment:
       VAULT_ADDR: http://vault-dev:8200
     volumes:
@@ -263,6 +263,23 @@ services:
         condition: service_started
     # profiles: [ "dev" ]
     profiles: [ "test" ]
+  
+  # my_app:
+  #   image: "alpine:latest"
+  #   container_name: my_app
+  #   command:
+  #     - "tail"
+  #     - "-f"
+  #     - "/dev/null"
+  #   environment:
+  #     VAULT_ADDR: http://vault-dev:8200
+  #     VAULT_VERSION:
+  #   volumes:
+  #     - ./vault/transcendence:/vault/transcendence
+  #   depends_on:
+  #     vault-init-dev:
+  #       condition: service_completed_successfully
+  #   profiles: [ "test" ]
 
   ############# TOOLS #############
   ############# PROD #############

@@ -3,7 +3,10 @@
 set -ex
 apk add jq
  
+APP_NAME=transcendence
 INIT_FILE=/vault/keys/vault.init
+APP_INIT_FILE=/vault/${APP_NAME}/${APP_NAME}.init
+
 if [[ -f "${INIT_FILE}" ]]; then
     echo "${INIT_FILE} exists. Vault already initialized."
 else
@@ -30,10 +33,8 @@ export VAULT_TOKEN=$(cat /vault/root/token)
 vault operator unseal "$(cat /vault/keys/key-1)"
 vault operator unseal "$(cat /vault/keys/key-2)"
  
-vault status
+vault status | grep "^Version" | awk '{print $2}' | tee /vault/${APP_NAME}/version > /dev/null
 
-APP_NAME=transcendence
-APP_INIT_FILE=/vault/${APP_NAME}/${APP_NAME}.init
 if [[ -f "${APP_INIT_FILE}" ]]; then
     echo "${APP_INIT_FILE} exists. Vault already initialized for ${APP_NAME}."
 else
