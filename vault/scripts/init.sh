@@ -54,7 +54,7 @@ else
     vault write auth/approle/role/${APP_NAME} token_policies=${APP_NAME} token_ttl=2h token_max_ttl=6h
     vault read auth/approle/role/${APP_NAME}
     vault read auth/approle/role/${APP_NAME}/role-id | grep "role_id" | awk '{print $2}' | tee /vault/${APP_NAME}/${APP_NAME}-role-id > /dev/null
-    vault write -force auth/approle/role/${APP_NAME}/secret-id | grep "secret_id" | awk '{print $2}' | head -n 1 | tee /vault/${APP_NAME}/${APP_NAME}-role-secret-id > /dev/null
+    vault write -force auth/approle/role/${APP_NAME}/secret-id | grep "secret_id" | awk '{print $2}' | head -n 1 | tee /vault/${APP_NAME}/${APP_NAME}-secret-id > /dev/null
 
     vault write sys/config/cors allowed_origins="*" allowed_headers="*" allowed_methods="GET,POST,PUT,DELETE,OPTIONS"
 
