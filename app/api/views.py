@@ -9,27 +9,28 @@ from api_auth.models import Avatar, SSO_User
 from .models import OTP_Token
 from .permissions import UserPermission, OTPPermission
 from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer
+from common.vault import resolveDataForm
 
 import os
 import hvac
 from django.conf import settings
-import base64
+# import base64
 
-def decodeData(data):
-    return base64.b64decode(data).decode('utf-8')
+# def decodeData(data):
+#     return base64.b64decode(data).decode('utf-8')
 
-def transitDecrypt(ciphertext, client):
-    response = client.secrets.transit.decrypt_data(name="transcendence", ciphertext=ciphertext)
-    return decodeData(response['data']['plaintext'])
+# def transitDecrypt(ciphertext, client):
+#     response = client.secrets.transit.decrypt_data(name="transcendence", ciphertext=ciphertext)
+#     return decodeData(response['data']['plaintext'])
 
-def resolveDataForm(data, client):
-    resolvedData = {}
-    for key, value in data.items():
-        if key == "password":
-            resolvedData[key] = transitDecrypt(value, client)
-        else:
-            resolvedData[key] = value
-    return resolvedData
+# def resolveDataForm(data, client):
+#     resolvedData = {}
+#     for key, value in data.items():
+#         if key == "password":
+#             resolvedData[key] = transitDecrypt(value, client)
+#         else:
+#             resolvedData[key] = value
+#     return resolvedData
 
 ######################
 ####  /api/users  ####
