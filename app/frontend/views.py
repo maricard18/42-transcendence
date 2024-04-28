@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 import os
+
 # Create your views here.
 def RenderIndex(request, *args, **kwargs):
 	return render(request, 'frontend/index.html')
