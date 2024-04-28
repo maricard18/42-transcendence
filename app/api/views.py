@@ -9,28 +9,7 @@ from api_auth.models import Avatar, SSO_User
 from .models import OTP_Token
 from .permissions import UserPermission, OTPPermission
 from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer
-from common.vault import resolveDataForm
-
-import os
-import hvac
-from django.conf import settings
-# import base64
-
-# def decodeData(data):
-#     return base64.b64decode(data).decode('utf-8')
-
-# def transitDecrypt(ciphertext, client):
-#     response = client.secrets.transit.decrypt_data(name="transcendence", ciphertext=ciphertext)
-#     return decodeData(response['data']['plaintext'])
-
-# def resolveDataForm(data, client):
-#     resolvedData = {}
-#     for key, value in data.items():
-#         if key == "password":
-#             resolvedData[key] = transitDecrypt(value, client)
-#         else:
-#             resolvedData[key] = value
-#     return resolvedData
+from common.vault import resolveEncryptedFields, vaultClient
 
 ######################
 ####  /api/users  ####
@@ -46,12 +25,9 @@ class UserViewSet(viewsets.ViewSet):
 
     # POST /api/users
     def create(self, request):
-        client = hvac.Client(url=os.environ['VAULT_ADDR'])
-        if not client.is_authenticated():
-            client.auth.approle.login(role_id=settings.VAULT_ROLE_ID, secret_id=settings.VAULT_SECRET_ID)
-
-        resolvedData = resolveDataForm(request.data, client)
-        serializer = CreateUserSerializer(data=resolvedData)
+        client = vaultClient()
+        data = resolveEncryptedFields(request.data, client)
+        serializer = CreateUserSerializer(data=data)
         if serializer.is_valid():
             user = User.objects.create_user(serializer.validated_data.get('username'),
                                             serializer.validated_data.get('email'),
