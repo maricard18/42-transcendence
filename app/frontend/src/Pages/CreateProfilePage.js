@@ -59,8 +59,8 @@ export function CreateProfilePage() {
         if (!newErrors.message) {
             const formDataToSend = new FormData();
 
-            formDataToSend.append("username", formData.username);
-            formDataToSend.append("email", formData.email);
+            formDataToSend.append("username", await transitEncrypt(formData.username));
+            formDataToSend.append("email", await transitEncrypt(formData.email));
             formDataToSend.append("password", await transitEncrypt(formData.password));
             
             if (file) {

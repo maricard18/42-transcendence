@@ -19,7 +19,7 @@ def transitDecrypt(ciphertext, client):
 def resolveEncryptedFields(data, client):
     resolved = {}
     for key, value in data.items():
-        if key == "password":
+        if key == "password" or key == "username" or key == "email":
             resolved[key] = transitDecrypt(value, client)
         else:
             resolved[key] = value
