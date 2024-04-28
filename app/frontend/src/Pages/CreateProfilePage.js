@@ -16,7 +16,7 @@ import {
 } from "../components/Context";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
-import { vaultEncryptData } from "../functions/vaultAccess";
+import { transitEncrypt } from "../functions/vaultAccess";
 
 export function CreateProfilePage() {
     const navigate = useNavigate();
@@ -58,20 +58,19 @@ export function CreateProfilePage() {
         
         if (!newErrors.message) {
             const formDataToSend = new FormData();
+
             formDataToSend.append("username", formData.username);
             formDataToSend.append("email", formData.email);
-            formDataToSend.append("password", formData.password);
+            formDataToSend.append("password", await transitEncrypt(formData.password));
             
             if (file) {
                 formDataToSend.append("avatar", file);
             }
 
-            const encryptedData = await vaultEncryptData(formDataToSend);
             const response = await fetchData(
                 "/api/users",
                 "POST",
                 null,
-                // encryptedData // TODO uncomment when setup vault on the backend side
                 formDataToSend
             );
 
