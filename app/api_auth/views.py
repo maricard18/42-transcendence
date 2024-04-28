@@ -10,6 +10,7 @@ from common.utils import get_file_content
 from .models import SSO_User
 from .permissions import TokenPermission, SSOPermission
 from .serializers import AuthUserSerializer, APITokenObtainPairSerializer, TokenSerializer
+from common.vault import resolveEncryptedFields, vaultClient
 
 
 #######################
@@ -21,7 +22,9 @@ class TokenViewSet(viewsets.ViewSet):
 
     @staticmethod
     def new_token(request):
-        serializer = AuthUserSerializer(data=request.data, partial=True)
+        client = vaultClient()
+        data = resolveEncryptedFields(request.data, client)
+        serializer = AuthUserSerializer(data=data, partial=True)
         if serializer.is_valid():
             username = serializer.validated_data.get('username')
             email = serializer.validated_data.get('email')
@@ -84,7 +87,9 @@ class TokenViewSet(viewsets.ViewSet):
 
     # POST /auth/token
     def create(self, request):
-        serializer = TokenSerializer(data=request.data)
+        client = vaultClient()
+        data = resolveEncryptedFields(request.data, client)
+        serializer = TokenSerializer(data=data)
         if serializer.is_valid():
             if request.data.get('grant_type') == 'password':
                 return self.new_token(request)
