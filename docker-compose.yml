@@ -147,7 +147,6 @@ services:
     profiles: [ "dev" ]
     restart: on-failure
 
-  # TODO : Reference
   django-backend-dev: 
     container_name: django-backend-dev
     build:
@@ -359,7 +358,6 @@ services:
     profiles: [ "dev", "tools" ]
     restart: on-failure
 
-  # OPTIMIZE : Reference
   webpack-dev:
     container_name: webpack-dev
     build:
