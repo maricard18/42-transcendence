@@ -15,6 +15,7 @@ from datetime import timedelta
 from pathlib import Path
 
 from common.utils import get_file_content
+from common.utils import get_file_content_strip
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -224,3 +225,7 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+# Custom settings
+VAULT_ROLE_ID = str(get_file_content_strip(os.environ.get('VAULT_ROLE_ID_FILE')))
+VAULT_SECRET_ID = str(get_file_content_strip(os.environ.get('VAULT_SECRET_ID_FILE')))

@@ -162,6 +162,9 @@ services:
       DJANGO_SECRET_FILE: /run/secrets/django_secret
       DJANGO_JWT_SECRET_FILE: /run/secrets/django_jwt_secret
       42_CLIENT_SECRET_FILE: /run/secrets/42_client_secret
+      VAULT_ADDR: http://127.0.0.1:8200
+      VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
+      VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
     secrets:
       - postgres_db
       - postgres_user
@@ -177,6 +180,7 @@ services:
       - ./app/:/app/:ro
       - ./app/frontend/static/:/app/frontend/static/:rw
       - ./app/frontend/media/:/app/frontend/media/:rw
+      - ./vault/transcendence:/vault/transcendence:ro
     depends_on:
       postgres-dev:
         condition: service_healthy
