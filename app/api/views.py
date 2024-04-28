@@ -10,6 +10,8 @@ from .models import OTP_Token
 from .permissions import UserPermission, OTPPermission
 from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer
 
+# import hvac
+# from django.conf import settings
 
 ######################
 ####  /api/users  ####
@@ -25,6 +27,12 @@ class UserViewSet(viewsets.ViewSet):
 
     # POST /api/users
     def create(self, request):
+        # client = hvac.Client(url=os.environ['VAULT_ADDR'])
+        # print("client: ", client, flush=True)
+
+        # if not client.is_authenticated():
+        #     client.auth.approle.login(role_id=settings.VAULT_ROLE_ID, secret_id=settings.VAULT_SECRET_ID)
+            
         serializer = CreateUserSerializer(data=request.data)
         if serializer.is_valid():
             user = User.objects.create_user(serializer.validated_data.get('username'),

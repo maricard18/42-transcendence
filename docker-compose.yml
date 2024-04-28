@@ -162,7 +162,7 @@ services:
       DJANGO_SECRET_FILE: /run/secrets/django_secret
       DJANGO_JWT_SECRET_FILE: /run/secrets/django_jwt_secret
       42_CLIENT_SECRET_FILE: /run/secrets/42_client_secret
-      VAULT_ADDR: http://127.0.0.1:8200
+      VAULT_ADDR: http://vault-dev:8200
       VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
       VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
     secrets:
@@ -235,6 +235,8 @@ services:
       - 8200:8200
     volumes:
       - ./vault/config:/vault/config
+    networks:
+      - transcendence-dev
     command: ["vault", "server", "-config=/vault/config/vault-config.json"]
     cap_add:
       - IPC_LOCK
@@ -255,6 +257,8 @@ services:
       - ./vault/root:/vault/root
       - ./vault/policies:/vault/policies
       - ./vault/transcendence:/vault/transcendence
+    networks:
+      - transcendence-dev
     depends_on:
       vault-dev:
         condition: service_started
