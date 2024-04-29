@@ -83,12 +83,10 @@ export default class WaitingRoom extends AbstractView {
 
         if (!this._lobbyFull &&
             Object.keys(AbstractView.userQueue).length == this._lobbySize) {
-			console.log("Lobby full!");
             this._lobbyFull = true;
 			this.loadDOMChanges();
         } else if (this._lobbyFull &&
             Object.keys(AbstractView.userQueue).length != this._lobbySize) {
-			console.log("Opponent left, closing WebSocket");
             this._loading = true;
             this._lobbyFull = false;
             AbstractView.userData = {};
@@ -103,6 +101,8 @@ export default class WaitingRoom extends AbstractView {
 			);
             
 			if (allUsersReady) {
+				localStorage.setItem("game_status", "loading");
+				localStorage.setItem("previous_location", location.pathname);
 				AbstractView.gameOver = false;
                 navigateTo(
                     "/home/pong/play/multiplayer/" + this._lobbySize
@@ -415,7 +415,7 @@ class ReadyButton extends AbstractView {
 
     getHtml(disabled = false) {
 		return this.loadReadyButton(disabled);
-	}
+ 	}
 }
 
 async function getUserData(value) {

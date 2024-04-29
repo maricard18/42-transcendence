@@ -99,7 +99,7 @@ export function checkInvertedPlayer3Collision(game)
 			game.ball.speed_y *= -game.ball.acceleration;
 		}
 			
-		const x_velocity = (game.ball.x - (game.player3.x + game.player3.width / 2)) / (game.player3.width / 2) * game.ball.speed_x;
+		const x_velocity = (game.ball.x - (game.player3.x + game.player3.width / 2)) / (game.player3.width / 2) * game.ball.speed_y;
 		if (x_velocity > 0 && x_velocity > BallTopSpeedX) {
 			game.ball.speed_x = BallTopSpeedX;
 		} else if (x_velocity < 0 && x_velocity < -BallTopSpeedX) {

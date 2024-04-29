@@ -72,7 +72,7 @@ export class Avatar extends HTMLElement {
         const file = event.target.files[0];
 
         if (file) {
-            const validFileTypes = ["image/jpeg", "image/jpg", "image/png"];
+            const validFileTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
             if (!validFileTypes.includes(file.type)) {
                 this.dispatchEvent(
                     new CustomEvent("avatar-change", {
@@ -138,7 +138,7 @@ export class Avatar extends HTMLElement {
         input.setAttribute("type", "file");
         input.setAttribute("id", "avatar");
         input.setAttribute("name", "avatar");
-        input.setAttribute("accept", "image/png, image/jpeg, image/jpg");
+        input.setAttribute("accept", "image/png, image/jpeg, image/jpg, image/webp");
         input.setAttribute("hidden", "");
         figure.appendChild(input);
 

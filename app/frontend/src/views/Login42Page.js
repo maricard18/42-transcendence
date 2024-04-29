@@ -9,6 +9,7 @@ export default class Login42Page extends AbstractView {
         this.setTitle("Login 42");
         this._loading = true;
 		this._callbackDefined = false;
+		this._previousLocation = localStorage.getItem("previousLocation");
 
 		this._observer = new MutationObserver(this.defineCallback.bind(this));
         this._observer.observe(document.body, {
@@ -37,8 +38,10 @@ export default class Login42Page extends AbstractView {
 		if (response.ok) {
 			await setToken(response);
 			this.disconnectObserver();
-			if (AbstractView.previousLocation.startsWith("/home/profile")) {
-				navigateTo(AbstractView.previousLocation);
+			if (this._previousLocation && 
+				this._previousLocation.startsWith("/home/profile")) {
+				localStorage.removeItem("previousLocation");
+				navigateTo(this._previousLocation);
 			} else {
 				navigateTo("/menu");
 			}

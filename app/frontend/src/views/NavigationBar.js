@@ -6,7 +6,7 @@ export default class NavigationBar extends AbstractView {
     constructor(view) {
         super();
         this.setTitle(getPageTitle(location.pathname));
-		this._view = view;
+        this._view = view;
         this._loading = true;
         this._callbackRunned = false;
         this._avatarContainerCallback = false;
@@ -73,40 +73,18 @@ export default class NavigationBar extends AbstractView {
         this.observer.disconnect();
     }
 
-	async loadDOMChanges() {
+    async loadDOMChanges() {
         const parentNode = document.getElementById("navigation-bar");
         const loadingIcon = parentNode.querySelector("loading-icon");
         if (loadingIcon) {
             loadingIcon.remove();
         }
-		
-		parentNode.innerHTML = await this.loadNavigationBarContent();
-    }
 
-	loadNavigationBarMenuChanges() {
-        const avatarElement = document.querySelector("img");
-        const baseAvatar = document.querySelector("base-avatar-box");
-        const h6 = document.querySelector("h6");
-        h6.innerText = AbstractView.userInfo.username;
-
-        if (avatarElement) {
-            avatarElement.setAttribute("src", AbstractView.userInfo.avatar);
-        } else {
-            baseAvatar.remove();
-            const avatarElement = document.createElement("img");
-			avatarElement.setAttribute("id", "nav-bar-avatar");
-            avatarElement.setAttribute("class", "white-border-sm");
-            avatarElement.setAttribute("alt", "Avatar preview");
-            avatarElement.setAttribute("width", "40");
-            avatarElement.setAttribute("height", "40");
-            avatarElement.setAttribute("style", "border-radius: 50%");
-            avatarElement.setAttribute("src", AbstractView.userInfo.avatar);
-            h6.parentNode.insertBefore(avatarElement, h6);
-        }
+        parentNode.innerHTML = await this.loadNavigationBarContent();
     }
 
     async loadNavigationBarContent() {
-		return `
+        return `
 			<nav class="navbar navbar-dark navbar-layout fixed-top">
 				<p>
 					<nav-link
@@ -131,19 +109,20 @@ export default class NavigationBar extends AbstractView {
 							role="group"
 							aria-label="Vertical button group"
 						>
-							<div class="d-flex align-items-center mb-3" id="avatar-container">
-							${AbstractView.userInfo.avatar
-								?	`<img
-										id="nav-bar-avatar"
-										class="white-border-sm"
-										src="${AbstractView.userInfo.avatar}"
-										alt="avatar"
-										width="40"
-										height="40"
-										style="border-radius: 50%"
-									/>`
-								:	`<base-avatar-box size="40"</base-avatar-box>`
-							}
+							<div class="d-flex flex-row align-items-center mb-3" id="avatar-container">
+							${
+                                AbstractView.userInfo.avatar
+                                    ? 	`<img
+											id="nav-bar-avatar"
+											class="white-border-sm"
+											src="${AbstractView.userInfo.avatar}"
+											alt="avatar"
+											width="40"
+											height="40"
+											style="border-radius: 50%"
+										/>`
+                                    : 	`<base-avatar-box size="40"></base-avatar-box>`
+                            }
 								<h6 id="nav-bar-username" class="username-text ms-2 mt-1">
 									<b>${AbstractView.userInfo.username}</b>
 								</h6>
@@ -173,19 +152,19 @@ export default class NavigationBar extends AbstractView {
 		`;
     }
 
-	async getHtml() {
-		if (this._loading) {
-			return `
+    async getHtml() {
+        if (this._loading) {
+            return `
 				<div class="container-fluid" id="navigation-bar">
 					<loading-icon template="center" size="5rem"></loading-icon>
 				</div>
 			`;
-		} else {
-			return `
+        } else {
+            return `
 				<div class="container-fluid" id="navigation-bar">
 					${await this.loadNavigationBarContent()}
 				</div>
 			`;
-		}
+        }
     }
 }

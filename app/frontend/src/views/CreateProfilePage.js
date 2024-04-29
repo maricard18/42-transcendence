@@ -212,7 +212,7 @@ export default class CreateProfilePage extends AbstractView {
             if (this._avatar) {
                 formDataToSend.append("avatar", this.avatar);
             }
-
+			
             const response = await fetchData(
                 "/api/users",
                 "POST",

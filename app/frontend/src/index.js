@@ -89,6 +89,7 @@ function findMatch(url, routes, previousMatches = []) {
 async function hasPermission(matches) {
     let fullUrl = "";
     matches.forEach((route) => fullUrl += route.path);
+	cleanData(fullUrl);
 
     const baseUrl = matches[0].path;
     const accessToken = await getToken(AbstractView.authed);
@@ -102,10 +103,13 @@ async function hasPermission(matches) {
     if (baseUrl === "/home" && !AbstractView.authed) {
         navigateTo("/");
 		return false;
-    } else if (baseUrl !== "/home" && AbstractView.authed) {
+    } else if (localStorage.getItem("previous_location") &&
+		baseUrl === "/login-42" && AbstractView.authed) {
+		return true;
+	} else if (baseUrl !== "/home" && AbstractView.authed) {
         navigateTo("/home");
 		return false;
-    }
+	}
 
 	return true;
 }
@@ -127,6 +131,17 @@ function hasWebSocket(matches) {
 		return true;
 	} else {
 		return false;
+	}
+}
+
+function cleanData(location) {
+	console.log(location);
+	console.log(localStorage.getItem("previous_location"))
+	if (location && location.startsWith("/home/pong/play/multiplayer") &&
+	   (!localStorage.getItem("previous_location") ||
+		!localStorage.getItem("previous_location").includes("waiting-room"))) {
+		console.log("removed game_status var");
+		localStorage.removeItem("game_status");
 	}
 }
 

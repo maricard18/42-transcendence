@@ -12,7 +12,7 @@ import { Game1, Game2 } from "../components2/Games.js";
 import {GameMenuOptions, MultiplayerOptions, SinglePlayerOptions, TournamentOptions} from "../components2/GameOptions.js";
 import WaitingRoom from "./WaitingRoom.js";
 import Pong from "./Pong.js";
-import TicTacToe from "./TicTacToe.js";
+//import TicTacToe from "./TicTacToe.js";
 
 export const routes = [
     {
@@ -132,13 +132,13 @@ export const routes = [
 				view: Pong
             },
 			{
-                path: "/tic-tac-toe/play/single-player/1",
+                path: "/tic-tac-toe/play/single-player/1"
             },
             {
-                path: "/tic-tac-toe/play/single-player/2",
+                path: "/tic-tac-toe/play/single-player/2"
             },
             {
-                path: "/tic-tac-toe/play/multiplayer/2",
+                path: "/tic-tac-toe/play/multiplayer/2"
             },
         ]
     }

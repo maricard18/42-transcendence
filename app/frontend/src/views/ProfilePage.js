@@ -7,12 +7,12 @@ import getUserInfo from "../functions/getUserInfo";
 export default class ProfilePage extends AbstractView {
     constructor(view) {
         super();
-		AbstractView.previousLocation = location.pathname;
         this._view = view;
         this._loading = true;
         this._parentNode = null;
         this._avatarCallback = false;
         this._modalCallback = false;
+		this._linkCallback = false;
         this._deleteCallback = false;
 		this._clickCallback = false;
         this._insideRequest = false;
@@ -58,6 +58,10 @@ export default class ProfilePage extends AbstractView {
             this.changeAvatar();
         };
 
+		this.linkButtonCallback = () => {
+			localStorage.setItem("previous_location", location.pathname);
+		}
+
         this.deleteAccountCallback = async () => {
             console.log("Delete account");
             const accessToken = await getToken();
@@ -100,6 +104,7 @@ export default class ProfilePage extends AbstractView {
 				event.target.dispatchEvent(new CustomEvent("remove-avatar"));
 				this._clickCallback = false;
 			} else {
+				console.log("response:", response.body);
 				console.error("failed to remove avatar");
 			}
 		}
@@ -110,13 +115,20 @@ export default class ProfilePage extends AbstractView {
             avatarBox.addEventListener("avatar-change", this.avatarCallback);
         }
 
-		const deleteAccountButton = document.getElementById("delete-account-button");
+		const linkButtonList = this._parentNode.querySelectorAll("nav-button");
+		const linkButton = linkButtonList[linkButtonList.length - 1];
+		if (linkButton && !this._linkCallback) {
+			this._linkCallback = true;
+			linkButton.addEventListener("click", this.linkButtonCallback);
+		}
+
+		const deleteAccountButton = document.getElementById("#delete-account-button");
 		if (deleteAccountButton && !this._deleteCallback) {
 			this._deleteCallback = true;
 			deleteAccountButton.addEventListener("click", this.deleteAccountCallback);
 		}
 
-		const deleteAvatarButton = document.getElementById("remove-avatar");
+		const deleteAvatarButton = document.getElementById("#remove-avatar");
 		if (deleteAvatarButton && !this._clickCallback) {
 			this._clickCallback = true;
 			deleteAvatarButton.addEventListener("click", this.removeAvatarCallback);
@@ -133,9 +145,20 @@ export default class ProfilePage extends AbstractView {
             avatarBox.removeEventListener("avatar-change", this.avatarCallback);
         }
 
-        const deleteAccountButton = document.getElementById("delete-account-button");
+		const linkButtonList = this._parentNode.querySelectorAll("nav-button");
+		const linkButton = linkButtonList[linkButtonList.length - 1];
+		if (linkButton) {
+			linkButton.removeEventListener("click", this.linkButtonCallback);
+		}
+
+        const deleteAccountButton = document.getElementById("#delete-account-button");
 		if (deleteAccountButton) {
 			deleteAccountButton.removeEventListener("click", this.deleteAccountCallback);
+		}
+
+		const deleteAvatarButton = document.getElementById("#remove-avatar");
+		if (deleteAvatarButton) {
+			deleteAvatarButton.removeEventListener("click", this.removeAvatarCallback);
 		}
 
         this._observer.disconnect();

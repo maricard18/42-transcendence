@@ -145,7 +145,6 @@ function updateOpponentScreen(game) {
 	const player2 = document.getElementById("player2");
 	const player3 = document.getElementById("player3");
 	const player4 = document.getElementById("player4");
-	console.log("Game:", game);
 	
 	game.clear();
 	game.drawGoals("white");

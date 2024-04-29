@@ -39,6 +39,7 @@ export async function startPong(game) {
 		game.last_time = Date.now();
 		await singleplayerGameLoop(game);
 		await gameConfettiAnimation(game);
+		localStorage.removeItem("game_status");
 		AbstractView.gameOver = true;
 	} else if (game.mode === "multiplayer" && game.lobbySize == 2) {
 		multiplayerMessageHandler(MyWebSocket, game);
@@ -46,6 +47,7 @@ export async function startPong(game) {
 		game.last_time = Date.now();
 		await multiplayer2GameLoop(game);
 		await gameConfettiAnimation(game);
+		localStorage.removeItem("game_status");
         AbstractView.gameOver = true;
 	} else if (game.mode === "multiplayer" && game.lobbySize == 4) {
 		multiplayerMessageHandler(MyWebSocket, game);
@@ -53,6 +55,7 @@ export async function startPong(game) {
 		game.last_time = Date.now();
 		await multiplayer4GameLoop(game);
 		await gameConfettiAnimation(game);
+		localStorage.removeItem("game_status");
 		AbstractView.gameOver = true;
 	}
 }
@@ -60,7 +63,8 @@ export async function startPong(game) {
 function singleplayerGameLoop(game) {
 	const player1 = document.getElementById("player1");
 	const player2 = document.getElementById("player2");
-    return new Promise((resolve) => {
+    
+	return new Promise((resolve) => {
         const playPong = () => {
             if (!game.paused) {
                 let current_time = Date.now();
@@ -130,10 +134,10 @@ function singleplayerGameLoop(game) {
 function multiplayer2GameLoop(game) {
 	const player1 = document.getElementById("player1");
 	const player2 = document.getElementById("player2");
+	
 	return new Promise((resolve) => {
         const playPong = () => {
             if (game.over || !MyWebSocket.ws) {
-				console.log("Game is over");
 				resolve();
 			} else if (!game.paused) {
 				let current_time = Date.now();
@@ -207,6 +211,7 @@ function multiplayer4GameLoop(game) {
 	const player2 = document.getElementById("player2");
 	const player3 = document.getElementById("player3");
 	const player4 = document.getElementById("player4");
+	
 	return new Promise((resolve) => {
         const playPong = () => {
             if (game.over || !MyWebSocket.ws) {
