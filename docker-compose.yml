@@ -202,17 +202,18 @@ services:
         - SSL_CERT_KEY
     environment:
       # NGINX
-      - BACKEND=http://django-backend-dev:8000
-      - NGINX_ALWAYS_TLS_REDIRECT=on
-      - SSL_CERT=${SSL_CERT}
-      - SSL_CERT_KEY=${SSL_CERT_KEY}
-      - SSL_PORT=8443
-      - PORT=8080
+      BACKEND: http://django-backend-dev:8000
+      NGINX_ALWAYS_TLS_REDIRECT: on
+      SSL_CERT: ${SSL_CERT}
+      SSL_CERT_KEY: ${SSL_CERT_KEY}
+      SSL_PORT: 8443
+      PORT: 8080
       # ModSecurity
-      - MODSEC_RULE_ENGINE=On
-      - ANOMALY_INBOUND=5
-      - ANOMALY_OUTBOUND=4
-      - BLOCKING_PARANOIA=2
+      MODSEC_RULE_ENGINE: On
+      ALLOWED_METHODS: GET POST OPTIONS HEAD PUT DELETE
+      ANOMALY_INBOUND: 5
+      ANOMALY_OUTBOUND: 4
+      BLOCKING_PARANOIA: 2
     ports:
       - "8080:8080"
       - "8443:8443"
