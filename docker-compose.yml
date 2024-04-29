@@ -48,15 +48,15 @@ services:
       POSTGRES_DB_FILE: /run/secrets/postgres_db
       POSTGRES_USER_FILE: /run/secrets/postgres_user
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
-      DJANGO_SECRET_FILE: /run/secrets/django_secret
-      DJANGO_JWT_SECRET_FILE: /run/secrets/django_jwt_secret
+      # DJANGO_SECRET_FILE: /run/secrets/django_secret
+      # DJANGO_JWT_SECRET_FILE: /run/secrets/django_jwt_secret
       42_CLIENT_SECRET_FILE: /run/secrets/42_client_secret
     secrets:
       - postgres_db
       - postgres_user
       - postgres_password
-      - django_secret
-      - django_jwt_secret
+      # - django_secret
+      # - django_jwt_secret
       - 42_client_secret
     networks:
       - transcendence
@@ -158,8 +158,8 @@ services:
       POSTGRES_DB_FILE: /run/secrets/postgres_db
       POSTGRES_USER_FILE: /run/secrets/postgres_user
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
-      DJANGO_SECRET_FILE: /run/secrets/django_secret
-      DJANGO_JWT_SECRET_FILE: /run/secrets/django_jwt_secret
+      # DJANGO_SECRET_FILE: /run/secrets/django_secret
+      # DJANGO_JWT_SECRET_FILE: /run/secrets/django_jwt_secret
       42_CLIENT_SECRET_FILE: /run/secrets/42_client_secret
       VAULT_ADDR: http://vault-dev:8200
       VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
@@ -168,8 +168,8 @@ services:
       - postgres_db
       - postgres_user
       - postgres_password
-      - django_secret
-      - django_jwt_secret
+      # - django_secret
+      # - django_jwt_secret
       - 42_client_secret
     expose:
       - "8000"
@@ -275,14 +275,14 @@ services:
       POSTGRES_DB_FILE: /run/secrets/postgres_db
       POSTGRES_USER_FILE: /run/secrets/postgres_user
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
-      DJANGO_SECRET_FILE: /run/secrets/django_secret
-      DJANGO_JWT_SECRET_FILE: /run/secrets/django_jwt_secret
+      # DJANGO_SECRET_FILE: /run/secrets/django_secret
+      # DJANGO_JWT_SECRET_FILE: /run/secrets/django_jwt_secret
     secrets:
       - postgres_db
       - postgres_user
       - postgres_password
-      - django_secret
-      - django_jwt_secret
+      # - django_secret
+      # - django_jwt_secret
     entrypoint: ["/bin/sh", "/app/tools/db-migrations.sh"]
     networks:
       - transcendence
@@ -330,8 +330,8 @@ services:
       POSTGRES_DB_FILE: /run/secrets/postgres_db
       POSTGRES_USER_FILE: /run/secrets/postgres_user
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
-      DJANGO_SECRET_FILE: /run/secrets/django_secret
-      DJANGO_JWT_SECRET_FILE: /run/secrets/django_jwt_secret
+      # DJANGO_SECRET_FILE: /run/secrets/django_secret
+      # DJANGO_JWT_SECRET_FILE: /run/secrets/django_jwt_secret
       VAULT_ADDR: http://vault-dev:8200
       VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
       VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
@@ -339,8 +339,8 @@ services:
       - postgres_db
       - postgres_user
       - postgres_password
-      - django_secret
-      - django_jwt_secret
+      # - django_secret
+      # - django_jwt_secret
     volumes:
       - ./vault/transcendence:/vault/transcendence:ro
     entrypoint: [ "/bin/sh", "/app/tools/db-migrations.sh" ]
@@ -418,9 +418,9 @@ secrets:
     file: ./secrets/postgres-user
   postgres_password:
     file: ./secrets/postgres-passwd
-  django_secret:
-    file: ./secrets/django-secret
-  django_jwt_secret:
-    file: ./secrets/django-jwt-secret
+  # django_secret:
+  #   file: ./secrets/django-secret
+  # django_jwt_secret:
+  #   file: ./secrets/django-jwt-secret
   42_client_secret:
     file: ./secrets/42-client-secret
