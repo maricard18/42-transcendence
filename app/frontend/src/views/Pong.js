@@ -1,7 +1,6 @@
 import AbstractView from "./AbstractView";
-import { createGameObject } from "../Game/pongGame";
-import { startGame } from "../Game/pongGame";
-import { closeWebsocket } from "../functions/websocket";
+import { createPongGameObject } from "../Game/pongGame";
+import { startPong } from "../Game/pongGame";
 import { Display2Usernames, DisplayUsername } from "../components2/DisplayUsernames";
 
 export default class Pong extends AbstractView {
@@ -31,11 +30,6 @@ export default class Pong extends AbstractView {
             childList: true,
             subtree: true,
         });
-
-        window.onbeforeunload = () => {
-            console.log("Going to refresh the page");
-            this._observer.disconnect();
-        };
 
         if (this._gameMode === "single-player" ||
             (this._gameMode === "multiplayer" && this._lobbySize == 2)) {
@@ -82,12 +76,12 @@ export default class Pong extends AbstractView {
             (this._gameMode === "multiplayer" &&
             Object.values(AbstractView.userQueue).length == this._lobbySize)) {
             const canvas = document.querySelector("canvas");
-            this._game = createGameObject(
+            this._game = createPongGameObject(
                 canvas,
                 this._gameMode,
                 this._lobbySize
             );
-            await startGame(this._game);
+            await startPong(this._game);
         } else {
             console.log("You refreshed the page");
             AbstractView.cleanGameData();
@@ -110,21 +104,16 @@ export default class Pong extends AbstractView {
 				${
                     !AbstractView.gameOver
                         ? `<div>
-						${this._lobbySize != 4 ? new Display2Usernames().getHtml() : new DisplayUsername().getHtml("player3")}
-						<div class="d-flex flex-row">
-							${this._lobbySize == 4 ? new DisplayUsername().getHtml("player1") : ``}
-						<div class="d-flex flex-column">
-							<canvas
-								width="${this._width}"
-								height="${this._height}"
-								class="mt-3"
-								style="border: 3px solid #ffffff"
-							/>
-						</div>
-							${this._lobbySize == 4 ? new DisplayUsername().getHtml("player2") : ``}
-						</div>
-						${this._lobbySize == 4 ? new DisplayUsername().getHtml("player4") : ``}
-					</div>`
+								${new Display2Usernames().getHtml()}
+								<div class="d-flex flex-column">
+									<canvas
+										width="${this._width}"
+										height="${this._height}"
+										class="mt-3"
+										style="border: 3px solid #ffffff"
+									/>
+								</div>
+							</div>`
                         : `<div class="d-flex flex-column justify-content">
 								<h1>Game Finished</h1>
 								<div class="mt-5">
@@ -147,21 +136,21 @@ export default class Pong extends AbstractView {
 				${
                     !AbstractView.gameOver
                         ? `<div>
-						${new DisplayUsername().getHtml("player3")}
-						<div class="d-flex flex-row">
-							${new DisplayUsername().getHtml("player1")}
-							<div class="d-flex flex-column">
-								<canvas
-									width="${this._width}"
-									height="${this._height}"
-									class="mt-3"
-									style="border: 3px solid #ffffff"
-								/>
-							</div>
-							${new DisplayUsername().getHtml("player2")}
-						</div>
-						${new DisplayUsername().getHtml("player4")}
-					</div>`
+								${new DisplayUsername().getHtml("player3")}
+								<div class="d-flex flex-row">
+									${new DisplayUsername().getHtml("player1")}
+									<div class="d-flex flex-column">
+										<canvas
+											width="${this._width}"
+											height="${this._height}"
+											class="mt-3"
+											style="border: 3px solid #ffffff"
+										/>
+									</div>
+									${new DisplayUsername().getHtml("player2")}
+								</div>
+								${new DisplayUsername().getHtml("player4")}
+							</div>`
                         : `<div class="d-flex flex-column justify-content">
 								<h1>Game Finished</h1>
 								<div class="mt-5">

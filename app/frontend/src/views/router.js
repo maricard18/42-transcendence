@@ -12,6 +12,7 @@ import { Game1, Game2 } from "../components2/Games.js";
 import {GameMenuOptions, MultiplayerOptions, SinglePlayerOptions, TournamentOptions} from "../components2/GameOptions.js";
 import WaitingRoom from "./WaitingRoom.js";
 import Pong from "./Pong.js";
+import TicTacToe from "./TicTacToe.js";
 
 export const routes = [
     {
@@ -32,7 +33,7 @@ export const routes = [
     },
     {
         path: "/create-profile",
-        view: CreateProfilePage,
+        view: CreateProfilePage
     },
     {
         path: "/home",

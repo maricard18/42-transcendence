@@ -48,23 +48,80 @@ export class Ball {
 			if (this.x + this.radius >= ScreenWidth && this.speed_x > 0) {
 				if (game.lastTouch !== null) {
 					game[game.lastTouch].score += 1;
+					game[game.lastTouch].dispatchEvent(
+						new CustomEvent(game.lastTouch, {
+							detail: game[game.lastTouch].score,
+							bubbles: true,
+						})
+					);
 				}
 				this.reset(game);
 			} else if (this.x - this.radius <= 0 && this.speed_x < 0) {
 				if (game.lastTouch !== null) {
 					game[game.lastTouch].score += 1;
+					game[game.lastTouch].dispatchEvent(
+						new CustomEvent(game.lastTouch, {
+							detail: game[game.lastTouch].score,
+							bubbles: true,
+						})
+					);
 				}
 				this.reset(game);
 			} else if (this.y + this.radius >= ScreenHeight && this.speed_y > 0) {
 				if (game.lastTouch !== null) {
 					game[game.lastTouch].score += 1;
+					game[game.lastTouch].dispatchEvent(
+						new CustomEvent(game.lastTouch, {
+							detail: game[game.lastTouch].score,
+							bubbles: true,
+						})
+					);
 				}
 				this.reset(game);
 			} else if (this.y - this.radius <= 0 && this.speed_y < 0) {
 				if (game.lastTouch !== null) {
 					game[game.lastTouch].score += 1;
+					game[game.lastTouch].dispatchEvent(
+						new CustomEvent(game.lastTouch, {
+							detail: game[game.lastTouch].score,
+							bubbles: true,
+						})
+					);
 				}
 				this.reset(game);
+			}
+
+			if (player1) {
+				player1.dispatchEvent(
+					new CustomEvent("player1", {
+						detail: game.player1.score,
+						bubbles: true,
+					})
+				);
+			}
+			if (player2) {
+				player2.dispatchEvent(
+					new CustomEvent("player2", {
+						detail: game.player2.score,
+						bubbles: true,
+					})
+				);
+			}
+			if (player3) {
+				player3.dispatchEvent(
+					new CustomEvent("player3", {
+						detail: game.player3.score,
+						bubbles: true,
+					})
+				);
+			}
+			if (player4) {
+				player4.dispatchEvent(
+					new CustomEvent("player4", {
+						detail: game.player4.score,
+						bubbles: true,
+					})
+				);
 			}
 		}
     }

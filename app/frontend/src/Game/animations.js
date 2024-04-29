@@ -1,4 +1,4 @@
-import { ScreenHeight, ScreenWidth } from "./variables";
+import { ScreenHeight, ScreenWidth } from "./Pong/variables";
 import { MyWebSocket } from "../functions/websocket";
 
 export function gameStartAnimation(game) {

@@ -1,13 +1,13 @@
 import AbstractView from "../views/AbstractView";
-import { checkPlayer1Collision, checkPlayer2Collision, checkInvertedPlayer3Collision, checkInvertedPlayer4Collision } from "./collision";
-import { createSinglePlayerGameObjects, createMultiPlayer2GameObjects, createMultiPlayer4GameObjects } from "./createPlayers";
+import { checkPlayer1Collision, checkPlayer2Collision, checkInvertedPlayer3Collision, checkInvertedPlayer4Collision } from "./Pong/collision";
+import { createSinglePlayerGameObjects, createMultiPlayer2GameObjects, createMultiPlayer4GameObjects } from "./Pong/createPlayers";
 import { MyWebSocket, sendMessage } from "../functions/websocket";
 import { multiplayerMessageHandler } from "../functions/websocket";
 import { gameConfettiAnimation, gameStartAnimation } from "./animations";
-import { updateVariables } from "./variables";
-import { ScreenWidth, ScreenHeight, keys } from "./variables";
+import { updateVariables } from "./Pong/variables";
+import { ScreenWidth, ScreenHeight, keys } from "./Pong/variables";
 
-export function createGameObject(canvas, gameMode, lobbySize) {
+export function createPongGameObject(canvas, gameMode, lobbySize) {
     const ctx = canvas.getContext("2d");
 
     clearBackground(ctx);
@@ -33,7 +33,7 @@ export function createGameObject(canvas, gameMode, lobbySize) {
     }
 }
 
-export async function startGame(game) {
+export async function startPong(game) {
 	if (game.mode === "single-player") {
 		await gameStartAnimation(game);
 		game.last_time = Date.now();
@@ -133,6 +133,7 @@ function multiplayer2GameLoop(game) {
 	return new Promise((resolve) => {
         const playPong = () => {
             if (game.over || !MyWebSocket.ws) {
+				console.log("Game is over");
 				resolve();
 			} else if (!game.paused) {
 				let current_time = Date.now();

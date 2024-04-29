@@ -27,10 +27,6 @@ export default class LoginPage extends AbstractView {
             childList: true,
             subtree: true,
         });
-
-        window.onbeforeunload = () => {
-            this.removeCallbacks();
-        };
     }
 
     defineCallback() {
@@ -83,9 +79,16 @@ export default class LoginPage extends AbstractView {
     }
 
     removeCallbacks() {
-        document.querySelectorAll("input").forEach((input) => {
-            input.removeEventListener("input", this.inputCallback);
-        });
+		if (!this._parentNode) {
+			return ;
+		}
+
+		const inputList = this._parentNode.querySelectorAll("input");
+		if (inputList) {
+			this._parentNode.querySelectorAll("input").forEach((input) => {
+				input.removeEventListener("input", this.inputCallback);
+			});
+		}
 
         const submitButton = document.querySelector("submit-button");
         if (submitButton) {
@@ -163,46 +166,46 @@ export default class LoginPage extends AbstractView {
 
     async getHtml() {
         return `
-		<div class="container" id="login-page">
-			<div class="center">
-				<div class="d-flex flex-column justify-content-center">
-					<div class="mb-5">
-						<h1 class="header">Welcome back</h1>
+			<div class="container" id="login-page">
+				<div class="center">
+					<div class="d-flex flex-column justify-content-center">
+						<div class="mb-5">
+							<h1 class="header">Welcome back</h1>
+						</div>
+						<form>
+							<div class="position-relative">
+								<p class="form-error"></p>
+							</div>
+							<div class="mb-3">
+								<input
+									id="username"
+									type="username"
+									class="form-control primary-form"
+									placeholder="username"
+									value=""
+								/>
+							</div>
+							<div class="mb-3">
+								<input
+									id="password"
+									type="password"
+									class="form-control primary-form"
+									placeholder="password"
+									value=""
+								/>
+							</div>
+							<div class="mt-3">
+								<submit-button
+									type="button"
+									template="primary-button extra-btn-class"
+									value="Next"
+								>
+								</submit-button>    
+							</div>
+						</form>
 					</div>
-					<form>
-						<div class="position-relative">
-							<p class="form-error"></p>
-						</div>
-						<div class="mb-3">
-							<input
-								id="username"
-								type="username"
-								class="form-control primary-form"
-								placeholder="username"
-								value=""
-							/>
-						</div>
-						<div class="mb-3">
-							<input
-								id="password"
-								type="password"
-								class="form-control primary-form"
-								placeholder="password"
-								value=""
-							/>
-						</div>
-						<div class="mt-3">
-							<submit-button
-								type="button"
-								template="primary-button extra-btn-class"
-								value="Next"
-							>
-							</submit-button>    
-						</div>
-					</form>
 				</div>
 			</div>
-		</div>
-	`;
+		`;
     }
 }

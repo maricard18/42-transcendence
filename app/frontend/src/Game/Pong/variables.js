@@ -1,4 +1,4 @@
-import { sendHostMessage } from "./pongGame";
+import { sendHostMessage } from "../pongGame";
 
 export var PaddleStartXScalar = 0.03;
 export var paddleHeightScalar = 0.15;

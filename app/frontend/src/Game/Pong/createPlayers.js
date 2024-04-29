@@ -1,4 +1,4 @@
-import AbstractView from "../views/AbstractView";
+import AbstractView from "../../views/AbstractView";
 import { Player, Cpu, Opponent, InvertedPlayer, InvertedOpponent } from "./Player";
 import { Ball } from "./Ball";
 import { Game } from "./Game";
