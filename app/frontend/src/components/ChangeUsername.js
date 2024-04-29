@@ -10,6 +10,7 @@ import { AuthContext, UserInfoContext } from "./Context";
 import "../../static/css/Buttons.css";
 import "../../static/css/errors.css";
 import "bootstrap/dist/css/bootstrap.css";
+import { transitEncrypt } from "../functions/vaultAccess";
 
 export default function ChangeUsername() {
     const { setAuthed } = useContext(AuthContext);
@@ -38,10 +39,10 @@ export default function ChangeUsername() {
             const formDataToSend = new FormData();
 
             if (formData.username != userInfo.username) {
-                formDataToSend.append("username", formData.username);
+                formDataToSend.append("username", await transitEncrypt(formData.username));
             }
             if (formData.email != userInfo.email) {
-                formDataToSend.append("email", formData.email);
+                formDataToSend.append("email", await transitEncrypt(formData.email));
             }
 
             let size = 0;

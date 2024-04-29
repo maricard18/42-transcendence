@@ -78,7 +78,9 @@ class UserViewSet(viewsets.ViewSet):
                 }
             }, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = UpdateUserSerializer(data=request.data, partial=True)
+        client = vaultClient()
+        data = resolveEncryptedFields(request.data, client)
+        serializer = UpdateUserSerializer(data=data, partial=True)
         if serializer.is_valid():
             for key, value in serializer.data.items():
                 if key == "password":
