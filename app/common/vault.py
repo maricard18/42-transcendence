@@ -24,3 +24,11 @@ def resolveEncryptedFields(data, client):
         else:
             resolved[key] = value
     return resolved
+
+def getVaultSecret(path, role_id, secret_id):
+    client = hvac.Client(url=os.environ['VAULT_ADDR'])
+    if not client.is_authenticated():
+        client.auth.approle.login(role_id=role_id, secret_id=secret_id)
+    response = client.secrets.kv.v2.read_secret(path=path, mount_point='transcendence')
+    secret = response['data']['data']
+    return secret['key']

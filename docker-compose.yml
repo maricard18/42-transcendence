@@ -332,18 +332,25 @@ services:
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
       DJANGO_SECRET_FILE: /run/secrets/django_secret
       DJANGO_JWT_SECRET_FILE: /run/secrets/django_jwt_secret
+      VAULT_ADDR: http://vault-dev:8200
+      VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
+      VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
     secrets:
       - postgres_db
       - postgres_user
       - postgres_password
       - django_secret
       - django_jwt_secret
+    volumes:
+      - ./vault/transcendence:/vault/transcendence:ro
     entrypoint: [ "/bin/sh", "/app/tools/db-migrations.sh" ]
     networks:
       - transcendence-dev
     depends_on:
       postgres-dev:
         condition: service_healthy
+      vault-init-dev:
+        condition: service_completed_successfully
     profiles: [ "dev", "tools" ]
     restart: on-failure
 
@@ -352,10 +359,20 @@ services:
     build:
       context: app/
       target: tools
+    environment:
+      VAULT_ADDR: http://vault-dev:8200
+      VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
+      VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
     volumes:
       - ./app/frontend/:/app/frontend/:rw
+      - ./vault/transcendence:/vault/transcendence:ro
     entrypoint: [ "python3", "/app/manage.py", "collectstatic", "--noinput" ]
     profiles: [ "dev", "tools" ]
+    depends_on:
+      vault-init-dev:
+        condition: service_completed_successfully
+    networks:
+      - transcendence-dev
     restart: on-failure
 
   webpack-dev:
@@ -373,6 +390,8 @@ services:
         condition: service_completed_successfully
       vault-init-dev:
         condition: service_completed_successfully
+    networks:
+      - transcendence-dev
     profiles: [ "dev", "tools" ]
     restart: on-failure
 
