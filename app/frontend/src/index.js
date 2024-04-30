@@ -135,12 +135,11 @@ function hasWebSocket(matches) {
 }
 
 function cleanData(location) {
-	console.log(location);
-	console.log(localStorage.getItem("previous_location"))
 	if (location && location.startsWith("/home/pong/play/multiplayer") &&
 	   (!localStorage.getItem("previous_location") ||
 		!localStorage.getItem("previous_location").includes("waiting-room"))) {
-		console.log("removed game_status var");
+		localStorage.removeItem("game_status");
+	} else if (location && !location.startsWith("/home/pong/play/multiplayer")) {
 		localStorage.removeItem("game_status");
 	}
 }

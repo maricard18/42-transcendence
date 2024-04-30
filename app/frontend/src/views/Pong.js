@@ -73,7 +73,6 @@ export default class Pong extends AbstractView {
     }
 
     async startPongGame() {
-		console.log(AbstractView.userQueue.length)
         if (this._gameMode === "single-player" ||
            (this._gameMode === "multiplayer" &&
             Object.values(AbstractView.userQueue).length == this._lobbySize)) {
@@ -85,7 +84,7 @@ export default class Pong extends AbstractView {
             );
             await startPong(this._game);
         } else {
-            console.log("You refreshed the page");
+            console.log("You refreshed the page, removing local storage");
 			localStorage.removeItem("game_status");
             AbstractView.cleanGameData();
             AbstractView.gameOver = true;
@@ -122,9 +121,9 @@ export default class Pong extends AbstractView {
 								<div class="mt-5">
 									<nav-button 
 										template="primary-button extra-btn-class"
-										page="/home/pong"
+										page="/home"
 										style="width: 150px"
-										value="Pong menu"
+										value="Home"
 									></nav-button>
 								</div>
 							</div>`
@@ -171,14 +170,12 @@ export default class Pong extends AbstractView {
     }
 
     getHtml() {
-        if (!localStorage.getItem("game_status")) {
+        if (!localStorage.getItem("game_status") || !AbstractView.userData.length) {
 			AbstractView.cleanGameData();
 			AbstractView.gameOver = true;
         } else {
 			AbstractView.gameOver = false;
 		}
-
-		console.log("GameOver:", AbstractView.gameOver);
 
 		if (this._lobbySize != 4) {
 			return this.loadPong();
