@@ -48,20 +48,20 @@ services:
       POSTGRES_DB_FILE: /run/secrets/postgres_db
       POSTGRES_USER_FILE: /run/secrets/postgres_user
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
-      # DJANGO_SECRET_FILE: /run/secrets/django_secret
-      # DJANGO_JWT_SECRET_FILE: /run/secrets/django_jwt_secret
       42_CLIENT_SECRET_FILE: /run/secrets/42_client_secret
+      VAULT_ADDR: http://vault:8200
+      VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
+      VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
     secrets:
       - postgres_db
       - postgres_user
       - postgres_password
-      # - django_secret
-      # - django_jwt_secret
       - 42_client_secret
     networks:
       - transcendence
     volumes:
       - daphne_sock:/tmp/daphne/:rw
+      - ./vault/transcendence:/vault/transcendence:ro
     depends_on:
       postgres:
         condition: service_healthy
@@ -84,17 +84,18 @@ services:
         - SSL_CERT_KEY
     environment:
       # NGINX
-      - BACKEND=http://unix:/tmp/daphne/daphne.sock
-      - NGINX_ALWAYS_TLS_REDIRECT=on
-      - SSL_CERT=${SSL_CERT}
-      - SSL_CERT_KEY=${SSL_CERT_KEY}
-      - SSL_PORT=8443
-      - PORT=8080
+      BACKEND: http://unix:/tmp/daphne/daphne.sock
+      NGINX_ALWAYS_TLS_REDIRECT: on
+      SSL_CERT: ${SSL_CERT}
+      SSL_CERT_KEY: ${SSL_CERT_KEY}
+      SSL_PORT: 8443
+      PORT: 8080
       # ModSecurity
-      - MODSEC_RULE_ENGINE=On
-      - ANOMALY_INBOUND=5
-      - ANOMALY_OUTBOUND=4
-      - BLOCKING_PARANOIA=2
+      MODSEC_RULE_ENGINE: On
+      ALLOWED_METHODS: GET POST OPTIONS HEAD PUT DELETE
+      ANOMALY_INBOUND: 5
+      ANOMALY_OUTBOUND: 4
+      BLOCKING_PARANOIA: 2
     ports:
       - "8080:8080"
       - "8443:8443"
@@ -109,6 +110,42 @@ services:
         condition: service_started
     profiles: [ "" ]
     restart: on-failure
+  
+  vault:
+    image: hashicorp/vault:latest
+    container_name: vault
+    ports:
+      - 8200:8200
+    volumes:
+      - ./vault/config:/vault/config
+    networks:
+      - transcendence
+    command: ["vault", "server", "-config=/vault/config/vault-config.json"]
+    cap_add:
+      - IPC_LOCK
+    profiles: [ "" ]
+
+  vault-init:
+    image: hashicorp/vault:latest
+    container_name: vault-init
+    command:
+      - "sh"
+      - "-c"
+      - "vault/scripts/init.sh"
+    environment:
+      VAULT_ADDR: http://vault:8200
+    volumes:
+      - ./vault/scripts:/vault/scripts
+      - ./vault/keys:/vault/keys
+      - ./vault/root:/vault/root
+      - ./vault/policies:/vault/policies
+      - ./vault/transcendence:/vault/transcendence
+    networks:
+      - transcendence
+    depends_on:
+      vault:
+        condition: service_started
+    profiles: [ "" ]
 
   ############# DEV #############
   postgres-dev:
@@ -158,8 +195,6 @@ services:
       POSTGRES_DB_FILE: /run/secrets/postgres_db
       POSTGRES_USER_FILE: /run/secrets/postgres_user
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
-      # DJANGO_SECRET_FILE: /run/secrets/django_secret
-      # DJANGO_JWT_SECRET_FILE: /run/secrets/django_jwt_secret
       42_CLIENT_SECRET_FILE: /run/secrets/42_client_secret
       VAULT_ADDR: http://vault-dev:8200
       VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
@@ -168,8 +203,6 @@ services:
       - postgres_db
       - postgres_user
       - postgres_password
-      # - django_secret
-      # - django_jwt_secret
       - 42_client_secret
     expose:
       - "8000"
@@ -278,18 +311,23 @@ services:
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
       # DJANGO_SECRET_FILE: /run/secrets/django_secret
       # DJANGO_JWT_SECRET_FILE: /run/secrets/django_jwt_secret
+      VAULT_ADDR: http://vault:8200
+      VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
+      VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
     secrets:
       - postgres_db
       - postgres_user
       - postgres_password
-      # - django_secret
-      # - django_jwt_secret
+    volumes:
+      - ./vault/transcendence:/vault/transcendence:ro
     entrypoint: ["/bin/sh", "/app/tools/db-migrations.sh"]
     networks:
       - transcendence
     depends_on:
       postgres:
         condition: service_healthy
+      vault-init:
+        condition: service_completed_successfully
     profiles: [ "", "tools" ]
     restart: on-failure
 
@@ -298,12 +336,22 @@ services:
     build:
       context: app/
       target: tools
+    environment:
+      VAULT_ADDR: http://vault:8200
+      VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
+      VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
     volumes:
       - app_data:/app/:rw
       - frontend_static_data:/app/frontend/static/:rw
       - frontend_media_data:/app/frontend/media/:rw
+      - ./vault/transcendence:/vault/transcendence:ro
     entrypoint: [ "/bin/sh", "/app/tools/collectstatic.sh" ]
     profiles: [ "", "tools" ]
+    depends_on:
+      db-migrations:
+        condition: service_completed_successfully
+    networks:
+      - transcendence
     restart: on-failure
 
   webpack:
@@ -315,9 +363,14 @@ services:
       - app_data:/app/:rw
       - frontend_static_data:/app/frontend/static/:rw
       - frontend_media_data:/app/frontend/media/:rw
+      - ./vault/transcendence:/vault/transcendence
+    environment:
+      - VAULT_ADDR=http://127.0.0.1:8200
     depends_on:
       collectstatic:
         condition: service_completed_successfully
+    networks:
+      - transcendence
     profiles: [ "", "tools" ]
 
   ############# DEV #############
@@ -331,8 +384,6 @@ services:
       POSTGRES_DB_FILE: /run/secrets/postgres_db
       POSTGRES_USER_FILE: /run/secrets/postgres_user
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
-      # DJANGO_SECRET_FILE: /run/secrets/django_secret
-      # DJANGO_JWT_SECRET_FILE: /run/secrets/django_jwt_secret
       VAULT_ADDR: http://vault-dev:8200
       VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
       VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
@@ -340,8 +391,6 @@ services:
       - postgres_db
       - postgres_user
       - postgres_password
-      # - django_secret
-      # - django_jwt_secret
     volumes:
       - ./vault/transcendence:/vault/transcendence:ro
     entrypoint: [ "/bin/sh", "/app/tools/db-migrations.sh" ]
@@ -419,9 +468,5 @@ secrets:
     file: ./secrets/postgres-user
   postgres_password:
     file: ./secrets/postgres-passwd
-  # django_secret:
-  #   file: ./secrets/django-secret
-  # django_jwt_secret:
-  #   file: ./secrets/django-jwt-secret
   42_client_secret:
     file: ./secrets/42-client-secret
