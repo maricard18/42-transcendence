@@ -202,9 +202,10 @@ export default class ChangePassword extends AbstractView {
     getHtml() {
         return `
 			<div class="d-flex flex-column" id="change-user-info">
-				<h4 class="sub-text mb-5">
+				<h4 class="sub-text mb-5 mt-3">
 					<b>Edit your information here</b>
 				</h4>
+				<div class="d-flex flex-column">
 					<form>
 						<div class="position-relative">
 							<p class="form-error"></p>
@@ -213,7 +214,8 @@ export default class ChangePassword extends AbstractView {
 							<input
 								id="password"
 								type="password"
-								class="form-control primary-form"
+								class="form-control primary-form extra-form-class"
+								style="width: 60%"
 								placeholder="password"
 								value=""
 							/>
@@ -221,8 +223,9 @@ export default class ChangePassword extends AbstractView {
 						<div class="mb-3">
 							<input
 								id="confirmPassword"
-								type="password"
-								class="form-control primary-form"
+								type="confirmPassword"
+								class="form-control primary-form extra-form-class"
+								style="width: 60%"
 								placeholder="confirm password"
 								value=""
 							/>
@@ -231,6 +234,7 @@ export default class ChangePassword extends AbstractView {
 							<submit-button
 								type="button"
 								template="primary-button extra-btn-class"
+								style="width: 150px"
 								value="Save changes"
 							>
 							</submit-button>	

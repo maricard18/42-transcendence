@@ -4,7 +4,7 @@ import fetchData from "../functions/fetchData";
 import { navigateTo } from "..";
 import getUserInfo from "../functions/getUserInfo";
 
-export default class ProfilePage extends AbstractView {
+export default class SettingsPage extends AbstractView {
     constructor(view) {
         super();
         this._view = view;
@@ -247,24 +247,17 @@ export default class ProfilePage extends AbstractView {
 
         return `
 			<div
-				class="
-					d-flex 
-					flex-column 
-					flex-md-row 
-					align-items-center 
-					justify-content-center 
-					justify-content-md-evenly 
-					vh-100"
+				class="d-flex flex-column flex-md-row align-items-center justify-content-center vh-100"
 				id="profile-page"
 			>
-				<div class="d-flex flex-column">
-					<div class="mb-3">
+				<div class="d-flex flex-column justify-content-center primary-box me-3">
+					<div class="mb-3 mt-2">
 						${avatarElement.outerHTML}
 					</div>
 					<div class="position-relative mt-2">
 						<p class="form-error"></p>
 					</div>
-					<div class="box mt-3">
+					<div class="mt-3">
 						<div
 							class="btn-group-vertical"
 							role="group"
@@ -356,7 +349,7 @@ export default class ProfilePage extends AbstractView {
 						</div>
 					</div>
 				</div>
-				<div class="d-flex flex-column justify-content-center mt-5">
+				<div class="d-flex flex-column secondary-box ms-3">
 					${this._view.getHtml()}
 				</div>
 			</div>

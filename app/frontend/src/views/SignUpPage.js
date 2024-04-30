@@ -164,7 +164,7 @@ export default class SignUpPage extends AbstractView {
 								<input
 									id="email"
 									type="email"
-									class="form-control primary-form"
+									class="form-control primary-form extra-form-class"
 									placeholder="email"
 									value=""
 								/>
@@ -173,7 +173,7 @@ export default class SignUpPage extends AbstractView {
 								<input
 									id="password"
 									type="password"
-									class="form-control primary-form"
+									class="form-control primary-form extra-form-class"
 									placeholder="password"
 									value=""
 								/>
@@ -182,7 +182,7 @@ export default class SignUpPage extends AbstractView {
 								<input
 									id="confirmPassword"
 									type="password"
-									class="form-control primary-form"
+									class="form-control primary-form extra-form-class"
 									placeholder="confirm password"
 									value=""
 								/>

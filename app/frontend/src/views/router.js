@@ -5,14 +5,13 @@ import SignUpPage from "./SignUpPage";
 import CreateProfilePage from "./CreateProfilePage.js";
 import NavigationBar from "./NavigationBar.js";
 import HomePage from "./HomePage.js";
-import ProfilePage from "./ProfilePage.js";
 import ChangeUserInfo from "../components/ChangeUserInfo.js";
 import ChangePassword from "../components/ChangePassword.js";
 import { Game1, Game2 } from "../components/Games.js";
 import {GameMenuOptions, MultiplayerOptions, SinglePlayerOptions, TournamentOptions} from "../components/GameOptions.js";
 import WaitingRoom from "./WaitingRoom.js";
 import Pong from "./Pong.js";
-//import TicTacToe from "./TicTacToe.js";
+import SettingsPage from "./SettingsPage.js";
 
 export const routes = [
     {
@@ -103,7 +102,7 @@ export const routes = [
             },
             {
                 path: "/profile",
-                view: ProfilePage,
+                view: SettingsPage,
                 children: [
                     {
                         path: "/username",

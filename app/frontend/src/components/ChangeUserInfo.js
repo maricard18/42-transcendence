@@ -242,16 +242,18 @@ export default class ChangeUserInfo extends AbstractView {
         const loadingIcon = parentNode.querySelector("loading-icon");
         if (loadingIcon) {
             loadingIcon.remove();
+			parentNode.classList.remove("justify-content-center");
         }
 		
 		parentNode.innerHTML = this.loadChangeUserInfoContent();
     }
 
     loadChangeUserInfoContent() {
-        return `
-			<h4 class="sub-text mb-5">
+		return `
+			<h4 class="sub-text mb-5 mt-3">
 				<b>Edit your information here</b>
 			</h4>
+			<div class="d-flex flex-column">
 				<form>
 					<div class="position-relative">
 						<p class="form-error"></p>
@@ -260,7 +262,8 @@ export default class ChangeUserInfo extends AbstractView {
 						<input
 							id="username"
 							type="username"
-							class="form-control primary-form"
+							class="form-control primary-form extra-form-class"
+							style="width: 60%"
 							placeholder="username"
 							value="${AbstractView.userInfo.username}"
 						/>
@@ -269,7 +272,8 @@ export default class ChangeUserInfo extends AbstractView {
 						<input
 							id="email"
 							type="email"
-							class="form-control primary-form"
+							class="form-control primary-form extra-form-class"
+							style="width: 60%"
 							placeholder="email"
 							value="${AbstractView.userInfo.email}"
 						/>
@@ -278,19 +282,20 @@ export default class ChangeUserInfo extends AbstractView {
 						<submit-button
 							type="button"
 							template="primary-button extra-btn-class"
+							style="width: 150px"
 							value="Save changes"
 						>
 						</submit-button>	
 					</div>
 				</form>
 			</div>
-			`;
-    }
+        `;
+	}
 
     getHtml() {
         if (this._loading) {
             return `
-				<div class="d-flex flex-column" id="change-user-info">
+				<div class="d-flex flex-column justify-content-center" id="change-user-info">
 					<loading-icon template="center" size="5rem"></loading-icon>
 				</div>
 			`;

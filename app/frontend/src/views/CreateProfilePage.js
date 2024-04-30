@@ -261,7 +261,7 @@ export default class CreateProfilePage extends AbstractView {
 								<input
 									id="username"
 									type="username"
-									class="form-control primary-form"
+									class="form-control primary-form extra-form-class"
 									placeholder="username"
 									value=""
 								/>

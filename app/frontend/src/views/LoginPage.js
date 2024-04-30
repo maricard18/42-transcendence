@@ -180,7 +180,7 @@ export default class LoginPage extends AbstractView {
 								<input
 									id="username"
 									type="username"
-									class="form-control primary-form"
+									class="form-control primary-form extra-form-class"
 									placeholder="username"
 									value=""
 								/>
@@ -189,7 +189,7 @@ export default class LoginPage extends AbstractView {
 								<input
 									id="password"
 									type="password"
-									class="form-control primary-form"
+									class="form-control primary-form extra-form-class"
 									placeholder="password"
 									value=""
 								/>
