@@ -2,11 +2,12 @@
 FROM python:3.11-slim as build
 LABEL authors="bsilva-c"
 
-WORKDIR /usr/src/app/
-COPY . .
+RUN mkdir -p /tmp/daphne/
 
-RUN pip install --no-cache-dir -r requirements.txt
-RUN rm ./requirements.txt
+RUN chmod o+rw /tmp/daphne/
+
+COPY ./requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt --target /site-packages/
 
 # SECOND STAGE -- DEV
 FROM python:3.11-slim as dev
@@ -15,9 +16,12 @@ LABEL authors="bsilva-c"
 EXPOSE 8000
 
 ENV PYTHONPATH="/site-packages/"
-ENV DEBUG=True
 
-COPY --from=build /usr/local/lib/python3.11/site-packages/ /site-packages/
+ENV DJANGO_SETTINGS_MODULE="app.settings"
+ENV DJANGO_DEBUG=True
+
+COPY --from=build /site-packages/ /site-packages/
+COPY --from=build /tmp/daphne/ /tmp/daphne/
 
 WORKDIR /app/
 
@@ -27,18 +31,20 @@ CMD ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
 FROM gcr.io/distroless/python3-debian12 as prod
 LABEL authors="bsilva-c"
 
-EXPOSE 8000
-
 USER nonroot
-ENV PYTHONPATH="/site-packages/"
-ENV DEBUG=False
 
-COPY --from=build /usr/local/lib/python3.11/site-packages/ /site-packages/
-COPY --from=build /usr/src/app/ /app/
+ENV PYTHONPATH="/site-packages/"
+
+ENV DJANGO_SETTINGS_MODULE="app.settings"
+ENV DJANGO_DEBUG=False
+
+COPY --from=build /site-packages/ /site-packages/
+COPY --from=build --chown=nonroot:nonroot /tmp/daphne/ /tmp/daphne/
 
 WORKDIR /app/
+COPY . .
 
-CMD ["manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["/site-packages/bin/daphne", "-u", "/tmp/daphne/daphne.sock", "app.asgi:application"]
 
 # SECOND STAGE -- TOOLS
 FROM python:3.11-slim as tools
@@ -46,7 +52,9 @@ LABEL authors="bsilva-c"
 
 ENV PYTHONPATH="/site-packages/"
 
-COPY --from=build /usr/local/lib/python3.11/site-packages/ /site-packages/
-COPY --from=build /usr/src/app/ /app/
+COPY --from=build /site-packages/ /site-packages/
+
+WORKDIR /app/
+COPY . .
 
 WORKDIR /app/tools/

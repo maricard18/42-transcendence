@@ -5,15 +5,22 @@ services:
     container_name: postgres
     image: postgres:13-alpine3.18
     user: postgres
-    env_file: .env
+    environment:
+      POSTGRES_DB_FILE: /run/secrets/postgres_db
+      POSTGRES_USER_FILE: /run/secrets/postgres_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    secrets:
+      - postgres_db
+      - postgres_user
+      - postgres_password
     expose:
       - "5432"
     networks:
       - transcendence
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - postgres_data:/var/lib/postgresql/data/:rw
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      test: ["CMD-SHELL", "pg_isready -U $(cat $POSTGRES_USER_FILE) -d $(cat $POSTGRES_DB_FILE)"]
       interval: 5s
       start_period: 5s
       retries: 5
@@ -27,13 +34,6 @@ services:
       - "6379"
     networks:
       - transcendence
-    depends_on:
-      postgres:
-        condition: service_healthy
-      db-migrations:
-        condition: service_completed_successfully
-      webpack-build:
-        condition: service_completed_successfully
     profiles: [ "" ]
     restart: on-failure
 
@@ -42,15 +42,70 @@ services:
     build:
       context: app/
       target: prod
-    env_file: .env
-    ports:
-      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB_FILE: /run/secrets/postgres_db
+      POSTGRES_USER_FILE: /run/secrets/postgres_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      DJANGO_SECRET_FILE: /run/secrets/django_secret
+      DJANGO_JWT_SECRET_FILE: /run/secrets/django_jwt_secret
+      42_CLIENT_SECRET_FILE: /run/secrets/42_client_secret
+    secrets:
+      - postgres_db
+      - postgres_user
+      - postgres_password
+      - django_secret
+      - django_jwt_secret
+      - 42_client_secret
     networks:
       - transcendence
     volumes:
-      - frontend_data:/app/frontend
+      - daphne_sock:/tmp/daphne/:rw
     depends_on:
-      redis-dev:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      db-migrations:
+        condition: service_completed_successfully
+      webpack:
+        condition: service_completed_successfully
+    profiles: [ "" ]
+    restart: on-failure
+
+  modsecurity:
+    container_name: modsecurity
+    build:
+      context: .
+      dockerfile: modsecurity-nginx/Dockerfile
+      args:
+        - SSL_CERT
+        - SSL_CERT_KEY
+    environment:
+      # NGINX
+      - BACKEND=http://unix:/tmp/daphne/daphne.sock
+      - NGINX_ALWAYS_TLS_REDIRECT=on
+      - SSL_CERT=${SSL_CERT}
+      - SSL_CERT_KEY=${SSL_CERT_KEY}
+      - SSL_PORT=8443
+      - PORT=8080
+      # ModSecurity
+      - MODSEC_RULE_ENGINE=On
+      - ANOMALY_INBOUND=5
+      - ANOMALY_OUTBOUND=4
+      - BLOCKING_PARANOIA=2
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+    networks:
+      - transcendence
+    volumes:
+      - frontend_static_data:/usr/share/nginx/static/:ro
+      - frontend_media_data:/usr/share/nginx/media/:ro
+      - daphne_sock:/tmp/daphne/:rw
+    depends_on:
+      webpack:
         condition: service_started
     profiles: [ "" ]
     restart: on-failure
@@ -60,32 +115,27 @@ services:
     container_name: postgres-dev
     image: postgres:13-alpine3.18
     user: postgres
-    env_file: .env
+    environment:
+      POSTGRES_DB_FILE: /run/secrets/postgres_db
+      POSTGRES_USER_FILE: /run/secrets/postgres_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    secrets:
+      - postgres_db
+      - postgres_user
+      - postgres_password
     ports:
       - "5432:5432"
     networks:
       - transcendence-dev
     volumes:
-      - postgres_data-dev:/var/lib/postgresql/data/
+      - postgres_data-dev:/var/lib/postgresql/data/:rw
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      test: ["CMD-SHELL", "pg_isready -U $(cat $POSTGRES_USER_FILE) -d $(cat $POSTGRES_DB_FILE)"]
       interval: 5s
       start_period: 5s
       retries: 5
     profiles: [ "dev" ]
     restart: always
-
-  webpack-dev:
-    container_name: webpack-dev
-    build:
-      context: app/frontend/
-      target: dev
-    networks:
-      - transcendence-dev
-    volumes:
-      - ./app/frontend/:/app/frontend/
-    profiles: [ "dev" ]
-    restart: on-failure
 
   redis-dev:
     container_name: redis-dev
@@ -94,13 +144,6 @@ services:
       - "6379"
     networks:
       - transcendence-dev
-    depends_on:
-      postgres-dev:
-        condition: service_healthy
-      db-migrations-dev:
-        condition: service_completed_successfully
-      webpack-dev:
-        condition: service_started
     profiles: [ "dev" ]
     restart: on-failure
 
@@ -109,18 +152,73 @@ services:
     build:
       context: app/
       target: dev
-    env_file: .env
+    env_file:
+      - .env
     environment:
-      - POSTGRES_HOST=postgres-dev
-    ports:
-      - "8000:8000"
+      POSTGRES_DB_FILE: /run/secrets/postgres_db
+      POSTGRES_USER_FILE: /run/secrets/postgres_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      DJANGO_SECRET_FILE: /run/secrets/django_secret
+      DJANGO_JWT_SECRET_FILE: /run/secrets/django_jwt_secret
+      42_CLIENT_SECRET_FILE: /run/secrets/42_client_secret
+    secrets:
+      - postgres_db
+      - postgres_user
+      - postgres_password
+      - django_secret
+      - django_jwt_secret
+      - 42_client_secret
+    expose:
+      - "8000"
     networks:
       - transcendence-dev
     volumes:
       - ./app/:/app/:ro
-      - ./app/frontend/static/images/avatars/:/app/frontend/static/images/avatars/:rw
+      - ./app/frontend/static/:/app/frontend/static/:rw
+      - ./app/frontend/media/:/app/frontend/media/:rw
     depends_on:
+      postgres-dev:
+        condition: service_healthy
       redis-dev:
+        condition: service_started
+      db-migrations-dev:
+        condition: service_completed_successfully
+      webpack-dev:
+        condition: service_started
+    profiles: [ "dev" ]
+    restart: on-failure
+
+  modsecurity-dev:
+    container_name: modsecurity-dev
+    build:
+      context: .
+      dockerfile: modsecurity-nginx/Dockerfile
+      args:
+        - SSL_CERT
+        - SSL_CERT_KEY
+    environment:
+      # NGINX
+      - BACKEND=http://django-backend-dev:8000
+      - NGINX_ALWAYS_TLS_REDIRECT=on
+      - SSL_CERT=${SSL_CERT}
+      - SSL_CERT_KEY=${SSL_CERT_KEY}
+      - SSL_PORT=8443
+      - PORT=8080
+      # ModSecurity
+      - MODSEC_RULE_ENGINE=On
+      - ANOMALY_INBOUND=5
+      - ANOMALY_OUTBOUND=4
+      - BLOCKING_PARANOIA=2
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+    networks:
+      - transcendence-dev
+    volumes:
+      - ./app/frontend/static/:/usr/share/nginx/static/:ro
+      - ./app/frontend/media/:/usr/share/nginx/media/:ro
+    depends_on:
+      webpack-dev:
         condition: service_started
     profiles: [ "dev" ]
     restart: on-failure
@@ -132,8 +230,20 @@ services:
     build:
       context: app/
       target: tools
-    env_file: .env
-    entrypoint: ["bash", "/app/tools/db-migrations.sh"]
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_DB_FILE: /run/secrets/postgres_db
+      POSTGRES_USER_FILE: /run/secrets/postgres_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      DJANGO_SECRET_FILE: /run/secrets/django_secret
+      DJANGO_JWT_SECRET_FILE: /run/secrets/django_jwt_secret
+    secrets:
+      - postgres_db
+      - postgres_user
+      - postgres_password
+      - django_secret
+      - django_jwt_secret
+    entrypoint: ["/bin/sh", "/app/tools/db-migrations.sh"]
     networks:
       - transcendence
     depends_on:
@@ -142,15 +252,31 @@ services:
     profiles: [ "", "tools" ]
     restart: on-failure
 
-  webpack-build:
-    container_name: webpack-build
+  collectstatic:
+    container_name: collectstatic
+    build:
+      context: app/
+      target: tools
+    volumes:
+      - app_data:/app/:rw
+      - frontend_static_data:/app/frontend/static/:rw
+      - frontend_media_data:/app/frontend/media/:rw
+    entrypoint: [ "/bin/sh", "/app/tools/collectstatic.sh" ]
+    profiles: [ "", "tools" ]
+    restart: on-failure
+
+  webpack:
+    container_name: webpack
     build:
       context: app/frontend/
       target: prod
-    networks:
-      - transcendence
     volumes:
-      - frontend_data:/app/frontend
+      - app_data:/app/:rw
+      - frontend_static_data:/app/frontend/static/:rw
+      - frontend_media_data:/app/frontend/media/:rw
+    depends_on:
+      collectstatic:
+        condition: service_completed_successfully
     profiles: [ "", "tools" ]
 
   ############# DEV #############
@@ -159,15 +285,49 @@ services:
     build:
       context: app/
       target: tools
-    env_file: .env
     environment:
-      - POSTGRES_HOST=postgres-dev
-    entrypoint: [ "bash", "/app/tools/db-migrations.sh" ]
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_DB_FILE: /run/secrets/postgres_db
+      POSTGRES_USER_FILE: /run/secrets/postgres_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      DJANGO_SECRET_FILE: /run/secrets/django_secret
+      DJANGO_JWT_SECRET_FILE: /run/secrets/django_jwt_secret
+    secrets:
+      - postgres_db
+      - postgres_user
+      - postgres_password
+      - django_secret
+      - django_jwt_secret
+    entrypoint: [ "/bin/sh", "/app/tools/db-migrations.sh" ]
     networks:
       - transcendence-dev
     depends_on:
       postgres-dev:
         condition: service_healthy
+    profiles: [ "dev", "tools" ]
+    restart: on-failure
+
+  collectstatic-dev:
+    container_name: collectstatic-dev
+    build:
+      context: app/
+      target: tools
+    volumes:
+      - ./app/frontend/:/app/frontend/:rw
+    entrypoint: [ "python3", "/app/manage.py", "collectstatic", "--noinput" ]
+    profiles: [ "dev", "tools" ]
+    restart: on-failure
+
+  webpack-dev:
+    container_name: webpack-dev
+    build:
+      context: app/frontend/
+      target: dev
+    volumes:
+      - ./app/frontend/:/app/frontend/:rw
+    depends_on:
+      collectstatic-dev:
+        condition: service_completed_successfully
     profiles: [ "dev", "tools" ]
     restart: on-failure
 
@@ -178,6 +338,25 @@ networks:
     driver: bridge
 
 volumes:
-  frontend_data:
+  ############# PROD #############
+  app_data:
+  daphne_sock:
   postgres_data:
+  frontend_static_data:
+  frontend_media_data:
+  ############# DEV #############
   postgres_data-dev:
+
+secrets:
+  postgres_db:
+    file: ./secrets/postgres-db
+  postgres_user:
+    file: ./secrets/postgres-user
+  postgres_password:
+    file: ./secrets/postgres-passwd
+  django_secret:
+    file: ./secrets/django-secret
+  django_jwt_secret:
+    file: ./secrets/django-jwt-secret
+  42_client_secret:
+    file: ./secrets/42-client-secret

@@ -160,5 +160,5 @@ cython_debug/
 #.idea/
 
 .DS_STORE
-/app/frontend/static/frontend/*
-/app/frontend/static/images/avatars
+/app/frontend/static/js/
+/app/frontend/media/
