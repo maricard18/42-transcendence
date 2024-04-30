@@ -14,13 +14,12 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
-from common.utils import get_file_content
-from common.utils import get_file_content_strip
-from common.vault import getVaultSecret
+from common.Vault import Vault
+from common.utils import get_secret_from_file
 
 # Custom settings
-VAULT_ROLE_ID = str(get_file_content_strip(os.environ.get('VAULT_ROLE_ID_FILE')))
-VAULT_SECRET_ID = str(get_file_content_strip(os.environ.get('VAULT_SECRET_ID_FILE')))
+VAULT_ROLE_ID = str(get_secret_from_file(os.environ.get('VAULT_ROLE_ID_FILE')))
+VAULT_SECRET_ID = str(get_secret_from_file(os.environ.get('VAULT_SECRET_ID_FILE')))
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,7 +28,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = str(getVaultSecret("django-secret", VAULT_ROLE_ID, VAULT_SECRET_ID))
+SECRET_KEY = str(Vault.getVaultSecret("django-secret", VAULT_ROLE_ID, VAULT_SECRET_ID))
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False if os.environ.get('DJANGO_DEBUG') == "False" else True
@@ -117,9 +116,9 @@ ASGI_APPLICATION = "app.asgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': str(get_file_content(os.environ.get('POSTGRES_DB_FILE'))),
-        'USER': str(get_file_content(os.environ.get('POSTGRES_USER_FILE'))),
-        'PASSWORD': str(get_file_content(os.environ.get('POSTGRES_PASSWORD_FILE'))),
+        'NAME': str(get_secret_from_file(os.environ.get('POSTGRES_DB_FILE'))),
+        'USER': str(get_secret_from_file(os.environ.get('POSTGRES_USER_FILE'))),
+        'PASSWORD': str(get_secret_from_file(os.environ.get('POSTGRES_PASSWORD_FILE'))),
         'HOST': str(os.environ.get('POSTGRES_HOST')),
     }
 }
@@ -180,7 +179,7 @@ REST_FRAMEWORK = {
     'DEFAULT_METADATA_CLASS': 'rest_framework.metadata.SimpleMetadata'
 }
 
-JWT_SECRET_KEY = str(getVaultSecret("django-jwt-secret", VAULT_ROLE_ID, VAULT_SECRET_ID))
+JWT_SECRET_KEY = str(Vault.getVaultSecret("django-jwt-secret", VAULT_ROLE_ID, VAULT_SECRET_ID))
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),

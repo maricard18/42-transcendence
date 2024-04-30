@@ -6,10 +6,11 @@ from rest_framework import status, viewsets
 from rest_framework.response import Response
 
 from api_auth.models import Avatar, SSO_User
+from common.Vault import Vault
 from .models import OTP_Token
 from .permissions import UserPermission, OTPPermission
 from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer
-from common.vault import resolveEncryptedFields, vaultClient
+
 
 ######################
 ####  /api/users  ####
@@ -25,8 +26,7 @@ class UserViewSet(viewsets.ViewSet):
 
     # POST /api/users
     def create(self, request):
-        client = vaultClient()
-        data = resolveEncryptedFields(request.data, client)
+        data = Vault.resolveEncryptedFields(request.data)
         serializer = CreateUserSerializer(data=data)
         if serializer.is_valid():
             user = User.objects.create_user(serializer.validated_data.get('username'),
@@ -78,8 +78,7 @@ class UserViewSet(viewsets.ViewSet):
                 }
             }, status=status.HTTP_404_NOT_FOUND)
 
-        client = vaultClient()
-        data = resolveEncryptedFields(request.data, client)
+        data = Vault.resolveEncryptedFields(request.data)
         serializer = UpdateUserSerializer(data=data, partial=True)
         if serializer.is_valid():
             for key, value in serializer.data.items():

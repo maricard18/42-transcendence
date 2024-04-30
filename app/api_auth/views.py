@@ -6,11 +6,11 @@ from rest_framework import status, viewsets, serializers
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
-from common.utils import get_file_content
+from common.Vault import Vault
+from common.utils import get_secret_from_file
 from .models import SSO_User
 from .permissions import TokenPermission, SSOPermission
 from .serializers import AuthUserSerializer, APITokenObtainPairSerializer, TokenSerializer
-from common.vault import resolveEncryptedFields, vaultClient
 
 
 #######################
@@ -22,8 +22,7 @@ class TokenViewSet(viewsets.ViewSet):
 
     @staticmethod
     def new_token(request):
-        client = vaultClient()
-        data = resolveEncryptedFields(request.data, client)
+        data = Vault.resolveEncryptedFields(request.data)
         serializer = AuthUserSerializer(data=data, partial=True)
         if serializer.is_valid():
             username = serializer.validated_data.get('username')
@@ -87,8 +86,7 @@ class TokenViewSet(viewsets.ViewSet):
 
     # POST /auth/token
     def create(self, request):
-        client = vaultClient()
-        data = resolveEncryptedFields(request.data, client)
+        data = Vault.resolveEncryptedFields(request.data)
         serializer = TokenSerializer(data=data)
         if serializer.is_valid():
             if request.data.get('grant_type') == 'password':
@@ -161,7 +159,7 @@ class SSOViewSet(viewsets.ViewSet):
         response = requests.post('https://api.intra.42.fr/oauth/token', data={
             'grant_type': 'authorization_code',
             'client_id': os.environ.get('42_CLIENT_ID'),
-            'client_secret': get_file_content(os.environ.get('42_CLIENT_SECRET_FILE')),
+            'client_secret': get_secret_from_file(os.environ.get('42_CLIENT_SECRET_FILE')),
             'code': code,
             'redirect_uri': os.environ.get('42_REDIRECT_URI')
         })

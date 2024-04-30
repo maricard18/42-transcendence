@@ -3,7 +3,7 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: wcorrea- <wcorrea-@student.42.fr>          +#+  +:+       +#+         #
+#    By: bsilva-c <bsilva-c@student.42porto.com>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/02/15 17:36:39 by bsilva-c          #+#    #+#              #
 #    Updated: 2024/04/30 02:51:55 by wcorrea-         ###   ########.fr        #
