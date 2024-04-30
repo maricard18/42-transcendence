@@ -1,6 +1,5 @@
 const usernamePattern = /^[a-zA-Z0-9@.+_-]+$/;
-const emailPattern =
-    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]{2,})+$/;
+const emailPattern = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]{2,})+$/;
 
 export function validateSignUpForm(formData) {
     const errors = {};

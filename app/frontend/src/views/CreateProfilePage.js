@@ -3,6 +3,7 @@ import fetchData from "../functions/fetchData";
 import handleResponse from "../functions/authenticationErrors";
 import { navigateTo } from "../index";
 import { createToken } from "../functions/tokens";
+import { transitEncrypt } from "../functions/vaultAccess";
 
 export default class CreateProfilePage extends AbstractView {
     constructor() {
@@ -205,9 +206,9 @@ export default class CreateProfilePage extends AbstractView {
 
         if (!newErrors.message) {
             const formDataToSend = new FormData();
-            formDataToSend.append("username", AbstractView.formData.username);
-            formDataToSend.append("email", AbstractView.formData.email);
-            formDataToSend.append("password", AbstractView.formData.password);
+            formDataToSend.append("username", await transitEncrypt(AbstractView.formData.username));
+            formDataToSend.append("email", await transitEncrypt(AbstractView.formData.email));
+            formDataToSend.append("password", await transitEncrypt(AbstractView.formData.password));
 
             if (this._avatar) {
                 formDataToSend.append("avatar", this.avatar);

@@ -3,6 +3,7 @@ import fetchData from "../functions/fetchData";
 import handleResponse from "../functions/authenticationErrors";
 import { validateProfilePasswordForm } from "../functions/validateForms";
 import { getToken } from "../functions/tokens";
+import { transitEncrypt } from "../functions/vaultAccess";
 
 export default class ChangePassword extends AbstractView {
     constructor() {
@@ -174,7 +175,7 @@ export default class ChangePassword extends AbstractView {
 
 		if (!newErrors.message) {
             const formDataToSend = new FormData();
-            formDataToSend.append("password", this._formData.password);
+            formDataToSend.append("password", await transitEncrypt(formData.password));
 
             const accessToken = await getToken();
             const headers = {

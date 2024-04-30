@@ -1,8 +1,7 @@
 import AbstractView from "./AbstractView";
-import { getToken, logout } from "../functions/tokens";
 import fetchData from "../functions/fetchData";
 import { navigateTo } from "..";
-import getUserInfo from "../functions/getUserInfo";
+import { getToken, logout } from "../functions/tokens";
 
 export default class SettingsPage extends AbstractView {
     constructor(view) {

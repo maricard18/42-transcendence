@@ -3,6 +3,7 @@ import fetchData from "../functions/fetchData";
 import handleResponse from "../functions/authenticationErrors";
 import { validateProfileUserForm } from "../functions/validateForms";
 import { getToken } from "../functions/tokens";
+import { transitEncrypt } from "../functions/vaultAccess";
 
 export default class ChangeUserInfo extends AbstractView {
     constructor() {
@@ -184,10 +185,10 @@ export default class ChangeUserInfo extends AbstractView {
             const formDataToSend = new FormData();
 
             if (this._formData.username !== AbstractView.userInfo.username) {
-                formDataToSend.append("username", this._formData.username);
+                formDataToSend.append("username", await transitEncrypt(this._formData.username));
             }
             if (this._formData.email !== AbstractView.userInfo.email) {
-                formDataToSend.append("email", this._formData.email);
+                formDataToSend.append("email", await transitEncrypt(this._formData.email));
             }
 
             let size = 0;

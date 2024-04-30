@@ -4,6 +4,7 @@ import handleResponse from "../functions/authenticationErrors";
 import { navigateTo } from "../index";
 import { setToken } from "../functions/tokens";
 import { validateLoginForm } from "../functions/validateForms";
+import { transitEncrypt } from "../functions/vaultAccess";
 
 export default class LoginPage extends AbstractView {
     constructor() {
@@ -141,8 +142,8 @@ export default class LoginPage extends AbstractView {
         if (!newErrors.message) {
             const formDataToSend = new FormData();
             formDataToSend.append("grant_type", "password");
-            formDataToSend.append("username", this._formData.username);
-            formDataToSend.append("password", this._formData.password);
+            formDataToSend.append("username", await transitEncrypt(this._formData.username));
+            formDataToSend.append("password", await transitEncrypt(this._formData.password));
 
             const response = await fetchData(
                 "/auth/token",

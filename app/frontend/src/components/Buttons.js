@@ -1,6 +1,6 @@
+import AbstractView from "../views/AbstractView";
 import { navigateTo } from "../index";
 import { logout } from "../functions/tokens";
-import AbstractView from "../views/AbstractView";
 
 export class NavButton extends HTMLElement {
     constructor() {

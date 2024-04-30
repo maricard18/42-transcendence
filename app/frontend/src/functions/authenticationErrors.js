@@ -1,4 +1,4 @@
-export default async function handleResponse(response, formData) {
+export default async function handleResponse(response) {
     const errors = {};
     const jsonData = await response.json();
     const responseMessage = jsonData["errors"]["message"];
