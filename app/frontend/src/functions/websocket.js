@@ -6,12 +6,12 @@ import { getToken } from "./tokens";
 export var MyWebSocket = {};
 
 export async function connectWebsocket() {
-	const lobbySize = location.pathname.substring(location.pathname.length - 1);
     const token = await getToken();
     const host = window.location.host;
 	const protocol = window.location.protocol === "http:" ? "ws:" : "wss:";
 	const waitingRoomNode = document.getElementById("waiting-room");
-    MyWebSocket.ws = new WebSocket(protocol + "//" + host + "/ws/games/1/queue/2", [
+    
+	MyWebSocket.ws = new WebSocket(protocol + "//" + host + "/ws/games/1/queue/2", [
         "Authorization",
         token,
     ]);

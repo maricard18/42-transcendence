@@ -1,103 +1,214 @@
-import React, { useEffect, useState } from "react";
-import "bootstrap/dist/css/bootstrap.css";
+export class Avatar extends HTMLElement {
+    constructor() {
+        super();
+		this._inputCallback = false;
+        this._clickCallback = false;
+        this._avatar = null;
 
-export default function Avatar({ setFile, url = null }) {
-    const [preview, setPreview] = useState();
-    const [loading, setLoading] = useState();
+		this._observer = new MutationObserver(() => {
+			const input = this.querySelector("input");
+			if (input && !this._inputCallback) {
+				this._inputCallback = true;
+				input.addEventListener("input", this.handleChange.bind(this));
+			}
 
-    useEffect(() => {
-        if (url) {
-			setLoading(true);
-            setPreview(url);
-			setLoading(false);
-        }
-    }, [url]);
+            const button = this.querySelector("button");
+            if (button && !this._clickCallback) {
+                this._clickCallback = true;
+                button.addEventListener("remove-avatar", this.removeAvatar.bind(this));
+            }
+        });
 
-    function previewAvatar(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const url = URL.createObjectURL(file);
-            setPreview(url);
-            setFile(file);
+        this._observer.observe(this, {
+            attributes: true,
+            childList: true,
+            subtree: true,
+        });
+
+        const avatar = this.getAttribute("avatar");
+        if (avatar) {
+            this._url = avatar;
+        } else {
+            this._url = null;
         }
     }
 
-    return (
-        <figure>
-            <input
-                type="file"
-                id="avatar"
-                name="avatar"
-                accept="image/png, image/jpeg, image/jpg"
-                onChange={previewAvatar}
-                hidden
-            />
-            <label htmlFor="avatar">
-                {!loading ? (
-                    preview ? (
-                        <img
-                            src={preview}
-                            alt="Avatar preview"
-                            width="200"
-                            height="200"
-                            className="avatar-border-lg"
-                            style={{ borderRadius: "50%" }}
-                        />
-                    ) : (
-                        <DefaultAvatar width="200" height="200" />
-                    )
-                ) : null}
-            </label>
-        </figure>
-    );
+    get avatar() {
+        return this._avatar;
+    }
+
+    set avatar(value) {
+        this._avatar = value;
+    }
+
+    get url() {
+        return this._url;
+    }
+
+    set url(value) {
+        this._url = value;
+    }
+
+    connectedCallback() {
+        this.innerHTML = this.getHtml();
+    }
+
+	disconnectedCallback() {
+		this._observer.disconnect();
+	}
+
+    removeAvatar(event) {
+        const label = this.querySelector("label");
+        const avatar = document.createElement("base-avatar-box");
+        const img = this.querySelector("img");
+        img.remove();
+        event.target.remove();
+        this._clickCallback = false;
+        avatar.setAttribute("size", "200");
+        label.appendChild(avatar);
+    }
+
+    handleChange(event) {
+        const file = event.target.files[0];
+
+        if (file) {
+            const validFileTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+            if (!validFileTypes.includes(file.type)) {
+                this.dispatchEvent(
+                    new CustomEvent("avatar-change", {
+                        detail: false,
+                        bubbles: true,
+                    })
+                );
+                return;
+            }
+
+            this.avatar = file;
+            this.url = URL.createObjectURL(file);
+
+            const avatarBox = this.querySelector("base-avatar-box");
+            if (avatarBox) {
+                avatarBox.remove();
+                const label = this.querySelector("label");
+                const img = document.createElement("img");
+                img.setAttribute("src", this._url);
+                img.setAttribute("alt", "Avatar Preview");
+                img.setAttribute("width", "200");
+                img.setAttribute("height", "200");
+                img.setAttribute("class", "white-border-lg");
+                img.setAttribute("style", "border-radius: 50%");
+                label.appendChild(img);
+
+				const figure = this.querySelector("figure");
+                const button = document.createElement("button");
+                button.setAttribute("id", "remove-avatar");
+                button.setAttribute("type", "button");
+                button.setAttribute("class", "btn-close align-itens-bottom");
+                button.setAttribute("aria-label", "Close");
+                button.style.position = "absolute";
+                button.style.bottom = "10px";
+                button.style.right = "0";
+                button.style.backgroundColor = "white";
+                figure.appendChild(button);
+
+                this.dispatchEvent(
+                    new CustomEvent("avatar-change", {
+                        detail: file,
+                        bubbles: true,
+                    })
+                );
+            } else {
+                const img = this.querySelector("img");
+                img.setAttribute("src", this._url);
+                this.dispatchEvent(
+                    new CustomEvent("avatar-change", {
+                        detail: file,
+                        bubbles: true,
+                    })
+                );
+            }
+        }
+    }
+
+    getHtml() {
+        const figure = document.createElement("figure");
+		figure.style.position = "relative";
+
+        const input = document.createElement("input");
+        input.setAttribute("type", "file");
+        input.setAttribute("id", "avatar");
+        input.setAttribute("name", "avatar");
+        input.setAttribute("accept", "image/png, image/jpeg, image/jpg, image/webp");
+        input.setAttribute("hidden", "");
+        figure.appendChild(input);
+
+        const label = document.createElement("label");
+        label.setAttribute("for", "avatar");
+
+        if (this._url) {
+            const img = document.createElement("img");
+            img.setAttribute("src", this._url);
+            img.setAttribute("alt", "Avatar Preview");
+            img.setAttribute("width", "200");
+            img.setAttribute("height", "200");
+            img.setAttribute("class", "white-border-lg");
+            img.setAttribute("style", "border-radius: 50%");
+            label.appendChild(img);
+
+            const button = document.createElement("button");
+            button.setAttribute("id", "remove-avatar");
+            button.setAttribute("type", "button");
+            button.setAttribute("class", "btn-close align-itens-bottom");
+            button.setAttribute("aria-label", "Close");
+            button.style.position = "absolute";
+            button.style.bottom = "10px";
+            button.style.right = "0";
+            button.style.backgroundColor = "white";
+            figure.appendChild(button);
+        } else {
+            const avatar = document.createElement("base-avatar-box");
+            avatar.setAttribute("size", "200");
+            label.appendChild(avatar);
+        }
+        figure.appendChild(label);
+
+        return figure.outerHTML;
+    }
 }
 
-export function BaseAvatar({ width, height, template = "avatar" }) {
-    return (
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width={width}
-            height={height}
-            fill="white"
-            className={`bi bi-person-circle ${template}`}
-            viewBox="0 0 16 16"
-        >
-            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
-            <path
-                fill="evenodd"
-                d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"
-            />
-        </svg>
-    );
-}
+export class BaseAvatar extends HTMLElement {
+    constructor() {
+        super();
+    }
 
-export function DefaultAvatar({ width, height }) {
-    return (
-        <div style={{ position: "relative", display: "inline-block" }}>
-            <BaseAvatar width={width} height={height} />
-            {/*<svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="50"
-                height="50"
-                fill="#140330"
-                className="bi bi-plus-circle"
-                viewBox="0 0 16 16"
-                style={{ position: "absolute", bottom: "20px", right: "20px" }}
-            >
-                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
-                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
-            </svg>*/}
-            {/*<svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="50"
-                height="50"
-                fill="#140330"
-                className="bi bi-plus"
-                viewBox="0 0 16 16"
-				style={{ position: "absolute", bottom: "20px", right: "20px" }}
-            >
-                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
-            </svg>*/}
-        </div>
-    );
+    connectedCallback() {
+        this.render();
+    }
+
+    render() {
+        this.innerHTML = this.getHtml();
+    }
+
+    getHtml() {
+        const template = this.getAttribute("template")
+            ? this.getAttribute("template")
+            : "";
+
+        return `
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				width=${this.getAttribute("size")}
+				height=${this.getAttribute("size")}
+				fill="white"
+				class="bi bi-person-circle avatar ${template}"
+				viewBox="0 0 16 16"
+			>
+				<path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
+				<path
+					fill="evenodd"
+					d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"
+				/>
+			</svg>
+		`;
+    }
 }

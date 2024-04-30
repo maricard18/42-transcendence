@@ -1,150 +1,243 @@
-import React from "react";
-import NavButton from "./NavButton";
-import "../../static/css/Images.css";
-import "../../static/css/Buttons.css";
-import "bootstrap/dist/css/bootstrap.css";
+import AbstractView from "../views/AbstractView";
 
-export function GameMenuOptions() {
-    return (
-        <div className="d-flex flex-column col-md-6">
-            <div className="p-3 p-lg-5 pd-xl-0">
-                <div className="mb-3">
-                    <NavButton
-                        template="primary-button"
-                        page="/menu/pong-game/single-player"
-                    >
-                        Single Player
-                    </NavButton>
-                </div>
-                <div className="mb-3">
-                    <NavButton
-                        template="primary-button"
-                        page="/menu/pong-game/multiplayer"
-                    >
-                        Multiplayer
-                    </NavButton>
-                </div>
-                <div>
-                    <NavButton template="secondary-button" page="/menu">
-                        Back
-                    </NavButton>
-                </div>
-            </div>
-        </div>
-    );
+export class GameMenuOptions extends AbstractView {
+    constructor() {
+        super();
+        this._game = null;
+
+        const currentLocation = location.pathname;
+        if (currentLocation.charAt(6) === "p") {
+            this._game = "pong";
+        } else {
+            this._game = "tic-tac-toe";
+        }
+    }
+
+    async getHtml() {
+        return `
+		<div class="d-flex flex-column col-md-6">
+			<div class="p-3 p-lg-5 pd-xl-0">
+				<div class="mb-3">
+					<nav-button
+						template="primary-button extra-btn-class"
+						page="${
+                            this._game === "pong"
+                                ? "/home/pong/single-player"
+                                : "/home/tic-tac-toe/single-player"
+                        }"
+						value="Single Player"
+					></nav-button>
+				</div>
+				<div class="mb-3">
+					<nav-button
+						template="primary-button extra-btn-class"
+						page="${
+                            this._game === "pong"
+                                ? "/home/pong/multiplayer"
+                                : "/home/tic-tac-toe/multiplayer"
+                        }"
+						value="Multiplayer"
+					></nav-button>
+				</div>
+				<div>
+					<nav-button 
+						template="secondary-button extra-btn-class" 
+						page="/home"
+						value="Back"
+					></nav-button>
+				</div>
+			</div>
+		</div>
+        `;
+    }
 }
 
-export function SinglePlayerOptions() {
-    return (
-        <div className="d-flex flex-column col-md-6">
-            <div className="p-3 p-lg-5 pd-xl-0">
-                <div className="mb-3">
-                    <NavButton
-                        template="primary-button"
-                        page="/menu/pong-game/play/single-player/1"
-                    >
-                        Computer
-                    </NavButton>
-                </div>
-                <div className="mb-3">
-                    <NavButton
-                        template="primary-button"
-                        page="/menu/pong-game/play/single-player/2"
-                    >
-                        2 Players
-                    </NavButton>
-                </div>
-                <div className="mb-3">
-                    <NavButton
-                        template="primary-button"
-                        page="/menu/pong-game/single-player-tournament"
-                    >
-                        Tournament
-                    </NavButton>
-                </div>
-                <div>
-                    <NavButton
-                        template="secondary-button"
-                        page="/menu/pong-game/options"
-                    >
-                        Back
-                    </NavButton>
-                </div>
-            </div>
-        </div>
-    );
+export class SinglePlayerOptions extends AbstractView {
+    constructor() {
+        super();
+		this._game = null;
+
+        const currentLocation = location.pathname;
+        if (currentLocation.charAt(6) === "p") {
+            this._game = "pong";
+        } else {
+            this._game = "tic-tac-toe";
+        }
+    }
+
+    async getHtml() {
+        return `
+		<div class="d-flex flex-column col-md-6">
+			<div class="p-3 p-lg-5 pd-xl-0">
+				<div class="mb-3">
+					<nav-button
+						template="primary-button extra-btn-class"
+						page="${
+                            this._game === "pong"
+                                ? "/home/pong/play/single-player/1"
+                                : "/home/pong/play/single-player/1"
+                        }"
+						value="Computer"
+					></nav-button>
+				</div>
+				<div class="mb-3">
+					<nav-button
+						template="primary-button extra-btn-class"
+						page="${
+                            this._game === "pong"
+                                ? "/home/pong/play/single-player/2"
+                                : "/home/tic-tac-toe/play/single-player/2"
+                        }"
+						value="2 Players"
+					></nav-button>
+				</div>
+				<div class="mb-3">
+					<nav-button
+						template="primary-button extra-btn-class"
+						page="${
+                            this._game === "pong"
+                                ? "/home/pong/single-player/tournament"
+                                : "/home/tic-tac-toe/single-player/tournament"
+                        }"
+						value="Tournament"
+					></nav-button>
+				</div>
+				<div>
+					<nav-button 
+						template="secondary-button extra-btn-class"
+						page="${
+                            this._game === "pong"
+                                ? "/home/pong"
+                                : "/home/tic-tac-toe"
+                        }"
+						value="Back"
+					></nav-button>
+				</div>
+			</div>
+		</div>
+        `;
+    }
 }
 
-export function MultiplayerOptions() {
-    return (
-        <div className="d-flex flex-column col-md-6">
-            <div className="p-3 p-lg-5 pd-xl-0">
-                <div className="mb-3">
-                    <NavButton
-                        template="primary-button"
-                        page="/menu/pong-game/multiplayer/waiting-room/2"
-                    >
-                        2 Players
-                    </NavButton>
-                </div>
-                <div className="mb-3">
-                    <NavButton
-                        template="primary-button"
-                        page="/menu/pong-game/multiplayer/waiting-room/4"
-                    >
-                        4 Players
-                    </NavButton>
-                </div>
-                <div className="mb-3">
-                    <NavButton
-                        template="primary-button"
-                        page="/menu/pong-game/multiplayer-tournament"
-                    >
-                        Tournament
-                    </NavButton>
-                </div>
-                <div>
-                    <NavButton
-                        template="secondary-button"
-                        page="/menu/pong-game/options"
-                    >
-                        Back
-                    </NavButton>
-                </div>
-            </div>
-        </div>
-    );
+export class MultiplayerOptions extends AbstractView {
+    constructor() {
+        super();
+        this._game = null;
+
+        const currentLocation = location.pathname;
+        if (currentLocation.charAt(6) === "p") {
+            this._game = "pong";
+        } else {
+            this._game = "tic-tac-toe";
+        }
+    }
+
+    async getHtml() {
+        return `
+		<div class="d-flex flex-column col-md-6">
+			<div class="p-3 p-lg-5 pd-xl-0">
+				<div class="mb-3">
+					<nav-button
+						template="primary-button extra-btn-class"
+						page="${
+                            this._game === "pong"
+                                ? "/home/pong/multiplayer/waiting-room/2"
+                                : "/home/tic-tac-toe/multiplayer/waiting-room/2"
+                        }"
+						value="2 Players"
+					></nav-button>
+				</div>
+				<div class="mb-3">
+					<nav-button
+						template="primary-button extra-btn-class"
+						page="${
+                            this._game === "pong"
+                                ? "/home/pong/multiplayer/waiting-room/4"
+                                : "/home/tic-tac-toe/multiplayer/waiting-room/4"
+                        }"
+						value="4 Players"
+					></nav-button>
+				</div>
+				<div class="mb-3">
+					<nav-button
+						template="primary-button extra-btn-class"
+						page="${
+                            this._game === "pong"
+                                ? "/home/pong/multiplayer/tournament"
+                                : "/home/tic-tac-toe/multiplayer/tournament"
+                        }"
+						value="Tournament"
+					></nav-button>
+				</div>
+				<div>
+					<nav-button 
+						template="secondary-button extra-btn-class" 
+						page="${
+                            this._game === "pong"
+                                ? "/home/pong"
+                                : "/home/tic-tac-toe"
+                        }"
+						value="Back"
+					></nav-button>
+				</div>
+			</div>
+		</div>
+        `;
+    }
 }
 
-export function TournamentOptions() {
-    return (
-        <div className="d-flex flex-column col-md-6">
-            <div className="p-3 p-lg-5 pd-xl-0">
-                <div className="mb-3">
-                    <NavButton
-                        template="primary-button"
-                        page="/menu/pong-game/play"
-                    >
-                        4 Players
-                    </NavButton>
-                </div>
-                <div className="mb-3">
-                    <NavButton
-                        template="primary-button"
-                        page="/menu/pong-game/play"
-                    >
-                        8 Players
-                    </NavButton>
-                </div>
-                <div>
-                    <NavButton
-                        template="secondary-button"
-                        page={-1}
-                    >
-                        Back
-                    </NavButton>
-                </div>
-            </div>
-        </div>
-    );
+export class TournamentOptions extends AbstractView {
+    constructor() {
+        super();
+        this._game = null;
+
+        const currentLocation = location.pathname;
+        if (currentLocation.charAt(6) === "p") {
+            this._game = "pong";
+        } else {
+            this._game = "tic-tac-toe";
+        }
+    }
+
+    async getHtml() {
+        return `
+		<div class="d-flex flex-column col-md-6">
+			<div class="p-3 p-lg-5 pd-xl-0">
+				<div class="mb-3">
+					<nav-button
+						template="primary-button extra-btn-class"
+						page="${
+                            this._game === "pong"
+                                ? "/home/pong/play"
+                                : "/home/tic-tac-toe/play"
+                        }"
+						value="2 Players"
+					></nav-button>
+				</div>
+				<div class="mb-3">
+					<nav-button
+						template="primary-button extra-btn-class"
+						page="${
+                            this._game === "pong"
+                                ? "/home/pong/play"
+                                : "/home/tic-tac-toe/play"
+                        }"
+						value="4 Players"
+					></nav-button>
+				</div>
+				<div>
+					<nav-button 
+						template="secondary-button extra-btn-class" 
+                        page="${
+                            this._game === "pong"
+                                ? "/home/pong/multiplayer"
+                                : "/home/tic-tac-toe/multiplayer"
+                        }"
+						value="Back"
+					></nav-button>
+				</div>
+			</div>
+		</div>
+        `;
+    }
 }

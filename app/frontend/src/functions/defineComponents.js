@@ -1,6 +1,6 @@
-import { NavButton, LogoutButton, NavLink, SubmitButton } from "../components2/Buttons";
-import { Avatar, BaseAvatar } from "../components2/Avatar";
-import { LoadingIcon, CheckIcon, CloseIcon } from "../components2/Icons";
+import { NavButton, LogoutButton, NavLink, SubmitButton } from "../components/Buttons";
+import { Avatar, BaseAvatar } from "../components/Avatar";
+import { LoadingIcon, CheckIcon, CloseIcon } from "../components/Icons";
 
 customElements.define("nav-button", NavButton);
 customElements.define("logout-button", LogoutButton);

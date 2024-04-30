@@ -1,7 +1,7 @@
 import AbstractView from "./AbstractView";
 import { createPongGameObject } from "../Game/pongGame";
 import { startPong } from "../Game/pongGame";
-import { Display2Usernames, DisplayUsername } from "../components2/DisplayUsernames";
+import { Display2Usernames, DisplayUsername } from "../components/DisplayUsernames";
 
 export default class Pong extends AbstractView {
     constructor(view) {
@@ -170,7 +170,8 @@ export default class Pong extends AbstractView {
     }
 
     getHtml() {
-        if (!localStorage.getItem("game_status") || !AbstractView.userData.length) {
+        if (this._gameMode === "multiplayer" && 
+		   (!localStorage.getItem("game_status") || !AbstractView.userData.length)) {
 			AbstractView.cleanGameData();
 			AbstractView.gameOver = true;
         } else {

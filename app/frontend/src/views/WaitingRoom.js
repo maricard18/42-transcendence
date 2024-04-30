@@ -1,6 +1,6 @@
 import AbstractView from "./AbstractView";
 import fetchData from "../functions/fetchData";
-import PongGameMenu from "../components2/PongGameMenu";
+import PongGameMenu from "../components/PongGameMenu";
 import { getToken } from "../functions/tokens";
 import {closeWebsocket, connectWebsocket, MyWebSocket, sendMessage} from "../functions/websocket";
 import { navigateTo } from "..";
