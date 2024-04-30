@@ -1,11 +1,12 @@
 import Cookies from "js-cookie";
 import fetchData from "./fetchData";
+import { transitEncrypt } from "../functions/vaultAccess";
 
 export async function createToken(userData, setAuthed) {
     const formDataToSend = new FormData();
     formDataToSend.append("grant_type", "password");
-    formDataToSend.append("username", userData.username);
-    formDataToSend.append("password", userData.password);
+    formDataToSend.append("username", await transitEncrypt(userData.username));
+    formDataToSend.append("password", await transitEncrypt(userData.password));
 
     const response = await fetchData(
         "/auth/token",

@@ -1,8 +1,10 @@
-def get_file_content(path):
+def get_secret_from_file(path):
     if path:
         file = open(str(path), 'r')
-        content = file.read()
+        content = None
+        for line in file:
+            content = line.strip()
+            break
         file.close()
-
         return content
     return None

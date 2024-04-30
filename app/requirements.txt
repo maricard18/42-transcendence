@@ -25,3 +25,6 @@ djangorestframework==3.14.0
 
 # JWT authentication for Django Rest Framework: Simple JWT provides JWT authentication for DRF.
 djangorestframework-simplejwt==5.3.1
+
+# HashiCorp Vault client for Python: hvac is a Python client for interacting with HashiCorp Vault.
+hvac==2.2.0

@@ -6,7 +6,7 @@
 #    By: bsilva-c <bsilva-c@student.42porto.com>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/02/15 17:36:39 by bsilva-c          #+#    #+#              #
-#    Updated: 2024/02/15 18:42:45 by bsilva-c         ###   ########.fr        #
+#    Updated: 2024/04/30 02:51:55 by wcorrea-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -50,6 +50,10 @@ fclean: confirm
 	if [ -n "$$images" ]; then \
 		docker image rm $$images -f; \
 	fi
+	
+	@rm -rf ./vault/keys/*
+	@rm -rf ./vault/transcendence/*
+	@rm -rf ./vault/root/*
 
 db-migrations:
 

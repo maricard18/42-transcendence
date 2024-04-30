@@ -9,6 +9,7 @@ import {setToken} from "../functions/tokens";
 import {AuthContext} from "../components/Context";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
+import { transitEncrypt } from "../functions/vaultAccess";
 
 export default function LoginPage() {
     const navigate = useNavigate();
@@ -26,8 +27,8 @@ export default function LoginPage() {
         if (!newErrors.message) {
 			const formDataToSend = new FormData();
 			formDataToSend.append('grant_type', 'password');
-			formDataToSend.append('username', formData.username);
-			formDataToSend.append('password', formData.password);
+			formDataToSend.append('username', await transitEncrypt(formData.username));
+			formDataToSend.append('password', await transitEncrypt(formData.password));
 
             const response = await fetchData(
                 "/auth/token",

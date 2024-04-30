@@ -10,6 +10,7 @@ import { AuthContext, UserInfoContext } from "./Context";
 import "../../static/css/Buttons.css";
 import "../../static/css/errors.css";
 import "bootstrap/dist/css/bootstrap.css";
+import { transitEncrypt } from "../functions/vaultAccess";
 
 export default function ChangePassword() {
     const { setAuthed } = useContext(AuthContext);
@@ -28,7 +29,7 @@ export default function ChangePassword() {
 
         if (!newErrors.message) {
             const formDataToSend = new FormData();
-            formDataToSend.append("password", formData.password);
+            formDataToSend.append("password", await transitEncrypt(formData.password));
 
             const accessToken = await getToken(setAuthed);
             const decodedToken = decode(accessToken);

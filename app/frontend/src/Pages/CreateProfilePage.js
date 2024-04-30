@@ -16,6 +16,7 @@ import {
 } from "../components/Context";
 import "../../static/css/Buttons.css";
 import "bootstrap/dist/css/bootstrap.css";
+import { transitEncrypt } from "../functions/vaultAccess";
 
 export function CreateProfilePage() {
     const navigate = useNavigate();
@@ -24,7 +25,7 @@ export function CreateProfilePage() {
     const { setUserInfo } = useContext(UserInfoContext);
     const [errors, setErrors] = useState({});
     const [file, setFile] = useState();
-
+    
     useEffect(() => {
         if (Object.values(formData).every((value) => value === "")) {
             navigate("/sign-up");
@@ -34,7 +35,7 @@ export function CreateProfilePage() {
     const handleValidation = async () => {
         const usernamePattern = /^[a-zA-Z0-9@.+_-]+$/;
         let newErrors = {};
-
+        
         if (formData.username === "") {
             newErrors.message = "Please fill in all required fields";
             newErrors.username = 1;
@@ -54,13 +55,14 @@ export function CreateProfilePage() {
             setFormData({ ...formData, username: "" });
             setErrors(newErrors);
         }
-
+        
         if (!newErrors.message) {
             const formDataToSend = new FormData();
-            formDataToSend.append("username", formData.username);
-            formDataToSend.append("email", formData.email);
-            formDataToSend.append("password", formData.password);
 
+            formDataToSend.append("username", await transitEncrypt(formData.username));
+            formDataToSend.append("email", await transitEncrypt(formData.email));
+            formDataToSend.append("password", await transitEncrypt(formData.password));
+            
             if (file) {
                 formDataToSend.append("avatar", file);
             }
