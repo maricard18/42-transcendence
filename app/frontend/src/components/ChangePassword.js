@@ -175,7 +175,7 @@ export default class ChangePassword extends AbstractView {
 
 		if (!newErrors.message) {
             const formDataToSend = new FormData();
-            formDataToSend.append("password", await transitEncrypt(formData.password));
+            formDataToSend.append("password", await transitEncrypt(this._formData.password));
 
             const accessToken = await getToken();
             const headers = {
@@ -224,7 +224,7 @@ export default class ChangePassword extends AbstractView {
 						<div class="mb-3">
 							<input
 								id="confirmPassword"
-								type="confirmPassword"
+								type="password"
 								class="form-control primary-form extra-form-class"
 								style="width: 60%"
 								placeholder="confirm password"
