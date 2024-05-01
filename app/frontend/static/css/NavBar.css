@@ -6,7 +6,7 @@
 .navbar-text-layout,
 .navbar-text-layout:hover {
 	color: white;
-	font-size: 24px;
+	/*font-size: 24px;*/
 	font-weight: bold;
 	align-items: center;
 }

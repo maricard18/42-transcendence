@@ -1,4 +1,3 @@
-
 export var vaultClient = require("node-vault")({
     apiVersion: 'v1',
     endpoint: process.env.VAULT_ADDR
