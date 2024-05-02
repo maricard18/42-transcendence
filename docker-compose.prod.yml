@@ -77,7 +77,7 @@ services:
       context: game_service/
       target: prod
     environment:
-      REDIS_HOST: redis
+      REDIS_HOST: redis_service
       REDIS_PORT: 6379
       DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
       VAULT_ADDR: http://vault_service:8200
@@ -92,7 +92,7 @@ services:
       - media_data:/app/media/:rw
       - vault_services_data:/vault/transcendence/:ro
     depends_on:
-      redis:
+      redis_service:
         condition: service_started
       modsecurity:
         condition: service_started
@@ -139,8 +139,8 @@ services:
     profiles: [ "", "auth_service", "game_service", "web_service" ]
     restart: on-failure
 
-  redis:
-    container_name: redis
+  redis_service:
+    container_name: redis_service
     image: redis:7.2-alpine3.18
     expose:
       - "6379"

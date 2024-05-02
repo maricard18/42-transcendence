@@ -17,7 +17,6 @@ EXPOSE 8000
 
 ENV PYTHONPATH="/site-packages/"
 
-ENV DJANGO_SETTINGS_MODULE="auth_service.settings"
 ENV DJANGO_DEBUG=True
 
 COPY --from=build /site-packages/ /site-packages/
@@ -35,7 +34,6 @@ USER nonroot
 
 ENV PYTHONPATH="/site-packages/"
 
-ENV DJANGO_SETTINGS_MODULE="auth_service.settings"
 ENV DJANGO_DEBUG=False
 
 COPY --from=build /site-packages/ /site-packages/
@@ -56,5 +54,3 @@ COPY --from=build /site-packages/ /site-packages/
 
 WORKDIR /app/
 COPY . .
-
-WORKDIR /app/tools/
