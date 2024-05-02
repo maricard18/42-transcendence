@@ -50,6 +50,5 @@ ENV PYTHONPATH="/site-packages/"
 COPY --from=build /site-packages/ /site-packages/
 
 WORKDIR /app/
-COPY . .
 
-WORKDIR /app/tools/
+COPY . .
