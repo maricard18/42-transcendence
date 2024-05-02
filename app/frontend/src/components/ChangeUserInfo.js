@@ -13,7 +13,8 @@ export default class ChangeUserInfo extends AbstractView {
         this._insideRequest = false;
         this._inputCallback = false;
         this._clickCallback = false;
-        this._enterCallback = false;
+        this._usernameButton = false;
+		this._emailButton = false;
 
         this._errors = {};
         this._success = {};
@@ -49,14 +50,7 @@ export default class ChangeUserInfo extends AbstractView {
         };
 
         this.buttonClickedCallback = (event) => {
-            this.handleValidation();
-        };
-
-        this.keydownCallback = (event) => {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                this.handleValidation();
-            }
+            this.handleValidation(event.target.id);
         };
 
         const inputList = this._parentNode.querySelectorAll("input");
@@ -67,18 +61,16 @@ export default class ChangeUserInfo extends AbstractView {
 			});
 		}
 
-        const submitButton = this._parentNode.querySelector("submit-button");
-        if (submitButton && !this._clickCallback) {
-            this._clickCallback = true;
-            submitButton.addEventListener(
-                "buttonClicked",
-                this.buttonClickedCallback
-            );
+        const usernameButton = document.getElementById("username-btn");
+        if (usernameButton && !this._usernameButton) {
+            this._usernameButton = true;
+            usernameButton.addEventListener("click", this.buttonClickedCallback);
         }
 
-        if (!this._enterCallback) {
-            this._enterCallback = true;
-            window.addEventListener("keydown", this.keydownCallback);
+		const emailButton = document.getElementById("email-btn");
+        if (emailButton && !this._emailButton) {
+            this._emailButton = true;
+            emailButton.addEventListener("click", this.buttonClickedCallback);
         }
 
         if (AbstractView.userInfo.username &&
@@ -100,19 +92,20 @@ export default class ChangeUserInfo extends AbstractView {
             input.removeEventListener("input", this.inputCallback);
         });
 
-        const submitButton = this._parentNode.querySelector("submit-button");
-        if (submitButton) {
-            submitButton.removeEventListener(
-                "buttonClicked",
-                this.buttonClickedCallback
-            );
+		const usernameButton = document.getElementById("username-btn");
+        if (usernameButton) {
+            usernameButton.removeEventListener("click", this.buttonClickedCallback);
         }
 
-        window.removeEventListener("keydown", this.keydownCallback);
+		const emailButton = document.getElementById("email-btn");
+        if (emailButton) {
+            emailButton.removeEventListener("click", this.buttonClickedCallback);
+        }
 
         this._inputCallback = false;
         this._clickCallback = false;
-        this._enterCallback = false;
+        this._usernameButton = false;
+		this._emailButton = false;
         this._observer.disconnect();
     }
 
@@ -131,16 +124,23 @@ export default class ChangeUserInfo extends AbstractView {
             p.classList.add("form-error");
             p.innerText = this.errors.message;
 
-            const inputList = this._parentNode.querySelectorAll("input");
-            inputList.forEach((input) => {
-                const id = input.getAttribute("id");
-                if (this.errors[id]) {
-                    input.classList.add("input-error");
-                    this._formData[id] = input.value;
-                } else if (input.classList.contains("input-error")) {
-                    input.classList.remove("input-error");
-                }
-            });
+			const usernameDiv = document.getElementById("username-div");
+			const usernameInput = document.getElementById("username");
+			if (this.errors["username"]) {
+				usernameDiv.classList.add("input-btn-error");
+				this._formData["username"] = usernameInput.value;
+			} else if (usernameDiv.classList.contains("input-btn-error")) {
+				usernameDiv.classList.remove("input-btn-error");
+			}
+			
+			const emailDiv = document.getElementById("email-div");
+			const emailInput = document.getElementById("email");
+			if (this.errors["email"]) {
+				emailDiv.classList.add("input-btn-error");
+				this._formData["email"] = emailInput.value;
+			} else if (emailDiv.classList.contains("input-btn-error")) {
+				emailDiv.classList.remove("input-btn-error");
+			}
         }
     }
 
@@ -159,18 +159,20 @@ export default class ChangeUserInfo extends AbstractView {
             p.classList.add("form-success");
             p.innerText = this.success.message;
 
-            const inputList = this._parentNode.querySelectorAll("input");
-            inputList.forEach((input) => {
-                if (input.classList.contains("input-error")) {
-                    input.classList.remove("input-error");
-                }
-            });
+			const usernameDiv = document.getElementById("username-div");
+			if (usernameDiv.classList.contains("input-btn-error")) {
+				usernameDiv.classList.remove("input-btn-error");
+			}
+			const emailDiv = document.getElementById("email-div");
+			if (emailDiv.classList.contains("input-btn-error")) {
+				emailDiv.classList.remove("input-btn-error");
+			}
 
 			setTimeout(() => { p.innerText = "" }, 3000);
         }
     }
 
-    async handleValidation() {
+    async handleValidation(id) {
         if (this._insideRequest) {
             return;
         }
@@ -184,10 +186,10 @@ export default class ChangeUserInfo extends AbstractView {
         if (!newErrors.message) {
             const formDataToSend = new FormData();
 
-            if (this._formData.username !== AbstractView.userInfo.username) {
+            if (id === "username-btn" && this._formData.username !== AbstractView.userInfo.username) {
                 formDataToSend.append("username", await transitEncrypt(this._formData.username));
             }
-            if (this._formData.email !== AbstractView.userInfo.email) {
+            if (id === "email-btn" && this._formData.email !== AbstractView.userInfo.email) {
                 formDataToSend.append("email", await transitEncrypt(this._formData.email));
             }
 
@@ -200,12 +202,14 @@ export default class ChangeUserInfo extends AbstractView {
                 this._insideRequest = false;
                 const p = this._parentNode.querySelector("p");
                 p.innerText = "";
-                const inputList = this._parentNode.querySelectorAll("input");
-                inputList.forEach((input) => {
-                    if (input.classList.contains("input-error")) {
-                        input.classList.remove("input-error");
-                    }
-                });
+				const usernameDiv = document.getElementById("username-div");
+				if (usernameDiv.classList.contains("input-btn-error")) {
+					usernameDiv.classList.remove("input-btn-error");
+				}
+				const emailDiv = document.getElementById("email-div");
+				if (emailDiv.classList.contains("input-btn-error")) {
+					emailDiv.classList.remove("input-btn-error");
+				}
                 return;
             }
 
@@ -251,44 +255,71 @@ export default class ChangeUserInfo extends AbstractView {
 
     loadChangeUserInfoContent() {
 		return `
-			<h4 class="sub-text mb-5 mt-3">
-				<b>Edit your information here</b>
-			</h4>
-			<div class="d-flex flex-column">
-				<form>
+			<div class="d-flex flex-row justify-content-center">
+				<div class="d-flex flex-column w-100">
+					<h4 class="sub-text mb-5 mt-2">
+						<b>Edit your information here</b>
+					</h4>
 					<div class="position-relative">
 						<p class="form-error"></p>
+						<div class="input-group mb-3 input-btn" style="width: 70%" id="username-div">
+							<input
+								id="username"
+								type="text" 
+								class="form-control primary-form extra-form-class"
+								placeholder="username" 
+								aria-label="Recipient's username" 
+								aria-describedby="button-addon2"
+								value="${AbstractView.userInfo.username}"
+							/>
+							<button 
+								class="btn btn-outline-secondary primary-button extra-btn-class"
+								style="width: 130px"
+								type="button" 
+								id="username-btn"
+							>
+								Save Changes
+							</button>
+						</div>
+						<div class="input-group mb-3 input-btn"  style="width: 70%" id="email-div">
+							<input
+								id="email"
+								type="text" 
+								class="form-control primary-form extra-form-class"
+								placeholder="username" 
+								aria-label="Recipient's username" 
+								aria-describedby="button-addon2"
+								value="${AbstractView.userInfo.email}"
+							/>
+							<button 
+								class="btn btn-outline-secondary primary-button extra-btn-class"
+								style="width: 130px"
+								type="button" 
+								id="email-btn"
+							>
+								Save Changes
+							</button>
+						</div>
 					</div>
-					<div class="mb-3">
-						<input
-							id="username"
-							type="username"
-							class="form-control primary-form extra-form-class"
-							style="width: 60%"
-							placeholder="username"
-							value="${AbstractView.userInfo.username}"
-						/>
-					</div>
-					<div class="mb-3">
-						<input
-							id="email"
-							type="email"
-							class="form-control primary-form extra-form-class"
-							style="width: 60%"
-							placeholder="email"
-							value="${AbstractView.userInfo.email}"
-						/>
-					</div>
-					<div class="mt-3">
-						<submit-button
-							type="button"
-							template="primary-button extra-btn-class"
-							style="width: 150px"
-							value="Save changes"
-						>
-						</submit-button>	
-					</div>
-				</form>
+				</div>
+			</div>
+			<div class="d-flex flex-row justify-content-center">
+				<div class="d-flex flex-column mt-3">
+					<qr-code
+						id="qr1"
+						contents="https://bitjson.com/"
+						module-color="#1c7d43"
+						position-ring-color="#13532d"
+						position-center-color="#70c559"
+						mask-x-to-y-ratio="1.2"
+						style="
+						width: 100px;
+						height: 100px;
+						margin: 2em auto;
+						background-color: #fff;
+						"
+					></qr-code>
+				</div>
 			</div>
         `;
 	}

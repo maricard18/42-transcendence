@@ -1,5 +1,5 @@
 import AbstractView from "./views/AbstractView";
-import { routes } from "./views/router";
+import { routes } from "./router";
 import { getToken } from "./functions/tokens";
 import { closeWebsocket } from "./functions/websocket";
 import "./functions/defineComponents";

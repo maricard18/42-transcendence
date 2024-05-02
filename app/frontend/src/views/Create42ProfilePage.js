@@ -200,42 +200,40 @@ export default class Create42ProfilePage extends AbstractView {
 			<div class="container" id="create-profile-page">
 				<div class="center">
 					<div class="d-flex flex-column justify-content-center">
-						<form>
-							<div class="mb-5">
-							${this.avatar ? 
-								`<avatar-box avatar="${URL.createObjectURL(this.avatar)}"></avatar-box>`
-								: `<avatar-box></avatar-box>`
+						<div class="mb-5">
+						${this.avatar ? 
+							`<avatar-box avatar="${URL.createObjectURL(this.avatar)}"></avatar-box>`
+							: `<avatar-box></avatar-box>`
+						}
+						</div>
+						<div class="position-relative">
+							${
+								Object.keys(this.errors).length !== 0
+									? `<p class="form-error">${this.errors.message}</p>`
+									: ""
 							}
+							<div class="mb-1">
+								<input-box
+									id="username"
+									type="username"
+									template="${
+										this.errors.username
+											? "input-error"
+											: ""
+									}"
+									placeholder="username"
+									value="${AbstractView.formData.username}"
+								></input-box>
 							</div>
-							<div class="position-relative">
-								${
-									Object.keys(this.errors).length !== 0
-										? `<p class="form-error">${this.errors.message}</p>`
-										: ""
-								}
-								<div class="mb-1">
-                                    <input-box
-                                        id="username"
-                                        type="username"
-                                        template="${
-                                            this.errors.username
-                                                ? "input-error"
-                                                : ""
-                                        }"
-                                        placeholder="username"
-                                        value="${AbstractView.formData.username}"
-                                    ></input-box>
-                                </div>
-								<div class="mt-3">
-									<submit-button
-										type="button"
-										template="primary-button"
-										value="Next"
-									>
-									</submit-button>	
-								</div>
+							<div class="mt-3">
+								<submit-button
+									type="button"
+									template="primary-button"
+									value="Next"
+								>
+								</submit-button>	
 							</div>
-						</form>
+						</div>
 					</div>
 				</div>
 			</div>

@@ -207,40 +207,38 @@ export default class ChangePassword extends AbstractView {
 					<b>Edit your information here</b>
 				</h4>
 				<div class="d-flex flex-column">
-					<form>
-						<div class="position-relative">
-							<p class="form-error"></p>
-						</div>
-						<div class="mb-3">
-							<input
-								id="password"
-								type="password"
-								class="form-control primary-form extra-form-class"
-								style="width: 60%"
-								placeholder="password"
-								value=""
-							/>
-						</div>
-						<div class="mb-3">
-							<input
-								id="confirmPassword"
-								type="password"
-								class="form-control primary-form extra-form-class"
-								style="width: 60%"
-								placeholder="confirm password"
-								value=""
-							/>
-						</div>
-						<div class="mt-3">
-							<submit-button
-								type="button"
-								template="primary-button extra-btn-class"
-								style="width: 150px"
-								value="Save changes"
-							>
-							</submit-button>	
-						</div>
-					</form>
+					<div class="position-relative">
+						<p class="form-error"></p>
+					</div>
+					<div class="mb-3">
+						<input
+							id="password"
+							type="password"
+							class="form-control primary-form extra-form-class"
+							style="width: 60%"
+							placeholder="password"
+							value=""
+						/>
+					</div>
+					<div class="mb-3">
+						<input
+							id="confirmPassword"
+							type="password"
+							class="form-control primary-form extra-form-class"
+							style="width: 60%"
+							placeholder="confirm password"
+							value=""
+						/>
+					</div>
+					<div class="mt-3">
+						<submit-button
+							type="button"
+							template="primary-button extra-btn-class"
+							style="width: 140px"
+							value="Save changes"
+						>
+						</submit-button>	
+					</div>
 				</div>
 			</div>
         `;

@@ -49,7 +49,7 @@ export default class Login42Page extends AbstractView {
 			if (response.status === 409) {
 				await setToken(response);
 				this.disconnectObserver();
-				navigateTo("/create-profile/42");
+				navigateTo("/create-profile-42");
 			} else {
 				console.error("Error: failed to sign up with 42");
 				this.disconnectObserver();

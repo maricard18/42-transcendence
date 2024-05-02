@@ -254,28 +254,26 @@ export default class CreateProfilePage extends AbstractView {
 						<div class="mb-5">
 							<avatar-box></avatar-box>
 						</div>
-						<form>
-							<div class="position-relative">
-								<p class="form-error"></p>
-							</div>
-							<div class="mb-3">
-								<input
-									id="username"
-									type="username"
-									class="form-control primary-form extra-form-class"
-									placeholder="username"
-									value=""
-								/>
-							</div>
-							<div class="mt-3">
-								<submit-button
-									type="button"
-									template="primary-button extra-btn-class"
-									value="Next"
-								>
-								</submit-button>    
-							</div>
-						</form>
+						<div class="position-relative">
+							<p class="form-error"></p>
+						</div>
+						<div class="mb-3">
+							<input
+								id="username"
+								type="username"
+								class="form-control primary-form extra-form-class"
+								placeholder="username"
+								value=""
+							/>
+						</div>
+						<div class="mt-3">
+							<submit-button
+								type="button"
+								template="primary-button extra-btn-class"
+								value="Next"
+							>
+							</submit-button>    
+						</div>
 					</div>
 				</div>
 			</div>

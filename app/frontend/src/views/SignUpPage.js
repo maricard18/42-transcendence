@@ -156,7 +156,6 @@ export default class SignUpPage extends AbstractView {
 						<div class="mb-5">
 							<h1 class="header">Sign Up</h1>
 						</div>
-						<form>
 							<div class="position-relative">
 								<p class="form-error"></p>
 							</div>
@@ -195,7 +194,6 @@ export default class SignUpPage extends AbstractView {
 								>
 								</submit-button>	
 							</div>
-						</form>
 					</div>
 				</div>
 			</div>

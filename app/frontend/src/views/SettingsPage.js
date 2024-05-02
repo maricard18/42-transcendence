@@ -197,18 +197,20 @@ export default class SettingsPage extends AbstractView {
                 AbstractView.userInfo.avatar = URL.createObjectURL(
                     this._avatar
                 );
-                const avatarContainer = document.getElementById("avatar-container");
+                
+				const avatarContainer = document.getElementById("avatar-container");
                 avatarContainer.dispatchEvent(
                     new CustomEvent("avatar-container")
                 );
-                const p = this._parentNode.querySelector("p");
-
+                
+				const p = this._parentNode.querySelector("p");
                 if (p.classList.contains("form-error")) {
                     p.classList.remove("form-error");
                 }
                 p.classList.add("form-success");
                 p.innerText = "Changes saved";
-                setTimeout(() => {
+                
+				setTimeout(() => {
                     p.innerText = "";
                 }, 3000);
             } else {
@@ -280,16 +282,11 @@ export default class SettingsPage extends AbstractView {
 								style="border-radius: 0%"
 								value="Link 42 Account"
 							></nav-button>
-							<logout-button 
-								template="primary-button extra-btn-class"
-								style="border-radius: 0%"
-								value="Logout"
-							></logout-button>
 							<button 
 								type="button" 
 								id="delete-account-modal"
 								class="btn btn-primary red-button extra-btn-class" 
-								style="border-top: 0%; border-top-left-radius: 0; border-top-right-radius: 0;"
+								style="border-top-left-radius: 0%; border-top-right-radius: 0%; border-bottom-left-radius: 5px; border-bottom-right-radius: 5px;"
 								data-bs-toggle="modal" 
 								data-bs-target="#exampleModal"
 							>
