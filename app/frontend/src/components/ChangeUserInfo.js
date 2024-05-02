@@ -9,12 +9,15 @@ export default class ChangeUserInfo extends AbstractView {
     constructor() {
         super();
         this._loading = true;
+		this._loadingUserOtp = true;
         this._parentNode = null;
         this._insideRequest = false;
         this._inputCallback = false;
         this._clickCallback = false;
         this._usernameButton = false;
 		this._emailButton = false;
+		this._has2FA = false;
+		this._accessToken;
 
         this._errors = {};
         this._success = {};
@@ -34,7 +37,7 @@ export default class ChangeUserInfo extends AbstractView {
         };
     }
 
-    defineCallback() {
+    async defineCallback() {
         const parentNode = document.getElementById("change-user-info");
         if (parentNode) {
             this._parentNode = parentNode;
@@ -79,6 +82,27 @@ export default class ChangeUserInfo extends AbstractView {
             this._loading = false;
             this._formData.username = AbstractView.userInfo.username;
             this._formData.email = AbstractView.userInfo.email;
+
+			this._accessToken = await getToken();
+            const headers = {
+                Authorization: `Bearer ${this._accessToken}`,
+            };
+
+            const response = await fetchData(
+                "/api/users/" + AbstractView.userInfo.id + "/otp?code=test",
+                "GET",
+                headers,
+                null
+            );
+
+            if (response.ok) {
+                const jsonData = await response.json();
+				console.log(jsonData);
+            } else {
+                console.error("Error: GET to otp failed");
+				this._has2FA = false;
+            }
+
             this.loadDOMChanges();
         }
     }
@@ -213,9 +237,12 @@ export default class ChangeUserInfo extends AbstractView {
                 return;
             }
 
-            const accessToken = await getToken();
+			if (!this._accessToken) {
+				this._accessToken = await getToken();
+			}
+
             const headers = {
-                Authorization: `Bearer ${accessToken}`,
+                Authorization: `Bearer ${this._accessToken}`,
             };
 
             const response = await fetchData(
@@ -262,65 +289,90 @@ export default class ChangeUserInfo extends AbstractView {
 					</h4>
 					<div class="position-relative">
 						<p class="form-error"></p>
-						<div class="input-group mb-3 input-btn" style="width: 70%" id="username-div">
-							<input
-								id="username"
-								type="text" 
-								class="form-control primary-form extra-form-class"
-								placeholder="username" 
-								aria-label="Recipient's username" 
-								aria-describedby="button-addon2"
-								value="${AbstractView.userInfo.username}"
-							/>
-							<button 
-								class="btn btn-outline-secondary primary-button extra-btn-class"
-								style="width: 130px"
-								type="button" 
-								id="username-btn"
-							>
-								Save Changes
-							</button>
-						</div>
-						<div class="input-group mb-3 input-btn"  style="width: 70%" id="email-div">
-							<input
-								id="email"
-								type="text" 
-								class="form-control primary-form extra-form-class"
-								placeholder="username" 
-								aria-label="Recipient's username" 
-								aria-describedby="button-addon2"
-								value="${AbstractView.userInfo.email}"
-							/>
-							<button 
-								class="btn btn-outline-secondary primary-button extra-btn-class"
-								style="width: 130px"
-								type="button" 
-								id="email-btn"
-							>
-								Save Changes
-							</button>
-						</div>
+					</div>
+					<div class="input-group mb-3 input-btn" style="width: 70%" id="username-div">
+						<input
+							id="username"
+							type="text" 
+							class="form-control primary-form extra-form-class"
+							placeholder="username" 
+							aria-label="Recipient's username" 
+							aria-describedby="button-addon2"
+							value="${AbstractView.userInfo.username}"
+						/>
+						<button 
+							class="btn btn-outline-secondary primary-button extra-btn-class"
+							style="width: 130px"
+							type="button" 
+							id="username-btn"
+						>
+							Save Changes
+						</button>
+					</div>
+					<div class="input-group mb-3 input-btn"  style="width: 70%" id="email-div">
+						<input
+							id="email"
+							type="text" 
+							class="form-control primary-form extra-form-class"
+							placeholder="username" 
+							aria-label="Recipient's username" 
+							aria-describedby="button-addon2"
+							value="${AbstractView.userInfo.email}"
+						/>
+						<button 
+							class="btn btn-outline-secondary primary-button extra-btn-class"
+							style="width: 130px"
+							type="button" 
+							id="email-btn"
+						>
+							Save Changes
+						</button>
 					</div>
 				</div>
 			</div>
-			<div class="d-flex flex-row justify-content-center">
-				<div class="d-flex flex-column mt-3">
-					<qr-code
-						id="qr1"
-						contents="https://bitjson.com/"
-						module-color="#1c7d43"
-						position-ring-color="#13532d"
-						position-center-color="#70c559"
-						mask-x-to-y-ratio="1.2"
-						style="
-						width: 100px;
-						height: 100px;
-						margin: 2em auto;
-						background-color: #fff;
-						"
-					></qr-code>
-				</div>
-			</div>
+			${
+				this._has2FA
+					? ``
+					: `	<div class="d-flex flex-row justify-content-center">
+							<div class="d-flex flex-column">
+								<div class="d-flex flex-column mt-3">
+									<qr-code
+										id="qr1"
+										contents="https://bitjson.com/"
+										module-color="#1c7d43"
+										position-ring-color="#13532d"
+										position-center-color="#70c559"
+										mask-x-to-y-ratio="1.2"
+										style="
+										width: 100px;
+										height: 100px;
+										margin: 2em auto;
+										background-color: #fff;
+										"
+									></qr-code>
+								</div>
+								<div class="input-group mb-3 input-btn"  style="width: 60%" id="otp-div">
+									<input
+										id="otp"
+										type="text" 
+										class="form-control primary-form extra-form-class"
+										placeholder="code" 
+										aria-label="Recipient's username" 
+										aria-describedby="button-addon2"
+										value=""
+									/>
+									<button 
+										class="btn btn-outline-secondary primary-button extra-btn-class"
+										style="width: 100px"
+										type="button" 
+										id="otp-btn"
+									>
+										Validate
+									</button>
+								</div>
+							</div>
+						</div>`
+			}
         `;
 	}
 
