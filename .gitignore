@@ -160,13 +160,3 @@ cython_debug/
 #.idea/
 
 .DS_STORE
-/app/frontend/static/js/
-/app/frontend/media/
-
-# Vault files
-/vault/keys/*
-/vault/transcendence/*
-/vault/root/*
-
-# Secret files
-/secrets/*

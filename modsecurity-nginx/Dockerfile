@@ -29,9 +29,14 @@ ARG SSL_CERT_KEY
 
 COPY --from=build --chown=nginx:nginx $SSL_CERT $SSL_CERT
 COPY --from=build --chown=nginx:nginx $SSL_CERT_KEY $SSL_CERT_KEY
-COPY modsecurity-nginx/conf/default.conf /etc/nginx/templates/conf.d/default.conf.template
 
-WORKDIR /usr/share/nginx/
-RUN rm -rf html/
+COPY modsecurity-nginx/conf.d/default.conf /etc/nginx/templates/conf.d/default.conf.template
+COPY modsecurity-nginx/includes/location_auth_service.conf /etc/nginx/templates/includes/location_auth_service.conf.template
+COPY modsecurity-nginx/includes/location_game_service.conf /etc/nginx/templates/includes/location_game_service.conf.template
+COPY modsecurity-nginx/includes/location_web_service.conf /etc/nginx/templates/includes/location_web_service.conf.template
+COPY modsecurity-nginx/includes/location_web_service_core.conf /etc/nginx/templates/includes/location_web_service_core.conf.template
+
+WORKDIR /usr/share/nginx/html/
+RUN rm -rf *
 
 USER nginx
