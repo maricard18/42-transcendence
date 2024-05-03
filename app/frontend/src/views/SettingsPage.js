@@ -282,63 +282,64 @@ export default class SettingsPage extends AbstractView {
 								style="border-radius: 0%"
 								value="Link 42 Account"
 							></nav-button>
+							
 							<button 
 								type="button" 
 								id="delete-account-modal"
 								class="btn btn-primary red-button extra-btn-class" 
 								style="border-top-left-radius: 0%; border-top-right-radius: 0%; border-bottom-left-radius: 5px; border-bottom-right-radius: 5px;"
 								data-bs-toggle="modal" 
-								data-bs-target="#exampleModal"
+								data-bs-target="#DeleteUserModal"
 							>
 								Delete Account
 							</button>
 							
 							<div 
 								class="modal fade" 
-								id="exampleModal" 
+								id="DeleteUserModal" 
 								tabindex="-1" 
-								aria-labelledby="exampleModalLabel" 
+								aria-labelledby="DeleteUserModalLabel" 
 								aria-hidden="true"
 							>
 								<div class="modal-dialog modal-dialog-centered">
 									<div class="modal-content bg-dark text-white">
-									<div class="modal-header">
-										<h1 class="modal-title fs-5" id="exampleModalLabel">Delete Account</h1>
-										<button 
-											type="button" 
-											class="btn-close" 
-											data-bs-dismiss="modal" 
-											aria-label="Close"
-										></button>
-									</div>
-									<div class="modal-body">
-										<h6 class="d-flex justify-content-start">
-											Are you sure you want to delete your account?
-										</h6>
-										<h6 class="d-flex justify-content-start">
-											This action is irreversible.
-										</h6>
-										<h6 class="d-flex justify-content-start">
-											Click the Cancel button to abort.
-										</h6>
-									</div>
-									<div class="modal-footer">
-										<button 
-											id="delete-account-button"
-											type="button"
-											class="btn btn-primary red-button extra-btn-class"
-											style="width: 150px"
-										>
-											Delete Account
-										</button>
-										<button 
-											type="button" 
-											class="btn btn-secondary" 
-											data-bs-dismiss="modal"
-										>
-											Cancel
-										</button>
-									</div>
+										<div class="modal-header">
+											<h1 class="modal-title fs-5" id="DeleteUserModalLabel">Delete Account</h1>
+											<button 
+												type="button" 
+												class="btn-close" 
+												data-bs-dismiss="modal" 
+												aria-label="Close"
+											></button>
+										</div>
+										<div class="modal-body">
+											<h6 class="d-flex justify-content-start">
+												Are you sure you want to delete your account?
+											</h6>
+											<h6 class="d-flex justify-content-start">
+												This action is irreversible.
+											</h6>
+											<h6 class="d-flex justify-content-start">
+												Click the Cancel button to abort.
+											</h6>
+										</div>
+										<div class="modal-footer">
+											<button 
+												id="delete-account-button"
+												type="button"
+												class="btn btn-primary red-button extra-btn-class"
+												style="width: 150px"
+											>
+												Delete Account
+											</button>
+											<button 
+												type="button" 
+												class="btn btn-secondary" 
+												data-bs-dismiss="modal"
+											>
+												Cancel
+											</button>
+										</div>
 									</div>
 								</div>
 							</div>
