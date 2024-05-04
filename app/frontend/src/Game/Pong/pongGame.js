@@ -1,11 +1,11 @@
-import AbstractView from "../views/AbstractView";
-import { checkPlayer1Collision, checkPlayer2Collision, checkInvertedPlayer3Collision, checkInvertedPlayer4Collision } from "./Pong/collision";
-import { createSinglePlayerGameObjects, createMultiPlayer2GameObjects, createMultiPlayer4GameObjects } from "./Pong/createPlayers";
-import { MyWebSocket, sendMessage } from "../functions/websocket";
-import { multiplayerMessageHandler } from "../functions/websocket";
-import { gameConfettiAnimation, gameStartAnimation } from "./animations";
-import { updateVariables } from "./Pong/variables";
-import { ScreenWidth, ScreenHeight, keys } from "./Pong/variables";
+import AbstractView from "../../views/AbstractView";
+import { checkPlayer1Collision, checkPlayer2Collision, checkInvertedPlayer3Collision, checkInvertedPlayer4Collision } from "./collision";
+import { createSinglePlayerGameObjects, createMultiPlayer2GameObjects, createMultiPlayer4GameObjects } from "./createPlayers";
+import { MyWebSocket, sendMessage } from "../../functions/websocket";
+import { multiplayerMessageHandler } from "../../functions/websocket";
+import { gameConfettiAnimation, gameStartAnimation } from "../animations";
+import { updateVariables } from "./variables";
+import { ScreenWidth, ScreenHeight, keys } from "./variables";
 
 export function createPongGameObject(canvas, gameMode, lobbySize) {
     const ctx = canvas.getContext("2d");
@@ -68,18 +68,13 @@ function singleplayerGameLoop(game) {
         const playPong = () => {
             if (!game.paused) {
                 let current_time = Date.now();
-                let dt = (current_time - game.last_time) / 1000;
+                game.dt = (current_time - game.last_time) / 1000;
 
                 game.clear();
-                game.drawGoals("white");
 
-                game.ball.update(game, dt);
-				game.player1.update(dt);
-                if (game.lobbySize == 1) {
-                    game.player2.update(game.ball, dt);
-                } else if (game.lobbySize == 2) {
-                    game.player2.update(dt);
-                }
+                game.ball.update(game);
+				game.player1.update(game);
+                game.player2.update(game);
 
 				if (player1) {
 					player1.dispatchEvent(
@@ -141,16 +136,15 @@ function multiplayer2GameLoop(game) {
 				resolve();
 			} else if (!game.paused) {
 				let current_time = Date.now();
-				let dt = (current_time - game.last_time) / 1000;
+				game.dt = (current_time - game.last_time) / 1000;
 		
 				game.clear();
-				game.drawGoals("white")
 		
 				if (AbstractView.userInfo.id === game.host_id) {
-					game.ball.update(game, dt);
-					game.player1.update(dt);
+					game.ball.update(game);
+					game.player1.update(game);
 				} else {
-					game.player2.update(dt);
+					game.player2.update(game);
 				}
 
 				if (player1) {
@@ -218,20 +212,22 @@ function multiplayer4GameLoop(game) {
 				resolve();
 			} else if (!game.paused) {
 				let current_time = Date.now();
-				let dt = (current_time - game.last_time) / 1000;
+				game.dt = (current_time - game.last_time) / 1000;
 		
-				clearBackground(game.ctx);
-				game.drawGoals("white")
+				game.clear();
 		
 				if (AbstractView.userInfo.id === game.host_id) {
-					game.ball.update(game, dt);
-					game.player1.update(dt);
-				} else if (AbstractView.userInfo.id === AbstractView.userData[1].id) {
-					game.player2.update(dt);
-				} else if (AbstractView.userInfo.id === AbstractView.userData[2].id) {
-					game.player3.update(dt);
-				} else if (AbstractView.userInfo.id === AbstractView.userData[3].id) {
-					game.player4.update(dt);
+					game.ball.update(game);
+					game.player1.update(game);
+				} 
+				if (AbstractView.userInfo.id === AbstractView.userData[1].id) {
+					game.player2.update(game);
+				} 
+				if (AbstractView.userInfo.id === AbstractView.userData[2].id) {
+					game.player3.update(game);
+				} 
+				if (AbstractView.userInfo.id === AbstractView.userData[3].id) {
+					game.player4.update(game);
 				}
 
 				if (player1) {

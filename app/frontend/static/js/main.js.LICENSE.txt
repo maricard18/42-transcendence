@@ -217,6 +217,8 @@
 
 /*! ../../asn1 */
 
+/*! ../../functions/websocket */
+
 /*! ../../node_modules/buffer/index.js */
 
 /*! ../../node_modules/console-browserify/index.js */
@@ -225,11 +227,13 @@
 
 /*! ../../views/AbstractView */
 
+/*! ../Game/Pong/pongGame */
+
 /*! ../Game/Pong/variables */
 
-/*! ../Game/pongGame */
-
 /*! ../algs */
+
+/*! ../animations */
 
 /*! ../asn1 */
 
@@ -285,8 +289,6 @@
 
 /*! ../package.json */
 
-/*! ../pongGame */
-
 /*! ../private-key */
 
 /*! ../signature */
@@ -314,10 +316,6 @@
 /*! ./Game */
 
 /*! ./Player */
-
-/*! ./Pong/collision */
-
-/*! ./Pong/createPlayers */
 
 /*! ./Pong/variables */
 
@@ -354,8 +352,6 @@
 /*! ./algs */
 
 /*! ./allOf */
-
-/*! ./animations */
 
 /*! ./anyOf */
 
@@ -409,6 +405,8 @@
 
 /*! ./cipher */
 
+/*! ./collision */
+
 /*! ./commands.js */
 
 /*! ./comment */
@@ -450,6 +448,8 @@
 /*! ./cookie.json */
 
 /*! ./crc32 */
+
+/*! ./createPlayers */
 
 /*! ./creator.json */
 
@@ -772,6 +772,8 @@
 /*! ./pkcs8 */
 
 /*! ./polyfill */
+
+/*! ./pongGame */
 
 /*! ./postData.json */
 
@@ -1480,10 +1482,6 @@
   \***************************/
 
 /*!******************************!*\
-  !*** ./src/Game/pongGame.js ***!
-  \******************************/
-
-/*!******************************!*\
   !*** ./static/css/index.css ***!
   \******************************/
 
@@ -1549,6 +1547,10 @@
 
 /*!***********************************!*\
   !*** ../../node_modules/bl/bl.js ***!
+  \***********************************/
+
+/*!***********************************!*\
+  !*** ./src/Game/Pong/pongGame.js ***!
   \***********************************/
 
 /*!***********************************!*\

@@ -1,6 +1,6 @@
 import AbstractView from "../views/AbstractView";
 import { ScreenHeight, ScreenWidth } from "../Game/Pong/variables";
-import { sendNonHostMessage } from "../Game/pongGame";
+import { sendNonHostMessage } from "../Game/Pong/pongGame";
 import { getToken } from "./tokens";
 
 export var MyWebSocket = {};
@@ -117,7 +117,8 @@ export function multiplayerMessageHandler(MyWebSocket, game) {
 						}
 					}
                 }
-                if (jsonData["type"] == "system.message") {
+                
+				if (jsonData["type"] == "system.message") {
                     const playerList = jsonData["data"];
                     if (playerList["message"] === "user.disconnected") {
                         game.over = true;
@@ -147,7 +148,6 @@ function updateOpponentScreen(game) {
 	const player4 = document.getElementById("player4");
 	
 	game.clear();
-	game.drawGoals("white");
 
 	if (player1) {
 		player1.dispatchEvent(

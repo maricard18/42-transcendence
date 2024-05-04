@@ -1,6 +1,6 @@
 import AbstractView from "./AbstractView";
-import { createPongGameObject } from "../Game/pongGame";
-import { startPong } from "../Game/pongGame";
+import { createPongGameObject } from "../Game/Pong/pongGame";
+import { startPong } from "../Game/Pong/pongGame";
 import { Display2Usernames, DisplayUsername } from "../components/DisplayUsernames";
 
 export default class Pong extends AbstractView {
@@ -111,8 +111,8 @@ export default class Pong extends AbstractView {
 									<canvas
 										width="${this._width}"
 										height="${this._height}"
-										class="mt-3"
-										style="border: 3px solid #ffffff"
+										class="canvas-wrapper mt-3"
+										style="border: 10px solid #fff; border-radius: 15px"
 									/>
 								</div>
 							</div>`
@@ -122,7 +122,7 @@ export default class Pong extends AbstractView {
 									<nav-button 
 										template="primary-button extra-btn-class"
 										page="/home"
-										style="width: 150px"
+										style="width: 120px"
 										value="Home"
 									></nav-button>
 								</div>

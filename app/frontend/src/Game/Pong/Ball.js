@@ -1,7 +1,6 @@
 import {
     BallSpeedX,
     BallSpeedY,
-    GoalWidth,
     ScreenHeight,
     ScreenWidth,
     ballRadius,
@@ -27,13 +26,13 @@ export class Ball {
         ctx.fill();
     }
 
-    update(game, dt) {
-        this.x += this.speed_x * dt;
-        this.y += this.speed_y * dt;
+    update(game) {
+        this.x += this.speed_x * game.dt;
+        this.y += this.speed_y * game.dt;
 
 		if (game.mode === "single-player" || game.lobbySize == 2) {
-			if ((this.y - this.radius <= GoalWidth && this.speed_y < 0) ||
-            	(this.y + this.radius >= ScreenHeight - GoalWidth && this.speed_y > 0)) {
+			if ((this.y - this.radius <= 0 && this.speed_y < 0) ||
+            	(this.y + this.radius >= ScreenHeight && this.speed_y > 0)) {
             	this.speed_y *= -1;
         	}
 
