@@ -25,8 +25,8 @@ else
 fi
 
 if [ ! -s /vault/root/token -o ! -s /vault/keys/key-1 -o ! -s /vault/keys/key-2 ] ; then
-    echo "Vault is initialized, but unseal keys or token are mssing"
-    return
+    echo "Vault is initialized, but unseal keys or token are missing"
+    return 1
 fi
 echo "Unsealing Vault"
 export VAULT_TOKEN=$(cat /vault/root/token)
@@ -58,8 +58,8 @@ else
 
     vault write sys/config/cors allowed_origins="*" allowed_headers="*" allowed_methods="GET,POST,PUT,DELETE,OPTIONS"
 
-    vault kv put -mount=${APP_NAME} django-secret key=$(tr -dc 'A-Za-z0-9!@#$%&*_+-' </dev/urandom | head -c 32; echo)
-    vault kv put -mount=${APP_NAME} jwt-signing-key key=$(tr -dc 'A-Za-z0-9!@#$%&*_+-' </dev/urandom | head -c 32; echo)
+    vault kv put -mount=${APP_NAME} django-secret key=$(tr -dc 'A-Za-z0-9!#$%&*_+-' </dev/urandom | head -c 32; echo)
+    vault kv put -mount=${APP_NAME} jwt-signing-key key=$(tr -dc 'A-Za-z0-9!#$%&*_+-' </dev/urandom | head -c 32; echo)
 
     echo "${APP_NAME} Approle creation complete."
     touch ${APP_INIT_FILE}

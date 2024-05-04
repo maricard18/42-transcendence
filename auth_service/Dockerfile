@@ -2,9 +2,8 @@
 FROM python:3.11-slim as build
 LABEL authors="bsilva-c"
 
-RUN mkdir -p /tmp/daphne/
-
-RUN chmod o+rw /tmp/daphne/
+RUN mkdir -p /run/daphne/
+RUN chmod o+rw -R /run/daphne/
 
 COPY ./requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt --target /site-packages/
@@ -20,7 +19,6 @@ ENV PYTHONPATH="/site-packages/"
 ENV DJANGO_DEBUG=True
 
 COPY --from=build /site-packages/ /site-packages/
-COPY --from=build /tmp/daphne/ /tmp/daphne/
 
 WORKDIR /app/
 
@@ -37,12 +35,12 @@ ENV PYTHONPATH="/site-packages/"
 ENV DJANGO_DEBUG=False
 
 COPY --from=build /site-packages/ /site-packages/
-COPY --from=build --chown=nonroot:nonroot /tmp/daphne/ /tmp/daphne/
+COPY --from=build --chown=nonroot:nonroot /run/daphne/ /run/daphne/
 
 WORKDIR /app/
 COPY . .
 
-CMD ["/site-packages/bin/daphne", "-u", "/tmp/daphne/daphne.sock", "auth_service.asgi:application"]
+CMD ["/site-packages/bin/daphne", "-u", "/run/daphne/daphne.sock", "auth_service.asgi:application"]
 
 # SECOND STAGE -- TOOLS
 FROM python:3.11-slim as tools

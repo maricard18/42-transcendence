@@ -31,7 +31,7 @@ class UserViewSet(viewsets.ViewSet):
 
     # POST /api/users
     def create(self, request):
-        data = Vault.resolveEncryptedFields(request.data)
+        data = Vault.resolveEncryptedFields(request.data, request)
         serializer = CreateUserSerializer(data=data)
         if serializer.is_valid():
             user = User.objects.create_user(serializer.validated_data.get('username'),
@@ -44,13 +44,15 @@ class UserViewSet(viewsets.ViewSet):
                     avatar=avatar,
                     request=request
                 )
+            port = "" if request.get_port() in ["80", "443"] else ":" + request.get_port()
+            url = request.scheme + "://" + request.get_host() + port + request.path + '/' + str(user.id)
             return Response({
                 'id': user.id,
                 'login': user.username,
-                'url': request.build_absolute_uri() + '/' + str(user.id)
+                'url': url
             }, status=status.HTTP_201_CREATED)
         username_errors = serializer.errors.get('username', None)
-        if any(error == "A user with that username already exists." for error in username_errors):
+        if username_errors and any(error == "A user with that username already exists." for error in username_errors):
             return Response({
                 'errors': {
                     'message': "A user with that username already exists.",
@@ -91,7 +93,7 @@ class UserViewSet(viewsets.ViewSet):
                 }
             }, status=status.HTTP_404_NOT_FOUND)
 
-        data = Vault.resolveEncryptedFields(request.data)
+        data = Vault.resolveEncryptedFields(request.data, request)
         serializer = UpdateUserSerializer(data=data, partial=True)
         if serializer.is_valid():
             for key, value in serializer.data.items():
@@ -203,16 +205,12 @@ class OTPViewSet(viewsets.ViewSet):
                     'code': status.HTTP_401_UNAUTHORIZED
                 }
             }, status=status.HTTP_401_UNAUTHORIZED)
-        if request.GET.get('code') is None:
-            return Response({
-                'errors': {
-                    'message': "Query parameter 'code' is required",
-                    'code': status.HTTP_400_BAD_REQUEST
-                }
-            }, status=status.HTTP_400_BAD_REQUEST)
         try:
             user = User.objects.get(pk=int(request.user.id))
-            totp = pyotp.TOTP(OTP_Token.objects.get(auth_user=user).token)
+            otp = OTP_Token.objects.get(auth_user=user)
+            if request.GET.get('code') is None:
+                return Response({'active': otp.active, 'created_at': otp.created_at}, status=status.HTTP_200_OK)
+            totp = pyotp.TOTP(otp.token)
         except OTP_Token.DoesNotExist:
             return Response({
                 'errors': {
@@ -220,8 +218,12 @@ class OTPViewSet(viewsets.ViewSet):
                     'code': status.HTTP_404_NOT_FOUND
                 }
             }, status=status.HTTP_404_NOT_FOUND)
+        valid = totp.now() == int(request.GET.get('code'))
+        if valid and request.GET.get('activate'):
+            otp.active = True
+            otp.save()
         return Response({
-            'valid': totp.now() == int(request.GET.get('code'))
+            'valid': valid
         }, status=status.HTTP_200_OK)
 
     # DELETE /api/users/:id/otp
@@ -255,7 +257,7 @@ class TokenViewSet(viewsets.ViewSet):
 
     @staticmethod
     def new_token(request):
-        data = Vault.resolveEncryptedFields(request.data)
+        data = Vault.resolveEncryptedFields(request.data, request)
         serializer = AuthUserSerializer(data=data, partial=True)
         if serializer.is_valid():
             username = serializer.validated_data.get('username')
@@ -319,7 +321,7 @@ class TokenViewSet(viewsets.ViewSet):
 
     # POST /auth/token
     def create(self, request):
-        data = Vault.resolveEncryptedFields(request.data)
+        data = Vault.resolveEncryptedFields(request.data, request)
         serializer = TokenSerializer(data=data)
         if serializer.is_valid():
             if request.data.get('grant_type') == 'password':

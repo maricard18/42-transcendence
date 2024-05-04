@@ -33,7 +33,7 @@ endif
 #### Using Makefile to call specific service
 ##
 
-SERVICES = auth_service game_service web_service modsecurity vault
+SERVICES = auth_service game_service web_service vault_service modsecurity
 _SERVICE = $(SERVICE)
 
 # Check if service is valid

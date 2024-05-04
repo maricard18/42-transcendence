@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
+from django.utils import timezone
 
 
 ######################
@@ -137,6 +138,7 @@ class Avatar(models.Model):
     avatar = models.ImageField("avatar", upload_to=path_and_rename)
     link = models.URLField("link", help_text="The URL to retrieve the image.")
     auth_user = models.OneToOneField(User, on_delete=models.CASCADE, unique=True)
+    created_at = models.DateTimeField("date joined", default=timezone.now)
 
     objects = AvatarManager()
 
@@ -162,6 +164,7 @@ class SSO_User(models.Model):
     email = models.EmailField("email address", blank=True)
     sso_id = models.IntegerField("sso_id", help_text="Required. An unique identifier at the SSO.")
     auth_user = models.OneToOneField(User, on_delete=models.CASCADE, unique=True)
+    created_at = models.DateTimeField("date joined", default=timezone.now)
 
     objects = SSO_UserManager()
 
@@ -183,6 +186,8 @@ class OTP_Token(models.Model):
         max_length=40,
         unique=True
     )
+    active = models.BooleanField(default=False)
     auth_user = models.OneToOneField(User, on_delete=models.CASCADE, unique=True)
+    created_at = models.DateTimeField("date joined", default=timezone.now)
 
     objects = models.Manager()
