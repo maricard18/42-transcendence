@@ -1,25 +1,28 @@
 import AbstractView from "../views/AbstractView";
-import { ScreenHeight, ScreenWidth } from "../Game/Pong/variables";
+import { PaddleHeight, PaddleWidth, PaddleStartX, ScreenHeight, ScreenWidth } from "../Game/Pong/variables";
 import { sendNonHostMessage } from "../Game/Pong/pongGame";
 import { getToken } from "./tokens";
+import { Cpu, InvertedCpu } from "../Game/Pong/Player";
 
 export var MyWebSocket = {};
 
 export async function connectWebsocket() {
-    const token = await getToken();
+    const accessToken = await getToken();
     const host = window.location.host;
 	const protocol = window.location.protocol === "http:" ? "ws:" : "wss:";
+	const lobyySize = location.pathname.substring(location.pathname.length - 1);
 	const waitingRoomNode = document.getElementById("waiting-room");
     
-	MyWebSocket.ws = new WebSocket(protocol + "//" + host + "/ws/games/1/queue/2", [
+	MyWebSocket.ws = new WebSocket(protocol + "//" + host + "/ws/games/1/queue/" + lobyySize, [
         "Authorization",
-        token,
+        accessToken,
     ]);
 
     MyWebSocket.ws.onopen = () => {
+		console.log("Created websocket!")
         AbstractView.wsCreated = true;
 		AbstractView.wsConnectionStarted = false;
-		waitingRoomNode.dispatchEvent( new CustomEvent ("waiting-room-callback"));
+		waitingRoomNode.dispatchEvent( new CustomEvent ("waiting-room-callback") );
     };
 
 	MyWebSocket.ws.onerror = (error) => {
@@ -119,20 +122,35 @@ export function multiplayerMessageHandler(MyWebSocket, game) {
                 }
                 
 				if (jsonData["type"] == "system.message") {
-                    const playerList = jsonData["data"];
-                    if (playerList["message"] === "user.disconnected") {
-                        game.over = true;
-                        closeWebsocket();
-						AbstractView.userData = {}
+                    const data = jsonData["data"];
+                    if (data["message"] === "user.disconnected") {
+						AbstractView.userData.forEach((user, index) => {
+							if (data["user_id"] == user.id) {
+								addCpuPlayer(index, game);
+							}
+						});
+						
 						const newState = { ...AbstractView.userQueue };
 						for (let key in newState) {
-							if (newState[key] === playerList["user_id"]) {
+							if (newState[key] === data["user_id"]) {
 								delete newState[key];
 								break;
 							}
 						}
 						AbstractView.userQueue = newState;
-                    }
+						
+						if (Object.keys(AbstractView.userQueue).length < 2) {
+							AbstractView.userData.forEach((user) => {
+								if (user.id !== -1) {
+									localStorage.setItem("game_winner", user.username);
+									return ;
+								}
+							});
+							game.over = true;
+                        	closeWebsocket();
+							AbstractView.userData = {}
+						}
+					}
                 }
             } catch (error) {
                 console.log(error);
@@ -232,4 +250,60 @@ function customPlayerQueueCallback() {
 	if (playerQueueNode) {
 		playerQueueNode.dispatchEvent( new CustomEvent ("player-queue-callback"));
 	}
+}
+
+function addCpuPlayer(index, game) {
+	switch (index) {
+		case 0:
+			AbstractView.userData[0].id = -1;
+			AbstractView.userData[0].avatar = "/static/images/cpu.png";
+			AbstractView.userData[0].username = "CPU";
+			game.player1Left = true;
+			game["player1"] = new Cpu({
+				x: PaddleStartX,
+				y: ScreenHeight / 2 - PaddleHeight / 2,
+				color: "red",
+			});
+			break;
+		case 1:
+			AbstractView.userData[1].id = -1;
+			AbstractView.userData[1].avatar = "/static/images/cpu.png";
+			AbstractView.userData[1].username = "CPU";
+			game.player2Left = true;
+			game["player2"] = new Cpu({
+				x: ScreenWidth - PaddleStartX - PaddleWidth,
+				y: ScreenHeight / 2 - PaddleHeight / 2,
+				color: "blue",
+			});
+			break;
+		case 2:
+			AbstractView.userData[2].id = -1;
+			AbstractView.userData[2].avatar = "/static/images/cpu.png";
+			AbstractView.userData[2].username = "CPU";
+			game.player3Left = true;
+			game["player3"] = new InvertedCpu({
+				x: ScreenWidth / 2 - PaddleHeight / 2,
+				y: PaddleStartX,
+				color: "green",
+			});
+			break;
+		case 3:
+			AbstractView.userData[3].id = -1;
+			AbstractView.userData[3].avatar = "/static/images/cpu.png";
+			AbstractView.userData[3].username = "CPU";
+			game.player4Left = true;
+			game["player4"] = new InvertedCpu({
+				x: ScreenWidth / 2 - PaddleHeight / 2,
+				y: ScreenHeight - PaddleStartX - PaddleWidth,
+				color: "yellow",
+			});
+			break;
+	}
+
+	AbstractView.userData.forEach((user) => {
+		if (user.id !== -1) {
+			game.host_id = user.id;
+			return ;
+		}
+	});
 }

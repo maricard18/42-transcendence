@@ -149,9 +149,7 @@ export function gameConfettiAnimation(game) {
                 particle.speedY += 0.05;
             });
 
-            if (elapsedTime < 5 &&
-                (game.mode === "single-player" ||
-                (game.mode === "multiplayer" && MyWebSocket.ws))) {
+            if (elapsedTime < 5) {
                 window.requestAnimationFrame(animate);
 				if (elapsedTime > 0.5) {
 					drawWinnerName(game.ctx);

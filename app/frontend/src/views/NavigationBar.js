@@ -48,6 +48,7 @@ export default class NavigationBar extends AbstractView {
                     id: userData.id,
                 };
                 this._loading = false;
+				console.log("Got user Info");
                 await this.loadDOMChanges();
             } else {
                 console.error("Error: failed to fetch user data");
@@ -65,6 +66,7 @@ export default class NavigationBar extends AbstractView {
             fetchUserInfo();
         } else {
             this._loading = false;
+			console.log("got user Info already");
             await this.loadDOMChanges();
         }
     }
@@ -176,6 +178,7 @@ export default class NavigationBar extends AbstractView {
 
     async getHtml() {
         if (this._loading) {
+			console.log("rendering loading icon");
             return `
 				<div class="container-fluid" id="navigation-bar">
 					<loading-icon template="center" size="5rem"></loading-icon>

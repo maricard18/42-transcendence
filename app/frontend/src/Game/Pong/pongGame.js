@@ -133,6 +133,7 @@ function multiplayer2GameLoop(game) {
 	return new Promise((resolve) => {
         const playPong = () => {
             if (game.over || !MyWebSocket.ws) {
+				game.winner = localStorage.getItem("game_winner");
 				resolve();
 			} else if (!game.paused) {
 				let current_time = Date.now();
@@ -330,7 +331,7 @@ export function sendHostMessage(game) {
 	if (game.lobbySize == 2) {
 		message = {
 			game: {
-				id: game.player1.info.id,
+				id: AbstractView.userInfo.id,
 				index: 1,
 				screen_width: ScreenWidth,
 				screen_height: ScreenHeight,
@@ -350,7 +351,7 @@ export function sendHostMessage(game) {
 	} else {
 		message = {
 			game: {
-				id: game.player1.info.id,
+				id: AbstractView.userInfo.id,
 				index: 1,
 				screen_width: ScreenWidth,
 				screen_height: ScreenHeight,
