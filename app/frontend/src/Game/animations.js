@@ -1,5 +1,4 @@
 import { ScreenHeight, ScreenWidth } from "./Pong/variables";
-import { MyWebSocket } from "../functions/websocket";
 
 export function gameStartAnimation(game) {
     return new Promise((resolve) => {
@@ -47,7 +46,7 @@ export function gameStartAnimation(game) {
 				game.ctx.textAlign = "center";
 				game.ctx.textBaseline = "middle";
 				game.ctx.fillText(
-					"↑ and ↓ keys to move the player",
+					"use the arrow keys to move the player",
 					ScreenWidth / 2,
 					7 * ScreenHeight / 9
 				);
@@ -57,7 +56,7 @@ export function gameStartAnimation(game) {
 				game.ctx.textAlign = "center";
 				game.ctx.textBaseline = "middle";
 				game.ctx.fillText(
-					"w and s keys",
+					"use the w and s keys",
 					2 * ScreenWidth / 6,
 					7 * ScreenHeight / 9
 				);
@@ -68,7 +67,7 @@ export function gameStartAnimation(game) {
 				);
 				
 				game.ctx.fillText(
-					"↑ and ↓ keys",
+					"use the arrow keys",
 					4 * ScreenWidth / 6,
 					7 * ScreenHeight / 9
 				);

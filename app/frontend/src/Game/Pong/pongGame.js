@@ -34,13 +34,13 @@ export function createPongGameObject(canvas, gameMode, lobbySize) {
 }
 
 export async function startPong(game) {
+	localStorage.removeItem("game_winner");
 	if (game.mode === "single-player") {
 		await gameStartAnimation(game);
 		game.last_time = Date.now();
 		await singleplayerGameLoop(game);
 		await gameConfettiAnimation(game);
 		localStorage.removeItem("game_status");
-		AbstractView.gameOver = true;
 	} else if (game.mode === "multiplayer" && game.lobbySize == 2) {
 		multiplayerMessageHandler(MyWebSocket, game);
 		await gameStartAnimation(game);
@@ -48,7 +48,6 @@ export async function startPong(game) {
 		await multiplayer2GameLoop(game);
 		await gameConfettiAnimation(game);
 		localStorage.removeItem("game_status");
-        AbstractView.gameOver = true;
 	} else if (game.mode === "multiplayer" && game.lobbySize == 4) {
 		multiplayerMessageHandler(MyWebSocket, game);
 		await gameStartAnimation(game);
@@ -56,7 +55,6 @@ export async function startPong(game) {
 		await multiplayer4GameLoop(game);
 		await gameConfettiAnimation(game);
 		localStorage.removeItem("game_status");
-		AbstractView.gameOver = true;
 	}
 }
 
@@ -133,7 +131,9 @@ function multiplayer2GameLoop(game) {
 	return new Promise((resolve) => {
         const playPong = () => {
             if (game.over || !MyWebSocket.ws) {
-				game.winner = localStorage.getItem("game_winner");
+				if (!game.winner) {
+					game.winner = localStorage.getItem("game_winner");
+				}
 				resolve();
 			} else if (!game.paused) {
 				let current_time = Date.now();

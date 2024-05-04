@@ -24,7 +24,6 @@ export default class Pong extends AbstractView {
 
 		if (this._gameMode === "single-player") {
 			localStorage.setItem("game_status", "loading");
-			AbstractView.gameOver = false;
 		}
 
         this._observer = new MutationObserver(this.defineCallback.bind(this));
@@ -34,7 +33,7 @@ export default class Pong extends AbstractView {
         });
 
         if (this._gameMode === "single-player" ||
-            (this._gameMode === "multiplayer" && this._lobbySize == 2)) {
+           (this._gameMode === "multiplayer" && this._lobbySize == 2)) {
             this._aspectRatio = this._aspectRatioRectangle;
         } else if (this._gameMode === "multiplayer" && this._lobbySize == 4) {
             this._aspectRatio = this._aspectRatioSquare;
@@ -63,10 +62,9 @@ export default class Pong extends AbstractView {
         const parentNode = document.getElementById("pong");
         if (parentNode) {
             this._parentNode = parentNode;
-            if (!this._gameRunning && !AbstractView.gameOver) {
+            if (!this._gameRunning) {
                 this._gameRunning = true;
                 await this.startPongGame();
-                this.loadDOMChanges();
 				this.gameOverScreen();
             }
         } else {
@@ -90,36 +88,35 @@ export default class Pong extends AbstractView {
 
 	gameOverScreen() {
 		const canvas = document.querySelector("canvas");
+		console.log("canvas:", canvas);
 		const ctx = canvas.getContext("2d");
+		console.log("ctx:", ctx);
 		ctx.fillStyle = "black";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 		ctx.fillStyle = "white";
-		ctx.font = "50px Arial";
+		ctx.font = "bold 70px Arial";
 		ctx.textAlign = "center";
 		ctx.textBaseline = "middle";
-		ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2);
-		//TODO add click event to leave this page
+		ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 3);
+	
+		ctx.font = "bold 20px Arial";
+		ctx.fillText("Click anywhere to leave this page", canvas.width / 2, canvas.height / 4 * 3);
+	
+		canvas.addEventListener("click", () => {
+			localStorage.removeItem("game_status");
+			localStorage.removeItem("game_winner");
+			AbstractView.cleanGameData();
+			navigateTo("/home");
+		});
 	}
-
-    loadDOMChanges() {
-        const parentNode = document.getElementById("pong");
-        if (parentNode && this._lobbySize != 4) {
-            parentNode.outerHTML = this.loadPong();
-        } else if (parentNode) {
-			parentNode.outerHTML = this.load4Pong();
-		}
-    }
 
 	loadPong() {
         return `
 			<div class="outlet-padding center" id="pong">
 				<div class="d-flex flex-column">
-				${
-                    !AbstractView.gameOver
-                        ?	`${new Display2Usernames().getHtml()}`
-						: 	`<style>#pong canvas { position: fixed; top: 0; left: 0; }</style>`
-				}
+					${new Display2Usernames().getHtml()}
 					<canvas
+						id="gameCanvas"
 						width="${this._width}"
 						height="${this._height}"
 						class="mt-3"
@@ -134,17 +131,9 @@ export default class Pong extends AbstractView {
         return `
 			<div class="outlet-padding center" id="pong">
 				<div>
-				${
-					!AbstractView.gameOver
-						?	`${new DisplayUsername().getHtml("player3")}`
-						: 	``
-				}
+					${new DisplayUsername().getHtml("player3")}
 					<div class="d-flex flex-row">
-					${
-						!AbstractView.gameOver
-							?	`${new DisplayUsername().getHtml("player1")}`
-							: 	``
-					}
+						${new DisplayUsername().getHtml("player1")}
 						<div class="d-flex flex-column">
 							<canvas
 								width="${this._width}"
@@ -153,17 +142,9 @@ export default class Pong extends AbstractView {
 								style="border: 10px solid #fff; border-radius: 15px"
 							/>
 						</div>
-					${
-						!AbstractView.gameOver
-							?	`${new DisplayUsername().getHtml("player2")}`
-							: 	``
-					}
+						${new DisplayUsername().getHtml("player2")}
 					</div>
-				${
-					!AbstractView.gameOver
-						?	`${new DisplayUsername().getHtml("player4")}`
-						: 	``
-				}
+					${new DisplayUsername().getHtml("player4")}
 				</div>
 			</div>
         `;
@@ -173,12 +154,11 @@ export default class Pong extends AbstractView {
         if (this._gameMode === "multiplayer" && 
 		   (!localStorage.getItem("game_status") || !AbstractView.userData.length)) {
 			localStorage.removeItem("game_status");
+			localStorage.removeItem("game_winner");
 			AbstractView.cleanGameData();
 			navigateTo("/home");
 			return ;
-        } else {
-			AbstractView.gameOver = false;
-		}
+        }
 
 		if (this._lobbySize != 4) {
 			return this.loadPong();
