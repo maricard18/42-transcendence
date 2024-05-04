@@ -70,23 +70,13 @@
 
 /*! ../Game/pongGame */
 
-/*! ../components2/Avatar */
+/*! ../components/Avatar */
 
-/*! ../components2/Buttons */
+/*! ../components/Buttons */
 
-/*! ../components2/ChangePassword.js */
+/*! ../components/DisplayUsernames */
 
-/*! ../components2/ChangeUserInfo.js */
-
-/*! ../components2/DisplayUsernames */
-
-/*! ../components2/GameOptions.js */
-
-/*! ../components2/Games.js */
-
-/*! ../components2/Icons */
-
-/*! ../components2/PongGameMenu */
+/*! ../components/Icons */
 
 /*! ../functions/authenticationErrors */
 
@@ -97,6 +87,8 @@
 /*! ../functions/tokens */
 
 /*! ../functions/validateForms */
+
+/*! ../functions/vaultAccess */
 
 /*! ../functions/websocket */
 
@@ -112,23 +104,9 @@
 
 /*! ./Ball */
 
-/*! ./CreateProfilePage.js */
-
 /*! ./Game */
 
-/*! ./HomePage.js */
-
-/*! ./LandingPage */
-
-/*! ./Login42Page.js */
-
-/*! ./LoginPage.js */
-
-/*! ./NavigationBar.js */
-
 /*! ./Player */
-
-/*! ./Pong.js */
 
 /*! ./Pong/collision */
 
@@ -136,13 +114,15 @@
 
 /*! ./Pong/variables */
 
-/*! ./ProfilePage.js */
-
-/*! ./SignUpPage */
-
-/*! ./WaitingRoom.js */
-
 /*! ./animations */
+
+/*! ./components/ChangePassword.js */
+
+/*! ./components/ChangeUserInfo.js */
+
+/*! ./components/GameOptions.js */
+
+/*! ./components/Games.js */
 
 /*! ./fetchData */
 
@@ -152,13 +132,35 @@
 
 /*! ./functions/websocket */
 
+/*! ./router */
+
 /*! ./tokens */
 
 /*! ./variables */
 
 /*! ./views/AbstractView */
 
-/*! ./views/router */
+/*! ./views/Create42ProfilePage.js */
+
+/*! ./views/CreateProfilePage.js */
+
+/*! ./views/HomePage.js */
+
+/*! ./views/LandingPage.js */
+
+/*! ./views/Login42Page.js */
+
+/*! ./views/LoginPage.js */
+
+/*! ./views/NavigationBar.js */
+
+/*! ./views/Pong.js */
+
+/*! ./views/SettingsPage.js */
+
+/*! ./views/SignUpPage.js */
+
+/*! ./views/WaitingRoom.js */
 
 /*! bootstrap/dist/css/bootstrap.css */
 
@@ -210,13 +212,13 @@
   !*** ./src/index.js ***!
   \**********************/
 
+/*!***********************!*\
+  !*** ./src/router.js ***!
+  \***********************/
+
 /*!***************************!*\
   !*** ./src/views/Pong.js ***!
   \***************************/
-
-/*!*****************************!*\
-  !*** ./src/views/router.js ***!
-  \*****************************/
 
 /*!******************************!*\
   !*** ./src/Game/pongGame.js ***!
@@ -251,6 +253,14 @@
   \*********************************/
 
 /*!*********************************!*\
+  !*** ./src/components/Games.js ***!
+  \*********************************/
+
+/*!*********************************!*\
+  !*** ./src/components/Icons.js ***!
+  \*********************************/
+
+/*!*********************************!*\
   !*** ./src/functions/tokens.js ***!
   \*********************************/
 
@@ -259,11 +269,7 @@
   \*********************************/
 
 /*!**********************************!*\
-  !*** ./src/components2/Games.js ***!
-  \**********************************/
-
-/*!**********************************!*\
-  !*** ./src/components2/Icons.js ***!
+  !*** ./src/components/Avatar.js ***!
   \**********************************/
 
 /*!**********************************!*\
@@ -275,19 +281,19 @@
   \**********************************/
 
 /*!**********************************!*\
-  !*** ./src/views/ProfilePage.js ***!
-  \**********************************/
-
-/*!**********************************!*\
   !*** ./src/views/WaitingRoom.js ***!
   \**********************************/
 
 /*!***********************************!*\
-  !*** ./src/components2/Avatar.js ***!
+  !*** ./src/components/Buttons.js ***!
   \***********************************/
 
 /*!***********************************!*\
   !*** ./src/views/AbstractView.js ***!
+  \***********************************/
+
+/*!***********************************!*\
+  !*** ./src/views/SettingsPage.js ***!
   \***********************************/
 
 /*!************************************!*\
@@ -296,10 +302,6 @@
 
 /*!************************************!*\
   !*** ./src/Game/Pong/variables.js ***!
-  \************************************/
-
-/*!************************************!*\
-  !*** ./src/components2/Buttons.js ***!
   \************************************/
 
 /*!************************************!*\
@@ -318,12 +320,16 @@
   !*** ./src/functions/getUserInfo.js ***!
   \**************************************/
 
-/*!****************************************!*\
-  !*** ./src/Game/Pong/createPlayers.js ***!
-  \****************************************/
+/*!**************************************!*\
+  !*** ./src/functions/vaultAccess.js ***!
+  \**************************************/
+
+/*!***************************************!*\
+  !*** ./src/components/GameOptions.js ***!
+  \***************************************/
 
 /*!****************************************!*\
-  !*** ./src/components2/GameOptions.js ***!
+  !*** ./src/Game/Pong/createPlayers.js ***!
   \****************************************/
 
 /*!****************************************!*\
@@ -334,25 +340,25 @@
   !*** ./src/views/CreateProfilePage.js ***!
   \****************************************/
 
-/*!*****************************************!*\
-  !*** ./src/components2/PongGameMenu.js ***!
-  \*****************************************/
+/*!******************************************!*\
+  !*** ./src/components/ChangePassword.js ***!
+  \******************************************/
 
-/*!*******************************************!*\
-  !*** ./src/components2/ChangePassword.js ***!
-  \*******************************************/
+/*!******************************************!*\
+  !*** ./src/components/ChangeUserInfo.js ***!
+  \******************************************/
 
-/*!*******************************************!*\
-  !*** ./src/components2/ChangeUserInfo.js ***!
-  \*******************************************/
+/*!******************************************!*\
+  !*** ./src/views/Create42ProfilePage.js ***!
+  \******************************************/
 
 /*!*******************************************!*\
   !*** ./src/functions/defineComponents.js ***!
   \*******************************************/
 
-/*!*********************************************!*\
-  !*** ./src/components2/DisplayUsernames.js ***!
-  \*********************************************/
+/*!********************************************!*\
+  !*** ./src/components/DisplayUsernames.js ***!
+  \********************************************/
 
 /*!***********************************************!*\
   !*** ./src/functions/authenticationErrors.js ***!

@@ -99,12 +99,29 @@ export default class ChangeUserInfo extends AbstractView {
 			);
 
 			if (response.ok) {
+				const p = document.getElementById("p-2FA");
 				const jsonData = await response.json();
 				if (jsonData["valid"] === "true") {
 					this._has2FA = true;
+					if (p.classList.contains("form-error")) {
+						p.classList.remove("form-error");
+					}
+					p.classList.add("form-success");
+					p.style.whiteSpace = "nowrap";
+					p.style.display = "flex";
+					p.style.justifyContent = "center";
+					p.innerText = "2FA activated successufly";
 					console.log("otp code is correct");
 					//! load <REMOVE 2FA BUTTON>
 				} else {
+					if (p.classList.contains("form-success")) {
+						p.classList.remove("form-success");
+					}
+					p.classList.add("form-error");
+					p.style.whiteSpace = "nowrap";
+					p.style.display = "flex";
+					p.style.justifyContent = "center";
+					p.innerText = "2FA code is invalid";
 					console.error("otp code is incorrect");
 				}
 			} else {
@@ -255,6 +272,9 @@ export default class ChangeUserInfo extends AbstractView {
             }
             p.classList.add("form-error");
             p.innerText = this.errors.message;
+			p.style.whiteSpace = "nowrap";
+			p.style.display = "flex";
+			p.style.justifyContent = "center";
 
 			const usernameDiv = document.getElementById("username-div");
 			const usernameInput = document.getElementById("username");
@@ -291,6 +311,9 @@ export default class ChangeUserInfo extends AbstractView {
             }
             p.classList.add("form-success");
             p.innerText = this.success.message;
+			p.style.whiteSpace = "nowrap";
+			p.style.display = "flex";
+			p.style.justifyContent = "center";
 
 			const usernameDiv = document.getElementById("username-div");
 			if (usernameDiv.classList.contains("input-btn-error")) {
@@ -395,18 +418,12 @@ export default class ChangeUserInfo extends AbstractView {
 									position-ring-color="#3e0d8e"
 									position-center-color="#583296"
 									mask-x-to-y-ratio="1.2"
-									style="
-										width: 30%;
-										height: 30%;
-										margin: 2em auto;
-										background-color: #fff;
-										border-radius: 10px"
-									"
+									style="width: 30%; height: 30%; margin: 2em auto; background-color: #fff; border-radius: 10px"
 								></qr-code>
-								<div class="position-relative">
-									<p class="form-error" id="2FA-p"></p>
+								<div class="position-relative mt-4">
+									<p class="form-error" id="p-2FA"></p>
 								</div>
-								<div class="input-group mb-3 mt-3 input-btn"  style="width: 45%" id="otp-div">
+								<div class="input-group input-btn mb-3" style="width: 45%" id="otp-div">
 									<input
 										id="input-2FA"
 										type="text" 
@@ -428,12 +445,10 @@ export default class ChangeUserInfo extends AbstractView {
 	}
 
     loadChangeUserInfoContent() {
-		console.log("has2FA:", this._has2FA);
-
 		return `
 			<div class="d-flex flex-row justify-content-center">
 				<div class="d-flex flex-column align-items-center w-100">
-					<h4 class="sub-text mb-5 mt-2">
+					<h4 class="sub-text mb-5 mt-3">
 						<b>Edit your information here</b>
 					</h4>
 					<div class="position-relative">
@@ -496,20 +511,20 @@ export default class ChangeUserInfo extends AbstractView {
 									Remove 2FA
 								</button>`
 							: `	<button 
-									type="button" 
+									type="button"
 									id="setup-2FA"
 									class="btn btn-primary primary-button extra-btn-class"
 									style="width: 140px"
-									data-bs-toggle="modal" 
+									data-bs-toggle="modal"
 									data-bs-target="#2FAModal"
 								>
 									Setup 2FA
 								</button>
-								
-								<div 
-									class="modal fade" 
-									id="2FAModal" 
-									tabindex="-1" 
+							
+								<div
+									class="modal fade"
+									id="2FAModal"
+									tabindex="-1"
 									aria-labelledby="2FAModalLabel" 
 									aria-hidden="true"
 								>
@@ -540,8 +555,6 @@ export default class ChangeUserInfo extends AbstractView {
 	}
 
     getHtml() {
-		console.log("HERE");
-
         if (this._loading) {
             return `
 				<div class="d-flex flex-column justify-content-center" id="change-user-info">
