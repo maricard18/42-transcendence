@@ -67,22 +67,33 @@ export class Cpu extends Player {
     }
 
     update(game) {
-        if (
-            game.ball.x > ScreenWidth / 2 &&
-            game.ball.speed_x > 0 &&
-            this.y + this.height / 2 > game.ball.y &&
-            this.y >= 0
-        ) {
-            this.y -= this.max_speed * game.dt;
-        }
-        if (
-            game.ball.x > ScreenWidth / 2 &&
-            game.ball.speed_x > 0 &&
-            this.y + this.height / 2 < game.ball.y &&
-            this.y + this.height <= ScreenHeight
-        ) {
-            this.y += this.max_speed * game.dt;
-        }
+		if (this.x > ScreenWidth /  2) {
+			if (game.ball.x > ScreenWidth / 2 &&
+				game.ball.speed_x > 0 &&
+				this.y + this.height / 2 > game.ball.y &&
+				this.y >= 0) {
+				this.y -= this.max_speed * game.dt;
+			}
+			if (game.ball.x > ScreenWidth / 2 &&
+				game.ball.speed_x > 0 &&
+				this.y + this.height / 2 < game.ball.y &&
+				this.y + this.height <= ScreenHeight) {
+				this.y += this.max_speed * game.dt;
+			}
+		} else {
+			if (game.ball.x < ScreenWidth / 2 &&
+				game.ball.speed_x < 0 &&
+				this.y + this.height / 2 > game.ball.y &&
+				this.y >= 0) {
+				this.y -= this.max_speed * game.dt;
+			}
+			if (game.ball.x < ScreenWidth / 2 &&
+				game.ball.speed_x < 0 &&
+				this.y + this.height / 2 < game.ball.y &&
+				this.y + this.height <= ScreenHeight) {
+				this.y += this.max_speed * game.dt;
+			}
+		}
     }
 }
 
@@ -152,22 +163,33 @@ export class InvertedCpu extends InvertedPlayer {
     }
 
     update(game) {
-        if (
-            game.ball.y > ScreenHeight / 2 &&
-            game.ball.speed_y > 0 &&
-            this.x + this.width / 2 > game.ball.x &&
-            this.x >= 0
-        ) {
-            this.x -= this.max_speed * game.dt;
-        }
-        if (
-            game.ball.y > ScreenHeight / 2 &&
-            game.ball.speed_y > 0 &&
-            this.x + this.width / 2 < game.ball.x &&
-            this.x + this.width <= ScreenWidth
-        ) {
-            this.x += this.max_speed * game.dt;
-        }
+        if (this.y > ScreenWidth /  2) {
+			if (game.ball.y > ScreenHeight / 2 &&
+				game.ball.speed_y > 0 &&
+				this.x + this.width / 2 > game.ball.x &&
+				this.x >= 0) {
+				this.x -= this.max_speed * game.dt;
+			}
+			if (game.ball.y > ScreenHeight / 2 &&
+				game.ball.speed_y > 0 &&
+				this.x + this.width / 2 < game.ball.x &&
+				this.x + this.width <= ScreenWidth) {
+				this.x += this.max_speed * game.dt;
+			}
+		} else {
+			if (game.ball.y < ScreenHeight / 2 &&
+				game.ball.speed_y < 0 &&
+				this.x + this.width / 2 > game.ball.x &&
+				this.x >= 0) {
+				this.x -= this.max_speed * game.dt;
+			}
+			if (game.ball.y < ScreenHeight / 2 &&
+				game.ball.speed_y < 0 &&
+				this.x + this.width / 2 < game.ball.x &&
+				this.x + this.width <= ScreenWidth) {
+				this.x += this.max_speed * game.dt;
+			}
+		}
     }
 }
 

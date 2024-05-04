@@ -17,6 +17,10 @@ export class Game {
         this.over = false;
 		this.winner = null;
 		this.lastTouch = null;
+		this.player1Left = false;
+		this.player2Left = false;
+		this.player3Left = false;
+		this.player4Left = false;
     }
 
 	clear() {

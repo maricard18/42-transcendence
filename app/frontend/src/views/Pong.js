@@ -111,7 +111,7 @@ export default class Pong extends AbstractView {
 									<canvas
 										width="${this._width}"
 										height="${this._height}"
-										class="canvas-wrapper mt-3"
+										class="mt-3"
 										style="border: 10px solid #fff; border-radius: 15px"
 									/>
 								</div>
@@ -146,7 +146,7 @@ export default class Pong extends AbstractView {
 											width="${this._width}"
 											height="${this._height}"
 											class="mt-3"
-											style="border: 3px solid #ffffff"
+											style="border: 10px solid #fff; border-radius: 15px"
 										/>
 									</div>
 									${new DisplayUsername().getHtml("player2")}
