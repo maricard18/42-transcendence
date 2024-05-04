@@ -1,16 +1,18 @@
 FROM hashicorp/vault:1.13.3 as build
 LABEL authors="bsilva-c"
 
-ARG SSL_CERT_PATH
-ARG SSL_CERT_KEY_PATH
-
 RUN apk update && apk add --no-cache gettext
 
 RUN mkdir -p /vault/config/template/
 
 COPY ./config/vault-config.json /vault/config/template/vault-config.template.json
 
-RUN envsubst '$SSL_CERT_KEY_PATH $SSL_CERT_PATH' < /vault/config/template/vault-config.template.json > /vault/config/vault-config.json
+ARG SSL_CERT_PATH
+ARG SSL_CERT_FILE
+ARG SSL_CERT_KEY_PATH
+ARG SSL_CERT_KEY_FILE
+
+RUN envsubst '$SSL_CERT_PATH $SSL_CERT_FILE $SSL_CERT_KEY_PATH $SSL_CERT_KEY_FILE' < /vault/config/template/vault-config.template.json > /vault/config/vault-config.json
 
 FROM hashicorp/vault:1.13.3 as service
 LABEL authors="bsilva-c"
