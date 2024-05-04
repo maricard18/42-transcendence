@@ -70,6 +70,7 @@ export class Avatar extends HTMLElement {
 
     handleChange(event) {
         const file = event.target.files[0];
+		event.target.value = null;
 
         if (file) {
             const validFileTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];

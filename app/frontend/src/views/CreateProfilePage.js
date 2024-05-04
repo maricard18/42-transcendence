@@ -77,9 +77,7 @@ export default class CreateProfilePage extends AbstractView {
         const input = inputList[inputList.length - 1];
         if (input && !this._inputCallback) {
             this._inputCallback = true;
-            input.addEventListener("input", (event) =>
-                this.inputCallback(event, input)
-            );
+            input.addEventListener("input", (event) => this.inputCallback(event, input));
         }
 
         const avatarBox = this._parentNode.querySelector("avatar-box");
@@ -91,10 +89,7 @@ export default class CreateProfilePage extends AbstractView {
         const submitButton = this._parentNode.querySelector("submit-button");
         if (submitButton && !this._clickCallback) {
             this._clickCallback = true;
-            submitButton.addEventListener(
-                "buttonClicked",
-                this.buttonClickedCallback
-            );
+            submitButton.addEventListener("buttonClicked", this.buttonClickedCallback);
         }
 
 		const removeButton = this._parentNode.querySelector("#remove-avatar");
@@ -127,10 +122,7 @@ export default class CreateProfilePage extends AbstractView {
 
         const submitButton = this._parentNode.querySelector("submit-button");
         if (submitButton) {
-            submitButton.removeEventListener(
-                "buttonClicked",
-                this.buttonClickedCallback
-            );
+            submitButton.removeEventListener("buttonClicked", this.buttonClickedCallback);
         }
 
 		const removeButton = this._parentNode.querySelector("#remove-avatar");
@@ -235,10 +227,7 @@ export default class CreateProfilePage extends AbstractView {
                 this.removeCallbacks();
                 navigateTo("/home");
             } else {
-                newErrors = await handleResponse(
-                    response,
-                    AbstractView.formData
-                );
+                newErrors = await handleResponse(response, AbstractView.formData);
                 this.errors = newErrors;
             }
         }

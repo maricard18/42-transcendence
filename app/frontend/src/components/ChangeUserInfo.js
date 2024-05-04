@@ -466,11 +466,11 @@ export default class ChangeUserInfo extends AbstractView {
 						/>
 						<button 
 							class="btn btn-outline-secondary primary-button extra-btn-class"
-							style="width: 130px"
+							style="width: 70px"
 							type="button" 
 							id="username-btn"
 						>
-							Save Changes
+							Save
 						</button>
 					</div>
 					<div class="input-group mb-3 input-btn"  style="width: 70%" id="email-div">
@@ -485,11 +485,11 @@ export default class ChangeUserInfo extends AbstractView {
 						/>
 						<button 
 							class="btn btn-outline-secondary primary-button extra-btn-class"
-							style="width: 130px"
+							style="width: 70px"
 							type="button" 
 							id="email-btn"
 						>
-							Save Changes
+							Save
 						</button>
 					</div>
 				</div>

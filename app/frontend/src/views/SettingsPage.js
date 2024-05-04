@@ -84,6 +84,7 @@ export default class SettingsPage extends AbstractView {
         };
 
 		this.removeAvatarCallback = async (event) => {
+			console.log("Remove avatar button was clicked");
 			const formDataToSend = new FormData();
             formDataToSend.append("avatar", null);
 
@@ -121,13 +122,13 @@ export default class SettingsPage extends AbstractView {
 			linkButton.addEventListener("click", this.linkButtonCallback);
 		}
 
-		const deleteAccountButton = document.getElementById("#delete-account-button");
+		const deleteAccountButton = document.getElementById("delete-account-button");
 		if (deleteAccountButton && !this._deleteCallback) {
 			this._deleteCallback = true;
 			deleteAccountButton.addEventListener("click", this.deleteAccountCallback);
 		}
 
-		const deleteAvatarButton = document.getElementById("#remove-avatar");
+		const deleteAvatarButton = document.getElementById("remove-avatar");
 		if (deleteAvatarButton && !this._clickCallback) {
 			this._clickCallback = true;
 			deleteAvatarButton.addEventListener("click", this.removeAvatarCallback);
@@ -247,10 +248,7 @@ export default class SettingsPage extends AbstractView {
         }
 
         return `
-			<div
-				class="d-flex flex-column flex-md-row align-items-center justify-content-center vh-100"
-				id="profile-page"
-			>
+			<div class="d-flex flex-column flex-md-row align-items-center justify-content-center vh-100" id="profile-page">
 				<div class="d-flex flex-column justify-content-center primary-box me-3">
 					<div class="mb-3 mt-2">
 						${avatarElement.outerHTML}
