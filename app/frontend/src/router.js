@@ -13,6 +13,7 @@ import {GameMenuOptions, MultiplayerOptions, SinglePlayerOptions, TournamentOpti
 import WaitingRoom from "./views/WaitingRoom.js";
 import Pong from "./views/Pong.js";
 import SettingsPage from "./views/SettingsPage.js";
+import Tournament, { TournamentMatchmaking } from "./views/Tournament.js";
 
 export const routes = [
     {
@@ -118,6 +119,14 @@ export const routes = [
                         view: ChangePassword,
                     }
                 ]
+            },
+			{
+                path: "/pong/tournament/creation",
+				view: Tournament
+            },
+			{
+                path: "/pong/tournament/matchmaking",
+				view: TournamentMatchmaking
             },
             {
                 path: "/pong/play/single-player/1",

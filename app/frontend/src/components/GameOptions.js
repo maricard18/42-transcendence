@@ -208,19 +208,8 @@ export class TournamentOptions extends AbstractView {
 						template="primary-button extra-btn-class"
 						page="${
                             this._game === "pong"
-                                ? "/home/pong/play"
-                                : "/home/tic-tac-toe/play"
-                        }"
-						value="2 Players"
-					></nav-button>
-				</div>
-				<div class="mb-3">
-					<nav-button
-						template="primary-button extra-btn-class"
-						page="${
-                            this._game === "pong"
-                                ? "/home/pong/play"
-                                : "/home/tic-tac-toe/play"
+                                ? "/home/pong/tournament/creation"
+                                : "/home/tic-tac-toe/tournament/creation"
                         }"
 						value="4 Players"
 					></nav-button>
