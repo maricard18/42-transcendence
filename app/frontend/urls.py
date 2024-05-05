@@ -17,6 +17,8 @@ urlpatterns = [
 	re_path(r'^home/pong/multiplayer/waiting-room/4/?$', RenderIndex),
 	re_path(r'^home/pong/single-player/tournament/?$', RenderIndex),
 	re_path(r'^home/pong/multiplayer/tournament/?$', RenderIndex),
+	re_path(r'^home/pong/tournament/creation/?$', RenderIndex),
+	re_path(r'^home/pong/tournament/matchmaking/?$', RenderIndex),
 	re_path(r'^home/pong/play/?$', RenderIndex),
 	re_path(r'^home/pong/play/single-player/1/?$', RenderIndex),
 	re_path(r'^home/pong/play/single-player/2/?$', RenderIndex),
