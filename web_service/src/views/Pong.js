@@ -23,6 +23,17 @@ export default class Pong extends AbstractView {
         this._game;
 
 		if (this._gameMode === "single-player") {
+			if (this._lobbySize == 2) {
+				localStorage.setItem("player1", "Opponent");
+			} else {
+				localStorage.setItem("player2", "CPU");
+			}	
+			localStorage.setItem("game_status", "loading");
+		} else if (this._gameMode === "tournament") {
+			if (!localStorage.getItem("tournament")) {
+				navigateTo("/home");
+				return ;
+			}
 			localStorage.setItem("game_status", "loading");
 		}
 
@@ -32,7 +43,7 @@ export default class Pong extends AbstractView {
             subtree: true,
         });
 
-        if (this._gameMode === "single-player" ||
+        if (this._gameMode === "single-player" || this._gameMode === "tournament" ||
            (this._gameMode === "multiplayer" && this._lobbySize == 2)) {
             this._aspectRatio = this._aspectRatioRectangle;
         } else if (this._gameMode === "multiplayer" && this._lobbySize == 4) {
@@ -73,7 +84,7 @@ export default class Pong extends AbstractView {
     }
 
     async startPongGame() {
-        if (this._gameMode === "single-player" ||
+        if (this._gameMode === "single-player" || this._gameMode === "tournament" ||
            (this._gameMode === "multiplayer" &&
             Object.values(AbstractView.userQueue).length == this._lobbySize)) {
 			const canvas = document.querySelector("canvas");
@@ -92,19 +103,42 @@ export default class Pong extends AbstractView {
 		ctx.fillStyle = "black";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 		ctx.fillStyle = "white";
-		ctx.font = "bold 70px Arial";
+		ctx.font = "bold 80px Arial";
 		ctx.textAlign = "center";
 		ctx.textBaseline = "middle";
-		ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 3);
+		ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 7 * 3);
 	
-		ctx.font = "bold 20px Arial";
-		ctx.fillText("Click anywhere to leave this page", canvas.width / 2, canvas.height / 4 * 3);
+		ctx.font = "bold 17px Arial";
+		ctx.fillText("Click anywhere on the canvas to leave this page", canvas.width / 2, canvas.height / 4 * 3);
 	
 		canvas.addEventListener("click", () => {
-			localStorage.removeItem("game_status");
-			localStorage.removeItem("game_winner");
-			AbstractView.cleanGameData();
-			navigateTo("/home");
+			if (this._gameMode === "tournament") {
+				let match1 = JSON.parse(localStorage.getItem("match1"));
+				let match2 = JSON.parse(localStorage.getItem("match2"));
+				let match3 = JSON.parse(localStorage.getItem("match3"));
+				let tournament = JSON.parse(localStorage.getItem("tournament"));
+				
+				if (match1 && match1["status"] !== "finished") {
+					match1["status"] = "finished";
+					localStorage.setItem("match1", JSON.stringify(match1));
+				} else if (match2 && match2["status"] !== "finished") {
+					match2["status"] = "finished";
+					localStorage.setItem("match2", JSON.stringify(match2));
+				} else if (match3 && match3["status"] !== "finished") {
+					match3["status"] = "finished";
+					localStorage.setItem("match3", JSON.stringify(match3));
+				} else {
+					tournament[4][0] = "finished";
+					localStorage.setItem("tournament", JSON.stringify(tournament));
+				}
+				
+				navigateTo("/home/pong/tournament/matchmaking");
+			} else {
+				localStorage.removeItem("game_status");
+				localStorage.removeItem("game_winner");
+				AbstractView.cleanGameData();
+				navigateTo("/home");
+			}
 		});
 	}
 

@@ -253,6 +253,7 @@ function customPlayerQueueCallback() {
 }
 
 function addCpuPlayer(index, game) {
+	//TODO change player username and image
 	switch (index) {
 		case 0:
 			AbstractView.userData[0].id = -1;
@@ -263,6 +264,7 @@ function addCpuPlayer(index, game) {
 				x: PaddleStartX,
 				y: ScreenHeight / 2 - PaddleHeight / 2,
 				color: "red",
+				info: { username: "CPU" }
 			});
 			break;
 		case 1:
@@ -274,6 +276,7 @@ function addCpuPlayer(index, game) {
 				x: ScreenWidth - PaddleStartX - PaddleWidth,
 				y: ScreenHeight / 2 - PaddleHeight / 2,
 				color: "blue",
+				info: { username: "CPU" }
 			});
 			break;
 		case 2:
@@ -285,6 +288,7 @@ function addCpuPlayer(index, game) {
 				x: ScreenWidth / 2 - PaddleHeight / 2,
 				y: PaddleStartX,
 				color: "green",
+				info: { username: "CPU" }
 			});
 			break;
 		case 3:
@@ -296,6 +300,7 @@ function addCpuPlayer(index, game) {
 				x: ScreenWidth / 2 - PaddleHeight / 2,
 				y: ScreenHeight - PaddleStartX - PaddleWidth,
 				color: "yellow",
+				info: { username: "CPU" }
 			});
 			break;
 	}

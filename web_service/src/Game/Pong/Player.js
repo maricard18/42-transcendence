@@ -62,8 +62,8 @@ export class Player {
 }
 
 export class Cpu extends Player {
-    constructor({x, y, color}) {
-        super({x, y, color});
+    constructor({x, y, color, info}) {
+        super({x, y, color, info});
     }
 
     update(game) {
@@ -158,8 +158,8 @@ export class InvertedPlayer {
 }
 
 export class InvertedCpu extends InvertedPlayer {
-    constructor({x, y, color}) {
-        super({x, y, color});
+    constructor({x, y, color, info}) {
+        super({x, y, color, info});
     }
 
     update(game) {

@@ -137,10 +137,14 @@ export default class Tournament extends AbstractView {
 
         if (!newErrors.message) {
             this.removeCallbacks();
-			localStorage.setItem("username1", this._formData.username1);
-			localStorage.setItem("username2", this._formData.username2);
-			localStorage.setItem("username3", this._formData.username3);
-			localStorage.setItem("username4", this._formData.username4);
+			localStorage.setItem("user1-name", this._formData.username1);
+			localStorage.setItem("user2-name", this._formData.username2);
+			localStorage.setItem("user3-name", this._formData.username3);
+			localStorage.setItem("user4-name", this._formData.username4);
+			localStorage.setItem("user1-image", "/static/images/harry-potter.png");
+			localStorage.setItem("user2-image", "/static/images/darth-vader.png");
+			localStorage.setItem("user3-image", "/static/images/spider-man.png");
+			localStorage.setItem("user4-image", "/static/images/angry-birds.png");
             navigateTo("/home/pong/tournament/matchmaking");
         }
 
@@ -212,28 +216,91 @@ export default class Tournament extends AbstractView {
 export class TournamentMatchmaking extends AbstractView {
     constructor(view) {
         super();
-        this._view = view;
+		this._parentNode = null;
+		this._loading = null;
+		this._clickCallback = false;
+		this._enterCallback = false;
+		this._tournament = null;
+		this._finalMatch = {};
+		this._match1 = null;
+		this._match2 = null;
+		this._match3 = null;
 
-		this._tournament = {
-			player1: localStorage.getItem("username1"),
-			player2: localStorage.getItem("username2"),
-			player3: localStorage.getItem("username3"),
-			player4: localStorage.getItem("username4"),
+		if (!localStorage.getItem("tournament")) {
+			this._tournament = {
+				1: [localStorage.getItem("user1-name"), localStorage.getItem("user1-image")],
+				2: [localStorage.getItem("user2-name"), localStorage.getItem("user2-image")],
+				3: [localStorage.getItem("user3-name"), localStorage.getItem("user3-image")],
+				4: [localStorage.getItem("user4-name"), localStorage.getItem("user4-image")],
+			}
+		} else {
+			this._tournament = JSON.parse(localStorage.getItem("tournament"));
+		}
+		console.log(this._tournament)
+
+		this._match1 = JSON.parse(localStorage.getItem("match1"));
+		this._match2 = JSON.parse(localStorage.getItem("match2"));
+		this._match3 = JSON.parse(localStorage.getItem("match3"));
+
+		if (this._match3 && this._match3["status"] === "finished") {
+			let player;
+			for (let i = 0; i < this._tournament.length; i++) {
+				if (this._tournament[i][0] === this._match3["winner"]) {
+					player = this._tournament[i];
+				}
+			}
+
+			console.log("Player Won:", player);
+		}
+		
+		if (this._match1 && this._match1["status"] === "finished") {
+			let player1;
+			for (let i = 0; i < this._tournament.length; i++) {
+				if (this._tournament[i][0] === this._match1["winner"]) {
+					player1 = this._tournament[i];
+				}
+			}
+
+			this._finalMatch["1"] = ([player1[0], player1[1]]);
+			console.log(this._finalMatch);
+		}
+		if (this._match2 && this._match2["status"] === "finished") {
+			let player2;
+			for (let i = 0; i < this._tournament.length; i++) {
+				if (this._tournament[i][0] === this._match2["winner"]) {
+					player2 = this._tournament[i];
+				}
+			}
+
+			this._finalMatch["2"] = ([player2[0], player2[1]]);
+			console.log("Match 3 Info:", this._finalMatch);
 		}
 
-		if (Object.values(this._tournament).every((value) => value === "")) {
-            setTimeout(() => {
-                navigateTo("/home/pong/tournament/creation");
-            }, 5);
-            return;
-        } else {
+		if (Object.values(this._tournament).some((value) => value[1][0] === null)) {
 			setTimeout(() => {
-				console.log("Old-Order:", this._tournament);
-				this._tournament = this.shuffleArray(Object.entries(this._tournament));
-				console.log("New-Order:", this._tournament);
-                this.loadDOMChanges();
-            }, 5000);
+				navigateTo("/home/pong/tournament/creation");
+			}, 5);
+			return;
+		} else {
+			if (!localStorage.getItem("tournament")) {
+				this._loading = true;
+				setTimeout(() => {
+					this._tournament = this.shuffleArray(Object.entries(this._tournament));
+					this._tournament.push(["status", "not finished"]);
+					localStorage.setItem("tournament", JSON.stringify(this._tournament));
+					this._loading = false;
+					this.loadDOMChanges();
+				}, 3000);
+			} else {
+				this._loading = false;
+			}
 		}
+
+		this._observer = new MutationObserver(this.defineCallback.bind(this));
+        this._observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+        });
     }
 
 	shuffleArray(array) {
@@ -243,6 +310,107 @@ export class TournamentMatchmaking extends AbstractView {
 		}
 		return array;
 	}
+
+	defineCallback() {
+        const parentNode = document.getElementById("tournament-matchmaking");
+        if (parentNode) {
+            this._parentNode = parentNode;
+        } else {
+            return;
+        }
+
+        this.buttonClickedCallback = () => {
+			if (!localStorage.getItem("match1")) {
+				const match1 = {
+					status: "not finished",
+					winner: null,
+					player1: {
+						index: this._tournament[0][0],
+						username: this._tournament[0][1][0],
+						avatar: this._tournament[0][1][1]
+					},
+					player2: {
+						index: this._tournament[1][0],
+						username: this._tournament[1][1][0],
+						avatar: this._tournament[1][1][1]
+					}
+				}
+				localStorage.setItem("match1", JSON.stringify(match1));
+			} else if (!localStorage.getItem("match2")) {
+				const match2 = {
+					status: "not finished",
+					winner: null,
+					player1: {
+						index: this._tournament[2][0],
+						username: this._tournament[2][1][0],
+						avatar: this._tournament[2][1][1]
+					},
+					player2: {
+						index: this._tournament[3][0],
+						username: this._tournament[3][1][0],
+						avatar: this._tournament[3][1][1]
+					}
+				}
+				localStorage.setItem("match2", JSON.stringify(match2));
+			} else if (!localStorage.getItem("match3")) {
+				const match3 = {
+					status: "not finished",
+					winner: null,
+					player1: {
+						index: this._finalMatch["1"][0][0],
+						username: this._finalMatch["1"][1][0],
+						avatar: this._finalMatch["1"][1][1]
+					},
+					player2: {
+						index: this._finalMatch["2"][0],
+						username: this._finalMatch["2"][1][0],
+						avatar: this._finalMatch["2"][1][1]
+					}
+				}
+				localStorage.setItem("match3", JSON.stringify(match3));
+			} else {
+				navigateTo("/home");
+				return ;
+			}
+
+            navigateTo("/home/pong/play/tournament/2");
+        };
+
+		this.keydownCallback = (event) => {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                this.buttonClickedCallback();
+            }
+        };
+
+        const submitButton = this._parentNode.querySelector("submit-button");
+        if (submitButton && !this._clickCallback) {
+            this._clickCallback = true;
+            submitButton.addEventListener("click", this.buttonClickedCallback);
+        }
+
+		if (!this._enterCallback) {
+            this._enterCallback = true;
+            window.addEventListener("keydown", this.keydownCallback);
+        }
+    }
+
+    removeCallbacks() {
+        if (!this._parentNode) {
+            return;
+        }
+
+        const submitButton = this._parentNode.querySelector("submit-button");
+        if (submitButton) {
+            submitButton.removeEventListener("buttonClicked", this.buttonClickedCallback);
+        }
+
+		window.removeEventListener("keydown", this.keydownCallback);
+
+        this._clickCallback = false;
+		this._enterCallback = false;
+        this._observer.disconnect();
+    }
 
 	loadDOMChanges() {
         const parentNode = document.getElementById("tournament-matchmaking");
@@ -255,70 +423,172 @@ export class TournamentMatchmaking extends AbstractView {
     }
 
 	loadMatchmakingContent() {
+		const tournament = JSON.parse(localStorage.getItem("tournament"));
+
 		return `
-			<div class="d-flex flex-column flex-md-row  align-items-center justify-content-center justify-content-md-evenly vh-100 row">
-				<div class="d-flex flex-column col-md-6 box p-3">
-					<h3 style="font-size: 40px; font-weight: bold">First match</h3>
-					<div class="d-flex flex-row justify-content-center mt-3">
-						<div class="d-flex flex-column align-items-center">
-							<base-avatar-box 
-								size="50px"
-								template="white-border-sm"
-							></base-avatar-box>
-							<h1 class="mt-2" style="font-size: 20px">${this._tournament[0][1]}</h1>
-						</div>
-						<div class="d-flex flex-column align-items-center justify-content-center">
-							<div class="ms-3 me-3">
-								<h1 style="font-weight: bold">VS</h1>
+			<div class="d-flex flex-column justify-content-center vh-100">
+				<div class="d-flex flex-column flex-md-row  align-items-center justify-content-center justify-content-md-evenly m-3">
+					<div class="d-flex flex-column col-md-6 box m-3" style="width: 400px">
+						<h3 style="font-size: 40px; font-weight: bold">Match 1</h3>
+						<div class="d-flex flex-row justify-content-center mt-4">
+							<div class="d-flex flex-column align-items-center">
+								<img
+									src="${this._tournament[0][1][1]}"
+									alt="Avatar preview"
+									width="50"
+									height="50"
+									class="white-border-sm"
+									style="border-radius: 50%"
+								/>
+								<h1 class="mt-2" style="font-size: 20px">${this._tournament[0][1][0]}</h1>
+							</div>
+							<div class="d-flex flex-column align-items-center justify-content-start">
+								<div class="ms-4 me-4 mt-1">
+									<h1 style="font-weight: bold">VS</h1>
+								</div>
+							</div>
+							<div class="d-flex flex-column align-items-center">
+								<img
+									src="${this._tournament[1][1][1]}"
+									alt="Avatar preview"
+									width="50"
+									height="50"
+									class="white-border-sm"
+									style="border-radius: 50%"
+								/>
+								<h1 class="mt-2" style="font-size: 20px">${this._tournament[1][1][0]}</h1>
 							</div>
 						</div>
-						<div class="d-flex flex-column align-items-center">
-							<base-avatar-box 
-								size="50px"
-								template="white-border-sm"
-							></base-avatar-box>
-							<h1 class="mt-2" style="font-size: 20px">${this._tournament[1][1]}</h1>
+					</div>
+					<div class="d-flex flex-column col-md-6 box m-3" style="width: 400px">
+						<h3 style="font-size: 40px; font-weight: bold">Match 2</h3>
+						<div class="d-flex flex-row justify-content-center mt-4">
+							<div class="d-flex flex-column align-items-center">
+								<img
+									src="${this._tournament[2][1][1]}"
+									alt="Avatar preview"
+									width="50"
+									height="50"
+									class="white-border-sm"
+									style="border-radius: 50%"
+								/>
+								<h1 class="mt-2" style="font-size: 20px">${this._tournament[2][1][0]}</h1>
+							</div>
+							<div class="d-flex flex-column align-items-center justify-content-start">
+								<div class="ms-4 me-4 mt-1">
+									<h1 style="font-weight: bold">VS</h1>
+								</div>
+							</div>
+							<div class="d-flex flex-column align-items-center">
+								<img
+									src="${this._tournament[3][1][1]}"
+									alt="Avatar preview"
+									width="50"
+									height="50"
+									class="white-border-sm"
+									style="border-radius: 50%"
+								/>
+								<h1 class="mt-2" style="font-size: 20px">${this._tournament[3][1][0]}</h1>
+							</div>
 						</div>
 					</div>
 				</div>
-				<div class="d-flex flex-column col-md-6 box p-3">
-					<h3 style="font-size: 40px; font-weight: bold">Second match</h3>
-					<div class="d-flex flex-row justify-content-center mt-3">
-						<div class="d-flex flex-column align-items-center">
-							<base-avatar-box 
-								size="50px"
-								template="white-border-sm"
-							></base-avatar-box>
-							<h1 class="mt-2" style="font-size: 20px">${this._tournament[2][1]}</h1>
-						</div>
-						<div class="d-flex flex-column align-items-center justify-content-center">
-							<div class="ms-3 me-3">
-								<h1 style="font-weight: bold">VS</h1>
+				<div class="d-flex flex-column flex-md-row  align-items-center justify-content-center m-3">
+					<div class="d-flex flex-column col-md-6 box m-3" style="width: 400px">
+						<h3 style="font-size: 40px; font-weight: bold">Final Match</h3>
+						<div class="d-flex flex-row justify-content-center mt-4">
+							<div class="d-flex flex-column align-items-center">
+							${
+								this._match1
+									? `<img
+											src="${this._finalMatch["1"][1][1]}"
+											alt="Avatar preview"
+											width="50"
+											height="50"
+											class="white-border-sm"
+											style="border-radius: 50%"
+										/>
+										<h1 class="mt-2" style="font-size: 20px">${this._finalMatch["1"][1][0]}</h1>`
+									: `<base-avatar-box
+											size="50px"
+											template="white-border-sm"
+										></base-avatar-box>
+										<h1 class="mt-2" style="font-size: 20px">Winner 1</h1>`
+							}
+							</div>
+							<div class="d-flex flex-column align-items-center justify-content-start">
+								<div class="ms-4 me-4 mt-1">
+									<h1 style="font-weight: bold">VS</h1>
+								</div>
+							</div>
+							<div class="d-flex flex-column align-items-center">
+							${
+								this._match2
+									? `<img
+											src="${this._finalMatch["2"][1][1]}"
+											alt="Avatar preview"
+											width="50"
+											height="50"
+											class="white-border-sm"
+											style="border-radius: 50%"
+										/>
+										<h1 class="mt-2" style="font-size: 20px">${this._finalMatch["2"][1][0]}</h1>`
+									: `<base-avatar-box
+											size="50px"
+											template="white-border-sm"
+										></base-avatar-box>
+										<h1 class="mt-2" style="font-size: 20px">Winner 2</h1>`
+							}
 							</div>
 						</div>
-						<div class="d-flex flex-column align-items-center">
-							<base-avatar-box 
-								size="50px"
-								template="white-border-sm"
-							></base-avatar-box>
-							<h1 class="mt-2" style="font-size: 20px">${this._tournament[3][1]}</h1>
-						</div>
 					</div>
+				</div>
+				<div class="d-flex flex-row justify-content-center mt-4">
+					<submit-button
+						type="button"
+						template="white-button extra-btn-class"
+						value="${tournament && tournament[4][0] === "finished" ? "Home" : "Start Game"}"
+					></submit-button>   
 				</div>
 			</div>
         `;
 	}
 
     async getHtml() {
-        return `
-            <div class="container" id="tournament-matchmaking">
-				<div class="d-flex flex-column center">
-					<div class="mb-5">
-						<h1 class="header">Sorting tournament order</h1>
+		if (this._loading) {
+			return `
+				<div class="container" id="tournament-matchmaking">
+					<div class="d-flex flex-column center">
+						<div class="mb-5">
+							<h1 class="header">Sorting tournament order</h1>
+						</div>
+						<loading-icon size="5rem"></loading-icon>
 					</div>
-					<loading-icon size="5rem"></loading-icon>
 				</div>
-            </div>
-        `;
+			`;
+		} else {
+			return `
+				<div class="container" id="tournament-matchmaking">
+					${this.loadMatchmakingContent()}
+				</div>
+			`;
+		}
     }
+}
+
+export function findTournamentMatch() {
+	const match1 = JSON.parse(localStorage.getItem("match1"));
+	const match2 = JSON.parse(localStorage.getItem("match2"));
+	const match3 = JSON.parse(localStorage.getItem("match3"));
+
+	if (match1 && match1["status"] !== "finished") {
+		return match1;
+	} else if (match2 && match2["status"] !== "finished") {
+		return match2;
+	} else if (match3 && match3["status"] !== "finished") {
+		return match3;
+	}
+
+	console.error("Error: findTorunamentMatch()");
+	return null;
 }

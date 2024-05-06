@@ -137,6 +137,10 @@ export const routes = [
 				view: Pong
             },
 			{
+                path: "/pong/play/tournament/2",
+				view: Pong
+            },
+			{
                 path: "/tic-tac-toe/play/single-player/1"
             },
             {

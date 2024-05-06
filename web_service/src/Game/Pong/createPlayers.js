@@ -1,8 +1,9 @@
 import AbstractView from "../../views/AbstractView";
-import {Cpu, InvertedOpponent, InvertedPlayer, Opponent, Player} from "./Player";
-import {Ball} from "./Ball";
-import {Game} from "./Game";
-import {PaddleHeight, PaddleStartX, PaddleWidth, ScreenHeight, ScreenWidth} from "./variables";
+import { Cpu, InvertedOpponent, InvertedPlayer, Opponent, Player } from "./Player";
+import { Ball } from "./Ball";
+import { Game } from "./Game";
+import { PaddleHeight, PaddleStartX, PaddleWidth, ScreenHeight, ScreenWidth } from "./variables";
+import { findTournamentMatch } from "../../views/Tournament";
 
 export function createSinglePlayerGameObjects(ctx, lobbySize) {
     const player1 =
@@ -21,7 +22,7 @@ export function createSinglePlayerGameObjects(ctx, lobbySize) {
                 color: "red",
                 keyUp: "w",
                 keyDown: "s",
-                info: 0,
+                info: { username: localStorage.getItem("player1") }
             });
 
     const player2 =
@@ -30,6 +31,7 @@ export function createSinglePlayerGameObjects(ctx, lobbySize) {
                 x: ScreenWidth - PaddleStartX - PaddleWidth,
                 y: ScreenHeight / 2 - PaddleHeight / 2,
                 color: "blue",
+				info: { username: localStorage.getItem("player2") }
             })
             : new Player({
                 x: ScreenWidth - PaddleStartX - PaddleWidth,
@@ -262,5 +264,41 @@ export function createMultiPlayer4GameObjects(ctx, lobbySize) {
         mode: "multiplayer",
         host_id: host_id,
         lobbySize: lobbySize,
+    });
+}
+
+export function createTournamentGameObjects(ctx) {
+	const match = findTournamentMatch();
+    
+	const player1 = new Player({
+		x: PaddleStartX,
+		y: ScreenHeight / 2 - PaddleHeight / 2,
+		color: "red",
+		keyUp: "w",
+		keyDown: "s",
+		info: match["player1"]
+	});
+
+    const player2 = new Player({
+		x: ScreenWidth - PaddleStartX - PaddleWidth,
+		y: ScreenHeight / 2 - PaddleHeight / 2,
+		color: "blue",
+		keyUp: "ArrowUp",
+		keyDown: "ArrowDown",
+		info: match["player2"]
+	});
+
+    return new Game({
+        ctx: ctx,
+        ball: new Ball({
+            x: ScreenWidth / 2,
+            y: ScreenHeight / 2,
+            color: "white",
+        }),
+        player1: player1,
+        player2: player2,
+        mode: "tournament",
+        host_id: null,
+        lobbySize: "2",
     });
 }

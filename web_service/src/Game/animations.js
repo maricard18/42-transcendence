@@ -112,9 +112,9 @@ export function gameConfettiAnimation(game) {
 
         const drawWinnerName = (ctx) => {
             ctx.fillStyle = "white";
-            ctx.font = "bold 30px Arial";
+            ctx.font = "bold 50px Arial";
             ctx.textAlign = "center";
-            ctx.fillText(game.winner + " wins", ctx.canvas.width / 2, ctx.canvas.height / 2);
+            ctx.fillText(game.winner + " wins", ctx.canvas.width / 2, ctx.canvas.height / 7 * 3);
         };
 
         const animate = () => {
