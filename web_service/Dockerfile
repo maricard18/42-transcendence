@@ -22,8 +22,7 @@ COPY . .
 CMD ["npm", "run", "dev"]
 
 # SECOND STAGE -- PROD
-FROM node:20.11.0-alpine3.18 as prod
-#FROM gcr.io/distroless/nodejs20-debian12 as prod
+FROM gcr.io/distroless/nodejs20-debian12 as prod
 LABEL authors="bsilva-c"
 
 ENV NODE_PATH="/node_modules/"
