@@ -136,7 +136,6 @@ services:
       SSL_CERT_KEY_FILE: ${SSL_CERT_KEY_FILE}
       VAULT_PORT: 8200
       SSL_PORT: 8443
-      VAULT_PORT: 8200
       PORT: 8080
       # ModSecurity
       MODSEC_RULE_ENGINE: On
