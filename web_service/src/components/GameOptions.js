@@ -96,8 +96,8 @@ export class SinglePlayerOptions extends AbstractView {
 						template="primary-button extra-btn-class"
 						page="	${
 									this._game === "pong"
-										? "/home/pong/single-player/tournament"
-										: "/home/tic-tac-toe/single-player/tournament"
+										? "/home/pong/tournament"
+										: "/home/tic-tac-toe/tournament"
 								}"
 						value="Tournament"
 					></nav-button>

@@ -73,11 +73,7 @@ export const routes = [
 						view: [Game1, WaitingRoom]
                     },
                     {
-                        path: "/pong/single-player/tournament",
-                        view: [Game1, TournamentOptions]
-                    },
-                    {
-                        path: "/pong/multiplayer/tournament",
+                        path: "/pong/tournament",
                         view: [Game1, TournamentOptions]
                     },
 					{
@@ -97,11 +93,7 @@ export const routes = [
 						view: [WaitingRoom, Game2]
                     },
                     {
-                        path: "/tic-tac-toe/single-player/tournament",
-                        view: [TournamentOptions, Game2]
-                    },
-                    {
-                        path: "/tic-tac-toe/multiplayer/tournament",
+                        path: "/tic-tac-toe/tournament",
                         view: [TournamentOptions, Game2]
                     }
                 ]

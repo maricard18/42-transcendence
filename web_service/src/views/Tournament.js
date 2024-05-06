@@ -163,7 +163,7 @@ export default class Tournament extends AbstractView {
 								id="username1"
 								type="text"
 								class="form-control primary-form extra-form-class"
-								placeholder="player 1 name"
+								placeholder="player 1 nickname"
 								value=""
 							/>
 						</div>
@@ -172,7 +172,7 @@ export default class Tournament extends AbstractView {
 								id="username2"
 								type="text"
 								class="form-control primary-form extra-form-class"
-								placeholder="player 2 name"
+								placeholder="player 2 nickname"
 								value=""
 							/>
 						</div>
@@ -181,7 +181,7 @@ export default class Tournament extends AbstractView {
 								id="username3"
 								type="text"
 								class="form-control primary-form extra-form-class"
-								placeholder="player 3 name"
+								placeholder="player 3 nickname"
 								value=""
 							/>
 						</div>
@@ -190,7 +190,7 @@ export default class Tournament extends AbstractView {
 								id="username4"
 								type="text"
 								class="form-control primary-form extra-form-class"
-								placeholder="player 4 name"
+								placeholder="player 4 nickname"
 								value=""
 							/>
 						</div>
@@ -221,8 +221,6 @@ export class TournamentMatchmaking extends AbstractView {
 			player4: localStorage.getItem("username4"),
 		}
 
-		console.log("PlayersInfo:", this._tournament);
-
 		if (Object.values(this._tournament).every((value) => value === "")) {
             setTimeout(() => {
                 navigateTo("/home/pong/tournament/creation");
@@ -230,10 +228,21 @@ export class TournamentMatchmaking extends AbstractView {
             return;
         } else {
 			setTimeout(() => {
+				console.log("Old-Order:", this._tournament);
+				this._tournament = this.shuffleArray(Object.entries(this._tournament));
+				console.log("New-Order:", this._tournament);
                 this.loadDOMChanges();
             }, 5000);
 		}
     }
+
+	shuffleArray(array) {
+		for (let i = array.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[array[i], array[j]] = [array[j], array[i]];
+		}
+		return array;
+	}
 
 	loadDOMChanges() {
         const parentNode = document.getElementById("tournament-matchmaking");
@@ -247,15 +256,57 @@ export class TournamentMatchmaking extends AbstractView {
 
 	loadMatchmakingContent() {
 		return `
-			<div class="d-flex flex-column flex-md-row align-items-center justify-content-center justify-content-md-evenly vh-100 row">
-				<div class="d-flex flex-column">
-					<h1>test 1</h1>
+			<div class="d-flex flex-column flex-md-row  align-items-center justify-content-center justify-content-md-evenly vh-100 row">
+				<div class="d-flex flex-column col-md-6 box p-3">
+					<h3 style="font-size: 40px; font-weight: bold">First match</h3>
+					<div class="d-flex flex-row justify-content-center mt-3">
+						<div class="d-flex flex-column align-items-center">
+							<base-avatar-box 
+								size="50px"
+								template="white-border-sm"
+							></base-avatar-box>
+							<h1 class="mt-2" style="font-size: 20px">${this._tournament[0][1]}</h1>
+						</div>
+						<div class="d-flex flex-column align-items-center justify-content-center">
+							<div class="ms-3 me-3">
+								<h1 style="font-weight: bold">VS</h1>
+							</div>
+						</div>
+						<div class="d-flex flex-column align-items-center">
+							<base-avatar-box 
+								size="50px"
+								template="white-border-sm"
+							></base-avatar-box>
+							<h1 class="mt-2" style="font-size: 20px">${this._tournament[1][1]}</h1>
+						</div>
+					</div>
 				</div>
-				<div class="d-flex flex-column">
-					<h1>test 2</h1>
+				<div class="d-flex flex-column col-md-6 box p-3">
+					<h3 style="font-size: 40px; font-weight: bold">Second match</h3>
+					<div class="d-flex flex-row justify-content-center mt-3">
+						<div class="d-flex flex-column align-items-center">
+							<base-avatar-box 
+								size="50px"
+								template="white-border-sm"
+							></base-avatar-box>
+							<h1 class="mt-2" style="font-size: 20px">${this._tournament[2][1]}</h1>
+						</div>
+						<div class="d-flex flex-column align-items-center justify-content-center">
+							<div class="ms-3 me-3">
+								<h1 style="font-weight: bold">VS</h1>
+							</div>
+						</div>
+						<div class="d-flex flex-column align-items-center">
+							<base-avatar-box 
+								size="50px"
+								template="white-border-sm"
+							></base-avatar-box>
+							<h1 class="mt-2" style="font-size: 20px">${this._tournament[3][1]}</h1>
+						</div>
+					</div>
 				</div>
-            </div>
-		`;
+			</div>
+        `;
 	}
 
     async getHtml() {

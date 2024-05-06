@@ -11,6 +11,7 @@
 }
 
 .white-border-sm {
+	border: 1px solid white;
     outline: 2px solid white;
     border-radius: 50%;
 }

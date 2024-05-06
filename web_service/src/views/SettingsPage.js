@@ -259,7 +259,7 @@ export default class SettingsPage extends AbstractView {
 								value="Change Password"
 							></nav-button>
 							<nav-button
-								template="secondary-button extra-btn-class"
+								template="primary-button extra-btn-class"
 								page="${link}"
 								style="border-radius: 0%"
 								value="Link 42 Account"
