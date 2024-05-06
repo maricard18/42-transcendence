@@ -25,8 +25,18 @@ export function encodeData(data) {
     return Buffer.from(data).toString('base64');
 }
 
+export function decodeData(data) {
+    return Buffer.from(data, 'base64').toString('utf8');
+}
+
 export async function transitEncrypt(data) {
     await vaultConnect();
     const response = await vaultClient.write('transit/encrypt/transcendence', {plaintext: encodeData(data)});
     return response.data.ciphertext;
+}
+
+export async function transitDecrypt(data) {
+    await vaultConnect();
+    const response = await vaultClient.write('transit/decrypt/transcendence', {ciphertext: data});
+    return decodeData(response.data.plaintext);
 }

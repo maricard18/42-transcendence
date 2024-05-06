@@ -47,9 +47,9 @@ class UserViewSet(viewsets.ViewSet):
             port = "" if request.get_port() in ["80", "443"] else ":" + request.get_port()
             url = request.scheme + "://" + request.get_host() + port + request.path + '/' + str(user.id)
             return Response({
-                'id': user.id,
-                'login': user.username,
-                'url': url
+                'id': Vault.transitEncrypt(str(user.id)),
+                'login': Vault.transitEncrypt(user.username),
+                'url': Vault.transitEncrypt(url)
             }, status=status.HTTP_201_CREATED)
         username_errors = serializer.errors.get('username', None)
         if username_errors and any(error == "A user with that username already exists." for error in username_errors):
