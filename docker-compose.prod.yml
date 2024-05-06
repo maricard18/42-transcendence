@@ -42,9 +42,13 @@ services:
       SSO_42_REDIRECT_URI: ${SSO_42_REDIRECT_URI}
       SSO_42_CLIENT_ID: ${SSO_42_CLIENT_ID}
       DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
-      VAULT_ADDR: http://vault_service:8200
+      VAULT_ADDR: https://modsecurity:8200
       VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
       VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
+      SSL_CERT_PATH: ${SSL_CERT_PATH}
+      SSL_CERT_FILE: ${SSL_CERT_FILE}
+      SSL_CERT_KEY_PATH: ${SSL_CERT_KEY_PATH}
+      SSL_CERT_KEY_FILE: ${SSL_CERT_KEY_FILE}
     secrets:
       - auth_service-postgres_host
       - auth_service-postgres_db
@@ -56,8 +60,10 @@ services:
     networks:
       - transcendence
     volumes:
-      - auth_service-daphne_sock:/tmp/daphne/:rw
+      - auth_service-daphne_sock:/run/daphne/:rw
       - media_data:/app/media/:rw
+      - ssl_cert_data:${SSL_CERT_PATH}:ro
+      - ssl_cert_key_data:${SSL_CERT_KEY_PATH}:ro
       - vault_services_data:/vault/transcendence/:ro
     depends_on:
       auth_service-postgres:
@@ -80,16 +86,22 @@ services:
       REDIS_HOST: redis_service
       REDIS_PORT: 6379
       DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
-      VAULT_ADDR: http://vault_service:8200
+      VAULT_ADDR: https://modsecurity:8200
       VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
       VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
+      SSL_CERT_PATH: ${SSL_CERT_PATH}
+      SSL_CERT_FILE: ${SSL_CERT_FILE}
+      SSL_CERT_KEY_PATH: ${SSL_CERT_KEY_PATH}
+      SSL_CERT_KEY_FILE: ${SSL_CERT_KEY_FILE}
     expose:
       - "8000"
     networks:
       - transcendence
     volumes:
-      - game_service-daphne_sock:/tmp/daphne/:rw
+      - game_service-daphne_sock:/run/daphne/:rw
       - media_data:/app/media/:rw
+      - ssl_cert_data:${SSL_CERT_PATH}:ro
+      - ssl_cert_key_data:${SSL_CERT_KEY_PATH}:ro
       - vault_services_data:/vault/transcendence/:ro
     depends_on:
       redis_service:
@@ -106,18 +118,24 @@ services:
     build:
       context: .
       dockerfile: modsecurity-nginx/Dockerfile
+      target: prod
       args:
-        - SSL_CERT
-        - SSL_CERT_KEY
+        - SSL_CERT_PATH
+        - SSL_CERT_FILE
+        - SSL_CERT_KEY_PATH
+        - SSL_CERT_KEY_FILE
     environment:
       # NGINX
-      AUTH_SERVICE_BACKEND: http://unix:/tmp/daphne/auth_service/daphne.sock
-      GAME_SERVICE_BACKEND: http://unix:/tmp/daphne/game_service/daphne.sock
+      AUTH_SERVICE_BACKEND: http://unix:/run/daphne/auth_service/daphne.sock
+      GAME_SERVICE_BACKEND: http://unix:/run/daphne/game_service/daphne.sock
+      VAULT_SERVICE_BACKEND: https://vault_service:8200
       NGINX_ALWAYS_TLS_REDIRECT: on
-      SSL_CERT: ${SSL_CERT}
-      SSL_CERT_KEY: ${SSL_CERT_KEY}
-      SSL_PORT: 8443
+      SSL_CERT_PATH: ${SSL_CERT_PATH}
+      SSL_CERT_FILE: ${SSL_CERT_FILE}
+      SSL_CERT_KEY_PATH: ${SSL_CERT_KEY_PATH}
+      SSL_CERT_KEY_FILE: ${SSL_CERT_KEY_FILE}
       VAULT_PORT: 8200
+      SSL_PORT: 8443
       PORT: 8080
       # ModSecurity
       MODSEC_RULE_ENGINE: On
@@ -127,15 +145,18 @@ services:
       ALLOWED_METHODS: GET HEAD POST PUT DELETE OPTIONS
     ports:
       - "8080:8080"
+      - "8200:8200"
       - "8443:8443"
     networks:
       - transcendence
     volumes:
-      - auth_service-daphne_sock:/tmp/daphne/auth_service/:rw
-      - game_service-daphne_sock:/tmp/daphne/game_service/:rw
+      - auth_service-daphne_sock:/run/daphne/auth_service/:rw
+      - game_service-daphne_sock:/run/daphne/game_service/:rw
       - web_service-data:/usr/share/nginx/html/:ro
       - static_data:/app/static/:ro
       - media_data:/app/media/:ro
+      - ssl_cert_data:${SSL_CERT_PATH}:rw
+      - ssl_cert_key_data:${SSL_CERT_KEY_PATH}:rw
     profiles: [ "", "auth_service", "game_service", "web_service" ]
     restart: on-failure
 
@@ -154,12 +175,23 @@ services:
     build:
       context: vault/
       target: service
-    ports:
-      - "8200:8200"
+      args:
+        - SSL_CERT_PATH
+        - SSL_CERT_FILE
+        - SSL_CERT_KEY_PATH
+        - SSL_CERT_KEY_FILE
+    expose:
+      - "8200"
     networks:
       - transcendence
+    volumes:
+      - ssl_cert_data:${SSL_CERT_PATH}:ro
+      - ssl_cert_key_data:${SSL_CERT_KEY_PATH}:ro
     cap_add:
       - IPC_LOCK
+    depends_on:
+      modsecurity:
+        condition: service_started
     profiles: [ "", "auth_service", "web_service" ]
 
   vault_service-init:
@@ -168,10 +200,13 @@ services:
       context: vault/
       target: init
     environment:
-      VAULT_ADDR: http://vault_service:8200
+      VAULT_ADDR: https://vault_service:8200
+      VAULT_SKIP_VERIFY: true
+      VAULT_CACERT: ${SSL_CERT_PATH}${SSL_CERT_FILE}
     networks:
       - transcendence
     volumes:
+      - ssl_cert_data:${SSL_CERT_PATH}:ro
       - vault_keys_data:/vault/keys/:rw
       - vault_root_data:/vault/root/:rw
       - vault_services_data:/vault/transcendence/:rw
@@ -190,9 +225,13 @@ services:
       POSTGRES_DB_FILE: /run/secrets/auth_service-postgres_db
       POSTGRES_USER_FILE: /run/secrets/auth_service-postgres_user
       POSTGRES_PASSWORD_FILE: /run/secrets/auth_service-postgres_password
-      VAULT_ADDR: http://vault_service:8200
+      VAULT_ADDR: https://modsecurity:8200
       VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
       VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
+      SSL_CERT_PATH: ${SSL_CERT_PATH}
+      SSL_CERT_FILE: ${SSL_CERT_FILE}
+      SSL_CERT_KEY_PATH: ${SSL_CERT_KEY_PATH}
+      SSL_CERT_KEY_FILE: ${SSL_CERT_KEY_FILE}
     secrets:
       - auth_service-postgres_host
       - auth_service-postgres_db
@@ -202,6 +241,8 @@ services:
     networks:
       - transcendence
     volumes:
+      - ssl_cert_data:${SSL_CERT_PATH}:ro
+      - ssl_cert_key_data:${SSL_CERT_KEY_PATH}:ro
       - vault_services_data:/vault/transcendence/:ro
     depends_on:
       auth_service-postgres:
@@ -217,15 +258,21 @@ services:
       context: auth_service/
       target: tools
     environment:
-      VAULT_ADDR: http://vault_service:8200
+      VAULT_ADDR: https://modsecurity:8200
       VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
       VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
+      SSL_CERT_PATH: ${SSL_CERT_PATH}
+      SSL_CERT_FILE: ${SSL_CERT_FILE}
+      SSL_CERT_KEY_PATH: ${SSL_CERT_KEY_PATH}
+      SSL_CERT_KEY_FILE: ${SSL_CERT_KEY_FILE}
     entrypoint: [ "python3", "/app/manage.py", "collectstatic", "--noinput" ]
     networks:
       - transcendence
     volumes:
       - ./auth_service/:/app/:ro
       - static_data:/app/static/:rw
+      - ssl_cert_data:${SSL_CERT_PATH}:ro
+      - ssl_cert_key_data:${SSL_CERT_KEY_PATH}:ro
       - vault_services_data:/vault/transcendence/:ro
     depends_on:
       vault_service-init:
@@ -239,15 +286,21 @@ services:
       context: auth_service/
       target: tools
     environment:
-      VAULT_ADDR: http://vault_service:8200
+      VAULT_ADDR: https://modsecurity:8200
       VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
       VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
+      SSL_CERT_PATH: ${SSL_CERT_PATH}
+      SSL_CERT_FILE: ${SSL_CERT_FILE}
+      SSL_CERT_KEY_PATH: ${SSL_CERT_KEY_PATH}
+      SSL_CERT_KEY_FILE: ${SSL_CERT_KEY_FILE}
     entrypoint: [ "python3", "/app/manage.py", "collectstatic", "--noinput" ]
     networks:
       - transcendence
     volumes:
       - ./game_service/:/app/:ro
       - static_data:/app/static/:rw
+      - ssl_cert_data:${SSL_CERT_PATH}:ro
+      - ssl_cert_key_data:${SSL_CERT_KEY_PATH}:ro
       - vault_services_data:/vault/transcendence/:ro
     depends_on:
       vault_service-init:
@@ -281,11 +334,15 @@ volumes:
   auth_service-daphne_sock:
   game_service-daphne_sock:
   web_service-data:
+  static_data:
+  media_data:
+
+  ssl_cert_data:
+  ssl_cert_key_data:
+
   vault_root_data:
   vault_keys_data:
   vault_services_data:
-  static_data:
-  media_data:
 
 secrets:
   auth_service-postgres_host:

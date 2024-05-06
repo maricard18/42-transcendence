@@ -1,5 +1,9 @@
 export var vaultClient = require("node-vault")({
-    apiVersion: 'v1'
+    apiVersion: 'v1',
+    endpoint: 'https://' + window.location.hostname + ':8200',
+    requestOptions: {
+        strictSSL: false
+    }
 });
 
 export async function vaultConnect() {

@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: bsilva-c <bsilva-c@student.42porto.com>    +#+  +:+       +#+         #
+#    By: wcorrea- <wcorrea-@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/02/15 17:36:39 by bsilva-c          #+#    #+#              #
-#    Updated: 2024/05/02 20:01:35 by bsilva-c         ###   ########.fr        #
+#    Updated: 2024/05/06 16:25:06 by wcorrea-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,7 +33,7 @@ endif
 #### Using Makefile to call specific service
 ##
 
-SERVICES = auth_service game_service web_service modsecurity vault
+SERVICES = auth_service game_service web_service vault_service modsecurity
 _SERVICE = $(SERVICE)
 
 # Check if service is valid
