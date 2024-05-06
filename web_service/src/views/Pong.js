@@ -88,9 +88,7 @@ export default class Pong extends AbstractView {
 
 	gameOverScreen() {
 		const canvas = document.querySelector("canvas");
-		console.log("canvas:", canvas);
 		const ctx = canvas.getContext("2d");
-		console.log("ctx:", ctx);
 		ctx.fillStyle = "black";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 		ctx.fillStyle = "white";

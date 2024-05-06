@@ -111,14 +111,14 @@ export default class LoginPage extends AbstractView {
     set errors(value) {
         this._errors = value;
 
-        if (this.errors.message) {
+        if (this._errors.message) {
             const p = document.querySelector("p");
-            p.innerText = this.errors.message;
+            p.innerText = this._errors.message;
 
             const inputList = document.querySelectorAll("input");
             inputList.forEach((input) => {
                 const id = input.getAttribute("id");
-                if (this.errors[id]) {
+                if (this._errors[id]) {
                     input.classList.add("input-error");
                     this._formData[id] = input.value;
                 } else if (input.classList.contains("input-error")) {

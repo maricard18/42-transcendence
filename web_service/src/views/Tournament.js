@@ -107,16 +107,16 @@ export default class Tournament extends AbstractView {
     set errors(value) {
         this._errors = value;
 
-        if (this.errors.message) {
+        if (this._errors.message) {
             const p = this._parentNode.querySelector("p");
-            p.innerText = this.errors.message;
+            p.innerText = this._errors.message;
 
             const inputList = this._parentNode.querySelectorAll("input");
             inputList.forEach((input) => {
                 const id = input.getAttribute("id");
-                if (this.errors[id]) {
+                if (this._errors[id]) {
                     input.classList.add("input-error");
-                    AbstractView.formData[id] = input.value;
+                    this._formData[id] = input.value;
                 } else if (input.classList.contains("input-error")) {
                     input.classList.remove("input-error");
                 }
@@ -132,7 +132,7 @@ export default class Tournament extends AbstractView {
         this._insideRequest = true;
         const newErrors = validateTournamentForm(this._formData);
         if (Object.values(newErrors).length !== 0) {
-            this._errors = newErrors;
+            this.errors = newErrors;
         }
 
         if (!newErrors.message) {
