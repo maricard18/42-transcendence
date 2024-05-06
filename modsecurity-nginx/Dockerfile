@@ -4,34 +4,70 @@ LABEL authors="bsilva-c"
 
 USER root
 
-ARG SSL_CERT
-ARG SSL_CERT_KEY
+ARG SSL_CERT_PATH
+ARG SSL_CERT_FILE
+ARG SSL_CERT=${SSL_CERT_PATH}${SSL_CERT_FILE}
+
+ARG SSL_CERT_KEY_PATH
+ARG SSL_CERT_KEY_FILE
+ARG SSL_CERT_KEY=${SSL_CERT_KEY_PATH}${SSL_CERT_KEY_FILE}
 
 RUN apk update && apk add --no-cache openssl
 
 # Generate TLS Certificate
-RUN mkdir -p "$(dirname "$SSL_CERT")"
-RUN mkdir -p "$(dirname "$SSL_CERT_KEY")"
+RUN mkdir -p $SSL_CERT_PATH
+RUN mkdir -p $SSL_CERT_KEY_PATH
 RUN openssl req -x509 -nodes -sha256 -newkey rsa:4096 \
     -subj "/C=PT/ST=Porto/L=Porto/O=42/OU=42Porto/CN=localhost" \
-    -keyout "$SSL_CERT_KEY" \
-    -out "$SSL_CERT"
+    -keyout "${SSL_CERT_KEY}" \
+    -out "${SSL_CERT}"
+
+RUN chmod o+r ${SSL_CERT}
+RUN chmod o+r ${SSL_CERT_KEY}
+
+COPY modsecurity-nginx/conf.d/default.conf /etc/nginx/templates/conf.d/default.conf.template
+COPY modsecurity-nginx/includes/location_auth_service.conf /etc/nginx/templates/includes/location_auth_service.conf.template
+COPY modsecurity-nginx/includes/location_game_service.conf /etc/nginx/templates/includes/location_game_service.conf.template
+COPY modsecurity-nginx/includes/location_web_service.conf /etc/nginx/templates/includes/location_web_service.conf.template
+COPY modsecurity-nginx/includes/location_web_service_core.conf /etc/nginx/templates/includes/location_web_service_core.conf.template
+COPY modsecurity-nginx/includes/server_vault_service.conf /etc/nginx/templates/includes/server_vault_service.conf.template
 
 # SECOND STAGE
-FROM owasp/modsecurity-crs:4.1-nginx-alpine-202404070904
+FROM owasp/modsecurity-crs:4.1-nginx-alpine-202404070904 as dev
 LABEL authors="bsilva-c"
 
 USER root
-EXPOSE 8080 8443
+EXPOSE 8080 8200 8443
 
-ARG SSL_CERT
-ARG SSL_CERT_KEY
+ARG SSL_CERT_PATH
+ARG SSL_CERT_KEY_PATH
 
-COPY --from=build --chown=nginx:nginx $SSL_CERT $SSL_CERT
-COPY --from=build --chown=nginx:nginx $SSL_CERT_KEY $SSL_CERT_KEY
-COPY modsecurity-nginx/conf/default.conf /etc/nginx/templates/conf.d/default.conf.template
+COPY --from=build $SSL_CERT_PATH $SSL_CERT_PATH
+COPY --from=build $SSL_CERT_KEY_PATH $SSL_CERT_KEY_PATH
 
-WORKDIR /usr/share/nginx/
-RUN rm -rf html/
+COPY --from=build /etc/nginx/templates/ /etc/nginx/templates/
+
+WORKDIR /usr/share/nginx/html/
+RUN rm -rf *
+
+COPY ./web_service/index.html ./index.html
+
+# SECOND STAGE
+FROM owasp/modsecurity-crs:4.1-nginx-alpine-202404070904 as prod
+LABEL authors="bsilva-c"
+
+USER root
+EXPOSE 8080 8200 8443
+
+ARG SSL_CERT_PATH
+ARG SSL_CERT_KEY_PATH
+
+COPY --from=build $SSL_CERT_PATH $SSL_CERT_PATH
+COPY --from=build $SSL_CERT_KEY_PATH $SSL_CERT_KEY_PATH
+
+COPY --from=build /etc/nginx/templates/ /etc/nginx/templates/
+
+WORKDIR /usr/share/nginx/html/
+RUN rm -rf *
 
 USER nginx

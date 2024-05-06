@@ -1,7 +1,7 @@
 version: '3.8'
 services:
-  auth_service-postgres-dev:
-    container_name: auth_service-postgres-dev
+  auth_service-postgres:
+    container_name: auth_service-postgres
     image: postgres:13-alpine3.18
     user: postgres
     environment:
@@ -14,12 +14,12 @@ services:
       - auth_service-postgres_db
       - auth_service-postgres_user
       - auth_service-postgres_password
-    ports:
-      - "5432:5432"
+    expose:
+      - "5432"
     networks:
-      - transcendence-dev
+      - transcendence
     volumes:
-      - auth_service-postgres_data-dev:/var/lib/postgresql/data/:rw
+      - auth_service-postgres_data:/var/lib/postgresql/data/:rw
     healthcheck:
       test: [ "CMD-SHELL", 'pg_isready -h "$(cat $POSTGRES_HOST_FILE)" -U "$(cat $POSTGRES_USER_FILE)" -d "$(cat $POSTGRES_DB_FILE)"' ]
       interval: 5s
@@ -28,21 +28,21 @@ services:
     profiles: [ "", "auth_service" ]
     restart: always
 
-  auth_service-dev:
-    container_name: auth_service-dev
+  auth_service:
+    container_name: auth_service
     build:
       context: auth_service/
-      target: dev
+      target: prod
     environment:
       POSTGRES_HOST_FILE: /run/secrets/auth_service-postgres_host
       POSTGRES_DB_FILE: /run/secrets/auth_service-postgres_db
       POSTGRES_USER_FILE: /run/secrets/auth_service-postgres_user
       POSTGRES_PASSWORD_FILE: /run/secrets/auth_service-postgres_password
       SSO_42_CLIENT_SECRET_FILE: /run/secrets/sso_42_client_secret
-      SSO_42_CLIENT_ID: ${SSO_42_CLIENT_ID}
       SSO_42_REDIRECT_URI: ${SSO_42_REDIRECT_URI}
+      SSO_42_CLIENT_ID: ${SSO_42_CLIENT_ID}
       DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
-      VAULT_ADDR: https://modsecurity-dev:8200
+      VAULT_ADDR: https://modsecurity:8200
       VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
       VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
       SSL_CERT_PATH: ${SSL_CERT_PATH}
@@ -58,35 +58,35 @@ services:
     expose:
       - "8000"
     networks:
-      - transcendence-dev
+      - transcendence
     volumes:
-      - ./auth_service/:/app/:ro
-      - media_data-dev:/app/media/:rw
-      - ssl_cert_data-dev:${SSL_CERT_PATH}:ro
-      - ssl_cert_key_data-dev:${SSL_CERT_KEY_PATH}:ro
-      - vault_services_data-dev:/vault/transcendence/:ro
+      - auth_service-daphne_sock:/run/daphne/:rw
+      - media_data:/app/media/:rw
+      - ssl_cert_data:${SSL_CERT_PATH}:ro
+      - ssl_cert_key_data:${SSL_CERT_KEY_PATH}:ro
+      - vault_services_data:/vault/transcendence/:ro
     depends_on:
-      auth_service-postgres-dev:
+      auth_service-postgres:
         condition: service_healthy
-      auth_service-db_migrations-dev:
+      auth_service-db_migrations:
         condition: service_completed_successfully
-      modsecurity-dev:
+      modsecurity:
         condition: service_started
-      vault_service-init-dev:
+      vault_service-init:
         condition: service_completed_successfully
     profiles: [ "", "auth_service" ]
     restart: on-failure
 
-  game_service-dev:
-    container_name: game_service-dev
+  game_service:
+    container_name: game_service
     build:
       context: game_service/
-      target: dev
+      target: prod
     environment:
-      REDIS_HOST: redis_service-dev
+      REDIS_HOST: redis_service
       REDIS_PORT: 6379
       DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
-      VAULT_ADDR: https://modsecurity-dev:8200
+      VAULT_ADDR: https://modsecurity:8200
       VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
       VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
       SSL_CERT_PATH: ${SSL_CERT_PATH}
@@ -96,29 +96,29 @@ services:
     expose:
       - "8000"
     networks:
-      - transcendence-dev
+      - transcendence
     volumes:
-      - ./game_service/:/app/:ro
-      - media_data-dev:/app/media/:rw
-      - ssl_cert_data-dev:${SSL_CERT_PATH}:ro
-      - ssl_cert_key_data-dev:${SSL_CERT_KEY_PATH}:ro
-      - vault_services_data-dev:/vault/transcendence/:ro
+      - game_service-daphne_sock:/run/daphne/:rw
+      - media_data:/app/media/:rw
+      - ssl_cert_data:${SSL_CERT_PATH}:ro
+      - ssl_cert_key_data:${SSL_CERT_KEY_PATH}:ro
+      - vault_services_data:/vault/transcendence/:ro
     depends_on:
-      redis_service-dev:
+      redis_service:
         condition: service_started
-      modsecurity-dev:
+      modsecurity:
         condition: service_started
-      vault_service-init-dev:
+      vault_service-init:
         condition: service_completed_successfully
     profiles: [ "", "game_service" ]
     restart: on-failure
 
-  modsecurity-dev:
-    container_name: modsecurity-dev
+  modsecurity:
+    container_name: modsecurity
     build:
       context: .
       dockerfile: modsecurity-nginx/Dockerfile
-      target: dev
+      target: prod
       args:
         - SSL_CERT_PATH
         - SSL_CERT_FILE
@@ -126,10 +126,10 @@ services:
         - SSL_CERT_KEY_FILE
     environment:
       # NGINX
-      AUTH_SERVICE_BACKEND: http://auth_service-dev:8000
-      GAME_SERVICE_BACKEND: http://game_service-dev:8000
-      VAULT_SERVICE_BACKEND: https://vault_service-dev:8200
-      NGINX_ALWAYS_SSL_REDIRECT: on
+      AUTH_SERVICE_BACKEND: http://unix:/run/daphne/auth_service/daphne.sock
+      GAME_SERVICE_BACKEND: http://unix:/run/daphne/game_service/daphne.sock
+      VAULT_SERVICE_BACKEND: https://vault_service:8200
+      NGINX_ALWAYS_TLS_REDIRECT: on
       SSL_CERT_PATH: ${SSL_CERT_PATH}
       SSL_CERT_FILE: ${SSL_CERT_FILE}
       SSL_CERT_KEY_PATH: ${SSL_CERT_KEY_PATH}
@@ -148,29 +148,30 @@ services:
       - "8200:8200"
       - "8443:8443"
     networks:
-      - transcendence-dev
+      - transcendence
     volumes:
-      - ./web_service/:/usr/share/nginx/html/:ro
-      - web_service-static_data-dev:/usr/share/nginx/html/static/:ro
-      - static_data-dev:/app/static/:ro
-      - media_data-dev:/app/media/:ro
-      - ssl_cert_data-dev:${SSL_CERT_PATH}:rw
-      - ssl_cert_key_data-dev:${SSL_CERT_KEY_PATH}:rw
+      - auth_service-daphne_sock:/run/daphne/auth_service/:rw
+      - game_service-daphne_sock:/run/daphne/game_service/:rw
+      - web_service-data:/usr/share/nginx/html/:ro
+      - static_data:/app/static/:ro
+      - media_data:/app/media/:ro
+      - ssl_cert_data:${SSL_CERT_PATH}:rw
+      - ssl_cert_key_data:${SSL_CERT_KEY_PATH}:rw
     profiles: [ "", "auth_service", "game_service", "web_service" ]
     restart: on-failure
 
-  redis_service-dev:
-    container_name: redis_service-dev
+  redis_service:
+    container_name: redis_service
     image: redis:7.2-alpine3.18
     expose:
       - "6379"
     networks:
-      - transcendence-dev
+      - transcendence
     profiles: [ "", "game_service" ]
     restart: on-failure
 
-  vault_service-dev:
-    container_name: vault_service-dev
+  vault_service:
+    container_name: vault_service
     build:
       context: vault/
       target: service
@@ -182,41 +183,40 @@ services:
     expose:
       - "8200"
     networks:
-      - transcendence-dev
+      - transcendence
     volumes:
-      - ssl_cert_data-dev:${SSL_CERT_PATH}:ro
-      - ssl_cert_key_data-dev:${SSL_CERT_KEY_PATH}:ro
+      - ssl_cert_data:${SSL_CERT_PATH}:ro
+      - ssl_cert_key_data:${SSL_CERT_KEY_PATH}:ro
     cap_add:
       - IPC_LOCK
     depends_on:
-      modsecurity-dev:
+      modsecurity:
         condition: service_started
     profiles: [ "", "auth_service", "web_service" ]
 
-  vault_service-init-dev:
-    container_name: vault_service-init-dev
-    image: hashicorp/vault:1.13.3
-    entrypoint: [ "/bin/sh", "/vault/scripts/init.sh"]
+  vault_service-init:
+    container_name: vault_service-init
+    build:
+      context: vault/
+      target: init
     environment:
-      VAULT_ADDR: https://vault_service-dev:8200
+      VAULT_ADDR: https://vault_service:8200
       VAULT_SKIP_VERIFY: true
       VAULT_CACERT: ${SSL_CERT_PATH}${SSL_CERT_FILE}
     networks:
-      - transcendence-dev
+      - transcendence
     volumes:
-      - ./vault/policies:/vault/policies/:ro
-      - ./vault/scripts:/vault/scripts/:ro
-      - ssl_cert_data-dev:${SSL_CERT_PATH}:ro
-      - vault_keys_data-dev:/vault/keys/:rw
-      - vault_root_data-dev:/vault/root/:rw
-      - vault_services_data-dev:/vault/transcendence/:rw
+      - ssl_cert_data:${SSL_CERT_PATH}:ro
+      - vault_keys_data:/vault/keys/:rw
+      - vault_root_data:/vault/root/:rw
+      - vault_services_data:/vault/transcendence/:rw
     depends_on:
-      vault_service-dev:
+      vault_service:
         condition: service_started
 
   ############# TOOLS #############
-  auth_service-db_migrations-dev:
-    container_name: auth_service-db_migrations-dev
+  auth_service-db_migrations:
+    container_name: auth_service-db_migrations
     build:
       context: auth_service/
       target: tools
@@ -225,7 +225,7 @@ services:
       POSTGRES_DB_FILE: /run/secrets/auth_service-postgres_db
       POSTGRES_USER_FILE: /run/secrets/auth_service-postgres_user
       POSTGRES_PASSWORD_FILE: /run/secrets/auth_service-postgres_password
-      VAULT_ADDR: https://modsecurity-dev:8200
+      VAULT_ADDR: https://modsecurity:8200
       VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
       VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
       SSL_CERT_PATH: ${SSL_CERT_PATH}
@@ -239,26 +239,26 @@ services:
       - auth_service-postgres_password
     entrypoint: [ "/bin/sh", "/app/tools/db-migrations.sh" ]
     networks:
-      - transcendence-dev
+      - transcendence
     volumes:
-      - ssl_cert_data-dev:${SSL_CERT_PATH}:ro
-      - ssl_cert_key_data-dev:${SSL_CERT_KEY_PATH}:ro
-      - vault_services_data-dev:/vault/transcendence/:ro
+      - ssl_cert_data:${SSL_CERT_PATH}:ro
+      - ssl_cert_key_data:${SSL_CERT_KEY_PATH}:ro
+      - vault_services_data:/vault/transcendence/:ro
     depends_on:
-      auth_service-postgres-dev:
+      auth_service-postgres:
         condition: service_healthy
-      vault_service-init-dev:
+      vault_service-init:
         condition: service_completed_successfully
     profiles: [ "", "auth_service", "tools" ]
     restart: on-failure
 
-  auth_service-collectstatic-dev:
-    container_name: auth_service-collectstatic-dev
+  auth_service-collectstatic:
+    container_name: auth_service-collectstatic
     build:
       context: auth_service/
       target: tools
     environment:
-      VAULT_ADDR: https://modsecurity-dev:8200
+      VAULT_ADDR: https://modsecurity:8200
       VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
       VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
       SSL_CERT_PATH: ${SSL_CERT_PATH}
@@ -267,26 +267,26 @@ services:
       SSL_CERT_KEY_FILE: ${SSL_CERT_KEY_FILE}
     entrypoint: [ "python3", "/app/manage.py", "collectstatic", "--noinput" ]
     networks:
-      - transcendence-dev
+      - transcendence
     volumes:
-      - ./game_service/:/app/:ro
-      - static_data-dev:/app/static/:rw
-      - ssl_cert_data-dev:${SSL_CERT_PATH}:ro
-      - ssl_cert_key_data-dev:${SSL_CERT_KEY_PATH}:ro
-      - vault_services_data-dev:/vault/transcendence/:ro
+      - ./auth_service/:/app/:ro
+      - static_data:/app/static/:rw
+      - ssl_cert_data:${SSL_CERT_PATH}:ro
+      - ssl_cert_key_data:${SSL_CERT_KEY_PATH}:ro
+      - vault_services_data:/vault/transcendence/:ro
     depends_on:
-      vault_service-init-dev:
+      vault_service-init:
         condition: service_completed_successfully
     profiles: [ "", "auth_service", "tools" ]
     restart: on-failure
 
-  game_service-collectstatic-dev:
-    container_name: game_service-collectstatic-dev
+  game_service-collectstatic:
+    container_name: game_service-collectstatic
     build:
-      context: game_service/
+      context: auth_service/
       target: tools
     environment:
-      VAULT_ADDR: https://modsecurity-dev:8200
+      VAULT_ADDR: https://modsecurity:8200
       VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
       VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
       SSL_CERT_PATH: ${SSL_CERT_PATH}
@@ -295,53 +295,54 @@ services:
       SSL_CERT_KEY_FILE: ${SSL_CERT_KEY_FILE}
     entrypoint: [ "python3", "/app/manage.py", "collectstatic", "--noinput" ]
     networks:
-      - transcendence-dev
+      - transcendence
     volumes:
       - ./game_service/:/app/:ro
-      - static_data-dev:/app/static/:rw
-      - ssl_cert_data-dev:${SSL_CERT_PATH}:ro
-      - ssl_cert_key_data-dev:${SSL_CERT_KEY_PATH}:ro
-      - vault_services_data-dev:/vault/transcendence/:ro
+      - static_data:/app/static/:rw
+      - ssl_cert_data:${SSL_CERT_PATH}:ro
+      - ssl_cert_key_data:${SSL_CERT_KEY_PATH}:ro
+      - vault_services_data:/vault/transcendence/:ro
     depends_on:
-      vault_service-init-dev:
+      vault_service-init:
         condition: service_completed_successfully
     profiles: [ "", "game_service", "tools" ]
     restart: on-failure
 
-  web_service-dev:
-    container_name: web_service-dev
+  web_service:
+    container_name: web_service
     build:
       context: web_service/
-      target: dev
+      target: prod
     environment:
       SSO_42_CLIENT_ID: ${SSO_42_CLIENT_ID}
       SSO_42_REDIRECT_URI: ${SSO_42_REDIRECT_URI}
     volumes:
-      - ./web_service/:/app/:ro
-      - web_service-static_data-dev:/app/static/:rw
-      - vault_services_data-dev:/vault/transcendence/:ro
+      - web_service-data:/app/:rw
+      - vault_services_data:/vault/transcendence/:ro
     depends_on:
-      vault_service-init-dev:
+      vault_service-init:
         condition: service_completed_successfully
     profiles: [ "", "web_service", "tools" ]
     restart: on-failure
 
 networks:
-  transcendence-dev:
+  transcendence:
     driver: bridge
 
 volumes:
-  auth_service-postgres_data-dev:
-  web_service-static_data-dev:
-  static_data-dev:
-  media_data-dev:
+  auth_service-postgres_data:
+  auth_service-daphne_sock:
+  game_service-daphne_sock:
+  web_service-data:
+  static_data:
+  media_data:
 
-  ssl_cert_data-dev:
-  ssl_cert_key_data-dev:
+  ssl_cert_data:
+  ssl_cert_key_data:
 
-  vault_root_data-dev:
-  vault_keys_data-dev:
-  vault_services_data-dev:
+  vault_root_data:
+  vault_keys_data:
+  vault_services_data:
 
 secrets:
   auth_service-postgres_host:

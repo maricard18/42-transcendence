@@ -1,0 +1,33 @@
+.header {
+    margin-bottom: 10px;
+    font-size: 50px;
+    font-weight: bold;
+}
+
+.sub-header {
+    color: white;
+    margin-bottom: 30px;
+    font-weight: bold;
+}
+
+.username-text {
+    color: white;
+    font-weight: bold;
+}
+
+.login {
+    text-decoration: none;
+    font-weight: bold;
+    color: inherit;
+}
+
+.login:hover {
+    text-decoration: underline;
+    font-weight: bold;
+    color: inherit;
+    transition: 0.5s;
+}
+
+.outlet-padding {
+    padding-top: 68px;
+}
