@@ -304,7 +304,6 @@ export default class ChangeUserInfo extends AbstractView {
         this._success = value;
 		
         if (this.success.message) {
-			console.log("SuccessMessage:", this.success.message);
             const p = this._parentNode.querySelector("p");
             if (p.classList.contains("form-error")) {
                 p.classList.remove("form-error");
