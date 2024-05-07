@@ -126,6 +126,7 @@ function singleplayerGameLoop(game) {
             game.last_time = Date.now();
 
             if (!game.over) {
+				console.log("Here");
                 window.requestAnimationFrame(playPong);
             }
         };
@@ -230,18 +231,23 @@ function multiplayer4GameLoop(game) {
 				game.clear();
 		
 				if (AbstractView.userInfo.id === game.host_id) {
+					console.log("I am the host");
 					game.ball.update(game);
 				} 
-				if (game.player1Left || AbstractView.userInfo.id === AbstractView.userData[0].id) {
+				if ((game.player1Left && AbstractView.userInfo.id === game.host_id) ||
+					AbstractView.userInfo.id === AbstractView.userData[0].id) {
 					game.player1.update(game);
 				} 
-				if (game.player3Left || AbstractView.userInfo.id === AbstractView.userData[1].id) {
+				if ((game.player2Left && AbstractView.userInfo.id === game.host_id) ||
+					AbstractView.userInfo.id === AbstractView.userData[1].id) {
 					game.player2.update(game);
 				} 
-				if (game.player3Left || AbstractView.userInfo.id === AbstractView.userData[2].id) {
+				if ((game.player3Left && AbstractView.userInfo.id === game.host_id) ||
+					AbstractView.userInfo.id === AbstractView.userData[2].id) {
 					game.player3.update(game);
 				} 
-				if (game.player4Left || AbstractView.userInfo.id === AbstractView.userData[3].id) {
+				if ((game.player4Left && AbstractView.userInfo.id === game.host_id) ||
+					AbstractView.userInfo.id === AbstractView.userData[3].id) {
 					game.player4.update(game);
 				}
 

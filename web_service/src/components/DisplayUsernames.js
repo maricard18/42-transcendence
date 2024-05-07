@@ -342,7 +342,7 @@ export class DisplayUsername extends AbstractView {
 
     loadPlayer1() {
         return `
-			<div class="d-flex flex-column justify-content-center" id="display-username" style="transform: rotate(-90deg)">
+			<div class="d-flex flex-column justify-content-center align-items-center" id="display-username" style="transform: rotate(-90deg); width: 100px">
 			${
             AbstractView.userData[0].avatar
                 ? `<div class="d-flex align-content-center ms-5 mb-2" id="player1-info">
@@ -357,7 +357,7 @@ export class DisplayUsername extends AbstractView {
 						<div class="username-text ms-3 mt-2">
 							<h3>${AbstractView.userData[0].username}</h3>
 						</div>
-						<div class="username-text ms-5 mt-2">
+						<div class="username-text ms-4 mt-1">
 							<h1 id="player1">0</h1>
 						</div>
 					</div>`
@@ -369,7 +369,7 @@ export class DisplayUsername extends AbstractView {
 						<div class="username-text ms-3 mt-2">
 							<h3>${AbstractView.userData[0].username}</h3>
 						</div>
-						<div class="username-text ms-5 mt-2">
+						<div class="username-text ms-4 mt-1">
 							<h1 id="player1">0</h1>
 						</div>
 					</div>`
@@ -380,7 +380,7 @@ export class DisplayUsername extends AbstractView {
 
     loadPlayer2() {
         return `
-		<div class="d-flex flex-column justify-content-center" id="display-username" style="transform: rotate(90deg)">
+		<div class="d-flex flex-column justify-content-center align-items-center" id="display-username" style="transform: rotate(90deg); width: 100px">
 		${
             AbstractView.userData[1].avatar
                 ? `<div class="d-flex align-content-center ms-5 mb-2" id="player2-info">
@@ -395,7 +395,7 @@ export class DisplayUsername extends AbstractView {
 					<div class="username-text ms-3 mt-2">
 						<h3>${AbstractView.userData[1].username}</h3>
 					</div>
-					<div class="username-text ms-5 mt-2">
+					<div class="username-text ms-4 mt-1">
 						<h1 id="player2">0</h1>
 					</div>
 				</div>`
@@ -407,7 +407,7 @@ export class DisplayUsername extends AbstractView {
 					<div class="username-text ms-3 mt-2">
 						<h3>${AbstractView.userData[1].username}</h3>
 					</div>
-					<div class="username-text ms-5 mt-2">
+					<div class="username-text ms-4 mt-1">
 						<h1 id="player2">0</h1>
 					</div>
 				</div>`
@@ -421,7 +421,7 @@ export class DisplayUsername extends AbstractView {
 			<div class="d-flex flex-row justify-content-center" id="display-username">
 			${
             AbstractView.userData[2].avatar
-                ? `<div class="d-flex align-content-center ms-5 mb-2" id="player3-info">
+                ? `<div class="d-flex me-5" id="player3-info">
 						<img
 							src=${AbstractView.userData[2].avatar}
 							alt="Avatar preview"
@@ -433,11 +433,11 @@ export class DisplayUsername extends AbstractView {
 						<div class="username-text ms-3 mt-2">
 							<h3>${AbstractView.userData[2].username}</h3>
 						</div>
-						<div class="username-text ms-5 mt-2">
+						<div class="username-text ms-4 mt-1">
 							<h1 id="player3">0</h1>
 						</div>
 					</div>`
-                : `<div class="d-flex align-content-center ms-5 mb-2" id="player3-info">
+                : `<div class="d-flex me-5" id="player3-info">
 						<base-avatar-box 
 							size="50px"
 							template="green-border-sm"
@@ -445,7 +445,7 @@ export class DisplayUsername extends AbstractView {
 						<div class="username-text ms-3 mt-2">
 							<h3>${AbstractView.userData[2].username}</h3>
 						</div>
-						<div class="username-text ms-5 mt-2">
+						<div class="username-text ms-4 mt-1">
 							<h1 id="player3">0</h1>
 						</div>
 					</div>`
@@ -456,10 +456,10 @@ export class DisplayUsername extends AbstractView {
 
     loadPlayer4() {
         return `
-		<div class="d-flex flex-row justify-content-center mt-4" id="display-username">
+		<div class="d-flex flex-row justify-content-center mt-3 me-5" id="display-username">
 			${
             AbstractView.userData[3].avatar
-                ? `<div class="d-flex align-content-center ms-5 mb-2" id="player4-info">
+                ? `<div class="d-flex ms-5 mb-2" id="player4-info">
 						<img
 							src=${AbstractView.userData[3].avatar}
 							alt="Avatar preview"
@@ -471,11 +471,11 @@ export class DisplayUsername extends AbstractView {
 						<div class="username-text ms-3 mt-2">
 							<h3>${AbstractView.userData[3].username}</h3>
 						</div>
-						<div class="username-text ms-5 mt-2">
+						<div class="username-text ms-4 mt-1">
 							<h1 id="player4">0</h1>
 						</div>
 					</div>`
-                : `<div class="d-flex align-content-center ms-5 mb-2" id="player4-info">
+                : `<div class="d-flex ms-5 mb-2" id="player4-info">
 						<base-avatar-box 
 							size="50px"
 							template="yellow-border-sm"
@@ -483,7 +483,7 @@ export class DisplayUsername extends AbstractView {
 						<div class="username-text ms-3 mt-2">
 							<h3>${AbstractView.userData[3].username}</h3>
 						</div>
-						<div class="username-text ms-5 mt-2">
+						<div class="username-text ms-4 mt-1">
 							<h1 id="player4">0</h1>
 						</div>
 					</div>`

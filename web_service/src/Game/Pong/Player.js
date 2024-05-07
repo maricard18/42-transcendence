@@ -103,7 +103,6 @@ export class Opponent extends Player {
     }
 }
 
-
 export class InvertedPlayer {
     constructor({x, y, color, keyRight, keyLeft, info}) {
         this.x = x;

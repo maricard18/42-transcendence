@@ -179,7 +179,8 @@ window.addEventListener("popstate", () => {
 
 	if (AbstractView.previousLocation === "/home/pong/play/single-player/1" ||
 		AbstractView.previousLocation === "/home/pong/play/single-player/2" ||
-		AbstractView.previousLocation === "/home/pong/play/single-player/2" ||
+		AbstractView.previousLocation === "/home/pong/play/multiplayer/2" ||
+		AbstractView.previousLocation === "/home/pong/play/multiplayer/4" ||
 		AbstractView.previousLocation === "/home/pong/play/tournament/2") {
 		localStorage.removeItem("game_status");
 	}
