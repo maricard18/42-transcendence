@@ -25,11 +25,22 @@ class Vault:
         return base64.b64decode(data).decode('utf-8')
 
     @classmethod
+    def encodeData(cls, data):
+        return base64.b64encode(data.encode('utf-8')).decode('utf-8')
+
+    @classmethod
     def transitDecrypt(cls, ciphertext):
         client = cls.vaultClient()
 
         response = client.secrets.transit.decrypt_data(name="transcendence", ciphertext=ciphertext)
         return cls.decodeData(response['data']['plaintext'])
+
+    @classmethod
+    def transitEncrypt(cls, plaintext):
+        client = cls.vaultClient()
+
+        response = client.secrets.transit.encrypt_data(name="transcendence", plaintext=cls.encodeData(plaintext))
+        return response['data']['ciphertext']
 
     @classmethod
     def resolveEncryptedFields(cls, data, request):

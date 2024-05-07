@@ -79,9 +79,9 @@ class UserViewSet(viewsets.ViewSet):
 
             url = generate_host(request) + request.path + '/' + str(user.id)
             return Response({
-                'id': user.id,
-                'login': user.username,
-                'url': url
+                'id': Vault.transitEncrypt(str(user.id)),
+                'login': Vault.transitEncrypt(user.username),
+                'url': Vault.transitEncrypt(url)
             }, status=status.HTTP_201_CREATED)
 
         raise ServerError
