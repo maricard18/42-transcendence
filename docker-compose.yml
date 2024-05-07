@@ -326,6 +326,19 @@ services:
     profiles: [ "", "web_service", "tools" ]
     restart: on-failure
 
+  nikto-dev:
+    container_name: nikto-dev
+    build:
+      context: nikto/
+    environment:
+      WEB_ADDR: https://modsecurity-dev:8443
+    networks:
+      - transcendence-dev
+    depends_on:
+      modsecurity-dev:
+        condition: service_started
+    profiles: [ "web_service", "tools" ]
+
 networks:
   transcendence-dev:
     driver: bridge
