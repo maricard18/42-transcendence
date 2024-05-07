@@ -401,12 +401,6 @@ export default class ChangeUserInfo extends AbstractView {
 
     loadDOMChanges() {
         const parentNode = document.getElementById("change-user-info");
-        const loadingIcon = parentNode.querySelector("loading-icon");
-        if (loadingIcon) {
-            loadingIcon.remove();
-            parentNode.classList.remove("justify-content-center");
-        }
-
         parentNode.innerHTML = this.loadChangeUserInfoContent();
     }
 

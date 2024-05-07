@@ -111,13 +111,8 @@ export default class WaitingRoom extends AbstractView {
     }
 
     async loadDOMChanges() {
-        const loading = document.getElementById("loading");
-        if (loading) {
-            loading.remove();
-            this._parentNode.innerHTML = this.loadWaitingRoomContent();
-        } else {
-            this._parentNode.innerHTML = this.loadWaitingRoomContent();
-        }
+		const parentNode = document.getElementById("waiting-room");
+        parentNode.innerHTML = this.loadWaitingRoomContent();
     }
 
     loadWaitingRoomContent() {

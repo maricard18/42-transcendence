@@ -206,7 +206,8 @@ function updateOpponentScreen(game) {
 		game.ball.draw(game.ctx);
 		game.player1.draw(game.ctx);
 		game.player2.draw(game.ctx);
-	} else if (game.player1.score !== 5 && game.player2.score !== 5 && game.lobbySize == 4) {
+	} else if (game.player1.score !== 5 && game.player2.score !== 5 && 
+		game.player3.score !== 5 && game.player4.score !== 5 && game.lobbySize == 4) {
 		game.player2.x = game.player2.initial_x;
 		game.player2.y = game.player2.initial_y;
 		game.player3.x = game.player3.initial_x;
@@ -242,18 +243,19 @@ export function closeWebsocket() {
 function customWaitingRoomCallback() {
 	const waitingRoomNode = document.getElementById("waiting-room");
 	if (waitingRoomNode) {
-		waitingRoomNode.dispatchEvent( new CustomEvent ("waiting-room-callback"))
+		waitingRoomNode.dispatchEvent( new CustomEvent ("waiting-room-callback") )
 	}
 }
 
 function customPlayerQueueCallback() {
 	const playerQueueNode = document.getElementById("player-queue");
 	if (playerQueueNode) {
-		playerQueueNode.dispatchEvent( new CustomEvent ("player-queue-callback"));
+		playerQueueNode.dispatchEvent( new CustomEvent ("player-queue-callback") );
 	}
 }
 
 function addCpuPlayer(index, game) {
+	console.error(`USER ${index + 1} WAS DISCONNECTED`);
 	const player1 = document.getElementById("player1-info");
 	const player2 = document.getElementById("player2-info");
 	const player3 = document.getElementById("player3-info");
@@ -266,64 +268,72 @@ function addCpuPlayer(index, game) {
 			AbstractView.userData[0].username = "CPU";
 			player1.querySelector("img").setAttribute("src", AbstractView.userData[0].avatar);
 			player1.querySelector("h3").innerText = AbstractView.userData[0].username;
-			game.player1Left = true;
-			game["player1"] = new Cpu({
-				x: PaddleStartX,
-				y: ScreenHeight / 2 - PaddleHeight / 2,
+			const newPlayer1 = new Cpu({
+				x: game.player1.x,
+				y: game.player1.y,
 				color: "red",
 				info: { username: "CPU" }
 			});
+			game.player1 = newPlayer1
+			game.player1Left = true;
 			break;
 		case 1:
 			AbstractView.userData[1].id = -1;
 			AbstractView.userData[1].avatar = "/static/images/cpu.png";
+			//TODO AbstractView.userData[1].avatar = "/static/images/cpu_intel_corei3.png";
 			AbstractView.userData[1].username = "CPU";
 			player2.querySelector("img").setAttribute("src", AbstractView.userData[1].avatar);
 			player2.querySelector("h3").innerText = AbstractView.userData[1].username;
-			game.player2Left = true;
-			game["player2"] = new Cpu({
-				x: ScreenWidth - PaddleStartX - PaddleWidth,
-				y: ScreenHeight / 2 - PaddleHeight / 2,
+			const newPlayer2 = new Cpu({
+				x: game.player2.x,
+				y: game.player2.y,
 				color: "blue",
 				info: { username: "CPU" }
 			});
+			game.player2 = newPlayer2;
+			game.player2Left = true;
 			break;
 		case 2:
 			AbstractView.userData[2].id = -1;
 			AbstractView.userData[2].avatar = "/static/images/cpu.png";
+			//TODO AbstractView.userData[1].avatar = "/static/images/cpu_intel_corei5.png";
 			AbstractView.userData[2].username = "CPU";
-			game.player3Left = true;
-			game["player3"] = new InvertedCpu({
-				x: ScreenWidth / 2 - PaddleHeight / 2,
-				y: PaddleStartX,
+			player3.querySelector("img").setAttribute("src", AbstractView.userData[2].avatar);
+			player3.querySelector("h3").innerText = AbstractView.userData[2].username;
+			const newPlayer3 = new InvertedCpu({
+				x: game.player3.x,
+				y: game.player3.y,
 				color: "green",
 				info: { username: "CPU" }
 			});
-			player3.querySelector("img").setAttribute("src", AbstractView.userData[2].avatar);
-			player3.querySelector("h3").innerText = AbstractView.userData[2].username;
+			game.player3 = newPlayer3;
+			game.player3Left = true;
 			break;
 		case 3:
 			AbstractView.userData[3].id = -1;
 			AbstractView.userData[3].avatar = "/static/images/cpu.png";
+			//TODO AbstractView.userData[1].avatar = "/static/images/cpu_intel_xeon.png";
 			AbstractView.userData[3].username = "CPU";
 			player4.querySelector("img").setAttribute("src", AbstractView.userData[3].avatar);
 			player4.querySelector("h3").innerText = AbstractView.userData[3].username;
-			game.player4Left = true;
-			game["player4"] = new InvertedCpu({
-				x: ScreenWidth / 2 - PaddleHeight / 2,
-				y: ScreenHeight - PaddleStartX - PaddleWidth,
+			const newPlayer4 = new InvertedCpu({
+				x: game.player4.x,
+				y: game.player4.y,
 				color: "yellow",
 				info: { username: "CPU" }
 			});
+			game.player4 = newPlayer4; 
+			game.player4Left = true;
 			break;
 	}
 
-	AbstractView.userData.forEach((user) => {
-		console.log("user:", user);
+	console.error("Game:", game);
+
+	for (let user of AbstractView.userData) {
 		if (user.id !== -1) {
 			game.host_id = user.id;
 			console.log("New host -> ", user.id);
 			return ;
 		}
-	});
+	}
 }

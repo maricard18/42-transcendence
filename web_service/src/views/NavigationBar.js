@@ -16,10 +16,6 @@ export default class NavigationBar extends AbstractView {
             childList: true,
             subtree: true,
         });
-
-        window.onbeforeunload = () => {
-            this.disconnectObserver();
-        };
     }
 
     async defineCallback() {
@@ -48,6 +44,7 @@ export default class NavigationBar extends AbstractView {
                     id: userData.id,
                 };
                 this._loading = false;
+				console.log("Running DOM changes");
                 await this.loadDOMChanges();
             } else {
                 console.error("Error: failed to fetch user data");
@@ -65,21 +62,13 @@ export default class NavigationBar extends AbstractView {
             fetchUserInfo();
         } else {
             this._loading = false;
+			console.log("Running DOM changes")
             await this.loadDOMChanges();
         }
     }
 
-    disconnectObserver() {
-        this.observer.disconnect();
-    }
-
     async loadDOMChanges() {
         const parentNode = document.getElementById("navigation-bar");
-        const loadingIcon = parentNode.querySelector("loading-icon");
-        if (loadingIcon) {
-            loadingIcon.remove();
-        }
-
         parentNode.innerHTML = await this.loadNavigationBarContent();
     }
 
@@ -133,8 +122,8 @@ export default class NavigationBar extends AbstractView {
 						>
 							<div class="d-flex flex-row align-items-center mb-3" id="avatar-container">
 							${
-            AbstractView.userInfo.avatar
-                ? `<img
+								AbstractView.userInfo.avatar
+									? `<img
 											id="nav-bar-avatar"
 											class="white-border-sm"
 											src="${AbstractView.userInfo.avatar}"
@@ -143,8 +132,8 @@ export default class NavigationBar extends AbstractView {
 											height="40"
 											style="border-radius: 50%"
 										/>`
-                : `<base-avatar-box size="40"></base-avatar-box>`
-        }
+									: `<base-avatar-box size="40"></base-avatar-box>`
+							}
 								<h6 id="nav-bar-username" class="username-text ms-2 mt-1">
 									<b>${AbstractView.userInfo.username}</b>
 								</h6>
@@ -175,18 +164,11 @@ export default class NavigationBar extends AbstractView {
     }
 
     async getHtml() {
-        if (this._loading) {
-            return `
-				<div class="container-fluid" id="navigation-bar">
-					<loading-icon template="center" size="5rem"></loading-icon>
-				</div>
-			`;
-        } else {
-            return `
-				<div class="container-fluid" id="navigation-bar">
-					${await this.loadNavigationBarContent()}
-				</div>
-			`;
-        }
+		console.error("HERE");
+		return `
+			<div class="container-fluid" id="navigation-bar">
+				<loading-icon template="center" size="5rem"></loading-icon>
+			</div>
+		`;
     }
 }

@@ -408,11 +408,6 @@ export class TournamentMatchmaking extends AbstractView {
 
 	loadDOMChanges() {
         const parentNode = document.getElementById("tournament-matchmaking");
-        const loadingIcon = parentNode.querySelector("loading-icon");
-        if (loadingIcon) {
-            loadingIcon.remove();
-        }
-		
 		parentNode.innerHTML = this.loadMatchmakingContent();
     }
 
