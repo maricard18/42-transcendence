@@ -11,8 +11,12 @@ const router = async () => {
     const url = location.pathname;
     let matches = findMatch(url, routes);
 
+	if (matches === -1) {
+		return ;
+	}
+
     if (hasWebSocket(matches)) {
-        console.log("closing wescoket")
+        console.log("closing webscoket")
         closeWebsocket();
     }
 
@@ -71,6 +75,11 @@ function findMatch(url, routes, previousMatches = []) {
         if (matchedRoute.children) {
             return findMatch(newUrl, matchedRoute.children, previousMatches);
         } else {
+			if (newUrl.length > 0) {
+				console.error(`Error: Location ${location.pathname} not found`);
+				navigateTo("/home");
+				return -1;
+			}
             return previousMatches;
         }
     } else {

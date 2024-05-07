@@ -30,14 +30,6 @@ export default class Pong extends AbstractView {
 			}	
 			localStorage.setItem("game_status", "loading");
 		} else if (this._gameMode === "tournament") {
-			if (!localStorage.getItem("tournament")) {
-				navigateTo("/home");
-				return ;
-			}
-			if (currentGameFinished()) {
-				navigateTo("/home/pong/tournament/matchmaking");
-				return ;
-			}
 			localStorage.setItem("game_status", "loading");
 		}
 
@@ -179,7 +171,18 @@ export default class Pong extends AbstractView {
 			AbstractView.cleanGameData();
 			navigateTo("/home");
 			return ;
-        }
+        } else if (this._gameMode === "tournament") {
+			if (!localStorage.getItem("tournament")) {
+				console.log("no tournment variable");
+				navigateTo("/home");
+				return ;
+			}
+			if (currentGameFinished()) {
+				console.log("Current game is finished");
+				navigateTo("/home/pong/tournament/matchmaking");
+				return ;
+			}
+		}
 
         if (this._lobbySize != 4) {
             return this.loadPong();

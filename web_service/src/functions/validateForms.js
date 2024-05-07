@@ -141,7 +141,30 @@ export function validateTournamentForm(formData) {
     } else if (!usernamePattern.test(formData.username4)) {
         errors.message = "Username 4 has invalid characters";
         errors.username4 = 1;
-    }
+    } else if (checkForEqualUsername("username4", formData)) {
+		errors.message = "Username 4 already exists";
+        errors.username4 = 1;
+	} else if (checkForEqualUsername("username3", formData)) {
+		errors.message = "Username 3 already exists";
+        errors.username3 = 1;
+	} else if (checkForEqualUsername("username2", formData)) {
+		errors.message = "Username 2 already exists";
+        errors.username2 = 1;
+	} else if (checkForEqualUsername("username1", formData)) {
+		errors.message = "Username 1 already exists";
+        errors.username1 = 1;
+	}
 
     return errors;
+}
+
+function checkForEqualUsername(user, formData) {
+	const array = Object.entries(formData);
+	for (let [index, entry] of array) {
+		if (index !== user && entry === formData[user]) {
+			return true
+		}
+	}
+	
+	return false;
 }
