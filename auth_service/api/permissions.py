@@ -15,6 +15,13 @@ class UserPermission(permissions.BasePermission):
         else:
             return False
 
+    def has_object_permission(self, request, view, obj):
+        own_resource = int(request.user.id) == int(obj)
+        if view.action in ['update', 'destroy'] and own_resource:
+            return request.auth
+        else:
+            return False
+
 
 ##############################
 ####  /api/users/:id/otp  ####
@@ -22,8 +29,9 @@ class UserPermission(permissions.BasePermission):
 
 class OTPPermission(permissions.BasePermission):
 
-    def has_permission(self, request, view):
-        if view.action in ['create', 'retrieve', 'destroy']:
+    def has_object_permission(self, request, view, obj):
+        own_resource = int(request.user.id) == int(obj)
+        if view.action in ['create', 'retrieve', 'destroy'] and own_resource:
             return request.auth
         else:
             return False

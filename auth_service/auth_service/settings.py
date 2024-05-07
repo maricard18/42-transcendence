@@ -174,7 +174,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
-    'EXCEPTION_HANDLER': 'api.utils.api_exception_handler',
+    'EXCEPTION_HANDLER': 'api.exceptions.handler',
     'DEFAULT_METADATA_CLASS': 'rest_framework.metadata.SimpleMetadata',
     'DEFAULT_RENDERER_CLASSES': DEFAULT_RENDERER_CLASSES
 }
