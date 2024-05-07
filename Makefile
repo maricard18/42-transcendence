@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: wcorrea- <wcorrea-@student.42.fr>          +#+  +:+       +#+         #
+#    By: bsilva-c <bsilva-c@student.42porto.com>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/02/15 17:36:39 by bsilva-c          #+#    #+#              #
-#    Updated: 2024/05/07 16:52:15 by wcorrea-         ###   ########.fr        #
+#    Updated: 2024/05/07 22:53:41 by bsilva-c         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,7 +17,7 @@ PROJECT_NAME = ft_transcendence
 ##
 PROFILES = prod dev
 PROFILE ?= dev
-MAIN_URL = https://localhost:8443
+
 # Check if profile is valid
 ifeq ($(filter $(PROFILE),$(PROFILES)),)
     $(error Invalid profile specified: `$(PROFILE)` Valid profiles are `$(PROFILES)`)
@@ -33,7 +33,7 @@ endif
 #### Using Makefile to call specific service
 ##
 
-SERVICES = auth_service game_service web_service vault_service modsecurity
+SERVICES = auth_service game_service web_service vault_service modsecurity nikto
 _SERVICE = $(SERVICE)
 
 # Check if service is valid
@@ -74,16 +74,6 @@ fclean:
 		docker image rm $$images -f; \
 		docker system prune --volumes -af; \
 	fi
-	
-	@if [ -f "nikto_report" ]; then \
-		rm -rf nikto_report; \
-	fi
-scan:
-	@if [ ! -d "nikto" ]; then \
-        git clone https://github.com/sullo/nikto; \
-    fi
-
-	@./nikto/program/nikto.pl -h ${MAIN_URL} -D P -o nikto_report -Format htm 2>/dev/null || true
 help:
 	@echo "Usage: make [options] [target]"
 	@echo "Options:"
@@ -95,7 +85,7 @@ help:
 	@echo ""
 	@echo "Available profiles:"
 	@echo "  $(PROFILES)"
-.PHONY: all build up down start stop ps rm re clean fclean scan help
+.PHONY: all build up down start stop ps rm re clean fclean help
 
 define confirm
 	@printf "\033[1;33m"  # Yellow color for the warning message
