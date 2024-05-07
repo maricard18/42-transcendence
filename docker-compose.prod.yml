@@ -337,7 +337,6 @@ services:
       modsecurity:
         condition: service_started
     profiles: [ "web_service", "tools" ]
-    restart: on-failure
 
 networks:
   transcendence:
