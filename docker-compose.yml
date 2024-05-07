@@ -325,6 +325,59 @@ services:
         condition: service_completed_successfully
     profiles: [ "", "web_service", "tools" ]
     restart: on-failure
+  
+  prometheus-dev:
+    container_name: prometheus-dev
+    image: prom/prometheus:latest
+    restart: always
+    user: root
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data-dev:/prometheus
+    networks:
+      - transcendence-dev
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    depends_on:
+      modsecurity-dev:
+        condition: service_started
+    
+  prometheus-exporter-dev:
+    image: nginx/nginx-prometheus-exporter:latest
+    container_name: prometheus-exporter-dev
+    restart: always
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
+    expose:
+      - "9113"
+    networks:
+      - transcendence-dev
+    depends_on:
+      prometheus-dev:
+        condition: service_started
+    command:
+       - --nginx.scrape-uri=https://modsecurity-dev:8443/metrics
+  
+  grafana-dev:
+    image: grafana/grafana:latest
+    container_name: grafana-dev
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data-dev:/var/lib/grafana
+    networks:
+      - transcendence-dev
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
+    depends_on:
+      prometheus-dev:
+        condition: service_started    
+    
 
 networks:
   transcendence-dev:
@@ -342,6 +395,9 @@ volumes:
   vault_root_data-dev:
   vault_keys_data-dev:
   vault_services_data-dev:
+
+  prometheus_data-dev:
+  grafana_data-dev:
 
 secrets:
   auth_service-postgres_host:
