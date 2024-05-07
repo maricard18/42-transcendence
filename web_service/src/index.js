@@ -118,11 +118,11 @@ function hasWebSocket(matches) {
         fullUrl !== "/home/pong/play/multiplayer/4" &&
         fullUrl !== "/home/tic-tac-toe/play/multiplayer/2" &&
         (AbstractView.previousLocation === "/home/pong/multiplayer/waiting-room/2" ||
-            AbstractView.previousLocation === "/home/pong/multiplayer/waiting-room/4" ||
-            AbstractView.previousLocation === "/home/tic-tac-toe/multiplayer/waiting-room/2" ||
-            AbstractView.previousLocation === "/home/pong/play/multiplayer/2" ||
-            AbstractView.previousLocation === "/home/pong/play/multiplayer/4" ||
-            AbstractView.previousLocation === "/home/tic-tac-toe/play/multiplayer/2")) {
+		AbstractView.previousLocation === "/home/pong/multiplayer/waiting-room/4" ||
+		AbstractView.previousLocation === "/home/tic-tac-toe/multiplayer/waiting-room/2" ||
+		AbstractView.previousLocation === "/home/pong/play/multiplayer/2" ||
+		AbstractView.previousLocation === "/home/pong/play/multiplayer/4" ||
+		AbstractView.previousLocation === "/home/tic-tac-toe/play/multiplayer/2")) {
         console.log("user has a websocket open!")
         return true;
     } else {
@@ -132,41 +132,51 @@ function hasWebSocket(matches) {
 
 function cleanData(location) {
 	if (location && location.startsWith("/home/pong/play/multiplayer") &&
-        (!localStorage.getItem("previous_location") ||
-            !localStorage.getItem("previous_location").includes("waiting-room"))) {
-        localStorage.removeItem("game_status");
-    } else if (location && !location.startsWith("/home/pong/play/multiplayer")) {
-        localStorage.removeItem("game_status");
-    }
+		(!localStorage.getItem("previous_location") ||
+			!localStorage.getItem("previous_location").includes("waiting-room"))) {
+		localStorage.removeItem("game_status");
+	} else if (location && !location.startsWith("/home/pong/play/multiplayer")) {
+		localStorage.removeItem("game_status");
+	}
 
 	if (location !== "/home/pong/play/tournament/2" && 
 		location !== "/home/pong/tournament/matchmaking") {
-		console.log("Removed all tournament related variables!");
-		localStorage.removeItem("tournament");
-		localStorage.removeItem("match1");
-		localStorage.removeItem("match2");
-		localStorage.removeItem("match3");
-		localStorage.removeItem("user1-name");
-		localStorage.removeItem("user2-name");
-		localStorage.removeItem("user3-name");
-		localStorage.removeItem("user4-name");
-		localStorage.removeItem("user1-image");
-		localStorage.removeItem("user2-image");
-		localStorage.removeItem("user3-image");
-		localStorage.removeItem("user4-image");
+		cleanTournamentStorage();
 	}
 }
 
+function cleanTournamentStorage() {
+	localStorage.removeItem("tournament");
+	localStorage.removeItem("match1");
+	localStorage.removeItem("match2");
+	localStorage.removeItem("match3");
+	localStorage.removeItem("user1-name");
+	localStorage.removeItem("user2-name");
+	localStorage.removeItem("user3-name");
+	localStorage.removeItem("user4-name");
+	localStorage.removeItem("user1-image");
+	localStorage.removeItem("user2-image");
+	localStorage.removeItem("user3-image");
+	localStorage.removeItem("user4-image");
+}
+
 export function navigateTo(url) {
-    if (url === "-1") {
-        history.back();
-    } else {
-        history.pushState(null, "", url);
-    }
+    history.pushState(null, "", url);
     router();
 }
 
-window.addEventListener("popstate", router);
+window.addEventListener("popstate", () => {
+	cleanTournamentStorage();
+
+	if (AbstractView.previousLocation === "/home/pong/play/single-player/1" ||
+		AbstractView.previousLocation === "/home/pong/play/single-player/2" ||
+		AbstractView.previousLocation === "/home/pong/play/single-player/2" ||
+		AbstractView.previousLocation === "/home/pong/play/tournament/2") {
+		localStorage.removeItem("game_status");
+	}
+	
+	router();
+});
 
 document.addEventListener("DOMContentLoaded", () => {
     document.body.addEventListener("click", (e) => {

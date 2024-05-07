@@ -222,9 +222,9 @@ export class TournamentMatchmaking extends AbstractView {
 		this._enterCallback = false;
 		this._tournament = null;
 		this._finalMatch = {};
-		this._match1 = null;
-		this._match2 = null;
-		this._match3 = null;
+		this._match1 = JSON.parse(localStorage.getItem("match1"));
+		this._match2 = JSON.parse(localStorage.getItem("match2"));
+		this._match3 = JSON.parse(localStorage.getItem("match3"));
 
 		if (!localStorage.getItem("tournament")) {
 			this._tournament = {
@@ -236,11 +236,6 @@ export class TournamentMatchmaking extends AbstractView {
 		} else {
 			this._tournament = JSON.parse(localStorage.getItem("tournament"));
 		}
-		console.log(this._tournament)
-
-		this._match1 = JSON.parse(localStorage.getItem("match1"));
-		this._match2 = JSON.parse(localStorage.getItem("match2"));
-		this._match3 = JSON.parse(localStorage.getItem("match3"));
 
 		if (this._match3 && this._match3["status"] === "finished") {
 			let player;
@@ -250,7 +245,7 @@ export class TournamentMatchmaking extends AbstractView {
 				}
 			}
 
-			console.log("Player Won:", player);
+			console.log("Tournament Winner:", player);
 		}
 		
 		if (this._match1 && this._match1["status"] === "finished") {
@@ -262,7 +257,6 @@ export class TournamentMatchmaking extends AbstractView {
 			}
 
 			this._finalMatch["1"] = ([player1[0], player1[1]]);
-			console.log(this._finalMatch);
 		}
 		if (this._match2 && this._match2["status"] === "finished") {
 			let player2;
@@ -273,11 +267,11 @@ export class TournamentMatchmaking extends AbstractView {
 			}
 
 			this._finalMatch["2"] = ([player2[0], player2[1]]);
-			console.log("Match 3 Info:", this._finalMatch);
 		}
 
-		if (Object.values(this._tournament).some((value) => value[1][0] === null)) {
+		if (!this._tournament || !this._tournament["1"][0] || !this._tournament["1"][1][0]) {
 			setTimeout(() => {
+				console.log()
 				navigateTo("/home/pong/tournament/creation");
 			}, 5);
 			return;
@@ -424,11 +418,21 @@ export class TournamentMatchmaking extends AbstractView {
 
 	loadMatchmakingContent() {
 		const tournament = JSON.parse(localStorage.getItem("tournament"));
+		let buttonText;
+		if (!this._match1) {
+			buttonText = "Start Match 1";
+		} else if (!this._match2) {
+			buttonText = "Start Match 2";
+		} else if (!this._match3) {
+			buttonText = "Start Final Match";
+		} else if (tournament && tournament[4][0] === "finished") {
+			buttonText = "Home";
+		}
 
 		return `
 			<div class="d-flex flex-column justify-content-center vh-100">
-				<div class="d-flex flex-column flex-md-row  align-items-center justify-content-center justify-content-md-evenly m-3">
-					<div class="d-flex flex-column col-md-6 box m-3" style="width: 400px">
+				<div class="d-flex flex-column flex-md-row  align-items-center justify-content-center justify-content-md-evenly m-2">
+					<div class="d-flex flex-column col-md-6 box m-2" style="width: 400px">
 						<h3 style="font-size: 40px; font-weight: bold">Match 1</h3>
 						<div class="d-flex flex-row justify-content-center mt-4">
 							<div class="d-flex flex-column align-items-center">
@@ -437,7 +441,11 @@ export class TournamentMatchmaking extends AbstractView {
 									alt="Avatar preview"
 									width="50"
 									height="50"
-									class="white-border-sm"
+									class="${
+										this._match1 && this._match1["winner"] === this._match1["player1"]["index"]
+											?	`gold-border-sm`
+											:	`white-border-sm`
+									}"
 									style="border-radius: 50%"
 								/>
 								<h1 class="mt-2" style="font-size: 20px">${this._tournament[0][1][0]}</h1>
@@ -453,14 +461,18 @@ export class TournamentMatchmaking extends AbstractView {
 									alt="Avatar preview"
 									width="50"
 									height="50"
-									class="white-border-sm"
+									class="${
+										this._match1 && this._match1["winner"] === this._match1["player2"]["index"]
+											?	`gold-border-sm`
+											:	`white-border-sm`
+									}"
 									style="border-radius: 50%"
 								/>
 								<h1 class="mt-2" style="font-size: 20px">${this._tournament[1][1][0]}</h1>
 							</div>
 						</div>
 					</div>
-					<div class="d-flex flex-column col-md-6 box m-3" style="width: 400px">
+					<div class="d-flex flex-column col-md-6 box m-2" style="width: 400px">
 						<h3 style="font-size: 40px; font-weight: bold">Match 2</h3>
 						<div class="d-flex flex-row justify-content-center mt-4">
 							<div class="d-flex flex-column align-items-center">
@@ -469,7 +481,11 @@ export class TournamentMatchmaking extends AbstractView {
 									alt="Avatar preview"
 									width="50"
 									height="50"
-									class="white-border-sm"
+									class="${
+										this._match2 && this._match2["winner"] === this._match2["player1"]["index"]
+											?	`gold-border-sm`
+											:	`white-border-sm`
+									}"
 									style="border-radius: 50%"
 								/>
 								<h1 class="mt-2" style="font-size: 20px">${this._tournament[2][1][0]}</h1>
@@ -485,7 +501,11 @@ export class TournamentMatchmaking extends AbstractView {
 									alt="Avatar preview"
 									width="50"
 									height="50"
-									class="white-border-sm"
+									class="${
+										this._match2 && this._match2["winner"] === this._match2["player2"]["index"]
+											?	`gold-border-sm`
+											:	`white-border-sm`
+									}"
 									style="border-radius: 50%"
 								/>
 								<h1 class="mt-2" style="font-size: 20px">${this._tournament[3][1][0]}</h1>
@@ -493,8 +513,8 @@ export class TournamentMatchmaking extends AbstractView {
 						</div>
 					</div>
 				</div>
-				<div class="d-flex flex-column flex-md-row  align-items-center justify-content-center m-3">
-					<div class="d-flex flex-column col-md-6 box m-3" style="width: 400px">
+				<div class="d-flex flex-column flex-md-row  align-items-center justify-content-center m-2">
+					<div class="d-flex flex-column col-md-6 box m-2" style="width: 400px">
 						<h3 style="font-size: 40px; font-weight: bold">Final Match</h3>
 						<div class="d-flex flex-row justify-content-center mt-4">
 							<div class="d-flex flex-column align-items-center">
@@ -505,7 +525,11 @@ export class TournamentMatchmaking extends AbstractView {
 											alt="Avatar preview"
 											width="50"
 											height="50"
-											class="white-border-sm"
+											class="${
+												this._match3 && this._match3["winner"] === this._match3["player1"]["index"]
+													?	`gold-border-sm`
+													:	`white-border-sm`
+											}"
 											style="border-radius: 50%"
 										/>
 										<h1 class="mt-2" style="font-size: 20px">${this._finalMatch["1"][1][0]}</h1>`
@@ -529,7 +553,11 @@ export class TournamentMatchmaking extends AbstractView {
 											alt="Avatar preview"
 											width="50"
 											height="50"
-											class="white-border-sm"
+											class="${
+												this._match3 && this._match3["winner"] === this._match3["player2"]["index"]
+													?	`gold-border-sm`
+													:	`white-border-sm`
+											}"
 											style="border-radius: 50%"
 										/>
 										<h1 class="mt-2" style="font-size: 20px">${this._finalMatch["2"][1][0]}</h1>`
@@ -547,8 +575,9 @@ export class TournamentMatchmaking extends AbstractView {
 					<submit-button
 						type="button"
 						template="white-button extra-btn-class"
-						value="${tournament && tournament[4][0] === "finished" ? "Home" : "Start Game"}"
-					></submit-button>   
+						style="font-size: 20px"
+						value="${buttonText}"
+					></submit-button>
 				</div>
 			</div>
         `;
@@ -567,6 +596,10 @@ export class TournamentMatchmaking extends AbstractView {
 				</div>
 			`;
 		} else {
+			if (!this._tournament || !this._tournament["1"][0] || !this._tournament["1"][1][0]) {
+				return ;
+			}
+
 			return `
 				<div class="container" id="tournament-matchmaking">
 					${this.loadMatchmakingContent()}

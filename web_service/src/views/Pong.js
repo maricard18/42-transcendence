@@ -34,6 +34,10 @@ export default class Pong extends AbstractView {
 				navigateTo("/home");
 				return ;
 			}
+			if (currentGameFinished()) {
+				navigateTo("/home/pong/tournament/matchmaking");
+				return ;
+			}
 			localStorage.setItem("game_status", "loading");
 		}
 
@@ -99,6 +103,10 @@ export default class Pong extends AbstractView {
 
 	gameOverScreen() {
 		const canvas = document.querySelector("canvas");
+		if (!canvas) {
+			return ;
+		}
+		
 		const ctx = canvas.getContext("2d");
 		ctx.fillStyle = "black";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -113,25 +121,6 @@ export default class Pong extends AbstractView {
 	
 		canvas.addEventListener("click", () => {
 			if (this._gameMode === "tournament") {
-				let match1 = JSON.parse(localStorage.getItem("match1"));
-				let match2 = JSON.parse(localStorage.getItem("match2"));
-				let match3 = JSON.parse(localStorage.getItem("match3"));
-				let tournament = JSON.parse(localStorage.getItem("tournament"));
-				
-				if (match1 && match1["status"] !== "finished") {
-					match1["status"] = "finished";
-					localStorage.setItem("match1", JSON.stringify(match1));
-				} else if (match2 && match2["status"] !== "finished") {
-					match2["status"] = "finished";
-					localStorage.setItem("match2", JSON.stringify(match2));
-				} else if (match3 && match3["status"] !== "finished") {
-					match3["status"] = "finished";
-					localStorage.setItem("match3", JSON.stringify(match3));
-				} else {
-					tournament[4][0] = "finished";
-					localStorage.setItem("tournament", JSON.stringify(tournament));
-				}
-				
 				navigateTo("/home/pong/tournament/matchmaking");
 			} else {
 				localStorage.removeItem("game_status");
@@ -198,4 +187,20 @@ export default class Pong extends AbstractView {
             return this.load4Pong();
         }
     }
+}
+
+function currentGameFinished() {
+	let match1 = JSON.parse(localStorage.getItem("match1"));
+	let match2 = JSON.parse(localStorage.getItem("match2"));
+	let match3 = JSON.parse(localStorage.getItem("match3"));
+
+	if (match1 && match1["status"] === "finished" && !match2) {
+		return true;
+	} else if (match2 && match2["status"] === "finished" && !match3) {
+		return true;
+	} else if (match3 && match3["status"] === "finished") {
+		return true;
+	}
+
+	return false;
 }

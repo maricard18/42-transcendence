@@ -40,7 +40,9 @@ export async function startPong(game) {
 	if (game.mode === "single-player") {
 		await gameStartAnimation(game);
 		game.last_time = Date.now();
+		console.log("started game");
 		await singleplayerGameLoop(game);
+		console.log("game finished");
 		await gameConfettiAnimation(game);
 		localStorage.removeItem("game_status");
 	} else if (game.mode === "multiplayer" && game.lobbySize == 2) {
@@ -72,7 +74,10 @@ function singleplayerGameLoop(game) {
     
 	return new Promise((resolve) => {
         const playPong = () => {
-            if (!game.paused) {
+			if (!localStorage.getItem("game_status")) {
+				game.over = true;
+				resolve();	
+			} else if (!game.paused && !game.over) {
                 let current_time = Date.now();
                 game.dt = (current_time - game.last_time) / 1000;
 
@@ -135,12 +140,13 @@ function multiplayer2GameLoop(game) {
 	
 	return new Promise((resolve) => {
         const playPong = () => {
-            if (game.over || !MyWebSocket.ws) {
+            if (game.over || !MyWebSocket.ws || !localStorage.getItem("game_status")) {
 				if (!game.winner) {
 					game.winner = localStorage.getItem("game_winner");
 				}
+				game.over = true;
 				resolve();
-			} else if (!game.paused) {
+			} else if (!game.paused && !game.over) {
 				let current_time = Date.now();
 				game.dt = (current_time - game.last_time) / 1000;
 		
@@ -214,9 +220,10 @@ function multiplayer4GameLoop(game) {
 	
 	return new Promise((resolve) => {
         const playPong = () => {
-            if (game.over || !MyWebSocket.ws) {
+            if (game.over || !MyWebSocket.ws || !localStorage.getItem("game_status")) {
+				game.over = true;
 				resolve();
-			} else if (!game.paused) {
+			} else if (!game.paused && !game.over) {
 				let current_time = Date.now();
 				game.dt = (current_time - game.last_time) / 1000;
 		
@@ -406,22 +413,26 @@ function findTournamentWinner(game, players) {
 	let match1 = JSON.parse(localStorage.getItem("match1"));
 	let match2 = JSON.parse(localStorage.getItem("match2"));
 	let match3 = JSON.parse(localStorage.getItem("match3"));
+	let tournament = JSON.parse(localStorage.getItem("tournament"));
 
 	for (let i = 0; i < players.length; i++) {
 		if (players[i].info["username"] === game.winner) {
 			if (match1 && match1["status"] !== "finished") {
 				match1["winner"] = i === 0 ? match1["player1"]["index"] : match1["player2"]["index"];
-				console.log("Match1:", match1);
+				match1["status"] = "finished";
 				localStorage.setItem("match1", JSON.stringify(match1));
 			} else if (match2 && match2["status"] !== "finished") {
 				match2["winner"] = i === 0 ? match2["player1"]["index"] : match2["player2"]["index"];
-				console.log("Match2:", match2);
+				match2["status"] = "finished";
 				localStorage.setItem("match2", JSON.stringify(match2));
 			} else if (match3 && match3["status"] !== "finished") {
 				match3["winner"] = i === 0 ? match3["player1"]["index"] : match3["player2"]["index"];
-				console.log("Match3:", match3);
+				match3["status"] = "finished";
+				tournament[4][0] = "finished";
 				localStorage.setItem("match3", JSON.stringify(match3));
+				localStorage.setItem("tournament", JSON.stringify(tournament));
 			}
 		}
 	}
 }
+				
