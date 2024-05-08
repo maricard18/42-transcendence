@@ -338,6 +338,64 @@ services:
         condition: service_healthy
     profiles: [ "", "web_service", "tools" ]
     restart: on-failure
+  
+  prometheus:
+    container_name: prometheus
+    build:
+      context: prometheus/
+      args:
+        - PROMETHEUS_ADDR=prometheus:9090
+        - PROMETHEUS_EXPORTER_ADDR=prometheus-exporter:9113
+    restart: always
+    user: root
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus_data:/prometheus
+    networks:
+      - transcendence
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    depends_on:
+      modsecurity:
+        condition: service_started
+    
+  prometheus-exporter:
+    image: nginx/nginx-prometheus-exporter:latest
+    container_name: prometheus-exporter
+    restart: always
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER}
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
+    expose:
+      - "9113"
+    networks:
+      - transcendence
+    depends_on:
+      prometheus:
+        condition: service_started
+    command:
+       - --nginx.scrape-uri=https://modsecurity:8443/metrics
+  
+  grafana:
+    build:
+      context: grafana/
+      args:
+        - PROMETHEUS_URL=http://prometheus:9090
+    container_name: grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - transcendence
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER}
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
+    depends_on:
+      prometheus:
+        condition: service_started
 
   nikto:
     container_name: nikto
@@ -372,6 +430,9 @@ volumes:
   vault_root_data:
   vault_keys_data:
   vault_services_data:
+
+  prometheus_data:
+  grafana_data:
 
 secrets:
   auth_service-postgres_host:

@@ -9,5 +9,5 @@ scrape_configs:
     scrape_interval: 5s
 
     static_configs:
-      - targets: ['prometheus-dev:9090']
-      - targets: ['prometheus-exporter-dev:9113']
+      - targets: ['$PROMETHEUS_ADDR']
+      - targets: ['$PROMETHEUS_EXPORTER_ADDR']
