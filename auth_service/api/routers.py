@@ -65,5 +65,17 @@ class APIRouter(DefaultRouter):
             name='{basename}-{url_name}',
             detail=True,
             initkwargs={}
+        ),
+        # List route.
+        Route(
+            url=r'^users/{lookup}/otp$',
+            mapping={
+                'get': 'retrieve',
+                'post': 'create',
+                'delete': 'destroy',
+            },
+            name='{basename}-otp',
+            detail=True,
+            initkwargs={}
         )
     ]

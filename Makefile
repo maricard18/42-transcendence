@@ -6,7 +6,7 @@
 #    By: wcorrea- <wcorrea-@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/02/15 17:36:39 by bsilva-c          #+#    #+#              #
-#    Updated: 2024/05/07 16:52:15 by wcorrea-         ###   ########.fr        #
+#    Updated: 2024/05/08 15:47:16 by wcorrea-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,7 +33,7 @@ endif
 #### Using Makefile to call specific service
 ##
 
-SERVICES = auth_service game_service web_service vault_service modsecurity
+SERVICES = auth_service game_service web_service vault_service modsecurity nikto
 _SERVICE = $(SERVICE)
 
 # Check if service is valid
@@ -51,7 +51,7 @@ endif
 
 all: build up
 build:
-	$(COMMAND) build --no-cache --with-dependencies $(_SERVICE)
+	@$(COMMAND) build --no-cache --with-dependencies $(_SERVICE)
 up: build
 	@$(COMMAND) up -d --no-build $(_SERVICE)
 down:
@@ -72,18 +72,7 @@ fclean:
 	@images=$$(docker image ls -q "$(PROJECT_NAME)-*"); \
 	if [ -n "$$images" ]; then \
 		docker image rm $$images -f; \
-		docker system prune --volumes -af; \
 	fi
-	
-	@if [ -f "nikto_report" ]; then \
-		rm -rf nikto_report; \
-	fi
-scan:
-	@if [ ! -d "nikto" ]; then \
-        git clone https://github.com/sullo/nikto; \
-    fi
-
-	@./nikto/program/nikto.pl -h ${MAIN_URL} -D P -o nikto_report -Format htm 2>/dev/null || true
 help:
 	@echo "Usage: make [options] [target]"
 	@echo "Options:"
