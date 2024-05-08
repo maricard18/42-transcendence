@@ -45,22 +45,22 @@ export class Ball {
 			}
 		} else {
 			if (this.x + this.radius >= ScreenWidth && this.speed_x > 0) {
-				if (game.lastTouch !== null) {
+				if (game.lastTouch) {
 					game[game.lastTouch].score += 1;
 				}
 				this.reset(game);
 			} else if (this.x - this.radius <= 0 && this.speed_x < 0) {
-				if (game.lastTouch !== null) {
+				if (game.lastTouch) {
 					game[game.lastTouch].score += 1;
 				}
 				this.reset(game);
 			} else if (this.y + this.radius >= ScreenHeight && this.speed_y > 0) {
-				if (game.lastTouch !== null) {
+				if (game.lastTouch) {
 					game[game.lastTouch].score += 1;
 				}
 				this.reset(game);
 			} else if (this.y - this.radius <= 0 && this.speed_y < 0) {
-				if (game.lastTouch !== null) {
+				if (game.lastTouch) {
 					game[game.lastTouch].score += 1;
 				}
 				this.reset(game);

@@ -57,6 +57,7 @@ export async function startPong(game) {
 		await gameStartAnimation(game);
 		game.last_time = Date.now();
 		await multiplayer4GameLoop(game);
+		console.log("Game is now over");
 		await gameConfettiAnimation(game);
 		localStorage.removeItem("game_status");
 	} else {
@@ -86,23 +87,7 @@ function singleplayerGameLoop(game) {
 				game.player1.update(game);
                 game.player2.update(game);
 
-				if (player1) {
-					player1.dispatchEvent(
-						new CustomEvent("player1", {
-							detail: game.player1.score,
-							bubbles: true,
-						})
-					);
-				}
-				if (player2) {
-					player2.dispatchEvent(
-						new CustomEvent("player2", {
-							detail: game.player2.score,
-							bubbles: true,
-						})
-					);
-				}
-
+				updateScore(game);
                 checkPlayer1Collision(game);
                 checkPlayer2Collision(game);
 
@@ -136,9 +121,6 @@ function singleplayerGameLoop(game) {
 }
 
 function multiplayer2GameLoop(game) {
-	const player1 = document.getElementById("player1");
-	const player2 = document.getElementById("player2");
-	
 	return new Promise((resolve) => {
         const playPong = () => {
             if (game.over || !MyWebSocket.ws || !localStorage.getItem("game_status")) {
@@ -146,6 +128,8 @@ function multiplayer2GameLoop(game) {
 					game.winner = localStorage.getItem("game_winner");
 				}
 				game.over = true;
+				updateScore(game);
+				console.error("GAME IS OVER");
 				resolve();
 			} else if (!game.paused && !game.over) {
 				let current_time = Date.now();
@@ -156,32 +140,13 @@ function multiplayer2GameLoop(game) {
 				if (AbstractView.userInfo.id === game.host_id) {
 					game.ball.update(game);
 					game.player1.update(game);
-				} else {
-					game.player2.update(game);
-				}
-
-				if (player1) {
-					player1.dispatchEvent(
-						new CustomEvent("player1", {
-							detail: game.player1.score,
-							bubbles: true,
-						})
-					);
-				}
-				if (player2) {
-					player2.dispatchEvent(
-						new CustomEvent("player2", {
-							detail: game.player2.score,
-							bubbles: true,
-						})
-					);
-				}
-		
-				if (AbstractView.userInfo.id === game.host_id) {
 					sendHostMessage(game);
 				} else {
-					sendNonHostMessage(game);
+					game.player2.update(game);
+					sendNonHostMessage(game, getPlayerIndex());
 				}
+				
+				updateScore(game);
 		
 				if (game.player1.info.id === game.host_id) {
 					checkPlayer1Collision(game);
@@ -214,15 +179,14 @@ function multiplayer2GameLoop(game) {
 }
 
 function multiplayer4GameLoop(game) {
-	const player1 = document.getElementById("player1");
-	const player2 = document.getElementById("player2");
-	const player3 = document.getElementById("player3");
-	const player4 = document.getElementById("player4");
-	
 	return new Promise((resolve) => {
         const playPong = () => {
             if (game.over || !MyWebSocket.ws || !localStorage.getItem("game_status")) {
+				if (!game.winner) {
+					game.winner = localStorage.getItem("game_winner");
+				}
 				game.over = true;
+				updateScore(game);
 				resolve();
 			} else if (!game.paused && !game.over) {
 				let current_time = Date.now();
@@ -231,64 +195,30 @@ function multiplayer4GameLoop(game) {
 				game.clear();
 		
 				if (AbstractView.userInfo.id === game.host_id) {
-					console.log("I am the host");
 					game.ball.update(game);
-				} 
+				}
 				if ((game.player1Left && AbstractView.userInfo.id === game.host_id) ||
 					AbstractView.userInfo.id === AbstractView.userData[0].id) {
 					game.player1.update(game);
-				} 
+					sendHostMessage(game);
+				}
 				if ((game.player2Left && AbstractView.userInfo.id === game.host_id) ||
 					AbstractView.userInfo.id === AbstractView.userData[1].id) {
 					game.player2.update(game);
-				} 
+					sendNonHostMessage(game, 2);
+				}
 				if ((game.player3Left && AbstractView.userInfo.id === game.host_id) ||
 					AbstractView.userInfo.id === AbstractView.userData[2].id) {
 					game.player3.update(game);
-				} 
+					sendNonHostMessage(game, 3);
+				}
 				if ((game.player4Left && AbstractView.userInfo.id === game.host_id) ||
 					AbstractView.userInfo.id === AbstractView.userData[3].id) {
 					game.player4.update(game);
+					sendNonHostMessage(game, 4);
 				}
 
-				if (player1) {
-					player1.dispatchEvent(
-						new CustomEvent("player1", {
-							detail: game.player1.score,
-							bubbles: true,
-						})
-					);
-				}
-				if (player2) {
-					player2.dispatchEvent(
-						new CustomEvent("player2", {
-							detail: game.player2.score,
-							bubbles: true,
-						})
-					);
-				}
-				if (player3) {
-					player3.dispatchEvent(
-						new CustomEvent("player3", {
-							detail: game.player3.score,
-							bubbles: true,
-						})
-					);
-				}
-				if (player4) {
-					player4.dispatchEvent(
-						new CustomEvent("player4", {
-							detail: game.player4.score,
-							bubbles: true,
-						})
-					);
-				}
-		
-				if (AbstractView.userInfo.id === game.host_id) {
-					sendHostMessage(game);
-				} else {
-					sendNonHostMessage(game);
-				}
+				updateScore(game);
 		
 				if (AbstractView.userInfo.id === game.host_id) {
 					checkPlayer1Collision(game);
@@ -313,6 +243,8 @@ function multiplayer4GameLoop(game) {
 				game.player3.draw(game.ctx);
 				game.player4.draw(game.ctx);
 			}
+
+			console.log("game is paused");
 		
 			game.last_time = Date.now();
 
@@ -331,68 +263,43 @@ export function clearBackground(ctx) {
 }
 
 export function sendHostMessage(game) {
-	let message;
-		
-	if (game.lobbySize == 2) {
-		message = {
-			game: {
-				id: AbstractView.userInfo.id,
-				index: 1,
-				screen_width: ScreenWidth,
-				screen_height: ScreenHeight,
-				player_x: game.player1.x,
-				player_y: game.player1.y,
-				ball_x: game.ball.x,
-				ball_y: game.ball.y,
-				ball_speed_x: game.ball.speed_x,
-				ball_speed_y: game.ball.speed_y,
-				player1_score: game.player1.score,
-				player2_score: game.player2.score,
-				paused: game.paused,
-				over: game.over,
-				winner: game.winner,
-			}
-		}
-	} else {
-		message = {
-			game: {
-				id: AbstractView.userInfo.id,
-				index: 1,
-				screen_width: ScreenWidth,
-				screen_height: ScreenHeight,
-				player_x: game.player1.x,
-				player_y: game.player1.y,
-				ball_x: game.ball.x,
-				ball_y: game.ball.y,
-				ball_speed_x: game.ball.speed_x,
-				ball_speed_y: game.ball.speed_y,
-				player1_score: game.player1.score,
-				player2_score: game.player2.score,
-				player3_score: game.player3.score,
-				player4_score: game.player4.score,
-				paused: game.paused,
-				over: game.over,
-				winner: game.winner,
-			},
-	}
-	};
+    let baseMessage = {
+        game: {
+            index: 1,
+            screen_width: ScreenWidth,
+            screen_height: ScreenHeight,
+            player_x: game.player1.x,
+            player_y: game.player1.y,
+            ball_x: game.ball.x,
+            ball_y: game.ball.y,
+            ball_speed_x: game.ball.speed_x,
+            ball_speed_y: game.ball.speed_y,
+            player1_score: game.player1.score,
+            player2_score: game.player2.score,
+            paused: game.paused,
+            over: game.over,
+            winner: game.winner,
+        }
+    }
 
-    sendMessage(MyWebSocket.ws, message);
+    if (game.lobbySize != 2) {
+        baseMessage.game.player3_score = game.player3.score;
+        baseMessage.game.player4_score = game.player4.score;
+    }
+
+    sendMessage(MyWebSocket.ws, baseMessage);
 }
 
-export function sendNonHostMessage(game) {
+export function sendNonHostMessage(game, index) {
 	if (!Object.keys(AbstractView.userData).length) {
 		return;
 	}
 
-	let playerIndex = AbstractView.userData.findIndex(
-		element => element.id === AbstractView.userInfo.id) + 1;
-	let player = game["player" + playerIndex];
+	let player = game["player" + index];
 
     const message = {
         game: {
-            id: player.info.id,
-			index: playerIndex,
+			index: index,
             screen_width: ScreenWidth,
             screen_height: ScreenHeight,
             player_x: player.x,
@@ -401,6 +308,34 @@ export function sendNonHostMessage(game) {
     };
 
     sendMessage(MyWebSocket.ws, message);
+}
+
+export function getPlayerIndex() {
+	if (!Object.keys(AbstractView.userData).length) {
+		return;
+	}
+
+	return AbstractView.userData.findIndex(element => element.id === AbstractView.userInfo.id) + 1;
+}
+
+export function updateScore(game) {
+	const player1 = document.getElementById("player1");
+	const player2 = document.getElementById("player2");
+	const player3 = document.getElementById("player3");
+	const player4 = document.getElementById("player4");
+
+	if (player1) {
+		player1.innerHTML = game.player1.score;
+	}
+	if (player2) {
+		player2.innerHTML = game.player2.score;
+	}
+	if (player3) {
+		player3.innerHTML = game.player3.score;
+	}
+	if (player4) {
+		player4.innerHTML = game.player4.score;
+	}
 }
 
 function getPlayerWithMostGoals(players) {

@@ -1,6 +1,6 @@
 import AbstractView from "../views/AbstractView";
-import { PaddleHeight, PaddleWidth, PaddleStartX, ScreenHeight, ScreenWidth } from "../Game/Pong/variables";
-import { sendNonHostMessage } from "../Game/Pong/pongGame";
+import { ScreenHeight, ScreenWidth } from "../Game/Pong/variables";
+import { getPlayerIndex, sendHostMessage, sendNonHostMessage, updateScore } from "../Game/Pong/pongGame";
 import { getToken } from "./tokens";
 import { Cpu, InvertedCpu } from "../Game/Pong/Player";
 
@@ -95,7 +95,7 @@ export function multiplayerMessageHandler(MyWebSocket, game) {
 						game.player4.y = (gameData["player_y"] / gameData["screen_height"]) * ScreenHeight;
 					}
 					
-					if (gameData["id"] == game.host_id) {
+					if (gameData["index"] == 1) {
 						game.player1.x = (gameData["player_x"] / gameData["screen_width"]) * ScreenWidth;
 						game.player1.y = (gameData["player_y"] / gameData["screen_height"]) * ScreenHeight;
 						game.ball.x = (gameData["ball_x"] / gameData["screen_width"]) * ScreenWidth;
@@ -116,7 +116,7 @@ export function multiplayerMessageHandler(MyWebSocket, game) {
 
 						if (game.paused) {
 							updateOpponentScreen(game);
-							sendNonHostMessage(game);
+							sendNonHostMessage(game, getPlayerIndex());
 						}
 					}
                 }
@@ -124,12 +124,14 @@ export function multiplayerMessageHandler(MyWebSocket, game) {
 				if (jsonData["type"] == "system.message") {
                     const data = jsonData["data"];
                     if (data["message"] === "user.disconnected") {
-						AbstractView.userData.forEach((user, index) => {
-							if (data["user_id"] == user.id) {
-								addCpuPlayer(index, game);
-							}
-						});
-						
+						if (Object.keys(AbstractView.userData).length) {
+							AbstractView.userData.forEach((user, index) => {
+								if (data["user_id"] == user.id && game.lobbySize == 4) {
+									addCpuPlayer(index, game);
+								}
+							});
+						}
+
 						const newState = { ...AbstractView.userQueue };
 						for (let key in newState) {
 							if (newState[key] === data["user_id"]) {
@@ -137,6 +139,7 @@ export function multiplayerMessageHandler(MyWebSocket, game) {
 								break;
 							}
 						}
+						
 						AbstractView.userQueue = newState;
 						
 						if (Object.keys(AbstractView.userQueue).length < 2) {
@@ -160,45 +163,8 @@ export function multiplayerMessageHandler(MyWebSocket, game) {
 }
 
 function updateOpponentScreen(game) {
-	const player1 = document.getElementById("player1");
-	const player2 = document.getElementById("player2");
-	const player3 = document.getElementById("player3");
-	const player4 = document.getElementById("player4");
-	
 	game.clear();
-
-	if (player1) {
-		player1.dispatchEvent(
-			new CustomEvent("player1", {
-				detail: game.player1.score,
-				bubbles: true,
-			})
-		);
-	}
-	if (player2) {
-		player2.dispatchEvent(
-			new CustomEvent("player2", {
-				detail: game.player2.score,
-				bubbles: true,
-			})
-		);
-	}
-	if (player3) {
-		player3.dispatchEvent(
-			new CustomEvent("player3", {
-				detail: game.player3.score,
-				bubbles: true,
-			})
-		);
-	}
-	if (player4) {
-		player4.dispatchEvent(
-			new CustomEvent("player4", {
-				detail: game.player4.score,
-				bubbles: true,
-			})
-		);
-	}
+	updateScore(game);
 	
 	if (game.player1.score !== 5 && game.player2.score !== 5 && game.lobbySize == 2) {
 		game.player2.x = game.player2.initial_x;
@@ -232,6 +198,7 @@ export function sendMessage(ws, message) {
 
 export function closeWebsocket() {
     if (MyWebSocket.ws) {
+		console.error("CLOSING WEBSOCKET");
 		localStorage.removeItem("game_status");
         MyWebSocket.ws.close();
         delete MyWebSocket.ws;
@@ -263,74 +230,105 @@ function addCpuPlayer(index, game) {
 
 	switch (index) {
 		case 0:
+			localStorage.setItem("player1", "CPU");
 			AbstractView.userData[0].id = -1;
 			AbstractView.userData[0].avatar = "/static/images/cpu.png";
 			AbstractView.userData[0].username = "CPU";
-			player1.querySelector("img").setAttribute("src", AbstractView.userData[0].avatar);
+			const img1 = player1.querySelector("img");
+			if (img1) {
+				img1.setAttribute("src", AbstractView.userData[0].avatar);
+			}
 			player1.querySelector("h3").innerText = AbstractView.userData[0].username;
+			const oldPlayer1 = game.player1;
 			const newPlayer1 = new Cpu({
 				x: game.player1.x,
 				y: game.player1.y,
 				color: "red",
-				info: { username: "CPU" }
+				info: AbstractView.userData[0]
 			});
-			game.player1 = newPlayer1
+			game.player1 = newPlayer1;
+			game.player1.score = oldPlayer1.score;
 			game.player1Left = true;
 			break;
 		case 1:
+			localStorage.setItem("player2", "CPU");
 			AbstractView.userData[1].id = -1;
 			AbstractView.userData[1].avatar = "/static/images/cpu_intel_corei3.png";
 			AbstractView.userData[1].username = "CPU";
-			player2.querySelector("img").setAttribute("src", AbstractView.userData[1].avatar);
+			const img2 = player2.querySelector("img");
+			if (img2) {
+				img2.setAttribute("src", AbstractView.userData[0].avatar);
+			}
 			player2.querySelector("h3").innerText = AbstractView.userData[1].username;
+			const oldPlayer2 = game.player2;
 			const newPlayer2 = new Cpu({
 				x: game.player2.x,
 				y: game.player2.y,
 				color: "blue",
-				info: { username: "CPU" }
+				info: AbstractView.userData[1]
 			});
 			game.player2 = newPlayer2;
+			game.player2.score = oldPlayer2.score;
 			game.player2Left = true;
 			break;
 		case 2:
+			localStorage.setItem("player3", "CPU");
 			AbstractView.userData[2].id = -1;
 			AbstractView.userData[2].avatar = "/static/images/cpu_intel_corei5.png";
 			AbstractView.userData[2].username = "CPU";
-			player3.querySelector("img").setAttribute("src", AbstractView.userData[2].avatar);
+			const img3 = player3.querySelector("img");
+			if (img3) {
+				img3.setAttribute("src", AbstractView.userData[0].avatar);
+			}
 			player3.querySelector("h3").innerText = AbstractView.userData[2].username;
+			const oldPlayer3 = game.player3;
 			const newPlayer3 = new InvertedCpu({
 				x: game.player3.x,
 				y: game.player3.y,
 				color: "green",
-				info: { username: "CPU" }
+				info: AbstractView.userData[2]
 			});
 			game.player3 = newPlayer3;
+			game.player3.score = oldPlayer3.score;
 			game.player3Left = true;
 			break;
 		case 3:
+			localStorage.setItem("player4", "CPU");
 			AbstractView.userData[3].id = -1;
 			AbstractView.userData[3].avatar = "/static/images/cpu_intel_xeon.png";
 			AbstractView.userData[3].username = "CPU";
-			player4.querySelector("img").setAttribute("src", AbstractView.userData[3].avatar);
+			const img4 = player4.querySelector("img");
+			if (img4) {
+				img4.setAttribute("src", AbstractView.userData[0].avatar);
+			}
 			player4.querySelector("h3").innerText = AbstractView.userData[3].username;
+			const oldPlayer4 = game.player4;
 			const newPlayer4 = new InvertedCpu({
 				x: game.player4.x,
 				y: game.player4.y,
 				color: "yellow",
-				info: { username: "CPU" }
+				info: AbstractView.userData[3]
 			});
-			game.player4 = newPlayer4; 
+			game.player4 = newPlayer4;
+			game.player4.score = oldPlayer4.score;
 			game.player4Left = true;
 			break;
 	}
 
-	console.error("Game:", game);
-
 	for (let user of AbstractView.userData) {
 		if (user.id !== -1) {
 			game.host_id = user.id;
-			console.log("New host -> ", user.id);
+			console.log("New Host -> ", user.id);
 			return ;
 		}
 	}
+
+	//setTimeout(() => {
+	//	if (game.paused) {
+	//		game.paused = false;
+	//		if (game.mode === "multiplayer") {
+	//			sendHostMessage(game);
+	//		}
+	//	}
+	//}, duration * 600);
 }

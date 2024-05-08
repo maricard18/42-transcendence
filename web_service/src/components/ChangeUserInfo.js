@@ -389,7 +389,7 @@ export default class ChangeUserInfo extends AbstractView {
                 avatarContainer.dispatchEvent(
                     new CustomEvent("avatar-container")
                 );
-                this.success = {message: "Changes saved"};
+                this.success = { message: "Changes saved" };
             } else {
                 newErrors = await handleResponse(response, this._formData);
                 this.errors = newErrors;
