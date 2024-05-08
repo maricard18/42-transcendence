@@ -21,3 +21,5 @@ DNS.1 = localhost
 DNS.2 = 127.0.0.1
 DNS.3 = 10.*.*.*
 DNS.4 = 192.168.*.*
+DNS.5 = modsecurity
+DNS.6 = modsecurity-dev
