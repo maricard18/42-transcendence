@@ -279,8 +279,7 @@ function addCpuPlayer(index, game) {
 			break;
 		case 1:
 			AbstractView.userData[1].id = -1;
-			AbstractView.userData[1].avatar = "/static/images/cpu.png";
-			//TODO AbstractView.userData[1].avatar = "/static/images/cpu_intel_corei3.png";
+			AbstractView.userData[1].avatar = "/static/images/cpu_intel_corei3.png";
 			AbstractView.userData[1].username = "CPU";
 			player2.querySelector("img").setAttribute("src", AbstractView.userData[1].avatar);
 			player2.querySelector("h3").innerText = AbstractView.userData[1].username;
@@ -295,8 +294,7 @@ function addCpuPlayer(index, game) {
 			break;
 		case 2:
 			AbstractView.userData[2].id = -1;
-			AbstractView.userData[2].avatar = "/static/images/cpu.png";
-			//TODO AbstractView.userData[1].avatar = "/static/images/cpu_intel_corei5.png";
+			AbstractView.userData[2].avatar = "/static/images/cpu_intel_corei5.png";
 			AbstractView.userData[2].username = "CPU";
 			player3.querySelector("img").setAttribute("src", AbstractView.userData[2].avatar);
 			player3.querySelector("h3").innerText = AbstractView.userData[2].username;
@@ -311,8 +309,7 @@ function addCpuPlayer(index, game) {
 			break;
 		case 3:
 			AbstractView.userData[3].id = -1;
-			AbstractView.userData[3].avatar = "/static/images/cpu.png";
-			//TODO AbstractView.userData[1].avatar = "/static/images/cpu_intel_xeon.png";
+			AbstractView.userData[3].avatar = "/static/images/cpu_intel_xeon.png";
 			AbstractView.userData[3].username = "CPU";
 			player4.querySelector("img").setAttribute("src", AbstractView.userData[3].avatar);
 			player4.querySelector("h3").innerText = AbstractView.userData[3].username;

@@ -73,7 +73,7 @@ export class Display2Usernames extends AbstractView {
 								<div class="username-text ms-3 mt-2">
 									<h3>${AbstractView.userInfo.username}</h3>
 								</div>
-								<div class="username-text ms-5 mt-2">
+								<div class="username-text ms-4 mt-1">
 									<h1 id="player1">0</h1>
 								</div>
 							</div>`
@@ -85,13 +85,13 @@ export class Display2Usernames extends AbstractView {
 								<div class="username-text ms-3 mt-2">
 									<h3>${AbstractView.userInfo.username}</h3>
 								</div>
-								<div class="username-text ms-5 mt-2">
+								<div class="username-text ms-4 mt-1">
 									<h1 id="player1">0</h1>
 								</div>
 							</div>`
             }
 					<div class="d-flex justify-content-center align-content-center me-5 mb-2" id="player2-info">
-						<div class="username-text me-5 mt-2">
+						<div class="username-text me-4 mt-1">
 							<h1 id="player2">0</h1>
 						</div>
 						<div class="username-text me-3 mt-2">
@@ -123,14 +123,14 @@ export class Display2Usernames extends AbstractView {
 						<div class="username-text ms-3 mt-2">
 							<h3>${localStorage.getItem("player1")}</h3>
 						</div>
-						<div class="username-text ms-5 mt-2">
+						<div class="username-text ms-4 mt-1">
 							<h1 id="player1">0</h1>
 						</div>
 					</div>
 					${
                 AbstractView.userInfo.avatar
                     ? `<div class="d-flex justify-content-center align-content-center me-5 mb-2" id="player2-info">
-								<div class="username-text me-5 mt-2">
+								<div class="username-text me-4 mt-1">
 									<h1 id="player2">0</h1>
 								</div>
 								<div class="username-text me-3 mt-2">
@@ -146,7 +146,7 @@ export class Display2Usernames extends AbstractView {
 								/>
 							</div>`
                     : `<div class="d-flex justify-content-center align-content-center me-5" id="player2-info">
-								<div class="username-text me-5 mt-2">
+								<div class="username-text me-4 mt-1">
 									<h1 id="player2">0</h1>
 								</div>
 								<div class="username-text me-3 mt-2">
@@ -177,7 +177,7 @@ export class Display2Usernames extends AbstractView {
 								<div class="username-text justify-content-center align-content-center ms-3 mt-2">
 									<h3>${AbstractView.userData[0].username}</h3>
 								</div>
-								<div class="username-text ms-5 mt-2">
+								<div class="username-text ms-4 mt-1">
 									<h1 id="player1">0</h1>
 								</div>
 							</div>`
@@ -189,7 +189,7 @@ export class Display2Usernames extends AbstractView {
 								<div class="username-text ms-3 mt-2">
 									<h3>${AbstractView.userData[0].username}</h3>
 								</div>
-								<div class="username-text ms-5 mt-2">
+								<div class="username-text ms-4 mt-1">
 									<h1 id="player1">0</h1>
 								</div>
 							</div>`
@@ -197,7 +197,7 @@ export class Display2Usernames extends AbstractView {
 					${
                 AbstractView.userData[1].avatar
                     ? `<div class="d-flex justify-content-center align-content-center me-5 mb-2" id="player2-info">
-								<div class="username-text me-5 mt-2">
+								<div class="username-text me-4 mt-1">
 									<h1 id="player2">0</h1>
 								</div>
 								<div class="username-text me-3 mt-2">
@@ -213,7 +213,7 @@ export class Display2Usernames extends AbstractView {
 								/>
 							</div>`
                     : `<div class="d-flex justify-content-center align-content-center me-5 mb-2" id="player2-info">
-								<div class="username-text me-5 mt-2">
+								<div class="username-text me-4 mt-1">
 									<h1 id="player2">0</h1>
 								</div>
 								<div class="username-text me-3 mt-2">
@@ -245,12 +245,12 @@ export class Display2Usernames extends AbstractView {
 						<div class="username-text justify-content-center align-content-center ms-3 mt-2">
 							<h3>${match["player1"]["username"]}</h3>
 						</div>
-						<div class="username-text ms-5 mt-2">
+						<div class="username-text ms-4 mt-1">
 							<h1 id="player1">0</h1>
 						</div>
 					</div>
 					<div class="d-flex justify-content-center align-content-center me-5 mb-2" id="player2-info">
-						<div class="username-text me-5 mt-2">
+						<div class="username-text me-4 mt-1">
 							<h1 id="player2">0</h1>
 						</div>
 						<div class="username-text me-3 mt-2">
