@@ -344,6 +344,8 @@ services:
       WEB_ADDR: https://modsecurity-dev:8443
     networks:
       - transcendence-dev
+    volumes:
+      - ./nikto/output/:/git/nikto/output/:rw
     depends_on:
       modsecurity-dev:
         condition: service_started
