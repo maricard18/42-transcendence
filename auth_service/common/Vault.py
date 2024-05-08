@@ -52,6 +52,16 @@ class Vault:
             else:
                 resolved[key] = value
         return resolved
+    
+    @classmethod
+    def encryptSerializedData(cls, data):
+        encrypted = {}
+        for key, value in data.items():
+            if key == "password" or key == "username" or key == "email":
+                encrypted[key] = cls.transitEncrypt(value)
+            else:
+                encrypted[key] = value
+        return encrypted
 
     @classmethod
     def getVaultSecret(cls, path):

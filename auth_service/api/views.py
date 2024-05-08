@@ -92,9 +92,11 @@ class UserViewSet(viewsets.ViewSet):
             user = self.queryset.get(pk=pk)
         except User.DoesNotExist:
             raise NotFound
+        
         serializer = UserSerializer(user)
+        data = Vault.encryptSerializedData(serializer.data)
 
-        return Response(remove_sensitive_information(request.user.id, serializer.data))
+        return Response(remove_sensitive_information(request.user.id, data))
 
     # PUT /api/users/:id
     def update(self, request, pk=None):
