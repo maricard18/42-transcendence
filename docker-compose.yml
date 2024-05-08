@@ -372,7 +372,8 @@ services:
        - --nginx.scrape-uri=https://modsecurity-dev:8443/metrics
   
   grafana-dev:
-    image: grafana/grafana:latest
+    build:
+      context: grafana/
     container_name: grafana-dev
     restart: always
     ports:
