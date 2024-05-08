@@ -65,7 +65,6 @@ INSTALLED_APPS += [
 
 # User-defined apps
 INSTALLED_APPS += [
-    'api.apps.ApiConfig',
     'common'
 ]
 
@@ -145,30 +144,6 @@ CHANNEL_LAYERS = {
             'hosts': [(str(os.environ.get('REDIS_HOST')), str(os.environ.get('REDIS_PORT')))],
         },
     },
-}
-
-# Django Rest Framework Settings
-# https://www.django-rest-framework.org/api-guide/settings/
-
-DEFAULT_RENDERER_CLASSES = (
-    'rest_framework.renderers.JSONRenderer',
-)
-
-if DEBUG:
-    DEFAULT_RENDERER_CLASSES = DEFAULT_RENDERER_CLASSES + (
-        'rest_framework.renderers.BrowsableAPIRenderer',
-    )
-
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTStatelessUserAuthentication',
-    ),
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
-    ),
-    'EXCEPTION_HANDLER': 'api.utils.api_exception_handler',
-    'DEFAULT_METADATA_CLASS': 'rest_framework.metadata.SimpleMetadata',
-    'DEFAULT_RENDERER_CLASSES': DEFAULT_RENDERER_CLASSES
 }
 
 # Django Rest Framework Simple JWT Settings

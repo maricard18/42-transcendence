@@ -51,7 +51,7 @@ endif
 
 all: build up
 build:
-	$(COMMAND) build --no-cache --with-dependencies $(_SERVICE)
+	@$(COMMAND) build --no-cache --with-dependencies $(_SERVICE)
 up: build
 	@$(COMMAND) up -d --no-build $(_SERVICE)
 down:
@@ -72,7 +72,6 @@ fclean:
 	@images=$$(docker image ls -q "$(PROJECT_NAME)-*"); \
 	if [ -n "$$images" ]; then \
 		docker image rm $$images -f; \
-		docker system prune --volumes -af; \
 	fi
 help:
 	@echo "Usage: make [options] [target]"

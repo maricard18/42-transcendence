@@ -222,7 +222,7 @@ export default class SettingsPage extends AbstractView {
     async getHtml() {
         const link = "https://api.intra.42.fr/oauth/authorize" +
             "?client_id=" + encodeURIComponent(process.env.SSO_42_CLIENT_ID) +
-            "&redirect_uri=" + encodeURIComponent(process.env.SSO_42_CLIENT_ID) +
+            "&redirect_uri=" + encodeURIComponent(process.env.SSO_42_REDIRECT_URI) +
             "&response_type=code";
         let avatarElement = document.createElement("avatar-box");
         if (AbstractView.userInfo.avatar) {

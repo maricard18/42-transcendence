@@ -15,12 +15,13 @@ ARG SSL_CERT_KEY=${SSL_CERT_KEY_PATH}${SSL_CERT_KEY_FILE}
 RUN apk update && apk add --no-cache openssl
 
 # Generate TLS Certificate
+RUN mkdir -p /etc/ssl/
 RUN mkdir -p $SSL_CERT_PATH
 RUN mkdir -p $SSL_CERT_KEY_PATH
-RUN openssl req -x509 -nodes -sha256 -newkey rsa:4096 \
-    -subj "/C=PT/ST=Porto/L=Porto/O=42/OU=42Porto/CN=localhost" \
-    -keyout "${SSL_CERT_KEY}" \
-    -out "${SSL_CERT}"
+
+COPY modsecurity-nginx/req.cnf /etc/ssl/req.cnf
+RUN openssl req -x509 -nodes -sha256 -newkey rsa:4096 -days 730 \
+    -config /etc/ssl/req.cnf -keyout "${SSL_CERT_KEY}" -out "${SSL_CERT}"
 
 RUN chmod o+r ${SSL_CERT}
 RUN chmod o+r ${SSL_CERT_KEY}

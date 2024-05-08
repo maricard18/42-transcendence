@@ -25,8 +25,8 @@ from api.views import UserViewSet, OTPViewSet, TokenViewSet, SSOViewSet
 
 api_router = APIRouter()
 
+api_router.register(r'users/{pk}/otp', OTPViewSet, basename='user_otp')
 api_router.register(r'users', UserViewSet, basename='user')
-api_router.register(r'users/(?P<user_pk>\d+)/otp', OTPViewSet, basename='user_otp')
 
 ##########
 ## AUTH ##

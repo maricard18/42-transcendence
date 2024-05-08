@@ -72,8 +72,8 @@ services:
         condition: service_completed_successfully
       modsecurity-dev:
         condition: service_started
-      vault_service-init-dev:
-        condition: service_completed_successfully
+      vault_service-dev:
+        condition: service_healthy
     profiles: [ "", "auth_service" ]
     restart: on-failure
 
@@ -105,11 +105,11 @@ services:
       - vault_services_data-dev:/vault/transcendence/:ro
     depends_on:
       redis_service-dev:
-        condition: service_started
+        condition: service_healthy
       modsecurity-dev:
         condition: service_started
-      vault_service-init-dev:
-        condition: service_completed_successfully
+      vault_service-dev:
+        condition: service_healthy
     profiles: [ "", "game_service" ]
     restart: on-failure
 
@@ -166,6 +166,11 @@ services:
       - "6379"
     networks:
       - transcendence-dev
+    healthcheck:
+      test: [ "CMD-SHELL", 'redis-cli ping || exit 1' ]
+      interval: 5s
+      start_period: 5s
+      retries: 5
     profiles: [ "", "game_service" ]
     restart: on-failure
 
@@ -179,6 +184,8 @@ services:
         - SSL_CERT_FILE
         - SSL_CERT_KEY_PATH
         - SSL_CERT_KEY_FILE
+    environment:
+      VAULT_SKIP_VERIFY: true
     expose:
       - "8200"
     networks:
@@ -186,13 +193,20 @@ services:
     volumes:
       - ssl_cert_data-dev:${SSL_CERT_PATH}:ro
       - ssl_cert_key_data-dev:${SSL_CERT_KEY_PATH}:ro
-    cap_add:
-      - IPC_LOCK
+    healthcheck:
+      test: [ "CMD-SHELL", 'vault status' ]
+      interval: 5s
+      start_period: 5s
+      retries: 5
     depends_on:
       modsecurity-dev:
         condition: service_started
+    cap_add:
+      - IPC_LOCK
     profiles: [ "", "auth_service", "web_service" ]
+    restart: on-failure
 
+  ############# TOOLS #############
   vault_service-init-dev:
     container_name: vault_service-init-dev
     image: hashicorp/vault:1.13.3
@@ -214,7 +228,6 @@ services:
       vault_service-dev:
         condition: service_started
 
-  ############# TOOLS #############
   auth_service-db_migrations-dev:
     container_name: auth_service-db_migrations-dev
     build:
@@ -247,10 +260,9 @@ services:
     depends_on:
       auth_service-postgres-dev:
         condition: service_healthy
-      vault_service-init-dev:
-        condition: service_completed_successfully
+      vault_service-dev:
+        condition: service_healthy
     profiles: [ "", "auth_service", "tools" ]
-    restart: on-failure
 
   auth_service-collectstatic-dev:
     container_name: auth_service-collectstatic-dev
@@ -275,10 +287,9 @@ services:
       - ssl_cert_key_data-dev:${SSL_CERT_KEY_PATH}:ro
       - vault_services_data-dev:/vault/transcendence/:ro
     depends_on:
-      vault_service-init-dev:
-        condition: service_completed_successfully
+      vault_service-dev:
+        condition: service_healthy
     profiles: [ "", "auth_service", "tools" ]
-    restart: on-failure
 
   game_service-collectstatic-dev:
     container_name: game_service-collectstatic-dev
@@ -303,10 +314,9 @@ services:
       - ssl_cert_key_data-dev:${SSL_CERT_KEY_PATH}:ro
       - vault_services_data-dev:/vault/transcendence/:ro
     depends_on:
-      vault_service-init-dev:
-        condition: service_completed_successfully
+      vault_service-dev:
+        condition: service_healthy
     profiles: [ "", "game_service", "tools" ]
-    restart: on-failure
 
   web_service-dev:
     container_name: web_service-dev
@@ -321,8 +331,8 @@ services:
       - web_service-static_data-dev:/app/static/:rw
       - vault_services_data-dev:/vault/transcendence/:ro
     depends_on:
-      vault_service-init-dev:
-        condition: service_completed_successfully
+      vault_service-dev:
+        condition: service_healthy
     profiles: [ "", "web_service", "tools" ]
     restart: on-failure
 
@@ -334,6 +344,8 @@ services:
       WEB_ADDR: https://modsecurity-dev:8443
     networks:
       - transcendence-dev
+    volumes:
+      - ./nikto/output/:/git/nikto/output/:rw
     depends_on:
       modsecurity-dev:
         condition: service_started
