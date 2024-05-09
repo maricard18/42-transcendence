@@ -342,7 +342,7 @@ services:
   prometheus:
     container_name: prometheus
     build:
-      context: prometheus/
+      context: monitoring/prometheus/
       args:
         - PROMETHEUS_ADDR=prometheus:9090
         - PROMETHEUS_EXPORTER_ADDR=prometheus-exporter:9113
@@ -379,7 +379,7 @@ services:
   
   grafana:
     build:
-      context: grafana/
+      context: monitoring/grafana/
       args:
         - PROMETHEUS_URL=http://prometheus:9090
     container_name: grafana

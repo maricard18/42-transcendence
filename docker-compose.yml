@@ -339,7 +339,7 @@ services:
   prometheus-dev:
     container_name: prometheus-dev
     build:
-      context: prometheus/
+      context: monitoring/prometheus/
       args:
         - PROMETHEUS_ADDR=prometheus-dev:9090
         - PROMETHEUS_EXPORTER_ADDR=prometheus-exporter-dev:9113    
@@ -373,10 +373,11 @@ services:
         condition: service_started
     command:
        - --nginx.scrape-uri=https://modsecurity-dev:8443/metrics
-  
+    
+    
   grafana-dev:
     build:
-      context: grafana/
+      context: monitoring/grafana/
       args:
         - PROMETHEUS_URL=http://prometheus-dev:9090
     container_name: grafana-dev
