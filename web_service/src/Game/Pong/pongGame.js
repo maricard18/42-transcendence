@@ -129,7 +129,6 @@ function multiplayer2GameLoop(game) {
 				}
 				game.over = true;
 				updateScore(game);
-				console.error("GAME IS OVER");
 				resolve();
 			} else if (!game.paused && !game.over) {
 				let current_time = Date.now();
@@ -145,9 +144,9 @@ function multiplayer2GameLoop(game) {
 					game.player2.update(game);
 					sendNonHostMessage(game, getPlayerIndex());
 				}
-				
+
 				updateScore(game);
-		
+						
 				if (game.player1.info.id === game.host_id) {
 					checkPlayer1Collision(game);
 					checkPlayer2Collision(game);
@@ -174,6 +173,7 @@ function multiplayer2GameLoop(game) {
             }
         };
 
+		updateScore(game);
         window.requestAnimationFrame(playPong);
     });
 }
@@ -243,8 +243,6 @@ function multiplayer4GameLoop(game) {
 				game.player3.draw(game.ctx);
 				game.player4.draw(game.ctx);
 			}
-
-			console.log("game is paused");
 		
 			game.last_time = Date.now();
 
@@ -253,6 +251,7 @@ function multiplayer4GameLoop(game) {
             }
         };
 
+		updateScore(game);
         window.requestAnimationFrame(playPong);
     });
 }

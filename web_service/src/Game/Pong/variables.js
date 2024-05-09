@@ -45,14 +45,14 @@ export function updateVariables(canvas) {
 }
 
 export function pauseGame(game, duration) {
-	console.log("Game is now paused");
+	//console.log("Game is now paused");
     game.paused = true;
     if (game.mode === "multiplayer") {
         sendHostMessage(game);
     }
 
     setTimeout(() => {
-		console.log("game is no longer paused");
+		//console.log("game is no longer paused");
         game.paused = false;
         if (game.mode === "multiplayer") {
             sendHostMessage(game);

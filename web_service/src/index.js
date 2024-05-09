@@ -154,7 +154,7 @@ function cleanData(location) {
 	}
 }
 
-function cleanTournamentStorage() {
+export function cleanTournamentStorage() {
 	localStorage.removeItem("tournament");
 	localStorage.removeItem("match1");
 	localStorage.removeItem("match2");
