@@ -1,5 +1,6 @@
 import {decode, getToken, logout} from "./tokens";
 import fetchData from "./fetchData";
+import {transitDecrypt} from "./vaultAccess";
 
 export default async function getUserInfo() {
     let accessToken, decodeToken, jsonData;
@@ -45,8 +46,8 @@ export default async function getUserInfo() {
     }
 
     const data = {
-        username: jsonData["username"],
-        email: jsonData["email"],
+        username: await transitDecrypt(jsonData["username"]),
+        email: await transitDecrypt(jsonData["email"]),
         avatar: null,
         id: decodeToken["user_id"],
     };
