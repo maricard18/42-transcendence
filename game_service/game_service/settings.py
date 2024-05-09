@@ -21,14 +21,14 @@ from common.utils import get_secret_from_file
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # HashiCorp Vault
-VAULT_ROLE_ID = str(get_secret_from_file(os.environ.get('VAULT_ROLE_ID_FILE')))
-VAULT_SECRET_ID = str(get_secret_from_file(os.environ.get('VAULT_SECRET_ID_FILE')))
+VAULT_ROLE_ID = get_secret_from_file(os.environ.get('VAULT_ROLE_ID_FILE'))
+VAULT_SECRET_ID = get_secret_from_file(os.environ.get('VAULT_SECRET_ID_FILE'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = str(Vault.getVaultSecret("django-secret"))
+SECRET_KEY = Vault.getVaultSecret("django-secret")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False if os.environ.get('DJANGO_DEBUG') == 'False' else True
@@ -65,7 +65,6 @@ INSTALLED_APPS += [
 
 # User-defined apps
 INSTALLED_APPS += [
-    'api.apps.ApiConfig',
     'common'
 ]
 
@@ -147,30 +146,6 @@ CHANNEL_LAYERS = {
     },
 }
 
-# Django Rest Framework Settings
-# https://www.django-rest-framework.org/api-guide/settings/
-
-DEFAULT_RENDERER_CLASSES = (
-    'rest_framework.renderers.JSONRenderer',
-)
-
-if DEBUG:
-    DEFAULT_RENDERER_CLASSES = DEFAULT_RENDERER_CLASSES + (
-        'rest_framework.renderers.BrowsableAPIRenderer',
-    )
-
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTStatelessUserAuthentication',
-    ),
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
-    ),
-    'EXCEPTION_HANDLER': 'api.utils.api_exception_handler',
-    'DEFAULT_METADATA_CLASS': 'rest_framework.metadata.SimpleMetadata',
-    'DEFAULT_RENDERER_CLASSES': DEFAULT_RENDERER_CLASSES
-}
-
 # Django Rest Framework Simple JWT Settings
 # https://django-rest-framework-simplejwt.readthedocs.io/en/latest/settings.html
 
@@ -182,7 +157,7 @@ SIMPLE_JWT = {
     'UPDATE_LAST_LOGIN': False,
 
     'ALGORITHM': 'HS256',
-    'SIGNING_KEY': str(Vault.getVaultSecret("jwt-signing-key")),
+    'SIGNING_KEY': Vault.getVaultSecret("jwt-signing-key"),
     'VERIFYING_KEY': '',
     'AUDIENCE': None,
     'ISSUER': None,
@@ -206,7 +181,7 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 
-    'TOKEN_OBTAIN_SERIALIZER': 'api.serializers.APITokenObtainPairSerializer',
+    'TOKEN_OBTAIN_SERIALIZER': 'rest_framework_simplejwt.serializers.TokenObtainPairSerializer',
     'TOKEN_REFRESH_SERIALIZER': 'rest_framework_simplejwt.serializers.TokenRefreshSerializer',
     'TOKEN_VERIFY_SERIALIZER': 'rest_framework_simplejwt.serializers.TokenVerifySerializer',
     'TOKEN_BLACKLIST_SERIALIZER': 'rest_framework_simplejwt.serializers.TokenBlacklistSerializer',

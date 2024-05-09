@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 
 ######################
@@ -19,10 +20,10 @@ class AvatarManager(models.Manager):
 
     def create(self, auth_user, avatar=None, request=None, link=None):
         if not all([auth_user, avatar, request]) and not all([auth_user, link]):
-            raise ValueError(
+            raise ValueError(_(
                 "All 'auth_user', 'avatar', and 'request' fields are required for Avatar, if uploading an avatar.\n"
                 "All 'auth_user' and 'link' fields are required for Avatar, if not uploading an avatar."
-            )
+            ))
 
         if avatar is not None:
             AvatarManager.request = request
@@ -33,10 +34,10 @@ class AvatarManager(models.Manager):
 
     def update_or_create(self, auth_user, avatar=None, request=None, link=None):
         if not all([auth_user, avatar, request]) and not all([auth_user, link]):
-            raise ValueError(
+            raise ValueError(_(
                 "All 'auth_user', 'avatar', and 'request' fields are required for Avatar, if uploading an avatar.\n"
                 "All 'auth_user' and 'link' fields are required for Avatar, if not uploading an avatar."
-            )
+            ))
 
         try:
             if avatar is not None or link is not None:
@@ -88,7 +89,7 @@ class SSO_UserManager(models.Manager):
         Create and save a user with the given username, email, and password.
         """
         if not username:
-            raise ValueError("The given username must be set")
+            raise ValueError(_("The given username must be set."))
         email = self.normalize_email(email)
         # Lookup the real model class from the global app registry so this
         # manager method can be used in migrations. This is fine because
@@ -97,8 +98,7 @@ class SSO_UserManager(models.Manager):
             self.model._meta.app_label, self.model._meta.object_name
         )
         username = GlobalUserModel.normalize_username(username)
-        user = self.model(sso_provider=sso_provider, sso_id=sso_id, username=username, email=email,
-                          auth_user=auth_user)
+        user = self.model(sso_provider=sso_provider, sso_id=sso_id, username=username, email=email, auth_user=auth_user)
         user.save(using=self._db)
         return user
 
@@ -135,36 +135,70 @@ def path_and_rename(instance, filename):
 
 
 class Avatar(models.Model):
-    avatar = models.ImageField("avatar", upload_to=path_and_rename)
-    link = models.URLField("link", help_text="The URL to retrieve the image.")
-    auth_user = models.OneToOneField(User, on_delete=models.CASCADE, unique=True)
-    created_at = models.DateTimeField("date joined", default=timezone.now)
+    avatar = models.ImageField(
+        _("avatar"),
+        upload_to=path_and_rename
+    )
+    link = models.URLField(
+        _("link"),
+        help_text=_("Required. The URL to retrieve the image.")
+    )
+    auth_user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        unique=True,
+        help_text=_("Required. The user associated to the image."),
+        error_messages={
+            "unique": _("An avatar already exists for that user."),
+        }
+    )
+    created_at = models.DateTimeField(
+        _("date joined"),
+        default=timezone.now
+    )
 
     objects = AvatarManager()
 
 
 class SSO_User(models.Model):
     sso_provider = models.CharField(
-        "sso_provider",
+        _("sso_provider"),
         max_length=8,
-        help_text="Required. The SSO that was used to signup/login."
+        help_text=_("Required. The SSO that was used to signup/login.")
     )
 
     username_validator = UnicodeUsernameValidator()
     username = models.CharField(
-        "username",
+        _("username"),
         max_length=150,
         unique=True,
-        help_text="Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.",
+        help_text=_("Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."),
         validators=[username_validator],
         error_messages={
-            "unique": "A user with that username already exists.",
+            "unique": _("A user with that username already exists."),
         }
     )
-    email = models.EmailField("email address", blank=True)
-    sso_id = models.IntegerField("sso_id", help_text="Required. An unique identifier at the SSO.")
-    auth_user = models.OneToOneField(User, on_delete=models.CASCADE, unique=True)
-    created_at = models.DateTimeField("date joined", default=timezone.now)
+    email = models.EmailField(
+        _("email address"),
+        blank=True,
+    )
+    sso_id = models.IntegerField(
+        _("sso_id"),
+        help_text=_("Required. An unique identifier at the SSO.")
+    )
+    auth_user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        unique=True,
+        help_text=_("Required. The user associated to the sso."),
+        error_messages={
+            "unique": _("This user is already linked to an account."),
+        }
+    )
+    created_at = models.DateTimeField(
+        _("date joined"),
+        default=timezone.now
+    )
 
     objects = SSO_UserManager()
 
@@ -182,12 +216,25 @@ class SSO_User(models.Model):
 
 class OTP_Token(models.Model):
     token = models.CharField(
-        "token",
+        _("token"),
         max_length=40,
         unique=True
     )
-    active = models.BooleanField(default=False)
-    auth_user = models.OneToOneField(User, on_delete=models.CASCADE, unique=True)
-    created_at = models.DateTimeField("date joined", default=timezone.now)
+    active = models.BooleanField(
+        default=False
+    )
+    auth_user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        unique=True,
+        help_text=_("Required. The user associated to the OTP token."),
+        error_messages={
+            "unique": _("This user already has 2FA enabled."),
+        }
+    )
+    created_at = models.DateTimeField(
+        _("date joined"),
+        default=timezone.now
+    )
 
     objects = models.Manager()

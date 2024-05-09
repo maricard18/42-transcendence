@@ -1,0 +1,25 @@
+[req]
+distinguished_name = req_distinguished_name
+x509_extensions = v3_req
+prompt = no
+
+[req_distinguished_name]
+C = PT
+ST = Porto
+L = Porto
+O = Transcendence
+OU = 42 Porto
+CN = localhost
+
+[v3_req]
+keyUsage = critical, digitalSignature, keyAgreement
+extendedKeyUsage = serverAuth
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = localhost
+DNS.2 = 127.0.0.1
+DNS.3 = 10.*.*.*
+DNS.4 = 192.168.*.*
+DNS.5 = modsecurity
+DNS.6 = modsecurity-dev
