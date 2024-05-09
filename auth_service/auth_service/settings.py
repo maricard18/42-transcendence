@@ -21,14 +21,14 @@ from common.utils import get_secret_from_file
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # HashiCorp Vault
-VAULT_ROLE_ID = str(get_secret_from_file(os.environ.get('VAULT_ROLE_ID_FILE')))
-VAULT_SECRET_ID = str(get_secret_from_file(os.environ.get('VAULT_SECRET_ID_FILE')))
+VAULT_ROLE_ID = get_secret_from_file(os.environ.get('VAULT_ROLE_ID_FILE'))
+VAULT_SECRET_ID = get_secret_from_file(os.environ.get('VAULT_SECRET_ID_FILE'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = str(Vault.getVaultSecret("django-secret"))
+SECRET_KEY = Vault.getVaultSecret("django-secret")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False if os.environ.get('DJANGO_DEBUG') == 'False' else True
@@ -105,10 +105,10 @@ ASGI_APPLICATION = 'auth_service.asgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': str(get_secret_from_file(os.environ.get('POSTGRES_DB_FILE'))),
-        'USER': str(get_secret_from_file(os.environ.get('POSTGRES_USER_FILE'))),
-        'PASSWORD': str(get_secret_from_file(os.environ.get('POSTGRES_PASSWORD_FILE'))),
-        'HOST': str(get_secret_from_file(os.environ.get('POSTGRES_HOST_FILE'))),
+        'NAME': get_secret_from_file(os.environ.get('POSTGRES_DB_FILE')),
+        'USER': get_secret_from_file(os.environ.get('POSTGRES_USER_FILE')),
+        'PASSWORD': get_secret_from_file(os.environ.get('POSTGRES_PASSWORD_FILE')),
+        'HOST': get_secret_from_file(os.environ.get('POSTGRES_HOST_FILE')),
     }
 }
 
@@ -190,7 +190,7 @@ SIMPLE_JWT = {
     'UPDATE_LAST_LOGIN': False,
 
     'ALGORITHM': 'HS256',
-    'SIGNING_KEY': str(Vault.getVaultSecret("jwt-signing-key")),
+    'SIGNING_KEY': Vault.getVaultSecret("jwt-signing-key"),
     'VERIFYING_KEY': '',
     'AUDIENCE': None,
     'ISSUER': None,
