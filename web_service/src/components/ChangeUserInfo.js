@@ -4,11 +4,11 @@ import handleResponse from "../functions/authenticationErrors";
 import {validateProfileUserForm} from "../functions/validateForms";
 import {getToken} from "../functions/tokens";
 import {transitEncrypt} from "../functions/vaultAccess";
+import "bootstrap/dist/js/bootstrap.bundle.js";
 
 export default class ChangeUserInfo extends AbstractView {
     constructor() {
         super();
-        this._loading = true;
 		this._loadingUserOtp = true;
         this._parentNode = null;
         this._insideRequest = false;
@@ -19,7 +19,7 @@ export default class ChangeUserInfo extends AbstractView {
 		this._emailButton = false;
 		this._setup2FAButton = false;
 		this._remove2FAButton = false;
-		this._has2FA = true;
+		this._has2FA = 0;
 		this._qrcode = null;
 
         this._errors = {};
@@ -63,6 +63,13 @@ export default class ChangeUserInfo extends AbstractView {
         };
 
 		this.setup2FACallback = async () => {
+			if (this._has2FA === 1) {
+				await this.remove2FACallback();
+				if (this._has2FA === 1) {
+					return ;
+				}
+			}
+
 			this._accessToken = await getToken();
 			const headers = {
 				Authorization: `Bearer ${this._accessToken}`,
@@ -79,20 +86,22 @@ export default class ChangeUserInfo extends AbstractView {
 				const jsonData = await response.json();
 				this._qrcode = jsonData["url"];
 				this.updateModalBodyContent();
+				this._has2FA = 1;
 			} else {
 				console.error("Error: POST request to otp failed");
-				this._has2FA = false;
+				this._has2FA = 0;
 			}
 		}
 
 		this.validate2FACallback = async () => {
+			console.log("HERE");
 			this._accessToken = await getToken();
 			const headers = {
 				Authorization: `Bearer ${this._accessToken}`,
 			};
 
 			const response = await fetchData(
-				"/api/users/" + AbstractView.userInfo.id + "/otp?code=" + this._2FACode,
+				"/api/users/" + AbstractView.userInfo.id + "/otp?code=" + this._2FACode + "&activate",
 				"GET",
 				headers,
 				null
@@ -101,32 +110,28 @@ export default class ChangeUserInfo extends AbstractView {
 			if (response.ok) {
 				const p = document.getElementById("p-2FA");
 				const jsonData = await response.json();
-				if (jsonData["valid"] === "true") {
-					this._has2FA = true;
-					if (p.classList.contains("form-error")) {
-						p.classList.remove("form-error");
-					}
-					p.classList.add("form-success");
-					p.style.whiteSpace = "nowrap";
-					p.style.display = "flex";
-					p.style.justifyContent = "center";
-					p.innerText = "2FA activated successufly";
-					console.log("otp code is correct");
-					//! load <REMOVE 2FA BUTTON>
+				if (jsonData["valid"] === true) {
+					this._has2FA = 2;
+					const modalElement = document.getElementById("2FAModal");
+					const modal = bootstrap.Modal.getInstance(modalElement);
+					modal.hide();
+					const backdrop = document.querySelector('.modal-backdrop');
+					backdrop.parentNode.removeChild(backdrop);
+					backdrop.remove();
+					this.loadDOMChanges();
 				} else {
-					if (p.classList.contains("form-success")) {
-						p.classList.remove("form-success");
-					}
+					this._has2FA = 1;
 					p.classList.add("form-error");
 					p.style.whiteSpace = "nowrap";
 					p.style.display = "flex";
 					p.style.justifyContent = "center";
 					p.innerText = "2FA code is invalid";
+					setTimeout(() => { p.innerText = ""; }, 3000);
 					console.error("otp code is incorrect");
 				}
 			} else {
 				console.error("Error: POST request to otp failed");
-				this._has2FA = false;
+				this._has2FA = 0;
 			}
 		}
 
@@ -145,11 +150,12 @@ export default class ChangeUserInfo extends AbstractView {
 
 			if (response.ok) {
 				console.log("otp was deleted!")
-				this._has2FA = false;
+				this._has2FA = 0;
 				this._qrcode = null;
+				this.loadDOMChanges();
 			} else {
 				console.error("Error: DELETE request to otp failed");
-				this._has2FA = false;
+				this._has2FA = 1;
 			}
 		}
 
@@ -218,14 +224,14 @@ export default class ChangeUserInfo extends AbstractView {
 
             if (response.ok) {
                 const jsonData = await response.json();
-				if (jsonData["active"] === "true") {
-					this._has2FA = true;
+				if (jsonData["active"] === true) {
+					this._has2FA = 2;
 				} else {
-					this.remove2FACallback();
+					this._has2FA = 1;
 				}
             } else {
                 console.error("Error: user does not have otp");
-				this._has2FA = false;
+				this._has2FA = 0;
             }
 
             this.loadDOMChanges();
@@ -401,12 +407,6 @@ export default class ChangeUserInfo extends AbstractView {
 
     loadDOMChanges() {
         const parentNode = document.getElementById("change-user-info");
-        const loadingIcon = parentNode.querySelector("loading-icon");
-        if (loadingIcon) {
-            loadingIcon.remove();
-            parentNode.classList.remove("justify-content-center");
-        }
-
         parentNode.innerHTML = this.loadChangeUserInfoContent();
     }
 
@@ -502,7 +502,7 @@ export default class ChangeUserInfo extends AbstractView {
 					</h4>
 					<div class="mt-3" id="2FA">
 					${
-						this._has2FA
+						this._has2FA === 2
 							? `<button 
 									type="button" 
 									id="remove-2FA"
@@ -556,18 +556,10 @@ export default class ChangeUserInfo extends AbstractView {
     }
 
     getHtml() {
-        if (this._loading) {
-            return `
-				<div class="d-flex flex-column justify-content-center" id="change-user-info">
-					<loading-icon template="center" size="5rem"></loading-icon>
-				</div>
-			`;
-        } else {
-            return `
-				<div class="d-flex flex-column" id="change-user-info">
-					${this.loadChangeUserInfoContent()}
-				</div>
-			`;
-        }
-    }
+		return `
+			<div class="d-flex flex-column justify-content-center" id="change-user-info">
+				<loading-icon template="center" size="5rem"></loading-icon>
+			</div>
+		`;
+	}
 }

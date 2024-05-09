@@ -93,7 +93,7 @@ export default class SettingsPage extends AbstractView {
 
         this.removeAvatarCallback = async (event) => {
             const formDataToSend = new FormData();
-            formDataToSend.append("avatar", null);
+            formDataToSend.append("avatar", "");
 
             const accessToken = await getToken();
             const headers = {
