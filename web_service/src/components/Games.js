@@ -18,10 +18,6 @@ export class Game1 extends AbstractView {
                 childList: true,
                 subtree: true,
             });
-
-            window.onbeforeunload = () => {
-                this.removeCallbacks();
-            };
         }
     }
 
@@ -110,10 +106,6 @@ export class Game2 extends AbstractView {
                 childList: true,
                 subtree: true,
             });
-
-            window.onbeforeunload = () => {
-                this.removeCallbacks();
-            };
         }
     }
 

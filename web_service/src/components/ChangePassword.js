@@ -28,10 +28,6 @@ export default class ChangePassword extends AbstractView {
             childList: true,
             subtree: true,
         });
-
-        window.onbeforeunload = () => {
-            this.removeCallbacks();
-        };
     }
 
     get errors() {

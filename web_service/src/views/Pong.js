@@ -3,6 +3,7 @@ import { createPongGameObject } from "../Game/Pong/pongGame";
 import { startPong } from "../Game/Pong/pongGame";
 import { Display2Usernames, DisplayUsername } from "../components/DisplayUsernames";
 import { navigateTo } from "..";
+import { closeWebsocket } from "../functions/websocket";
 
 export default class Pong extends AbstractView {
     constructor(view) {
@@ -72,10 +73,8 @@ export default class Pong extends AbstractView {
             if (!this._gameRunning) {
                 this._gameRunning = true;
                 await this.startPongGame();
-				this.gameOverScreen();
+				await this.gameOverScreen();
             }
-        } else {
-
         }
     }
 
@@ -93,32 +92,36 @@ export default class Pong extends AbstractView {
         }
     }
 
-	gameOverScreen() {
+	async gameOverScreen() {
 		const canvas = document.querySelector("canvas");
 		if (!canvas) {
 			return ;
 		}
 		
 		const ctx = canvas.getContext("2d");
+		const headlineSize = this._height * 0.12;
+		const paragraph = this._height * 0.03
 		ctx.fillStyle = "black";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 		ctx.fillStyle = "white";
-		ctx.font = "bold 80px Arial";
+		ctx.font = `bold ${headlineSize}px Arial`;
 		ctx.textAlign = "center";
 		ctx.textBaseline = "middle";
 		ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 7 * 3);
 	
-		ctx.font = "bold 17px Arial";
+		ctx.font = `bold ${paragraph}px Arial`;
 		ctx.fillText("Click anywhere on the canvas to leave this page", canvas.width / 2, canvas.height / 4 * 3);
 	
-		canvas.addEventListener("click", () => {
+		canvas.addEventListener("click", async () => {
 			if (this._gameMode === "tournament") {
+				this._observer.disconnect();
 				navigateTo("/home/pong/tournament/matchmaking");
 			} else {
 				localStorage.removeItem("game_status");
 				localStorage.removeItem("game_winner");
 				AbstractView.cleanGameData();
-				navigateTo("/home");
+				this._observer.disconnect();
+				await navigateTo("/home");
 			}
 		});
 	}
@@ -163,23 +166,26 @@ export default class Pong extends AbstractView {
         `;
     }
 
-    getHtml() {
+    async getHtml() {
         if (this._gameMode === "multiplayer" && 
 		   (!localStorage.getItem("game_status") || !AbstractView.userData.length)) {
 			localStorage.removeItem("game_status");
 			localStorage.removeItem("game_winner");
 			AbstractView.cleanGameData();
-			navigateTo("/home");
+			closeWebsocket();
+			this._observer.disconnect();
+			await navigateTo("/home");
 			return ;
         } else if (this._gameMode === "tournament") {
 			if (!localStorage.getItem("tournament")) {
-				console.log("no tournment variable");
-				navigateTo("/home");
+				localStorage.removeItem("game_status");
+				this._observer.disconnect();
+				await navigateTo("/home");
 				return ;
 			}
 			if (currentGameFinished()) {
-				console.log("Current game is finished");
-				navigateTo("/home/pong/tournament/matchmaking");
+				this._observer.disconnect();
+				await navigateTo("/home/pong/tournament/matchmaking");
 				return ;
 			}
 		}

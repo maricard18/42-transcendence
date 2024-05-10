@@ -22,10 +22,6 @@ export default class Tournament extends AbstractView {
             childList: true,
             subtree: true,
         });
-
-        window.onbeforeunload = () => {
-            this.removeCallbacks();
-        };
     }
 
     defineCallback() {
@@ -271,7 +267,6 @@ export class TournamentMatchmaking extends AbstractView {
 
 		if (!this._tournament || !this._tournament["1"][0] || !this._tournament["1"][1][0]) {
 			setTimeout(() => {
-				console.log()
 				navigateTo("/home/pong/tournament/creation");
 			}, 5);
 			return;
@@ -363,10 +358,12 @@ export class TournamentMatchmaking extends AbstractView {
 				}
 				localStorage.setItem("match3", JSON.stringify(match3));
 			} else {
+				this.removeCallbacks();
 				navigateTo("/home");
 				return ;
 			}
 
+			this.removeCallbacks();
             navigateTo("/home/pong/play/tournament/2");
         };
 
@@ -446,8 +443,8 @@ export class TournamentMatchmaking extends AbstractView {
 								<h1 class="mt-2" style="font-size: 20px">${this._tournament[0][1][0]}</h1>
 							</div>
 							<div class="d-flex flex-column align-items-center justify-content-start">
-								<div class="ms-4 me-4 mt-1">
-									<h1 style="font-weight: bold">VS</h1>
+								<div class="ms-4 me-4">
+									<h1 style="font-weight: bold; font-size: 50px">VS</h1>
 								</div>
 							</div>
 							<div class="d-flex flex-column align-items-center">
@@ -486,8 +483,8 @@ export class TournamentMatchmaking extends AbstractView {
 								<h1 class="mt-2" style="font-size: 20px">${this._tournament[2][1][0]}</h1>
 							</div>
 							<div class="d-flex flex-column align-items-center justify-content-start">
-								<div class="ms-4 me-4 mt-1">
-									<h1 style="font-weight: bold">VS</h1>
+								<div class="ms-4 me-4">
+									<h1 style="font-weight: bold; font-size: 50px">VS</h1>
 								</div>
 							</div>
 							<div class="d-flex flex-column align-items-center">
@@ -536,8 +533,8 @@ export class TournamentMatchmaking extends AbstractView {
 							}
 							</div>
 							<div class="d-flex flex-column align-items-center justify-content-start">
-								<div class="ms-4 me-4 mt-1">
-									<h1 style="font-weight: bold">VS</h1>
+								<div class="ms-4 me-4">
+									<h1 style="font-weight: bold; font-size: 50px">VS</h1>
 								</div>
 							</div>
 							<div class="d-flex flex-column align-items-center">

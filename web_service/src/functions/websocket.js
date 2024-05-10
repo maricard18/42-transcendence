@@ -129,7 +129,10 @@ export function multiplayerMessageHandler(MyWebSocket, game) {
 							AbstractView.userData.forEach((user, index) => {
 								if (data["user_id"] == user.id && game.lobbySize == 4) {
 									addCpuPlayer(index, game);
+								} else if (data["user_id"] == user.id && game.lobbySize == 2) {
+									user.id = -1;
 								}
+								 
 							});
 						}
 
@@ -140,20 +143,18 @@ export function multiplayerMessageHandler(MyWebSocket, game) {
 								break;
 							}
 						}
-						
 						AbstractView.userQueue = newState;
 						
 						if (Object.keys(AbstractView.userQueue).length < 2) {
-							console.log("Only you left!");
+							console.log("UserData:", AbstractView.userData);
 							for (let data of AbstractView.userData) {
 								if (data.id !== -1) {
 									localStorage.setItem("game_winner", data.username);
-									return ;
 								}
 							}
 							game.over = true;
                         	closeWebsocket();
-							AbstractView.userData = {}
+							AbstractView.userData = {};
 						}
 					}
                 }

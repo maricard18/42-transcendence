@@ -40,9 +40,7 @@ export async function startPong(game) {
 	if (game.mode === "single-player") {
 		await gameStartAnimation(game);
 		game.last_time = Date.now();
-		console.log("started game");
 		await singleplayerGameLoop(game);
-		console.log("game finished");
 		await gameConfettiAnimation(game);
 		localStorage.removeItem("game_status");
 	} else if (game.mode === "multiplayer" && game.lobbySize == 2) {
@@ -57,7 +55,6 @@ export async function startPong(game) {
 		await gameStartAnimation(game);
 		game.last_time = Date.now();
 		await multiplayer4GameLoop(game);
-		console.log("Game is now over");
 		await gameConfettiAnimation(game);
 		localStorage.removeItem("game_status");
 	} else {
@@ -70,9 +67,6 @@ export async function startPong(game) {
 }
 
 function singleplayerGameLoop(game) {
-	const player1 = document.getElementById("player1");
-	const player2 = document.getElementById("player2");
-    
 	return new Promise((resolve) => {
         const playPong = () => {
 			if (!localStorage.getItem("game_status")) {
@@ -111,7 +105,6 @@ function singleplayerGameLoop(game) {
             game.last_time = Date.now();
 
             if (!game.over) {
-				console.log("Here");
                 window.requestAnimationFrame(playPong);
             }
         };
@@ -142,7 +135,7 @@ function multiplayer2GameLoop(game) {
 					sendHostMessage(game);
 				} else {
 					game.player2.update(game);
-					sendNonHostMessage(game, getPlayerIndex());
+					sendNonHostMessage(game, 2);
 				}
 
 				updateScore(game);
@@ -294,7 +287,7 @@ export function sendNonHostMessage(game, index) {
 		return;
 	}
 
-	let player = game["player" + index];
+	let player = game[`player${index}`];
 
     const message = {
         game: {

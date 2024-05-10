@@ -31,10 +31,6 @@ export default class CreateProfilePage extends AbstractView {
             childList: true,
             subtree: true,
         });
-
-        window.onbeforeunload = () => {
-            this.removeCallbacks();
-        };
     }
 
     defineCallback() {

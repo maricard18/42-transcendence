@@ -19,20 +19,20 @@ export default class NavigationBar extends AbstractView {
     }
 
     async defineCallback() {
-        const avatarContainer = document.getElementById("avatar-container");
+		const avatarContainer = document.getElementById("avatar-container");
         if (avatarContainer && !this._avatarContainerCallback) {
-            this._avatarContainerCallback = true;
+			this._avatarContainerCallback = true;
             avatarContainer.addEventListener(
-                "avatar-container",
+				"avatar-container",
                 this.loadNavigationBarMenuChanges
             );
         }
-
+		
         if (this._callbackRunned) {
-            return;
+			return;
         }
-
-        this._callbackRunned = true;
+		
+		this._callbackRunned = true;
         const fetchUserInfo = async () => {
             const userData = await getUserInfo();
 
@@ -44,7 +44,6 @@ export default class NavigationBar extends AbstractView {
                     id: userData.id,
                 };
                 this._loading = false;
-				//console.log("Running DOM changes");
                 await this.loadDOMChanges();
             } else {
                 console.error("Error: failed to fetch user data");
@@ -59,10 +58,9 @@ export default class NavigationBar extends AbstractView {
         });
 
         if (emptyFieldExists) {
-            fetchUserInfo();
+            await fetchUserInfo();
         } else {
             this._loading = false;
-			//console.log("Running DOM changes")
             await this.loadDOMChanges();
         }
     }
@@ -164,7 +162,6 @@ export default class NavigationBar extends AbstractView {
     }
 
     async getHtml() {
-		//console.error("HERE");
 		return `
 			<div class="container-fluid" id="navigation-bar">
 				<loading-icon template="center" size="5rem"></loading-icon>

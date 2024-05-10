@@ -24,10 +24,6 @@ export default class SettingsPage extends AbstractView {
             childList: true,
             subtree: true,
         });
-
-        window.onbeforeunload = () => {
-            this.removeCallbacks();
-        };
     }
 
     get avatar() {
@@ -87,6 +83,7 @@ export default class SettingsPage extends AbstractView {
 				const modalElement = document.getElementById("DeleteUserModal");
 				bootstrap.Modal.getInstance(modalElement).hide();
 				document.querySelector('.modal-backdrop').remove();
+				this._observer.disconnect();
                 logout();
                 navigateTo("/");
             } else {

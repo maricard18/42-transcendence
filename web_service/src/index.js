@@ -167,12 +167,12 @@ export function cleanTournamentStorage() {
 	localStorage.removeItem("user4-image");
 }
 
-export function navigateTo(url) {
+export async function navigateTo(url) {
     history.pushState(null, "", url);
-    router();
+    await router();
 }
 
-window.addEventListener("popstate", () => {
+window.addEventListener("popstate", async () => {
 	cleanTournamentStorage();
 
 	if (AbstractView.previousLocation === "/home/pong/play/single-player/1" ||
@@ -183,10 +183,10 @@ window.addEventListener("popstate", () => {
 		localStorage.removeItem("game_status");
 	}
 	
-	router();
+	await router();
 });
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     document.body.addEventListener("click", (e) => {
         if (e.target.matches("a")) {
             e.preventDefault();
@@ -194,5 +194,5 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    router();
+    await router();
 });
