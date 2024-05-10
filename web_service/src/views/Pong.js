@@ -100,7 +100,7 @@ export default class Pong extends AbstractView {
 		
 		const ctx = canvas.getContext("2d");
 		const headlineSize = this._height * 0.12;
-		const paragraph = this._height * 0.03
+		const paragraphSize = this._height * 0.03
 		ctx.fillStyle = "black";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 		ctx.fillStyle = "white";
@@ -109,7 +109,7 @@ export default class Pong extends AbstractView {
 		ctx.textBaseline = "middle";
 		ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 7 * 3);
 	
-		ctx.font = `bold ${paragraph}px Arial`;
+		ctx.font = `bold ${paragraphSize}px Arial`;
 		ctx.fillText("Click anywhere on the canvas to leave this page", canvas.width / 2, canvas.height / 4 * 3);
 	
 		canvas.addEventListener("click", async () => {
