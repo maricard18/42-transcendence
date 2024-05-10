@@ -5,9 +5,10 @@ global:
 
 scrape_configs:
   - job_name: 'prometheus'
-
     scrape_interval: 5s
-
     static_configs:
       - targets: ['$PROMETHEUS_ADDR']
-      - targets: ['$PROMETHEUS_EXPORTER_ADDR']
+      # - targets: ['$PROMETHEUS_EXPORTER_ADDR']
+  - job_name: Telegraf
+    static_configs:
+      - targets: ['$TELEGRAF_ADDR'] 

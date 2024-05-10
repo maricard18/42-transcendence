@@ -147,6 +147,7 @@ services:
       - "8080:8080"
       - "8200:8200"
       - "8443:8443"
+      - "9125:9125"
     networks:
       - transcendence-dev
     volumes:
@@ -342,7 +343,8 @@ services:
       context: monitoring/prometheus/
       args:
         - PROMETHEUS_ADDR=prometheus-dev:9090
-        - PROMETHEUS_EXPORTER_ADDR=prometheus-exporter-dev:9113    
+        - PROMETHEUS_EXPORTER_ADDR=prometheus-exporter-dev:9113
+        - TELEGRAF_ADDR=modsecurity-dev:9125  
     restart: always
     user: root
     ports:

@@ -13,6 +13,7 @@ ARG SSL_CERT_KEY_FILE
 ARG SSL_CERT_KEY=${SSL_CERT_KEY_PATH}${SSL_CERT_KEY_FILE}
 
 RUN apk update && apk add --no-cache openssl
+    
 
 # Generate TLS Certificate
 RUN mkdir -p /etc/ssl/
@@ -39,13 +40,14 @@ FROM owasp/modsecurity-crs:4.1-nginx-alpine-202404070904 as dev
 LABEL authors="bsilva-c"
 
 USER root
-EXPOSE 8080 8200 8443
+EXPOSE 8080 8200 8443 9125
 
 ARG SSL_CERT_PATH
 ARG SSL_CERT_KEY_PATH
 
 COPY --from=build $SSL_CERT_PATH $SSL_CERT_PATH
 COPY --from=build $SSL_CERT_KEY_PATH $SSL_CERT_KEY_PATH
+COPY modsecurity-nginx/telegraf.conf /etc/telegraf/telegraf.conf
 
 COPY --from=build /etc/nginx/templates/ /etc/nginx/templates/
 
@@ -56,19 +58,21 @@ COPY ./web_service/index.html ./index.html
 
 RUN touch /var/log/nginx/transcendence-access.log /var/log/nginx/transcendence-error.log
 RUN chmod 755 /var/log/nginx/transcendence-access.log /var/log/nginx/transcendence-error.log
+RUN apk add --no-cache telegraf
 
 # SECOND STAGE
 FROM owasp/modsecurity-crs:4.1-nginx-alpine-202404070904 as prod
 LABEL authors="bsilva-c"
 
 USER root
-EXPOSE 8080 8200 8443
+EXPOSE 8080 8200 8443 9125
 
 ARG SSL_CERT_PATH
 ARG SSL_CERT_KEY_PATH
 
 COPY --from=build $SSL_CERT_PATH $SSL_CERT_PATH
 COPY --from=build $SSL_CERT_KEY_PATH $SSL_CERT_KEY_PATH
+COPY modsecurity-nginx/telegraf.conf /etc/telegraf/telegraf.conf
 
 COPY --from=build /etc/nginx/templates/ /etc/nginx/templates/
 
@@ -77,5 +81,6 @@ RUN rm -rf *
 
 RUN touch /var/log/nginx/transcendence-access.log /var/log/nginx/transcendence-error.log
 RUN chmod 755 /var/log/nginx/transcendence-access.log /var/log/nginx/transcendence-error.log
+RUN apk add --no-cache telegraf
 
 USER nginx
