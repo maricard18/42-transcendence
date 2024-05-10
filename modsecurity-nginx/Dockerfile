@@ -32,6 +32,7 @@ COPY modsecurity-nginx/includes/location_game_service.conf /etc/nginx/templates/
 COPY modsecurity-nginx/includes/location_web_service.conf /etc/nginx/templates/includes/location_web_service.conf.template
 COPY modsecurity-nginx/includes/location_web_service_core.conf /etc/nginx/templates/includes/location_web_service_core.conf.template
 COPY modsecurity-nginx/includes/server_vault_service.conf /etc/nginx/templates/includes/server_vault_service.conf.template
+COPY modsecurity-nginx/includes/stub_status_nginx.conf /etc/nginx/templates/includes/stub_status_nginx.conf.template
 
 # SECOND STAGE
 FROM owasp/modsecurity-crs:4.1-nginx-alpine-202404070904 as dev
