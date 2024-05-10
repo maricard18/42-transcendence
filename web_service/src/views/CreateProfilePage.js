@@ -255,7 +255,7 @@ export default class CreateProfilePage extends AbstractView {
 								value=""
 							/>
 						</div>
-						<div class="mt-3">
+						<div>
 							<submit-button
 								type="button"
 								template="primary-button extra-btn-class"

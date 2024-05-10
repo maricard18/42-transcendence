@@ -1,15 +1,14 @@
 import AbstractView from "./AbstractView";
 import fetchData from "../functions/fetchData";
-import handleResponse from "../functions/authenticationErrors";
 import { navigateTo } from "../index";
-import { decode, getToken, setToken } from "../functions/tokens";
-import { validateLoginForm } from "../functions/validateForms";
-import { transitEncrypt } from "../functions/vaultAccess";
+import { decode, setToken } from "../functions/tokens";
+import { validate2FAForm } from "../functions/validateForms";
+import { transitDecrypt } from "../functions/vaultAccess";
 
-export default class LoginPage extends AbstractView {
+export default class Login2FAPage extends AbstractView {
     constructor() {
         super();
-        this.setTitle("Login");
+        this.setTitle("Login 2FA");
         this._parentNode = null;
         this._insideRequest = false;
         this._inputCallback = false;
@@ -19,10 +18,7 @@ export default class LoginPage extends AbstractView {
 		this._has2FA = false;
 
         this._errors = {};
-        this._formData = {
-            username: "",
-            password: ""
-        };
+        this._2FACode = null;
 
         this._observer = new MutationObserver(this.defineCallback.bind(this));
         this._observer.observe(document.body, {
@@ -32,7 +28,7 @@ export default class LoginPage extends AbstractView {
     }
 
     async defineCallback() {
-        const parentNode = document.getElementById("login-page");
+        const parentNode = document.getElementById("login-2FA-page");
         if (parentNode) {
             this._parentNode = parentNode;
         } else {
@@ -40,10 +36,9 @@ export default class LoginPage extends AbstractView {
         }
 
         this.inputCallback = (event) => {
-            const id = event.target.getAttribute("id");
             const value = event.target.value;
             event.target.setAttribute("value", value);
-            this._formData[id] = value;
+            this._2FACode = value;
         };
 
         this.buttonClickedCallback = () => {
@@ -57,12 +52,10 @@ export default class LoginPage extends AbstractView {
             }
         };
 
-        const inputList = this._parentNode.querySelectorAll("input");
-        if (inputList && inputList.length && !this._inputCallback) {
+        const input = this._parentNode.querySelector("input");
+        if (input && !this._inputCallback) {
             this._inputCallback = true;
-            this._parentNode.querySelectorAll("input").forEach((input) => {
-                input.addEventListener("input", this.inputCallback);
-            });
+  			input.addEventListener("input", this.inputCallback);
         }
 
         const submitButton = this._parentNode.querySelector("submit-button");
@@ -85,11 +78,9 @@ export default class LoginPage extends AbstractView {
             return;
         }
 
-        const inputList = this._parentNode.querySelectorAll("input");
+        const input = this._parentNode.querySelector("input");
         if (inputList) {
-            this._parentNode.querySelectorAll("input").forEach((input) => {
-                input.removeEventListener("input", this.inputCallback);
-            });
+            input.removeEventListener("input", this.inputCallback);
         }
 
         const submitButton = document.querySelector("submit-button");
@@ -116,16 +107,13 @@ export default class LoginPage extends AbstractView {
             const p = document.querySelector("p");
             p.innerText = this.errors.message;
 
-            const inputList = document.querySelectorAll("input");
-            inputList.forEach((input) => {
-                const id = input.getAttribute("id");
-                if (this.errors[id]) {
-                    input.classList.add("input-error");
-                    this._formData[id] = input.value;
-                } else if (input.classList.contains("input-error")) {
-                    input.classList.remove("input-error");
-                }
-            });
+            const input = document.querySelector("input");
+			if (this.errors.code) {
+				input.classList.add("input-error");
+				this._2FACode = input.value;
+			} else if (input.classList.contains("input-error")) {
+				input.classList.remove("input-error");
+			}
         }
     }
 
@@ -135,37 +123,45 @@ export default class LoginPage extends AbstractView {
         }
 
         this._insideRequest = true;
-        let newErrors = validateLoginForm(this._formData);
+        let newErrors = validate2FAForm(this._2FACode);
         if (Object.values(newErrors).length !== 0) {
             this.errors = newErrors;
         }
+		console.log("errors:", newErrors);
 
         if (!newErrors.message) {
-            const formDataToSend = new FormData();
-            formDataToSend.append("grant_type", "password");
-            formDataToSend.append("username", await transitEncrypt(this._formData.username));
-            formDataToSend.append("password", await transitEncrypt(this._formData.password));
+			const jsonResponse = await transitDecrypt(AbstractView.tokens);
+			console.log("Json response:", jsonResponse);
+			const blob = new Blob([jsonResponse], {type : 'application/json'});
+			const newResponse = new Response(blob);
+			const jsonData = await newResponse.clone().json();
+            const accessToken = jsonData["access_token"];
+			const decodeToken = decode(accessToken);
 
-            const response = await fetchData(
-                "/auth/token",
-                "POST",
-                null,
-                formDataToSend
-            );
+			if (!accessToken) {
+				console.error("Error: failed to retreive access token");
+				navigateTo("/");
+				return ;
+			}
+
+			const headers = {
+				Authorization: `Bearer ${accessToken}`,
+			};
+
+			const response = await fetchData(
+				"/api/users/" + decodeToken["user_id"] + "/otp?code=" + this._2FACode + "&activate",
+				"GET",
+				headers,
+				null
+			);
 
             if (response.ok) {
 				this.removeCallbacks();
-				AbstractView.has2FA = await checkFor2FA(response.clone());
-				if (AbstractView.has2FA) {
-					const responseBody = await response.clone().json(); 
-        			AbstractView.tokens = await transitEncrypt(JSON.stringify(responseBody));
-					navigateTo("/login-2FA");
-				} else {
-					await setToken(response);
-					navigateTo("/home");
-				}
+				await setToken(newResponse);
+				AbstractView.has2FA = 2;
+				navigateTo("/home");
             } else {
-                newErrors = await handleResponse(response, this._formData);
+                newErrors = { message: "failed to login with 2FA", code: 1 };
                 this.errors = newErrors;
             }
         }
@@ -174,31 +170,27 @@ export default class LoginPage extends AbstractView {
     }
 
     async getHtml() {
+		if (AbstractView.has2FA === null) {
+			navigateTo("/");
+			return ;
+		}
+
         return `
-			<div class="container" id="login-page">
+			<div class="container" id="login-2FA-page">
 				<div class="center">
 					<div class="d-flex flex-column justify-content-center">
 						<div class="mb-5">
-							<h1 class="header">Welcome back</h1>
+							<h1 class="header">Two-Factor Authentication</h1>
 						</div>
 						<div class="position-relative">
 							<p class="form-error"></p>
 						</div>
 						<div class="mb-3">
 							<input
-								id="username"
-								type="username"
+								id="code"
+								type="text"
 								class="form-control primary-form extra-form-class"
-								placeholder="username"
-								value=""
-							/>
-						</div>
-						<div class="mb-3">
-							<input
-								id="password"
-								type="password"
-								class="form-control primary-form extra-form-class"
-								placeholder="password"
+								placeholder="6 digit code"
 								value=""
 							/>
 						</div>
@@ -206,7 +198,7 @@ export default class LoginPage extends AbstractView {
 							<submit-button
 								type="button"
 								template="primary-button extra-btn-class"
-								value="Next"
+								value="Validate"
 							>
 							</submit-button>    
 						</div>
@@ -215,32 +207,4 @@ export default class LoginPage extends AbstractView {
 			</div>
 		`;
     }
-}
-
-
-async function checkFor2FA(clone) {
-	const jsonData = await clone.json();
-    const accessToken = jsonData["access_token"];
-	const decodeToken = decode(accessToken);
-	const headers = {
-		Authorization: `Bearer ${accessToken}`,
-	};
-
-	const response = await fetchData(
-		"/api/users/" + decodeToken["user_id"] + "/otp",
-		"GET",
-		headers,
-		null
-	);
-
-	if (response.ok) {
-		const jsonData = await response.json();
-		if (jsonData["active"] === true) {
-			console.log("User has 2FA active");
-			return true;
-		}
-	}
-
-	console.log("User does not have 2FA active");
-	return false;
 }
