@@ -80,7 +80,7 @@ export default class LoginPage extends AbstractView {
         }
     }
 
-    removeCallbacks() {
+    async removeCallbacks() {
         if (!this._parentNode) {
             return;
         }
@@ -94,6 +94,7 @@ export default class LoginPage extends AbstractView {
 
         const submitButton = document.querySelector("submit-button");
         if (submitButton) {
+			console.log("removed event");
             submitButton.removeEventListener(
                 "buttonClicked",
                 this.buttonClickedCallback
@@ -154,15 +155,18 @@ export default class LoginPage extends AbstractView {
             );
 
             if (response.ok) {
-				this.removeCallbacks();
+				//! duplicate event listners here
 				AbstractView.has2FA = await checkFor2FA(response.clone());
+				await this.removeCallbacks();
 				if (AbstractView.has2FA) {
 					const responseBody = await response.clone().json(); 
         			AbstractView.tokens = await transitEncrypt(JSON.stringify(responseBody));
 					navigateTo("/login-2FA");
+					return ;
 				} else {
 					await setToken(response);
 					navigateTo("/home");
+					return ;
 				}
             } else {
                 newErrors = await handleResponse(response, this._formData);

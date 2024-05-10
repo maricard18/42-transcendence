@@ -79,7 +79,7 @@ export default class Login2FAPage extends AbstractView {
         }
 
         const input = this._parentNode.querySelector("input");
-        if (inputList) {
+        if (input) {
             input.removeEventListener("input", this.inputCallback);
         }
 

@@ -12,6 +12,7 @@ import ChangePassword from "./components/ChangePassword.js";
 import WaitingRoom from "./views/WaitingRoom.js";
 import Pong from "./views/Pong.js";
 import SettingsPage from "./views/SettingsPage.js";
+import Tournament, { TournamentMatchmaking } from "./views/Tournament.js";
 import { Game1, Game2 } from "./components/Games.js";
 import { GameMenuOptions, MultiplayerOptions, SinglePlayerOptions, TournamentOptions } from "./components/GameOptions.js";
 

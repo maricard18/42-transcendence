@@ -171,13 +171,12 @@ function checkForEqualUsername(user, formData) {
 
 export function validate2FAForm(code) {
     const errors = {};
-	console.log("code:", code);
 
-    if (code === "") {
+    if (!code) {
         errors.message = "Please insert a 6 digit code";
         errors.code = 1;
 
-    } else if (code && code.length !== 6) {
+    } else if (code.length !== 6) {
         errors.message = "Code needs to have 6 digits";
         errors.code = 1;
     }
