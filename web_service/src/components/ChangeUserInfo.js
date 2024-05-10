@@ -4,19 +4,28 @@ import handleResponse from "../functions/authenticationErrors";
 import {validateProfileUserForm} from "../functions/validateForms";
 import {getToken} from "../functions/tokens";
 import {transitEncrypt} from "../functions/vaultAccess";
+//import "bootstrap/dist/js/bootstrap.bundle.js";
 
 export default class ChangeUserInfo extends AbstractView {
     constructor() {
         super();
-        this._loading = true;
+		this._loadingUserOtp = true;
         this._parentNode = null;
+		this._2FACallback = false;
         this._insideRequest = false;
         this._inputCallback = false;
+		this._2FAInputCallback = false;
         this._clickCallback = false;
-        this._enterCallback = false;
+        this._usernameButton = false;
+		this._emailButton = false;
+		this._setup2FAButton = false;
+		this._remove2FAButton = false;
+		this._has2FA = 0;
+		this._qrcode = null;
 
         this._errors = {};
         this._success = {};
+		this._2FACode = null;
         this._formData = {
             username: AbstractView.userInfo.username,
             email: AbstractView.userInfo.email,
@@ -27,13 +36,9 @@ export default class ChangeUserInfo extends AbstractView {
             childList: true,
             subtree: true,
         });
-
-        window.onbeforeunload = () => {
-            this.removeCallbacks();
-        };
     }
 
-    defineCallback() {
+    async defineCallback() {
         const parentNode = document.getElementById("change-user-info");
         if (parentNode) {
             this._parentNode = parentNode;
@@ -48,16 +53,115 @@ export default class ChangeUserInfo extends AbstractView {
             this._formData[id] = value;
         };
 
-        this.buttonClickedCallback = (event) => {
-            this.handleValidation();
+		this.twofaInputCallback = (event) => {
+            const value = event.target.value;
+            event.target.setAttribute("value", value);
+            this._2FACode = value;
         };
 
-        this.keydownCallback = (event) => {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                this.handleValidation();
-            }
+        this.buttonClickedCallback = (event) => {
+            this.handleValidation(event.target.id);
         };
+
+		this.setup2FACallback = async () => {
+			this._accessToken = await getToken();
+			const headers = {
+				Authorization: `Bearer ${this._accessToken}`,
+			};
+			
+			if (this._has2FA === 1) {
+				const response = await fetchData(
+					"/api/users/" + AbstractView.userInfo.id + "/otp",
+					"DELETE",
+					headers,
+					null
+				);
+	
+				if (!response.ok) {
+					console.error("Error: DELETE request to otp failed");
+					return ;
+				}
+			}
+
+			const response = await fetchData(
+				"/api/users/" + AbstractView.userInfo.id + "/otp",
+				"POST",
+				headers,
+				null
+			);
+
+			if (response.ok) {
+				const jsonData = await response.json();
+				this._qrcode = jsonData["url"];
+				this.updateModalBodyContent();
+				this._has2FA = 1;
+			} else {
+				console.error("Error: POST request to otp failed");
+				this._has2FA = 0;
+			}
+		}
+
+		this.validate2FACallback = async () => {
+			this._accessToken = await getToken();
+			const headers = {
+				Authorization: `Bearer ${this._accessToken}`,
+			};
+
+			const response = await fetchData(
+				"/api/users/" + AbstractView.userInfo.id + "/otp?code=" + this._2FACode + "&activate",
+				"GET",
+				headers,
+				null
+			);
+
+			if (response.ok) {
+				const p = document.getElementById("p-2FA");
+				const jsonData = await response.json();
+				if (jsonData["valid"] === true) {
+					this._has2FA = 2;
+					const modalElement = document.getElementById("2FAModal");
+					bootstrap.Modal.getInstance(modalElement).hide();
+					document.querySelector('.modal-backdrop').remove();
+					this.loadDOMChanges();
+				} else {
+					this._has2FA = 1;
+					p.classList.add("form-error");
+					p.style.whiteSpace = "nowrap";
+					p.style.display = "flex";
+					p.style.justifyContent = "center";
+					p.innerText = "2FA code is invalid";
+					setTimeout(() => { p.innerText = ""; }, 3000);
+					console.error("otp code is incorrect");
+				}
+			} else {
+				console.error("Error: POST request to otp failed");
+				this._has2FA = 0;
+			}
+		}
+
+		this.remove2FACallback = async () => {
+			this._accessToken = await getToken();
+			const headers = {
+				Authorization: `Bearer ${this._accessToken}`,
+			};
+
+			const response = await fetchData(
+				"/api/users/" + AbstractView.userInfo.id + "/otp",
+				"DELETE",
+				headers,
+				null
+			);
+
+			if (response.ok) {
+				console.log("otp was deleted!")
+				this._has2FA = 0;
+				this._qrcode = null;
+				this.loadDOMChanges();
+			} else {
+				console.error("Error: DELETE request to otp failed");
+				this._has2FA = 1;
+			}
+		}
 
         const inputList = this._parentNode.querySelectorAll("input");
         if (inputList && inputList.length && !this._inputCallback) {
@@ -67,26 +171,72 @@ export default class ChangeUserInfo extends AbstractView {
             });
         }
 
-        const submitButton = this._parentNode.querySelector("submit-button");
-        if (submitButton && !this._clickCallback) {
-            this._clickCallback = true;
-            submitButton.addEventListener(
-                "buttonClicked",
-                this.buttonClickedCallback
-            );
+		const twofaInput = document.getElementById("input-2FA");
+        if (twofaInput && !this._2FAInputCallback) {
+            this._2FAInputCallback = true;
+            twofaInput.addEventListener("input", this.twofaInputCallback);
         }
 
-        if (!this._enterCallback) {
-            this._enterCallback = true;
-            window.addEventListener("keydown", this.keydownCallback);
+        const usernameButton = document.getElementById("username-btn");
+        if (usernameButton && !this._usernameButton) {
+            this._usernameButton = true;
+            usernameButton.addEventListener("click", this.buttonClickedCallback);
         }
+
+		const emailButton = document.getElementById("email-btn");
+        if (emailButton && !this._emailButton) {
+            this._emailButton = true;
+            emailButton.addEventListener("click", this.buttonClickedCallback);
+        }
+
+		const setup2FAButton = document.getElementById("setup-2FA");
+		if (setup2FAButton && !this._setup2FAButton) {
+			this._setup2FAButton = true;
+			setup2FAButton.addEventListener("click", this.setup2FACallback);
+		}
+
+		const validate2FAButton = document.getElementById("validate-2FA");
+		if (validate2FAButton && !this._validate2FAButton) {
+			this._validate2FAButton = true;
+			validate2FAButton.addEventListener("click", this.validate2FACallback);
+		}
+
+		const remove2FAButton = document.getElementById("remove-2FA");
+		if (remove2FAButton && !this.remove2FAButton) {
+			this.remove2FAButton = true;
+			remove2FAButton.addEventListener("click", this.remove2FACallback);
+		}
 
         if (AbstractView.userInfo.username &&
             AbstractView.userInfo.email &&
-            this._loading) {
-            this._loading = false;
+			!this._2FACallback) {
+			this._2FACallback = true;
             this._formData.username = AbstractView.userInfo.username;
             this._formData.email = AbstractView.userInfo.email;
+
+			this._accessToken = await getToken();
+            const headers = {
+                Authorization: `Bearer ${this._accessToken}`,
+            };
+
+            const response = await fetchData(
+                "/api/users/" + AbstractView.userInfo.id + "/otp",
+                "GET",
+                headers,
+                null
+            );
+
+            if (response.ok) {
+                const jsonData = await response.json();
+				if (jsonData["active"] === true) {
+					this._has2FA = 2;
+				} else {
+					this._has2FA = 1;
+				}
+            } else {
+				this._has2FA = 0;
+            }
+
             this.loadDOMChanges();
         }
     }
@@ -100,19 +250,20 @@ export default class ChangeUserInfo extends AbstractView {
             input.removeEventListener("input", this.inputCallback);
         });
 
-        const submitButton = this._parentNode.querySelector("submit-button");
-        if (submitButton) {
-            submitButton.removeEventListener(
-                "buttonClicked",
-                this.buttonClickedCallback
-            );
+		const usernameButton = document.getElementById("username-btn");
+        if (usernameButton) {
+            usernameButton.removeEventListener("click", this.buttonClickedCallback);
         }
 
-        window.removeEventListener("keydown", this.keydownCallback);
+		const emailButton = document.getElementById("email-btn");
+        if (emailButton) {
+            emailButton.removeEventListener("click", this.buttonClickedCallback);
+        }
 
         this._inputCallback = false;
         this._clickCallback = false;
-        this._enterCallback = false;
+        this._usernameButton = false;
+		this._emailButton = false;
         this._observer.disconnect();
     }
 
@@ -130,17 +281,27 @@ export default class ChangeUserInfo extends AbstractView {
             }
             p.classList.add("form-error");
             p.innerText = this.errors.message;
+			p.style.whiteSpace = "nowrap";
+			p.style.display = "flex";
+			p.style.justifyContent = "center";
 
-            const inputList = this._parentNode.querySelectorAll("input");
-            inputList.forEach((input) => {
-                const id = input.getAttribute("id");
-                if (this.errors[id]) {
-                    input.classList.add("input-error");
-                    this._formData[id] = input.value;
-                } else if (input.classList.contains("input-error")) {
-                    input.classList.remove("input-error");
-                }
-            });
+			const usernameDiv = document.getElementById("username-div");
+			const usernameInput = document.getElementById("username");
+			if (this.errors["username"]) {
+				usernameDiv.classList.add("input-btn-error");
+				this._formData["username"] = usernameInput.value;
+			} else if (usernameDiv.classList.contains("input-btn-error")) {
+				usernameDiv.classList.remove("input-btn-error");
+			}
+			
+			const emailDiv = document.getElementById("email-div");
+			const emailInput = document.getElementById("email");
+			if (this.errors["email"]) {
+				emailDiv.classList.add("input-btn-error");
+				this._formData["email"] = emailInput.value;
+			} else if (emailDiv.classList.contains("input-btn-error")) {
+				emailDiv.classList.remove("input-btn-error");
+			}
         }
     }
 
@@ -150,7 +311,7 @@ export default class ChangeUserInfo extends AbstractView {
 
     set success(value) {
         this._success = value;
-
+		
         if (this.success.message) {
             const p = this._parentNode.querySelector("p");
             if (p.classList.contains("form-error")) {
@@ -158,13 +319,18 @@ export default class ChangeUserInfo extends AbstractView {
             }
             p.classList.add("form-success");
             p.innerText = this.success.message;
+			p.style.whiteSpace = "nowrap";
+			p.style.display = "flex";
+			p.style.justifyContent = "center";
 
-            const inputList = this._parentNode.querySelectorAll("input");
-            inputList.forEach((input) => {
-                if (input.classList.contains("input-error")) {
-                    input.classList.remove("input-error");
-                }
-            });
+			const usernameDiv = document.getElementById("username-div");
+			if (usernameDiv.classList.contains("input-btn-error")) {
+				usernameDiv.classList.remove("input-btn-error");
+			}
+			const emailDiv = document.getElementById("email-div");
+			if (emailDiv.classList.contains("input-btn-error")) {
+				emailDiv.classList.remove("input-btn-error");
+			}
 
             setTimeout(() => {
                 p.innerText = ""
@@ -172,7 +338,7 @@ export default class ChangeUserInfo extends AbstractView {
         }
     }
 
-    async handleValidation() {
+    async handleValidation(id) {
         if (this._insideRequest) {
             return;
         }
@@ -186,10 +352,10 @@ export default class ChangeUserInfo extends AbstractView {
         if (!newErrors.message) {
             const formDataToSend = new FormData();
 
-            if (this._formData.username !== AbstractView.userInfo.username) {
+            if (id === "username-btn" && this._formData.username !== AbstractView.userInfo.username) {
                 formDataToSend.append("username", await transitEncrypt(this._formData.username));
             }
-            if (this._formData.email !== AbstractView.userInfo.email) {
+            if (id === "email-btn" && this._formData.email !== AbstractView.userInfo.email) {
                 formDataToSend.append("email", await transitEncrypt(this._formData.email));
             }
 
@@ -202,18 +368,20 @@ export default class ChangeUserInfo extends AbstractView {
                 this._insideRequest = false;
                 const p = this._parentNode.querySelector("p");
                 p.innerText = "";
-                const inputList = this._parentNode.querySelectorAll("input");
-                inputList.forEach((input) => {
-                    if (input.classList.contains("input-error")) {
-                        input.classList.remove("input-error");
-                    }
-                });
+				const usernameDiv = document.getElementById("username-div");
+				if (usernameDiv.classList.contains("input-btn-error")) {
+					usernameDiv.classList.remove("input-btn-error");
+				}
+				const emailDiv = document.getElementById("email-div");
+				if (emailDiv.classList.contains("input-btn-error")) {
+					emailDiv.classList.remove("input-btn-error");
+				}
                 return;
             }
 
-            const accessToken = await getToken();
+			this._accessToken = await getToken();
             const headers = {
-                Authorization: `Bearer ${accessToken}`,
+                Authorization: `Bearer ${this._accessToken}`,
             };
 
             const response = await fetchData(
@@ -242,72 +410,159 @@ export default class ChangeUserInfo extends AbstractView {
 
     loadDOMChanges() {
         const parentNode = document.getElementById("change-user-info");
-        const loadingIcon = parentNode.querySelector("loading-icon");
-        if (loadingIcon) {
-            loadingIcon.remove();
-            parentNode.classList.remove("justify-content-center");
-        }
-
         parentNode.innerHTML = this.loadChangeUserInfoContent();
     }
 
+	updateModalBodyContent() {
+		const modalBody = document.getElementById("modal-body");
+		modalBody.innerHTML = `<qr-code
+									id="qr1"
+									contents="${this._qrcode}"
+									module-color="#8259c5"
+									position-ring-color="#3e0d8e"
+									position-center-color="#583296"
+									mask-x-to-y-ratio="1.2"
+									style="width: 30%; height: 70%; margin: 2em auto; background-color: #fff; border-radius: 10px"
+								></qr-code>
+								<div class="position-relative mt-4">
+									<p class="form-error" id="p-2FA"></p>
+								</div>
+								<div class="input-group input-btn mb-3" style="width: 210px" id="otp-div">
+									<input
+										id="input-2FA"
+										type="text" 
+										class="form-control primary-form extra-form-class w-25"
+										placeholder="6 digit code" 
+										aria-label="Recipient's username" 
+										aria-describedby="button-addon2"
+										value=""
+									/>
+									<button 
+										class="btn btn-outline-secondary primary-button extra-btn-class"
+										style="width: 85px"
+										type="button" 
+										id="validate-2FA"
+									>
+										Validate
+									</button>
+								</div>`;
+	}
+
     loadChangeUserInfoContent() {
-        return `
-			<h4 class="sub-text mb-5 mt-3">
-				<b>Edit your information here</b>
-			</h4>
-			<div class="d-flex flex-column">
-				<form>
+		return `
+			<div class="d-flex flex-row justify-content-center">
+				<div class="d-flex flex-column align-items-center w-100">
+					<h4 class="sub-text mb-5 mt-3">
+						<b>Edit your information here</b>
+					</h4>
 					<div class="position-relative">
 						<p class="form-error"></p>
 					</div>
-					<div class="mb-3">
+					<div class="input-group mb-3 input-btn" style="width: 70%" id="username-div">
 						<input
 							id="username"
-							type="username"
+							type="text" 
 							class="form-control primary-form extra-form-class"
-							style="width: 60%"
-							placeholder="username"
+							placeholder="username" 
+							aria-label="Recipient's username" 
+							aria-describedby="button-addon2"
 							value="${AbstractView.userInfo.username}"
 						/>
+						<button 
+							class="btn btn-outline-secondary primary-button extra-btn-class"
+							style="width: 70px"
+							type="button" 
+							id="username-btn"
+						>
+							Save
+						</button>
 					</div>
-					<div class="mb-3">
+					<div class="input-group mb-3 input-btn"  style="width: 70%" id="email-div">
 						<input
 							id="email"
-							type="email"
+							type="text" 
 							class="form-control primary-form extra-form-class"
-							style="width: 60%"
-							placeholder="email"
+							placeholder="username" 
+							aria-label="Recipient's username" 
+							aria-describedby="button-addon2"
 							value="${AbstractView.userInfo.email}"
 						/>
-					</div>
-					<div class="mt-3">
-						<submit-button
-							type="button"
-							template="primary-button extra-btn-class"
-							style="width: 150px"
-							value="Save changes"
+						<button 
+							class="btn btn-outline-secondary primary-button extra-btn-class"
+							style="width: 70px"
+							type="button" 
+							id="email-btn"
 						>
-						</submit-button>	
+							Save
+						</button>
 					</div>
-				</form>
+				</div>
+			</div>
+			<div class="d-flex flex-row justify-content-center">
+				<div class="d-flex flex-column align-items-center">
+					<h4 class="sub-text mb-3 mt-5">
+						<b>Two-Factor Authentication</b>
+					</h4>
+					<div class="mt-3" id="2FA">
+					${
+						this._has2FA === 2
+							? `<button 
+									type="button" 
+									id="remove-2FA"
+									class="btn btn-primary red-button extra-btn-class"
+									style="width: 140px"
+								>
+									Remove 2FA
+								</button>`
+							: `	<button 
+									type="button"
+									id="setup-2FA"
+									class="btn btn-primary primary-button extra-btn-class"
+									style="width: 140px"
+									data-bs-toggle="modal"
+									data-bs-target="#2FAModal"
+								>
+									Setup 2FA
+								</button>
+							
+								<div
+									class="modal fade"
+									id="2FAModal"
+									tabindex="-1"
+									aria-labelledby="2FAModalLabel" 
+									aria-hidden="true"
+								>
+									<div class="modal-dialog modal-dialog-centered">
+										<div class="modal-content bg-dark text-white">
+											<div class="modal-header">
+												<h1 class="modal-title fs-5" id="2FAModalLabel">Two-Factor Authentication</h1>
+												<button 
+													type="button" 
+													class="btn-close" 
+													data-bs-dismiss="modal" 
+													aria-label="Close"
+												></button>
+											</div>
+											<div class="modal-body">
+												<div class="d-flex flex-column align-items-center" id="modal-body">
+													<loading-icon size="3rem"></loading-icon>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>`
+					}
+					</div>
+				</div>
 			</div>
         `;
     }
 
     getHtml() {
-        if (this._loading) {
-            return `
-				<div class="d-flex flex-column justify-content-center" id="change-user-info">
-					<loading-icon template="center" size="5rem"></loading-icon>
-				</div>
-			`;
-        } else {
-            return `
-				<div class="d-flex flex-column" id="change-user-info">
-					${this.loadChangeUserInfoContent()}
-				</div>
-			`;
-        }
-    }
+		return `
+			<div class="d-flex flex-column justify-content-center" id="change-user-info">
+				<loading-icon size="5rem"></loading-icon>
+			</div>
+		`;
+	}
 }

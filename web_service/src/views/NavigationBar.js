@@ -1,6 +1,6 @@
 import AbstractView from "./AbstractView";
 import getUserInfo from "../functions/getUserInfo";
-import {getPageTitle} from "../functions/fetchData";
+import { getPageTitle } from "../functions/fetchData";
 
 export default class NavigationBar extends AbstractView {
     constructor(view) {
@@ -81,6 +81,28 @@ export default class NavigationBar extends AbstractView {
         }
 
         parentNode.innerHTML = await this.loadNavigationBarContent();
+    }
+
+	loadNavigationBarMenuChanges() {
+        const avatarElement = document.querySelector("img");
+        const baseAvatar = document.querySelector("base-avatar-box");
+        const h6 = document.querySelector("h6");
+        h6.innerText = AbstractView.userInfo.username;
+
+        if (avatarElement) {
+            avatarElement.setAttribute("src", AbstractView.userInfo.avatar);
+        } else {
+            baseAvatar.remove();
+            const avatarElement = document.createElement("img");
+			avatarElement.setAttribute("id", "nav-bar-avatar");
+            avatarElement.setAttribute("class", "white-border-sm");
+            avatarElement.setAttribute("alt", "Avatar preview");
+            avatarElement.setAttribute("width", "40");
+            avatarElement.setAttribute("height", "40");
+            avatarElement.setAttribute("style", "border-radius: 50%");
+            avatarElement.setAttribute("src", AbstractView.userInfo.avatar);
+            h6.parentNode.insertBefore(avatarElement, h6);
+        }
     }
 
     async loadNavigationBarContent() {

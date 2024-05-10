@@ -1,4 +1,11 @@
-import {GoalWidth, keys, PaddleHeight, PaddleSpeed, PaddleWidth, ScreenHeight, ScreenWidth,} from "./variables";
+import {
+    PaddleSpeed,
+    PaddleWidth,
+    PaddleHeight,
+    ScreenHeight,
+    keys,
+	ScreenWidth,
+} from "./variables";
 
 export class Player {
     constructor({x, y, color, keyUp, keyDown, info}) {
@@ -8,9 +15,8 @@ export class Player {
         this.keyUp = keyUp;
         this.keyDown = keyDown;
         this.info = info;
-        this.image = new Image();
-        //this.image.src = "/path/here";
-        this.initial_x = x;
+		this.image = new Image();
+		this.initial_x = x;
         this.initial_y = y;
         this.width = PaddleWidth;
         this.height = PaddleHeight;
@@ -26,28 +32,27 @@ export class Player {
         ctx.rect(this.x, this.y, this.width, this.height);
         ctx.fillStyle = this.color;
         ctx.fill();
-        //ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
     }
 
-    update(dt) {
-        if (keys[this.keyUp] && this.y >= GoalWidth) {
+    update(game) {
+        if (keys[this.keyUp] && this.y >= 0) {
             if (this.speed < this.max_speed) {
                 this.speed *= this.acceleration;
             } else {
                 this.speed = this.max_speed;
             }
 
-            this.y -= this.speed * dt;
+            this.y -= this.speed * game.dt;
         }
 
-        if (keys[this.keyDown] && this.y + this.height <= ScreenHeight - GoalWidth) {
+        if (keys[this.keyDown] && this.y + this.height <= ScreenHeight) {
             if (this.speed < this.max_speed) {
                 this.speed *= this.acceleration;
             } else {
                 this.speed = this.max_speed;
             }
 
-            this.y += this.speed * dt;
+            this.y += this.speed * game.dt;
         }
 
         if (!keys[this.keyUp] && !keys[this.keyDown]) {
@@ -61,22 +66,22 @@ export class Cpu extends Player {
         super({x, y, color});
     }
 
-    update(ball, dt) {
+    update(game) {
         if (
-            ball.x > ScreenWidth / 2 &&
-            ball.speed_x > 0 &&
-            this.y + this.height / 2 > ball.y &&
+            game.ball.x > ScreenWidth / 2 &&
+            game.ball.speed_x > 0 &&
+            this.y + this.height / 2 > game.ball.y &&
             this.y >= 0
         ) {
-            this.y -= this.max_speed * dt;
+            this.y -= this.max_speed * game.dt;
         }
         if (
-            ball.x > ScreenWidth / 2 &&
-            ball.speed_x > 0 &&
-            this.y + this.height / 2 < ball.y &&
+            game.ball.x > ScreenWidth / 2 &&
+            game.ball.speed_x > 0 &&
+            this.y + this.height / 2 < game.ball.y &&
             this.y + this.height <= ScreenHeight
         ) {
-            this.y += this.max_speed * dt;
+            this.y += this.max_speed * game.dt;
         }
     }
 }
@@ -114,25 +119,25 @@ export class InvertedPlayer {
         ctx.fill();
     }
 
-    update(dt) {
-        if (keys[this.keyLeft] && this.x >= GoalWidth) {
+    update(game) {
+        if (keys[this.keyLeft] && this.x >= 0) {
             if (this.speed < this.max_speed) {
                 this.speed *= this.acceleration;
             } else {
                 this.speed = this.max_speed;
             }
 
-            this.x -= this.speed * dt;
+            this.x -= this.speed * game.dt;
         }
 
-        if (keys[this.keyRight] && this.x + this.width <= ScreenWidth - GoalWidth) {
-            if (this.speed < this.max_speed) {
+        if (keys[this.keyRight] && this.x + this.width <= ScreenWidth) {
+			if (this.speed < this.max_speed) {
                 this.speed *= this.acceleration;
             } else {
                 this.speed = this.max_speed;
             }
 
-            this.x += this.speed * dt;
+            this.x += this.speed * game.dt;
         }
 
         if (!keys[this.keyRight] && !keys[this.keyLeft]) {
@@ -146,22 +151,22 @@ export class InvertedCpu extends InvertedPlayer {
         super({x, y, color});
     }
 
-    update(ball, dt) {
+    update(game) {
         if (
-            ball.y > ScreenHeight / 2 &&
-            ball.speed_y > 0 &&
-            this.x + this.width / 2 > ball.x &&
+            game.ball.y > ScreenHeight / 2 &&
+            game.ball.speed_y > 0 &&
+            this.x + this.width / 2 > game.ball.x &&
             this.x >= 0
         ) {
-            this.x -= this.max_speed * dt;
+            this.x -= this.max_speed * game.dt;
         }
         if (
-            ball.y > ScreenHeight / 2 &&
-            ball.speed_y > 0 &&
-            this.x + this.width / 2 < ball.x &&
+            game.ball.y > ScreenHeight / 2 &&
+            game.ball.speed_y > 0 &&
+            this.x + this.width / 2 < game.ball.x &&
             this.x + this.width <= ScreenWidth
         ) {
-            this.x += this.max_speed * dt;
+            this.x += this.max_speed * game.dt;
         }
     }
 }

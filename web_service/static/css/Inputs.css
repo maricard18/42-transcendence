@@ -8,6 +8,16 @@
     outline: 2px solid red;
 }
 
+.input-btn {
+	outline: 2px solid transparent;
+	border-radius: 5px;
+}
+
+.input-btn-error {
+	outline: 2px solid red;
+	border-radius: 5px;			
+}
+
 input-box:focus-visible {
     outline: none;
 }
