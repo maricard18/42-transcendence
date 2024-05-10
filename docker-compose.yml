@@ -357,22 +357,22 @@ services:
       modsecurity-dev:
         condition: service_started
     
-  prometheus-exporter-dev:
-    image: nginx/nginx-prometheus-exporter:latest
-    container_name: prometheus-exporter-dev
-    restart: always
-    environment:
-      GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER}
-      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
-    expose:
-      - "9113"
-    networks:
-      - transcendence-dev
-    depends_on:
-      prometheus-dev:
-        condition: service_started
-    command:
-       - --nginx.scrape-uri=https://modsecurity-dev:8443/metrics
+  # prometheus-exporter-dev:
+  #   image: nginx/nginx-prometheus-exporter:latest
+  #   container_name: prometheus-exporter-dev
+  #   restart: always
+  #   environment:
+  #     GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER}
+  #     GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
+  #   expose:
+  #     - "9113"
+  #   networks:
+  #     - transcendence-dev
+  #   depends_on:
+  #     prometheus-dev:
+  #       condition: service_started
+  #   command:
+  #      - --nginx.scrape-uri=https://modsecurity-dev:8443/metrics
     
     
   grafana-dev:

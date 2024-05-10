@@ -54,6 +54,9 @@ RUN rm -rf *
 
 COPY ./web_service/index.html ./index.html
 
+RUN touch /var/log/nginx/transcendence-access.log /var/log/nginx/transcendence-error.log
+RUN chmod 755 /var/log/nginx/transcendence-access.log /var/log/nginx/transcendence-error.log
+
 # SECOND STAGE
 FROM owasp/modsecurity-crs:4.1-nginx-alpine-202404070904 as prod
 LABEL authors="bsilva-c"
@@ -71,5 +74,8 @@ COPY --from=build /etc/nginx/templates/ /etc/nginx/templates/
 
 WORKDIR /usr/share/nginx/html/
 RUN rm -rf *
+
+RUN touch /var/log/nginx/transcendence-access.log /var/log/nginx/transcendence-error.log
+RUN chmod 755 /var/log/nginx/transcendence-access.log /var/log/nginx/transcendence-error.log
 
 USER nginx
