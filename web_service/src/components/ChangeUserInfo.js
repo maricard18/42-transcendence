@@ -274,20 +274,20 @@ export default class ChangeUserInfo extends AbstractView {
     set errors(value) {
         this._errors = value;
 
-        if (this.errors.message) {
+        if (this._errors.message) {
             const p = this._parentNode.querySelector("p");
             if (p.classList.contains("form-success")) {
                 p.classList.remove("form-success");
             }
             p.classList.add("form-error");
-            p.innerText = this.errors.message;
+            p.innerText = this._errors.message;
 			p.style.whiteSpace = "nowrap";
 			p.style.display = "flex";
 			p.style.justifyContent = "center";
 
 			const usernameDiv = document.getElementById("username-div");
 			const usernameInput = document.getElementById("username");
-			if (this.errors["username"]) {
+			if (this._errors["username"]) {
 				usernameDiv.classList.add("input-btn-error");
 				this._formData["username"] = usernameInput.value;
 			} else if (usernameDiv.classList.contains("input-btn-error")) {
@@ -296,7 +296,7 @@ export default class ChangeUserInfo extends AbstractView {
 			
 			const emailDiv = document.getElementById("email-div");
 			const emailInput = document.getElementById("email");
-			if (this.errors["email"]) {
+			if (this._errors["email"]) {
 				emailDiv.classList.add("input-btn-error");
 				this._formData["email"] = emailInput.value;
 			} else if (emailDiv.classList.contains("input-btn-error")) {
@@ -398,7 +398,7 @@ export default class ChangeUserInfo extends AbstractView {
                 avatarContainer.dispatchEvent(
                     new CustomEvent("avatar-container")
                 );
-                this.success = {message: "Changes saved"};
+                this.success = { message: "Changes saved" };
             } else {
                 newErrors = await handleResponse(response, this._formData);
                 this.errors = newErrors;

@@ -1,5 +1,4 @@
-import {ScreenHeight, ScreenWidth} from "./Pong/variables";
-import {MyWebSocket} from "../functions/websocket";
+import { ScreenHeight, ScreenWidth } from "./Pong/variables";
 
 export function gameStartAnimation(game) {
     return new Promise((resolve) => {
@@ -40,44 +39,44 @@ export function gameStartAnimation(game) {
                 6 * ScreenHeight / 9
             );
 
-            if (game.lobbySize == 1 ||
-                (game.mode === "multiplayer" && game.lobbySize == 2)) {
-                game.ctx.font = `bold ${0.025 * ScreenWidth}px Arial`;
-                game.ctx.fillStyle = "white";
-                game.ctx.textAlign = "center";
-                game.ctx.textBaseline = "middle";
-                game.ctx.fillText(
-                    "↑ and ↓ keys to move the player",
-                    ScreenWidth / 2,
-                    7 * ScreenHeight / 9
-                );
-            } else if (game.lobbySize == 2) {
-                game.ctx.font = `bold ${0.025 * ScreenWidth}px Arial`;
-                game.ctx.fillStyle = "white";
-                game.ctx.textAlign = "center";
-                game.ctx.textBaseline = "middle";
-                game.ctx.fillText(
-                    "w and s keys",
-                    2 * ScreenWidth / 6,
-                    7 * ScreenHeight / 9
-                );
-                game.ctx.fillText(
-                    "to move the player",
-                    2 * ScreenWidth / 6,
-                    7 * ScreenHeight / 9 + 0.025 * ScreenWidth
-                );
-
-                game.ctx.fillText(
-                    "↑ and ↓ keys",
-                    4 * ScreenWidth / 6,
-                    7 * ScreenHeight / 9
-                );
-                game.ctx.fillText(
-                    "to move the player",
-                    4 * ScreenWidth / 6,
-                    7 * ScreenHeight / 9 + 0.025 * ScreenWidth
-                );
-            }
+			if (game.lobbySize == 1 || 
+				(game.mode === "multiplayer" && game.lobbySize == 2)) {
+				game.ctx.font = `bold ${0.025 * ScreenWidth}px Arial`;
+				game.ctx.fillStyle = "white";
+				game.ctx.textAlign = "center";
+				game.ctx.textBaseline = "middle";
+				game.ctx.fillText(
+					"use the arrow keys to move the player",
+					ScreenWidth / 2,
+					7 * ScreenHeight / 9
+				);
+			} else if (game.lobbySize == 2) {
+				game.ctx.font = `bold ${0.025 * ScreenWidth}px Arial`;
+				game.ctx.fillStyle = "white";
+				game.ctx.textAlign = "center";
+				game.ctx.textBaseline = "middle";
+				game.ctx.fillText(
+					"use the w and s keys",
+					2 * ScreenWidth / 6,
+					7 * ScreenHeight / 9
+				);
+				game.ctx.fillText(
+					"to move the player",
+					2 * ScreenWidth / 6,
+					7 * ScreenHeight / 9 + 0.025 * ScreenWidth
+				);
+				
+				game.ctx.fillText(
+					"use the arrow keys",
+					4 * ScreenWidth / 6,
+					7 * ScreenHeight / 9
+				);
+				game.ctx.fillText(
+					"to move the player",
+					4 * ScreenWidth / 6,
+					7 * ScreenHeight / 9 + 0.025 * ScreenWidth
+				);
+			}
 
             if (elapsedTime < 5 && !game.over) {
                 window.requestAnimationFrame(animate);
@@ -113,9 +112,9 @@ export function gameConfettiAnimation(game) {
 
         const drawWinnerName = (ctx) => {
             ctx.fillStyle = "white";
-            ctx.font = "bold 30px Arial";
+            ctx.font = "bold 50px Arial";
             ctx.textAlign = "center";
-            ctx.fillText(game.winner + " wins", ctx.canvas.width / 2, ctx.canvas.height / 2);
+            ctx.fillText(game.winner + " wins", ctx.canvas.width / 2, ctx.canvas.height / 7 * 3);
         };
 
         const animate = () => {
@@ -149,9 +148,7 @@ export function gameConfettiAnimation(game) {
                 particle.speedY += 0.05;
             });
 
-            if (elapsedTime < 5 &&
-                (game.mode === "single-player" ||
-                    (game.mode === "multiplayer" && MyWebSocket.ws))) {
+            if (elapsedTime < 5) {
                 window.requestAnimationFrame(animate);
                 if (elapsedTime > 0.5) {
                     drawWinnerName(game.ctx);

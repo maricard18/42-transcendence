@@ -23,10 +23,6 @@ export default class WaitingRoom extends AbstractView {
             childList: true,
             subtree: true,
         });
-
-        window.onbeforeunload = () => {
-            this.removeCallbacks();
-        };
     }
 
     async defineCallback() {
@@ -104,6 +100,7 @@ export default class WaitingRoom extends AbstractView {
                 localStorage.setItem("game_status", "loading");
                 localStorage.setItem("previous_location", location.pathname);
                 AbstractView.gameOver = false;
+				this.removeCallbacks();
                 navigateTo(
                     "/home/pong/play/multiplayer/" + this._lobbySize
                 );
@@ -112,13 +109,8 @@ export default class WaitingRoom extends AbstractView {
     }
 
     async loadDOMChanges() {
-        const loading = document.getElementById("loading");
-        if (loading) {
-            loading.remove();
-            this._parentNode.innerHTML = this.loadWaitingRoomContent();
-        } else {
-            this._parentNode.innerHTML = this.loadWaitingRoomContent();
-        }
+		const parentNode = document.getElementById("waiting-room");
+        parentNode.innerHTML = this.loadWaitingRoomContent();
     }
 
     loadWaitingRoomContent() {
@@ -163,10 +155,6 @@ class PlayerQueue extends AbstractView {
             childList: true,
             subtree: true,
         });
-
-        window.onbeforeunload = () => {
-            this.removeCallbacks();
-        };
     }
 
     async defineCallback() {
@@ -237,47 +225,48 @@ class PlayerQueue extends AbstractView {
     loadPlayerQueue() {
         return `
 			<div class="justify-content-start align-items-start mb-3" id="player-queue">
-			${!this._loading && AbstractView.userData
-            ? AbstractView.userData.map((data, index) =>
-                data.avatar ? (
-                    `<div class="d-flex flex-row justify-content-center align-items-center mb-2">
-							<img
-								src=${data.avatar}
-								alt="Avatar preview"
-								width="40"
-								height="40"
-								class="white-border-sm"
-								style="border-radius: 50%"
-							/>
-							<div class="username-text ms-3 mt-2">
-								<h5>${data.username}</h5>
-							</div>
-							<div class="ms-2">
-								${Object.keys(AbstractView.userQueue).length == this._lobbySize
-                        ? (AbstractView.userReadyList[data.id]
-                            ? `<check-icon></check-icon>`
-                            : `<close-icon></close-icon>`)
-                        : ``
-                    }
-							</div>
-						</div>`
-                ) : (
-                    `<div class="d-flex flex-row justify-content-center align-items-center mb-2">
-							<base-avatar-box size="40px"></base-avatar-box>
-							<div class="username-text ms-3 mt-2">
-								<h5>${data.username}</h5>
-							</div>
-							<div class="ms-2">
-								${Object.keys(AbstractView.userQueue).length == this._lobbySize
-                        ? (AbstractView.userReadyList[data.id]
-                            ? `<check-icon></check-icon>`
-                            : `<close-icon></close-icon>`)
-                        : ``
-                    }
-							</div>
-						</div>`
-                ))
-            : `<loading-icon size="3rem"></loading-icon>`}
+			${	!this._loading && AbstractView.userData
+					? AbstractView.userData.map((data, index) =>
+						data.avatar ? (
+							`<div class="d-flex flex-row justify-content-center align-items-center mb-2">
+									<img
+										src=${data.avatar}
+										alt="Avatar preview"
+										width="40"
+										height="40"
+										class="white-border-sm"
+										style="border-radius: 50%"
+									/>
+									<div class="username-text ms-3 mt-2">
+										<h5>${data.username}</h5>
+									</div>
+									<div class="ms-2">
+										${Object.keys(AbstractView.userQueue).length == this._lobbySize
+								? (AbstractView.userReadyList[data.id]
+									? `<check-icon></check-icon>`
+									: `<close-icon></close-icon>`)
+								: ``
+							}
+									</div>
+								</div>`
+						) : (
+							`<div class="d-flex flex-row justify-content-center align-items-center mb-2">
+									<base-avatar-box size="40px"></base-avatar-box>
+									<div class="username-text ms-3 mt-2">
+										<h5>${data.username}</h5>
+									</div>
+									<div class="ms-2">
+										${Object.keys(AbstractView.userQueue).length == this._lobbySize
+								? (AbstractView.userReadyList[data.id]
+									? `<check-icon></check-icon>`
+									: `<close-icon></close-icon>`)
+								: ``
+							}
+									</div>
+								</div>`
+						))
+					: `<loading-icon size="3rem"></loading-icon>`
+			}
 			</div>
 		`;
     }
@@ -301,10 +290,6 @@ class ReadyButton extends AbstractView {
             childList: true,
             subtree: true,
         });
-
-        window.onbeforeunload = () => {
-            this.removeCallbacks();
-        };
     }
 
     async defineCallback() {

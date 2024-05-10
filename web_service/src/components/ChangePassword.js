@@ -28,10 +28,6 @@ export default class ChangePassword extends AbstractView {
             childList: true,
             subtree: true,
         });
-
-        window.onbeforeunload = () => {
-            this.removeCallbacks();
-        };
     }
 
     get errors() {
@@ -41,18 +37,18 @@ export default class ChangePassword extends AbstractView {
     set errors(value) {
         this._errors = value;
 
-        if (this.errors.message) {
+        if (this._errors.message) {
             const p = this._parentNode.querySelector("p");
             if (p.classList.contains("form-success")) {
                 p.classList.remove("form-success");
             }
             p.classList.add("form-error");
-            p.innerText = this.errors.message;
+            p.innerText = this._errors.message;
 
             const inputList = this._parentNode.querySelectorAll("input");
             inputList.forEach((input) => {
                 const id = input.getAttribute("id");
-                if (this.errors[id]) {
+                if (this._errors[id]) {
                     input.classList.add("input-error");
                     this._formData[id] = input.value;
                 } else if (input.classList.contains("input-error")) {
