@@ -34,3 +34,8 @@
     outline: 2px solid yellow;
     border-radius: 50%;
 }
+
+.gold-border-sm {
+    outline: 2px solid #ffd700;
+    border-radius: 50%;
+}

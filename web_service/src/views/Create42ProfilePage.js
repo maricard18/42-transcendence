@@ -26,11 +26,6 @@ export default class Create42ProfilePage extends AbstractView {
             childList: true,
             subtree: true,
         });
-
-		window.onbeforeunload = () => {
-			this.removeCallbacks();
-			this.disconnectObserver();
-		};
     }
 
     get errors() {

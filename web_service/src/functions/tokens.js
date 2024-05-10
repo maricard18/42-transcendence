@@ -2,6 +2,8 @@ import AbstractView from "../views/AbstractView";
 import Cookies from "js-cookie";
 import fetchData from "./fetchData";
 import {transitEncrypt} from "../functions/vaultAccess";
+import { closeWebsocket } from "./websocket";
+import { cleanTournamentStorage } from "..";
 
 export async function createToken(formData) {
     const formDataToSend = new FormData();
@@ -101,6 +103,8 @@ export function decode(accessToken) {
 
 export function logout() {
     console.log("Logged out, cleaning data")
+	closeWebsocket();
+	cleanTournamentStorage(); 	
     Cookies.remove("access_token");
     Cookies.remove("refresh_token");
     AbstractView.cleanGameData();

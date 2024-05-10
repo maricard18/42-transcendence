@@ -24,10 +24,6 @@ export default class SettingsPage extends AbstractView {
             childList: true,
             subtree: true,
         });
-
-        window.onbeforeunload = () => {
-            this.removeCallbacks();
-        };
     }
 
     get avatar() {
@@ -87,6 +83,7 @@ export default class SettingsPage extends AbstractView {
 				const modalElement = document.getElementById("DeleteUserModal");
 				bootstrap.Modal.getInstance(modalElement).hide();
 				document.querySelector('.modal-backdrop').remove();
+				this._observer.disconnect();
                 logout();
                 navigateTo("/");
             } else {
@@ -262,7 +259,7 @@ export default class SettingsPage extends AbstractView {
 								value="Change Password"
 							></nav-button>
 							<nav-button
-								template="secondary-button extra-btn-class"
+								template="primary-button extra-btn-class"
 								page="${link}"
 								style="border-radius: 0%"
 								value="Link 42 Account"

@@ -2,6 +2,8 @@ import AbstractView from "./AbstractView";
 import { createPongGameObject } from "../Game/Pong/pongGame";
 import { startPong } from "../Game/Pong/pongGame";
 import { Display2Usernames, DisplayUsername } from "../components/DisplayUsernames";
+import { navigateTo } from "..";
+import { closeWebsocket } from "../functions/websocket";
 
 export default class Pong extends AbstractView {
     constructor(view) {
@@ -21,10 +23,16 @@ export default class Pong extends AbstractView {
         this._height;
         this._game;
 
-        if (this._gameMode === "single-player") {
-            localStorage.setItem("game_status", "loading");
-            AbstractView.gameOver = false;
-        }
+		if (this._gameMode === "single-player") {
+			if (this._lobbySize == 2) {
+				localStorage.setItem("player1", "Opponent");
+			} else {
+				localStorage.setItem("player2", "CPU");
+			}	
+			localStorage.setItem("game_status", "loading");
+		} else if (this._gameMode === "tournament") {
+			localStorage.setItem("game_status", "loading");
+		}
 
         this._observer = new MutationObserver(this.defineCallback.bind(this));
         this._observer.observe(document.body, {
@@ -32,8 +40,8 @@ export default class Pong extends AbstractView {
             subtree: true,
         });
 
-        if (this._gameMode === "single-player" ||
-            (this._gameMode === "multiplayer" && this._lobbySize == 2)) {
+        if (this._gameMode === "single-player" || this._gameMode === "tournament" ||
+           (this._gameMode === "multiplayer" && this._lobbySize == 2)) {
             this._aspectRatio = this._aspectRatioRectangle;
         } else if (this._gameMode === "multiplayer" && this._lobbySize == 4) {
             this._aspectRatio = this._aspectRatioSquare;
@@ -56,78 +64,85 @@ export default class Pong extends AbstractView {
             }
             this._height = this._width / this._aspectRatio;
         }
+
+		//TODO addEventListener("offline", (event) => {console.error("LOST CONNECTION")});
     }
 
     async defineCallback() {
         const parentNode = document.getElementById("pong");
         if (parentNode) {
             this._parentNode = parentNode;
-            if (!this._gameRunning && !AbstractView.gameOver) {
+            if (!this._gameRunning) {
                 this._gameRunning = true;
                 await this.startPongGame();
-                this.loadDOMChanges();
+				await this.gameOverScreen();
             }
-        } else {
-
         }
     }
 
     async startPongGame() {
-        if (this._gameMode === "single-player" ||
-            (this._gameMode === "multiplayer" &&
-                Object.values(AbstractView.userQueue).length == this._lobbySize)) {
-            const canvas = document.querySelector("canvas");
+        if (this._gameMode === "single-player" || this._gameMode === "tournament" ||
+           (this._gameMode === "multiplayer" &&
+            Object.values(AbstractView.userQueue).length == this._lobbySize)) {
+			const canvas = document.querySelector("canvas");
             this._game = createPongGameObject(
                 canvas,
                 this._gameMode,
                 this._lobbySize
             );
+			console.error("GAME:", this._game);
             await startPong(this._game);
-        } else {
-            console.log("You refreshed the page, removing local storage");
-            localStorage.removeItem("game_status");
-            AbstractView.cleanGameData();
-            AbstractView.gameOver = true;
         }
     }
 
-    loadDOMChanges() {
-        const parentNode = document.getElementById("pong");
-        if (parentNode && this._lobbySize != 4) {
-            parentNode.outerHTML = this.load4Pong();
-        } else if (parentNode) {
-            parentNode.outerHTML = this.loadPong();
-        }
-    }
+	async gameOverScreen() {
+		const canvas = document.querySelector("canvas");
+		if (!canvas) {
+			return ;
+		}
+		
+		const ctx = canvas.getContext("2d");
+		const headlineSize = this._height * 0.12;
+		const paragraphSize = this._height * 0.03
+		ctx.fillStyle = "black";
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		ctx.fillStyle = "white";
+		ctx.font = `bold ${headlineSize}px Arial`;
+		ctx.textAlign = "center";
+		ctx.textBaseline = "middle";
+		ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 7 * 3);
+	
+		ctx.font = `bold ${paragraphSize}px Arial`;
+		ctx.fillText("Click anywhere on the canvas to leave this page", canvas.width / 2, canvas.height / 4 * 3);
+	
+		canvas.addEventListener("click", async () => {
+			if (this._gameMode === "tournament") {
+				this._observer.disconnect();
+				navigateTo("/home/pong/tournament/matchmaking");
+			} else {
+				localStorage.removeItem("game_status");
+				localStorage.removeItem("game_winner");
+				AbstractView.cleanGameData();
+				closeWebsocket();
+				this._observer.disconnect();
+				await navigateTo("/home");
+			}
+		});
+	}
 
     loadPong() {
         return `
 			<div class="outlet-padding center" id="pong">
-				${
-            !AbstractView.gameOver
-                ? `<div>
-								${new Display2Usernames().getHtml()}
-								<div class="d-flex flex-column">
-									<canvas
-										width="${this._width}"
-										height="${this._height}"
-										class="canvas-wrapper mt-3"
-										style="border: 10px solid #fff; border-radius: 15px"
-									/>
-								</div>
-							</div>`
-                : `<div class="d-flex flex-column justify-content">
-								<h1>Game Finished</h1>
-								<div class="mt-5">
-									<nav-button 
-										template="primary-button extra-btn-class"
-										page="/home"
-										style="width: 120px"
-										value="Home"
-									></nav-button>
-								</div>
-							</div>`
-        }
+				<div class="d-flex flex-column">
+					${new Display2Usernames().getHtml()}
+					<canvas
+						id="gameCanvas"
+						width="${this._width}"
+						height="${this._height}"
+						class="mt-3"
+						style="border: 10px solid #fff; border-radius: 15px"
+					/>
+				</div>
 			</div>
         `;
     }
@@ -135,48 +150,50 @@ export default class Pong extends AbstractView {
     load4Pong() {
         return `
 			<div class="outlet-padding center" id="pong">
-				${
-            !AbstractView.gameOver
-                ? `<div>
-								${new DisplayUsername().getHtml("player3")}
-								<div class="d-flex flex-row">
-									${new DisplayUsername().getHtml("player1")}
-									<div class="d-flex flex-column">
-										<canvas
-											width="${this._width}"
-											height="${this._height}"
-											class="mt-3"
-											style="border: 3px solid #ffffff"
-										/>
-									</div>
-									${new DisplayUsername().getHtml("player2")}
-								</div>
-								${new DisplayUsername().getHtml("player4")}
-							</div>`
-                : `<div class="d-flex flex-column justify-content">
-								<h1>Game Finished</h1>
-								<div class="mt-5">
-									<nav-button 
-										template="primary-button extra-btn-class"
-										page="/home"
-										style="width: 150px"
-										value="Home"
-									></nav-button>
-								</div>
-							</div>`
-        }
+				<div>
+					${new DisplayUsername().getHtml("player3")}
+					<div class="d-flex flex-row">
+						${new DisplayUsername().getHtml("player1")}
+						<div class="d-flex flex-column">
+							<canvas
+								width="${this._width}"
+								height="${this._height}"
+								class="mt-3"
+								style="border: 10px solid #fff; border-radius: 15px"
+							/>
+						</div>
+						${new DisplayUsername().getHtml("player2")}
+					</div>
+					${new DisplayUsername().getHtml("player4")}
+				</div>
 			</div>
         `;
     }
 
-    getHtml() {
-        if (this._gameMode === "multiplayer" &&
-            (!localStorage.getItem("game_status") || !AbstractView.userData.length)) {
-            AbstractView.cleanGameData();
-            AbstractView.gameOver = true;
-        } else {
-            AbstractView.gameOver = false;
-        }
+    async getHtml() {
+        if (this._gameMode === "multiplayer" && 
+		   (!localStorage.getItem("game_status") || !AbstractView.userData.length)) {
+			console.log("User refreshed the page");
+			localStorage.removeItem("game_status");
+			localStorage.removeItem("game_winner");
+			AbstractView.cleanGameData();
+			closeWebsocket();
+			this._observer.disconnect();
+			await navigateTo("/home");
+			return ;
+        } else if (this._gameMode === "tournament") {
+			if (!localStorage.getItem("tournament")) {
+				localStorage.removeItem("game_status");
+				this._observer.disconnect();
+				await navigateTo("/home");
+				return ;
+			}
+			if (currentGameFinished()) {
+				this._observer.disconnect();
+				await navigateTo("/home/pong/tournament/matchmaking");
+				return ;
+			}
+		}
 
         if (this._lobbySize != 4) {
             return this.loadPong();
@@ -184,4 +201,20 @@ export default class Pong extends AbstractView {
             return this.load4Pong();
         }
     }
+}
+
+function currentGameFinished() {
+	let match1 = JSON.parse(localStorage.getItem("match1"));
+	let match2 = JSON.parse(localStorage.getItem("match2"));
+	let match3 = JSON.parse(localStorage.getItem("match3"));
+
+	if (match1 && match1["status"] === "finished" && !match2) {
+		return true;
+	} else if (match2 && match2["status"] === "finished" && !match3) {
+		return true;
+	} else if (match3 && match3["status"] === "finished") {
+		return true;
+	}
+
+	return false;
 }

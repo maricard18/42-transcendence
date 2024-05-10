@@ -16,10 +16,6 @@ export default class Login42Page extends AbstractView {
             childList: true,
             subtree: true,
         });
-
-		window.onbeforeunload = () => {
-            this.disconnectObserver();
-        };
     }
 
 	async defineCallback() {
@@ -37,7 +33,7 @@ export default class Login42Page extends AbstractView {
 
 		if (response.ok) {
 			await setToken(response);
-			this.disconnectObserver();
+			this._observer.disconnect();
 			if (this._previousLocation && 
 				this._previousLocation.startsWith("/home/profile")) {
 				localStorage.removeItem("previousLocation");
@@ -48,19 +44,15 @@ export default class Login42Page extends AbstractView {
 		} else {
 			if (response.status === 409) {
 				await setToken(response);
-				this.disconnectObserver();
+				this._observer.disconnect();
 				navigateTo("/create-profile-42");
 			} else {
 				console.error("Error: failed to sign up with 42");
-				this.disconnectObserver();
+				this._observer.disconnect();
 				navigateTo("/");
 			}
 		}
 	}
-
-	disconnectObserver() {
-        this._observer.disconnect();
-    }
 
     async getHtml() {
         return `

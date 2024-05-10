@@ -31,10 +31,6 @@ export default class CreateProfilePage extends AbstractView {
             childList: true,
             subtree: true,
         });
-
-        window.onbeforeunload = () => {
-            this.removeCallbacks();
-        };
     }
 
     defineCallback() {
@@ -147,14 +143,14 @@ export default class CreateProfilePage extends AbstractView {
     set errors(value) {
         this._errors = value;
 
-        if (this.errors.message) {
+        if (this._errors.message) {
             const p = this._parentNode.querySelector("p");
-            p.innerText = this.errors.message;
+            p.innerText = this._errors.message;
 
             const inputList = this._parentNode.querySelectorAll("input");
             const input = inputList[inputList.length - 1];
             const id = input.getAttribute("id");
-            if (this.errors[id]) {
+            if (this._errors[id]) {
                 input.classList.add("input-error");
                 AbstractView.formData[id] = input.value;
             } else if (input.classList.contains("input-error")) {
