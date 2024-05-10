@@ -1,8 +1,9 @@
 import AbstractView from "./AbstractView";
 import fetchData from "../functions/fetchData";
-import {getToken} from "../functions/tokens";
-import {navigateTo} from "..";
-import {closeWebsocket, connectWebsocket, MyWebSocket, sendMessage} from "../functions/websocket";
+import { getToken } from "../functions/tokens";
+import { navigateTo } from "..";
+import { closeWebsocket, connectWebsocket, MyWebSocket, sendMessage } from "../functions/websocket";
+import { transitDecrypt } from "../functions/vaultAccess";
 
 export default class WaitingRoom extends AbstractView {
     constructor() {
@@ -434,8 +435,8 @@ async function getUserData(value) {
     }
 
     const data = {
-        username: jsonData["username"],
-        email: jsonData["email"],
+        username: await transitDecrypt(jsonData["username"]),
+        email: await transitDecrypt(jsonData["email"]),
         id: value,
     };
 

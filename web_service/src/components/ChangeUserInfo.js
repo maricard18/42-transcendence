@@ -4,13 +4,14 @@ import handleResponse from "../functions/authenticationErrors";
 import {validateProfileUserForm} from "../functions/validateForms";
 import {getToken} from "../functions/tokens";
 import {transitEncrypt} from "../functions/vaultAccess";
+//import "bootstrap/dist/js/bootstrap.bundle.js";
 
 export default class ChangeUserInfo extends AbstractView {
     constructor() {
         super();
-        this._loading = true;
 		this._loadingUserOtp = true;
         this._parentNode = null;
+		this._2FACallback = false;
         this._insideRequest = false;
         this._inputCallback = false;
 		this._2FAInputCallback = false;
@@ -19,7 +20,7 @@ export default class ChangeUserInfo extends AbstractView {
 		this._emailButton = false;
 		this._setup2FAButton = false;
 		this._remove2FAButton = false;
-		this._has2FA = true;
+		this._has2FA = 0;
 		this._qrcode = null;
 
         this._errors = {};
@@ -67,6 +68,20 @@ export default class ChangeUserInfo extends AbstractView {
 			const headers = {
 				Authorization: `Bearer ${this._accessToken}`,
 			};
+			
+			if (this._has2FA === 1) {
+				const response = await fetchData(
+					"/api/users/" + AbstractView.userInfo.id + "/otp",
+					"DELETE",
+					headers,
+					null
+				);
+	
+				if (!response.ok) {
+					console.error("Error: DELETE request to otp failed");
+					return ;
+				}
+			}
 
 			const response = await fetchData(
 				"/api/users/" + AbstractView.userInfo.id + "/otp",
@@ -79,9 +94,10 @@ export default class ChangeUserInfo extends AbstractView {
 				const jsonData = await response.json();
 				this._qrcode = jsonData["url"];
 				this.updateModalBodyContent();
+				this._has2FA = 1;
 			} else {
 				console.error("Error: POST request to otp failed");
-				this._has2FA = false;
+				this._has2FA = 0;
 			}
 		}
 
@@ -92,7 +108,7 @@ export default class ChangeUserInfo extends AbstractView {
 			};
 
 			const response = await fetchData(
-				"/api/users/" + AbstractView.userInfo.id + "/otp?code=" + this._2FACode,
+				"/api/users/" + AbstractView.userInfo.id + "/otp?code=" + this._2FACode + "&activate",
 				"GET",
 				headers,
 				null
@@ -101,32 +117,25 @@ export default class ChangeUserInfo extends AbstractView {
 			if (response.ok) {
 				const p = document.getElementById("p-2FA");
 				const jsonData = await response.json();
-				if (jsonData["valid"] === "true") {
-					this._has2FA = true;
-					if (p.classList.contains("form-error")) {
-						p.classList.remove("form-error");
-					}
-					p.classList.add("form-success");
-					p.style.whiteSpace = "nowrap";
-					p.style.display = "flex";
-					p.style.justifyContent = "center";
-					p.innerText = "2FA activated successufly";
-					console.log("otp code is correct");
-					//! load <REMOVE 2FA BUTTON>
+				if (jsonData["valid"] === true) {
+					this._has2FA = 2;
+					const modalElement = document.getElementById("2FAModal");
+					bootstrap.Modal.getInstance(modalElement).hide();
+					document.querySelector('.modal-backdrop').remove();
+					this.loadDOMChanges();
 				} else {
-					if (p.classList.contains("form-success")) {
-						p.classList.remove("form-success");
-					}
+					this._has2FA = 1;
 					p.classList.add("form-error");
 					p.style.whiteSpace = "nowrap";
 					p.style.display = "flex";
 					p.style.justifyContent = "center";
 					p.innerText = "2FA code is invalid";
+					setTimeout(() => { p.innerText = ""; }, 3000);
 					console.error("otp code is incorrect");
 				}
 			} else {
 				console.error("Error: POST request to otp failed");
-				this._has2FA = false;
+				this._has2FA = 0;
 			}
 		}
 
@@ -145,11 +154,12 @@ export default class ChangeUserInfo extends AbstractView {
 
 			if (response.ok) {
 				console.log("otp was deleted!")
-				this._has2FA = false;
+				this._has2FA = 0;
 				this._qrcode = null;
+				this.loadDOMChanges();
 			} else {
 				console.error("Error: DELETE request to otp failed");
-				this._has2FA = false;
+				this._has2FA = 1;
 			}
 		}
 
@@ -199,8 +209,8 @@ export default class ChangeUserInfo extends AbstractView {
 
         if (AbstractView.userInfo.username &&
             AbstractView.userInfo.email &&
-            this._loading) {
-            this._loading = false;
+			!this._2FACallback) {
+			this._2FACallback = true;
             this._formData.username = AbstractView.userInfo.username;
             this._formData.email = AbstractView.userInfo.email;
 
@@ -218,14 +228,13 @@ export default class ChangeUserInfo extends AbstractView {
 
             if (response.ok) {
                 const jsonData = await response.json();
-				if (jsonData["active"] === "true") {
-					this._has2FA = true;
+				if (jsonData["active"] === true) {
+					this._has2FA = 2;
 				} else {
-					this.remove2FACallback();
+					this._has2FA = 1;
 				}
             } else {
-                console.error("Error: user does not have otp");
-				this._has2FA = false;
+				this._has2FA = 0;
             }
 
             this.loadDOMChanges();
@@ -413,24 +422,24 @@ export default class ChangeUserInfo extends AbstractView {
 									position-ring-color="#3e0d8e"
 									position-center-color="#583296"
 									mask-x-to-y-ratio="1.2"
-									style="width: 30%; height: 30%; margin: 2em auto; background-color: #fff; border-radius: 10px"
+									style="width: 30%; height: 70%; margin: 2em auto; background-color: #fff; border-radius: 10px"
 								></qr-code>
 								<div class="position-relative mt-4">
 									<p class="form-error" id="p-2FA"></p>
 								</div>
-								<div class="input-group input-btn mb-3" style="width: 45%" id="otp-div">
+								<div class="input-group input-btn mb-3" style="width: 210px" id="otp-div">
 									<input
 										id="input-2FA"
 										type="text" 
-										class="form-control primary-form extra-form-class"
-										placeholder="code" 
+										class="form-control primary-form extra-form-class w-25"
+										placeholder="6 digit code" 
 										aria-label="Recipient's username" 
 										aria-describedby="button-addon2"
 										value=""
 									/>
 									<button 
 										class="btn btn-outline-secondary primary-button extra-btn-class"
-										style="width: 100px"
+										style="width: 85px"
 										type="button" 
 										id="validate-2FA"
 									>
@@ -496,7 +505,7 @@ export default class ChangeUserInfo extends AbstractView {
 					</h4>
 					<div class="mt-3" id="2FA">
 					${
-						this._has2FA
+						this._has2FA === 2
 							? `<button 
 									type="button" 
 									id="remove-2FA"
@@ -550,18 +559,10 @@ export default class ChangeUserInfo extends AbstractView {
     }
 
     getHtml() {
-        if (this._loading) {
-            return `
-				<div class="d-flex flex-column justify-content-center" id="change-user-info">
-					<loading-icon template="center" size="5rem"></loading-icon>
-				</div>
-			`;
-        } else {
-            return `
-				<div class="d-flex flex-column" id="change-user-info">
-					${this.loadChangeUserInfoContent()}
-				</div>
-			`;
-        }
-    }
+		return `
+			<div class="d-flex flex-column justify-content-center" id="change-user-info">
+				<loading-icon size="5rem"></loading-icon>
+			</div>
+		`;
+	}
 }

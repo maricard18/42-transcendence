@@ -1,10 +1,10 @@
 import AbstractView from "./AbstractView";
 import fetchData from "../functions/fetchData";
 import handleResponse from "../functions/authenticationErrors";
-import {navigateTo} from "../index";
-import {setToken} from "../functions/tokens";
-import {validateLoginForm} from "../functions/validateForms";
-import {transitEncrypt} from "../functions/vaultAccess";
+import { navigateTo } from "../index";
+import { setToken } from "../functions/tokens";
+import { validateLoginForm } from "../functions/validateForms";
+import { transitEncrypt } from "../functions/vaultAccess";
 
 export default class LoginPage extends AbstractView {
     constructor() {

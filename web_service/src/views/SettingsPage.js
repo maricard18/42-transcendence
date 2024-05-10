@@ -1,7 +1,7 @@
 import AbstractView from "./AbstractView";
 import fetchData from "../functions/fetchData";
-import {navigateTo} from "..";
-import {getToken, logout} from "../functions/tokens";
+import { navigateTo } from "..";
+import { getToken, logout } from "../functions/tokens";
 
 export default class SettingsPage extends AbstractView {
     constructor(view) {
@@ -84,6 +84,9 @@ export default class SettingsPage extends AbstractView {
             );
 
             if (response.ok) {
+				const modalElement = document.getElementById("DeleteUserModal");
+				bootstrap.Modal.getInstance(modalElement).hide();
+				document.querySelector('.modal-backdrop').remove();
                 logout();
                 navigateTo("/");
             } else {
@@ -93,7 +96,7 @@ export default class SettingsPage extends AbstractView {
 
         this.removeAvatarCallback = async (event) => {
             const formDataToSend = new FormData();
-            formDataToSend.append("avatar", null);
+            formDataToSend.append("avatar", "");
 
             const accessToken = await getToken();
             const headers = {
@@ -224,7 +227,7 @@ export default class SettingsPage extends AbstractView {
     async getHtml() {
         const link = "https://api.intra.42.fr/oauth/authorize" +
             "?client_id=" + encodeURIComponent(process.env.SSO_42_CLIENT_ID) +
-            "&redirect_uri=" + encodeURIComponent(process.env.SSO_42_CLIENT_ID) +
+            "&redirect_uri=" + encodeURIComponent(process.env.SSO_42_REDIRECT_URI) +
             "&response_type=code";
         let avatarElement = document.createElement("avatar-box");
         if (AbstractView.userInfo.avatar) {

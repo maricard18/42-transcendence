@@ -1,6 +1,6 @@
 import AbstractView from "./AbstractView";
-import {validateSignUpForm} from "../functions/validateForms";
-import {navigateTo} from "../index";
+import { validateSignUpForm } from "../functions/validateForms";
+import { navigateTo } from "../index";
 
 export default class SignUpPage extends AbstractView {
     constructor() {

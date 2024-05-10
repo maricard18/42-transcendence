@@ -1,5 +1,7 @@
 from django.contrib.auth.models import User
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
+from rest_framework.exceptions import ParseError
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from .models import Avatar
@@ -96,6 +98,8 @@ class APITokenObtainPairSerializer(TokenObtainPairSerializer):
 
 class TokenSerializer(serializers.Serializer):
     grant_type = serializers.CharField()
+    email = serializers.EmailField(required=False)
+    username = serializers.CharField(required=False)
     password = serializers.CharField(required=False)
     refresh_token = serializers.CharField(required=False)
 
@@ -104,7 +108,7 @@ class TokenSerializer(serializers.Serializer):
         Check if the grant_type is either 'password' or 'refresh_token'.
         """
         if value not in ['password', 'refresh_token']:
-            raise serializers.ValidationError("This field must be 'password' or 'refresh_token'.")
+            raise serializers.ValidationError(_("This field must be 'password' or 'refresh_token'."))
         return value
 
     def validate(self, data):
@@ -118,12 +122,47 @@ class TokenSerializer(serializers.Serializer):
         if grant_type == 'password':
             if not data.get('password'):
                 raise serializers.ValidationError({
-                    "password": "This field is required."
+                    "password": _("This field is required.")
                 })
+            if not data.get('email') and not data.get('username'):
+                raise ParseError(_("Either 'email' or 'username' is required."))
         elif grant_type == 'refresh_token':
             if not data.get('refresh_token'):
                 raise serializers.ValidationError({
-                    "refresh_token": "This field is required."
+                    "refresh_token": _("This field is required.")
+                })
+
+        return data
+
+
+#######################
+#####  /auth/sso   ####
+#######################
+
+class SSOSerializer(serializers.Serializer):
+    action = serializers.CharField()
+    user_id = serializers.IntegerField(required=False)
+    code = serializers.CharField()
+
+    def validate_action(self, value):
+        """
+        Check if the action is either 'password' or 'refresh_token'.
+        """
+        if value not in ['link', 'register']:
+            raise serializers.ValidationError(_("This field must be 'link' or 'register'."))
+        return value
+
+    def validate(self, data):
+        data = super().validate(data)
+
+        """
+        Validate fields based on the action.
+        """
+        action = data.get('action')
+        if action == 'link':
+            if not data.get('user_id'):
+                raise serializers.ValidationError({
+                    "user_id": _("This field is required.")
                 })
 
         return data

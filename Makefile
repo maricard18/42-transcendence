@@ -6,7 +6,7 @@
 #    By: bsilva-c <bsilva-c@student.42porto.com>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/02/15 17:36:39 by bsilva-c          #+#    #+#              #
-#    Updated: 2024/05/02 20:01:35 by bsilva-c         ###   ########.fr        #
+#    Updated: 2024/05/08 20:14:10 by bsilva-c         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,7 +33,7 @@ endif
 #### Using Makefile to call specific service
 ##
 
-SERVICES = auth_service game_service web_service vault_service modsecurity
+SERVICES = auth_service game_service web_service vault_service modsecurity nikto
 _SERVICE = $(SERVICE)
 
 # Check if service is valid
@@ -51,9 +51,9 @@ endif
 
 all: build up
 build:
-	$(COMMAND) build --no-cache --with-dependencies $(_SERVICE)
+	@$(COMMAND) build --no-cache $(_SERVICE)
 up: build
-	@$(COMMAND) up -d --no-build $(_SERVICE)
+	@$(COMMAND) up -d --no-recreate $(_SERVICE)
 down:
 	@$(COMMAND) down $(_SERVICE)
 start:
@@ -72,7 +72,6 @@ fclean:
 	@images=$$(docker image ls -q "$(PROJECT_NAME)-*"); \
 	if [ -n "$$images" ]; then \
 		docker image rm $$images -f; \
-		docker system prune --volumes -af; \
 	fi
 help:
 	@echo "Usage: make [options] [target]"
