@@ -4,13 +4,14 @@ import handleResponse from "../functions/authenticationErrors";
 import {validateProfileUserForm} from "../functions/validateForms";
 import {getToken} from "../functions/tokens";
 import {transitEncrypt} from "../functions/vaultAccess";
-import "bootstrap/dist/js/bootstrap.bundle.js";
+//import "bootstrap/dist/js/bootstrap.bundle.js";
 
 export default class ChangeUserInfo extends AbstractView {
     constructor() {
         super();
 		this._loadingUserOtp = true;
         this._parentNode = null;
+		this._2FACallback = false;
         this._insideRequest = false;
         this._inputCallback = false;
 		this._2FAInputCallback = false;
@@ -63,17 +64,24 @@ export default class ChangeUserInfo extends AbstractView {
         };
 
 		this.setup2FACallback = async () => {
-			if (this._has2FA === 1) {
-				await this.remove2FACallback();
-				if (this._has2FA === 1) {
-					return ;
-				}
-			}
-
 			this._accessToken = await getToken();
 			const headers = {
 				Authorization: `Bearer ${this._accessToken}`,
 			};
+			
+			if (this._has2FA === 1) {
+				const response = await fetchData(
+					"/api/users/" + AbstractView.userInfo.id + "/otp",
+					"DELETE",
+					headers,
+					null
+				);
+	
+				if (!response.ok) {
+					console.error("Error: DELETE request to otp failed");
+					return ;
+				}
+			}
 
 			const response = await fetchData(
 				"/api/users/" + AbstractView.userInfo.id + "/otp",
@@ -94,7 +102,6 @@ export default class ChangeUserInfo extends AbstractView {
 		}
 
 		this.validate2FACallback = async () => {
-			console.log("HERE");
 			this._accessToken = await getToken();
 			const headers = {
 				Authorization: `Bearer ${this._accessToken}`,
@@ -113,11 +120,8 @@ export default class ChangeUserInfo extends AbstractView {
 				if (jsonData["valid"] === true) {
 					this._has2FA = 2;
 					const modalElement = document.getElementById("2FAModal");
-					const modal = bootstrap.Modal.getInstance(modalElement);
-					modal.hide();
-					const backdrop = document.querySelector('.modal-backdrop');
-					backdrop.parentNode.removeChild(backdrop);
-					backdrop.remove();
+					bootstrap.Modal.getInstance(modalElement).hide();
+					document.querySelector('.modal-backdrop').remove();
 					this.loadDOMChanges();
 				} else {
 					this._has2FA = 1;
@@ -205,8 +209,8 @@ export default class ChangeUserInfo extends AbstractView {
 
         if (AbstractView.userInfo.username &&
             AbstractView.userInfo.email &&
-            this._loading) {
-            this._loading = false;
+			!this._2FACallback) {
+			this._2FACallback = true;
             this._formData.username = AbstractView.userInfo.username;
             this._formData.email = AbstractView.userInfo.email;
 
@@ -230,7 +234,6 @@ export default class ChangeUserInfo extends AbstractView {
 					this._has2FA = 1;
 				}
             } else {
-                console.error("Error: user does not have otp");
 				this._has2FA = 0;
             }
 
@@ -419,24 +422,24 @@ export default class ChangeUserInfo extends AbstractView {
 									position-ring-color="#3e0d8e"
 									position-center-color="#583296"
 									mask-x-to-y-ratio="1.2"
-									style="width: 30%; height: 30%; margin: 2em auto; background-color: #fff; border-radius: 10px"
+									style="width: 30%; height: 70%; margin: 2em auto; background-color: #fff; border-radius: 10px"
 								></qr-code>
 								<div class="position-relative mt-4">
 									<p class="form-error" id="p-2FA"></p>
 								</div>
-								<div class="input-group input-btn mb-3" style="width: 45%" id="otp-div">
+								<div class="input-group input-btn mb-3" style="width: 210px" id="otp-div">
 									<input
 										id="input-2FA"
 										type="text" 
-										class="form-control primary-form extra-form-class"
-										placeholder="code" 
+										class="form-control primary-form extra-form-class w-25"
+										placeholder="6 digit code" 
 										aria-label="Recipient's username" 
 										aria-describedby="button-addon2"
 										value=""
 									/>
 									<button 
 										class="btn btn-outline-secondary primary-button extra-btn-class"
-										style="width: 100px"
+										style="width: 85px"
 										type="button" 
 										id="validate-2FA"
 									>
@@ -558,7 +561,7 @@ export default class ChangeUserInfo extends AbstractView {
     getHtml() {
 		return `
 			<div class="d-flex flex-column justify-content-center" id="change-user-info">
-				<loading-icon template="center" size="5rem"></loading-icon>
+				<loading-icon size="5rem"></loading-icon>
 			</div>
 		`;
 	}

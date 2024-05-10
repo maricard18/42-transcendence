@@ -7,7 +7,7 @@ import NavigationBar from "./NavigationBar.js";
 import HomePage from "./HomePage.js";
 import ChangeUserInfo from "../components/ChangeUserInfo.js";
 import ChangePassword from "../components/ChangePassword.js";
-import {Game1, Game2} from "../components/Games.js";
+import { Game1, Game2 } from "../components/Games.js";
 import {
     GameMenuOptions,
     MultiplayerOptions,

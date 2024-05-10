@@ -9,7 +9,7 @@ import HomePage from "./views/HomePage.js";
 import ChangeUserInfo from "./components/ChangeUserInfo.js";
 import ChangePassword from "./components/ChangePassword.js";
 import { Game1, Game2 } from "./components/Games.js";
-import {GameMenuOptions, MultiplayerOptions, SinglePlayerOptions, TournamentOptions} from "./components/GameOptions.js";
+import { GameMenuOptions, MultiplayerOptions, SinglePlayerOptions, TournamentOptions } from "./components/GameOptions.js";
 import WaitingRoom from "./views/WaitingRoom.js";
 import Pong from "./views/Pong.js";
 import SettingsPage from "./views/SettingsPage.js";

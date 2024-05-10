@@ -1,7 +1,7 @@
 import AbstractView from "./AbstractView";
 import fetchData from "../functions/fetchData";
-import {navigateTo} from "..";
-import {getToken, logout} from "../functions/tokens";
+import { navigateTo } from "..";
+import { getToken, logout } from "../functions/tokens";
 
 export default class SettingsPage extends AbstractView {
     constructor(view) {
@@ -84,6 +84,9 @@ export default class SettingsPage extends AbstractView {
             );
 
             if (response.ok) {
+				const modalElement = document.getElementById("DeleteUserModal");
+				bootstrap.Modal.getInstance(modalElement).hide();
+				document.querySelector('.modal-backdrop').remove();
                 logout();
                 navigateTo("/");
             } else {

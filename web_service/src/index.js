@@ -4,6 +4,8 @@ import { getToken } from "./functions/tokens";
 import { closeWebsocket } from "./functions/websocket";
 import "./functions/defineComponents";
 import "../static/css/index.css";
+//import "bootstrap/dist/css/bootstrap.css";
+//import "bootstrap/dist/js/bootstrap.bundle.js";
 
 const router = async () => {
     const url = location.pathname;

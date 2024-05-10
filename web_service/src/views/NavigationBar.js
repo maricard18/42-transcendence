@@ -1,6 +1,6 @@
 import AbstractView from "./AbstractView";
 import getUserInfo from "../functions/getUserInfo";
-import {getPageTitle} from "../functions/fetchData";
+import { getPageTitle } from "../functions/fetchData";
 
 export default class NavigationBar extends AbstractView {
     constructor(view) {
