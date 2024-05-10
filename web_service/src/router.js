@@ -13,6 +13,7 @@ import { GameMenuOptions, MultiplayerOptions, SinglePlayerOptions, TournamentOpt
 import WaitingRoom from "./views/WaitingRoom.js";
 import Pong from "./views/Pong.js";
 import SettingsPage from "./views/SettingsPage.js";
+import Tournament, { TournamentMatchmaking } from "./views/Tournament.js";
 
 export const routes = [
     {
@@ -72,11 +73,7 @@ export const routes = [
 						view: [Game1, WaitingRoom]
                     },
                     {
-                        path: "/pong/single-player/tournament",
-                        view: [Game1, TournamentOptions]
-                    },
-                    {
-                        path: "/pong/multiplayer/tournament",
+                        path: "/pong/tournament",
                         view: [Game1, TournamentOptions]
                     },
 					{
@@ -96,11 +93,7 @@ export const routes = [
 						view: [WaitingRoom, Game2]
                     },
                     {
-                        path: "/tic-tac-toe/single-player/tournament",
-                        view: [TournamentOptions, Game2]
-                    },
-                    {
-                        path: "/tic-tac-toe/multiplayer/tournament",
+                        path: "/tic-tac-toe/tournament",
                         view: [TournamentOptions, Game2]
                     }
                 ]
@@ -119,6 +112,14 @@ export const routes = [
                     }
                 ]
             },
+			{
+                path: "/pong/tournament/creation",
+				view: Tournament
+            },
+			{
+                path: "/pong/tournament/matchmaking",
+				view: TournamentMatchmaking
+            },
             {
                 path: "/pong/play/single-player/1",
 				view: Pong
@@ -133,6 +134,10 @@ export const routes = [
             },
             {
                 path: "/pong/play/multiplayer/4",
+				view: Pong
+            },
+			{
+                path: "/pong/play/tournament/2",
 				view: Pong
             },
 			{

@@ -62,27 +62,38 @@ export class Player {
 }
 
 export class Cpu extends Player {
-    constructor({x, y, color}) {
-        super({x, y, color});
+    constructor({x, y, color, info}) {
+        super({x, y, color, info});
     }
 
     update(game) {
-        if (
-            game.ball.x > ScreenWidth / 2 &&
-            game.ball.speed_x > 0 &&
-            this.y + this.height / 2 > game.ball.y &&
-            this.y >= 0
-        ) {
-            this.y -= this.max_speed * game.dt;
-        }
-        if (
-            game.ball.x > ScreenWidth / 2 &&
-            game.ball.speed_x > 0 &&
-            this.y + this.height / 2 < game.ball.y &&
-            this.y + this.height <= ScreenHeight
-        ) {
-            this.y += this.max_speed * game.dt;
-        }
+		if (this.x > ScreenWidth /  2) {
+			if (game.ball.x > ScreenWidth / 2 &&
+				game.ball.speed_x > 0 &&
+				this.y + this.height / 2 > game.ball.y &&
+				this.y >= 0) {
+				this.y -= this.max_speed * game.dt;
+			}
+			if (game.ball.x > ScreenWidth / 2 &&
+				game.ball.speed_x > 0 &&
+				this.y + this.height / 2 < game.ball.y &&
+				this.y + this.height <= ScreenHeight) {
+				this.y += this.max_speed * game.dt;
+			}
+		} else {
+			if (game.ball.x < ScreenWidth / 2 &&
+				game.ball.speed_x < 0 &&
+				this.y + this.height / 2 > game.ball.y &&
+				this.y >= 0) {
+				this.y -= this.max_speed * game.dt;
+			}
+			if (game.ball.x < ScreenWidth / 2 &&
+				game.ball.speed_x < 0 &&
+				this.y + this.height / 2 < game.ball.y &&
+				this.y + this.height <= ScreenHeight) {
+				this.y += this.max_speed * game.dt;
+			}
+		}
     }
 }
 
@@ -91,7 +102,6 @@ export class Opponent extends Player {
         super({x, y, color, keyUp, keyDown, info});
     }
 }
-
 
 export class InvertedPlayer {
     constructor({x, y, color, keyRight, keyLeft, info}) {
@@ -147,32 +157,43 @@ export class InvertedPlayer {
 }
 
 export class InvertedCpu extends InvertedPlayer {
-    constructor({x, y, color}) {
-        super({x, y, color});
+    constructor({x, y, color, info}) {
+        super({x, y, color, info});
     }
 
     update(game) {
-        if (
-            game.ball.y > ScreenHeight / 2 &&
-            game.ball.speed_y > 0 &&
-            this.x + this.width / 2 > game.ball.x &&
-            this.x >= 0
-        ) {
-            this.x -= this.max_speed * game.dt;
-        }
-        if (
-            game.ball.y > ScreenHeight / 2 &&
-            game.ball.speed_y > 0 &&
-            this.x + this.width / 2 < game.ball.x &&
-            this.x + this.width <= ScreenWidth
-        ) {
-            this.x += this.max_speed * game.dt;
-        }
+        if (this.y > ScreenWidth /  2) {
+			if (game.ball.y > ScreenHeight / 2 &&
+				game.ball.speed_y > 0 &&
+				this.x + this.width / 2 > game.ball.x &&
+				this.x >= 0) {
+				this.x -= this.max_speed * game.dt;
+			}
+			if (game.ball.y > ScreenHeight / 2 &&
+				game.ball.speed_y > 0 &&
+				this.x + this.width / 2 < game.ball.x &&
+				this.x + this.width <= ScreenWidth) {
+				this.x += this.max_speed * game.dt;
+			}
+		} else {
+			if (game.ball.y < ScreenHeight / 2 &&
+				game.ball.speed_y < 0 &&
+				this.x + this.width / 2 > game.ball.x &&
+				this.x >= 0) {
+				this.x -= this.max_speed * game.dt;
+			}
+			if (game.ball.y < ScreenHeight / 2 &&
+				game.ball.speed_y < 0 &&
+				this.x + this.width / 2 < game.ball.x &&
+				this.x + this.width <= ScreenWidth) {
+				this.x += this.max_speed * game.dt;
+			}
+		}
     }
 }
 
 export class InvertedOpponent extends InvertedPlayer {
-    constructor({x, y, color, keyRight, keyLeft, info}) {
-        super({x, y, color, keyRight, keyLeft, info});
-    }
+	constructor({x, y, color, keyRight, keyLeft, info}) {
+		super({x, y, color, keyRight, keyLeft, info});
+	}
 }

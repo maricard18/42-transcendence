@@ -20,22 +20,22 @@ export class GameMenuOptions extends AbstractView {
 				<div class="mb-3">
 					<nav-button
 						template="primary-button extra-btn-class"
-						page="${
-            this._game === "pong"
-                ? "/home/pong/single-player"
-                : "/home/tic-tac-toe/single-player"
-        }"
+						page="	${
+									this._game === "pong"
+										? "/home/pong/single-player"
+										: "/home/tic-tac-toe/single-player"
+								}"
 						value="Single Player"
 					></nav-button>
 				</div>
 				<div class="mb-3">
 					<nav-button
 						template="primary-button extra-btn-class"
-						page="${
-            this._game === "pong"
-                ? "/home/pong/multiplayer"
-                : "/home/tic-tac-toe/multiplayer"
-        }"
+						page="	${
+									this._game === "pong"
+										? "/home/pong/multiplayer"
+										: "/home/tic-tac-toe/multiplayer"
+								}"
 						value="Multiplayer"
 					></nav-button>
 				</div>
@@ -72,44 +72,44 @@ export class SinglePlayerOptions extends AbstractView {
 				<div class="mb-3">
 					<nav-button
 						template="primary-button extra-btn-class"
-						page="${
-            this._game === "pong"
-                ? "/home/pong/play/single-player/1"
-                : "/home/pong/play/single-player/1"
-        }"
+						page="	${
+									this._game === "pong"
+										? "/home/pong/play/single-player/1"
+										: "/home/pong/play/single-player/1"
+								}"
 						value="Computer"
 					></nav-button>
 				</div>
 				<div class="mb-3">
 					<nav-button
 						template="primary-button extra-btn-class"
-						page="${
-            this._game === "pong"
-                ? "/home/pong/play/single-player/2"
-                : "/home/tic-tac-toe/play/single-player/2"
-        }"
+						page="	${
+									this._game === "pong"
+										? "/home/pong/play/single-player/2"
+										: "/home/tic-tac-toe/play/single-player/2"
+								}"
 						value="2 Players"
 					></nav-button>
 				</div>
 				<div class="mb-3">
 					<nav-button
 						template="primary-button extra-btn-class"
-						page="${
-            this._game === "pong"
-                ? "/home/pong/single-player/tournament"
-                : "/home/tic-tac-toe/single-player/tournament"
-        }"
+						page="	${
+									this._game === "pong"
+										? "/home/pong/tournament"
+										: "/home/tic-tac-toe/tournament"
+								}"
 						value="Tournament"
 					></nav-button>
 				</div>
 				<div>
 					<nav-button 
 						template="secondary-button extra-btn-class"
-						page="${
-            this._game === "pong"
-                ? "/home/pong"
-                : "/home/tic-tac-toe"
-        }"
+						page="	${
+									this._game === "pong"
+										? "/home/pong"
+										: "/home/tic-tac-toe"
+								}"
 						value="Back"
 					></nav-button>
 				</div>
@@ -139,44 +139,33 @@ export class MultiplayerOptions extends AbstractView {
 				<div class="mb-3">
 					<nav-button
 						template="primary-button extra-btn-class"
-						page="${
-            this._game === "pong"
-                ? "/home/pong/multiplayer/waiting-room/2"
-                : "/home/tic-tac-toe/multiplayer/waiting-room/2"
-        }"
+						page="	${
+									this._game === "pong"
+										? "/home/pong/multiplayer/waiting-room/2"
+										: "/home/tic-tac-toe/multiplayer/waiting-room/2"
+								}"
 						value="2 Players"
 					></nav-button>
 				</div>
 				<div class="mb-3">
 					<nav-button
 						template="primary-button extra-btn-class"
-						page="${
-            this._game === "pong"
-                ? "/home/pong/multiplayer/waiting-room/4"
-                : "/home/tic-tac-toe/multiplayer/waiting-room/4"
-        }"
+						page="	${
+									this._game === "pong"
+										? "/home/pong/multiplayer/waiting-room/4"
+										: "/home/tic-tac-toe/multiplayer/waiting-room/4"
+								}"
 						value="4 Players"
-					></nav-button>
-				</div>
-				<div class="mb-3">
-					<nav-button
-						template="primary-button extra-btn-class"
-						page="${
-            this._game === "pong"
-                ? "/home/pong/multiplayer/tournament"
-                : "/home/tic-tac-toe/multiplayer/tournament"
-        }"
-						value="Tournament"
 					></nav-button>
 				</div>
 				<div>
 					<nav-button 
 						template="secondary-button extra-btn-class" 
-						page="${
-            this._game === "pong"
-                ? "/home/pong"
-                : "/home/tic-tac-toe"
-        }"
+						page="	${
+									this._game === "pong"
+										? "/home/pong"
+										: "/home/tic-tac-toe"
+								}"
 						value="Back"
 					></nav-button>
 				</div>
@@ -206,33 +195,22 @@ export class TournamentOptions extends AbstractView {
 				<div class="mb-3">
 					<nav-button
 						template="primary-button extra-btn-class"
-						page="${
-            this._game === "pong"
-                ? "/home/pong/play"
-                : "/home/tic-tac-toe/play"
-        }"
-						value="2 Players"
-					></nav-button>
-				</div>
-				<div class="mb-3">
-					<nav-button
-						template="primary-button extra-btn-class"
-						page="${
-            this._game === "pong"
-                ? "/home/pong/play"
-                : "/home/tic-tac-toe/play"
-        }"
+						page="	${
+                            this._game === "pong"
+                                ? "/home/pong/tournament/creation"
+                                : "/home/tic-tac-toe/tournament/creation"
+                        }"
 						value="4 Players"
 					></nav-button>
 				</div>
 				<div>
 					<nav-button 
 						template="secondary-button extra-btn-class" 
-                        page="${
-            this._game === "pong"
-                ? "/home/pong/multiplayer"
-                : "/home/tic-tac-toe/multiplayer"
-        }"
+                        page="	${
+									this._game === "pong"
+										? "/home/pong/single-player"
+										: "/home/tic-tac-toe/single-player"
+								}"
 						value="Back"
 					></nav-button>
 				</div>

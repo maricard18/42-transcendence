@@ -16,27 +16,23 @@ export default class NavigationBar extends AbstractView {
             childList: true,
             subtree: true,
         });
-
-        window.onbeforeunload = () => {
-            this.disconnectObserver();
-        };
     }
 
     async defineCallback() {
-        const avatarContainer = document.getElementById("avatar-container");
+		const avatarContainer = document.getElementById("avatar-container");
         if (avatarContainer && !this._avatarContainerCallback) {
-            this._avatarContainerCallback = true;
+			this._avatarContainerCallback = true;
             avatarContainer.addEventListener(
-                "avatar-container",
+				"avatar-container",
                 this.loadNavigationBarMenuChanges
             );
         }
-
+		
         if (this._callbackRunned) {
-            return;
+			return;
         }
-
-        this._callbackRunned = true;
+		
+		this._callbackRunned = true;
         const fetchUserInfo = async () => {
             const userData = await getUserInfo();
 
@@ -62,24 +58,15 @@ export default class NavigationBar extends AbstractView {
         });
 
         if (emptyFieldExists) {
-            fetchUserInfo();
+            await fetchUserInfo();
         } else {
             this._loading = false;
             await this.loadDOMChanges();
         }
     }
 
-    disconnectObserver() {
-        this.observer.disconnect();
-    }
-
     async loadDOMChanges() {
         const parentNode = document.getElementById("navigation-bar");
-        const loadingIcon = parentNode.querySelector("loading-icon");
-        if (loadingIcon) {
-            loadingIcon.remove();
-        }
-
         parentNode.innerHTML = await this.loadNavigationBarContent();
     }
 
@@ -133,8 +120,8 @@ export default class NavigationBar extends AbstractView {
 						>
 							<div class="d-flex flex-row align-items-center mb-3" id="avatar-container">
 							${
-            AbstractView.userInfo.avatar
-                ? `<img
+								AbstractView.userInfo.avatar
+									? `<img
 											id="nav-bar-avatar"
 											class="white-border-sm"
 											src="${AbstractView.userInfo.avatar}"
@@ -143,8 +130,8 @@ export default class NavigationBar extends AbstractView {
 											height="40"
 											style="border-radius: 50%"
 										/>`
-                : `<base-avatar-box size="40"></base-avatar-box>`
-        }
+									: `<base-avatar-box size="40"></base-avatar-box>`
+							}
 								<h6 id="nav-bar-username" class="username-text ms-2 mt-1">
 									<b>${AbstractView.userInfo.username}</b>
 								</h6>
@@ -175,18 +162,10 @@ export default class NavigationBar extends AbstractView {
     }
 
     async getHtml() {
-        if (this._loading) {
-            return `
-				<div class="container-fluid" id="navigation-bar">
-					<loading-icon template="center" size="5rem"></loading-icon>
-				</div>
-			`;
-        } else {
-            return `
-				<div class="container-fluid" id="navigation-bar">
-					${await this.loadNavigationBarContent()}
-				</div>
-			`;
-        }
+		return `
+			<div class="container-fluid" id="navigation-bar">
+				<loading-icon template="center" size="5rem"></loading-icon>
+			</div>
+		`;
     }
 }
