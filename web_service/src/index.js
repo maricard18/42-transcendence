@@ -130,7 +130,7 @@ function hasWebSocket(matches) {
 		AbstractView.previousLocation === "/home/pong/play/multiplayer/2" ||
 		AbstractView.previousLocation === "/home/pong/play/multiplayer/4" ||
 		AbstractView.previousLocation === "/home/tic-tac-toe/play/multiplayer/2")) {
-        console.log("user has a websocket open!")
+        console.log("User has a websocket open!")
         return true;
     } else {
         return false;

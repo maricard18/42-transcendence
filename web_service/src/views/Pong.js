@@ -64,6 +64,8 @@ export default class Pong extends AbstractView {
             }
             this._height = this._width / this._aspectRatio;
         }
+
+		//TODO addEventListener("offline", (event) => {console.error("LOST CONNECTION")});
     }
 
     async defineCallback() {
@@ -88,6 +90,7 @@ export default class Pong extends AbstractView {
                 this._gameMode,
                 this._lobbySize
             );
+			console.error("GAME:", this._game);
             await startPong(this._game);
         }
     }
@@ -120,6 +123,7 @@ export default class Pong extends AbstractView {
 				localStorage.removeItem("game_status");
 				localStorage.removeItem("game_winner");
 				AbstractView.cleanGameData();
+				closeWebsocket();
 				this._observer.disconnect();
 				await navigateTo("/home");
 			}
@@ -169,6 +173,7 @@ export default class Pong extends AbstractView {
     async getHtml() {
         if (this._gameMode === "multiplayer" && 
 		   (!localStorage.getItem("game_status") || !AbstractView.userData.length)) {
+			console.log("User refreshed the page");
 			localStorage.removeItem("game_status");
 			localStorage.removeItem("game_winner");
 			AbstractView.cleanGameData();

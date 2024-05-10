@@ -63,6 +63,7 @@ export class Game1 extends AbstractView {
 						<img
 							id="pong-img"
 							class="square"
+							alt="pong game"
 							src="/static/images/pong.png"
 						/>
 					</div>
@@ -79,6 +80,7 @@ export class Game1 extends AbstractView {
 							<img
 								id="pong-img"
 								class="square game"
+								alt="pong game"
 								src="/static/images/pong.png"
 							/>
 						</a>
@@ -150,6 +152,7 @@ export class Game2 extends AbstractView {
 					<div class="p-3 p-lg-5 pd-xl-0">
 						<img
 							class="square"
+							alt="tic tac toe game"
 							src="/static/images/tictactoe.png"
 						/>
 					</div>
@@ -167,6 +170,7 @@ export class Game2 extends AbstractView {
 						<img
 							id="tic-tac-toe-img"
 							class="square game"
+							alt="tic tac toe game"
 							src="/static/images/tictactoe.png"
 						/>
 						</a>
