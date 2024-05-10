@@ -1,10 +1,10 @@
 import AbstractView from "./AbstractView";
 import fetchData from "../functions/fetchData";
 import handleResponse from "../functions/authenticationErrors";
-import {navigateTo} from "../index";
-import {setToken} from "../functions/tokens";
-import {validateLoginForm} from "../functions/validateForms";
-import {transitEncrypt} from "../functions/vaultAccess";
+import { navigateTo } from "../index";
+import { setToken } from "../functions/tokens";
+import { validateLoginForm } from "../functions/validateForms";
+import { transitEncrypt } from "../functions/vaultAccess";
 
 export default class LoginPage extends AbstractView {
     constructor() {
@@ -173,37 +173,35 @@ export default class LoginPage extends AbstractView {
 						<div class="mb-5">
 							<h1 class="header">Welcome back</h1>
 						</div>
-						<form>
-							<div class="position-relative">
-								<p class="form-error"></p>
-							</div>
-							<div class="mb-3">
-								<input
-									id="username"
-									type="username"
-									class="form-control primary-form extra-form-class"
-									placeholder="username"
-									value=""
-								/>
-							</div>
-							<div class="mb-3">
-								<input
-									id="password"
-									type="password"
-									class="form-control primary-form extra-form-class"
-									placeholder="password"
-									value=""
-								/>
-							</div>
-							<div class="mt-3">
-								<submit-button
-									type="button"
-									template="primary-button extra-btn-class"
-									value="Next"
-								>
-								</submit-button>    
-							</div>
-						</form>
+						<div class="position-relative">
+							<p class="form-error"></p>
+						</div>
+						<div class="mb-3">
+							<input
+								id="username"
+								type="username"
+								class="form-control primary-form extra-form-class"
+								placeholder="username"
+								value=""
+							/>
+						</div>
+						<div class="mb-3">
+							<input
+								id="password"
+								type="password"
+								class="form-control primary-form extra-form-class"
+								placeholder="password"
+								value=""
+							/>
+						</div>
+						<div class="mt-3">
+							<submit-button
+								type="button"
+								template="primary-button extra-btn-class"
+								value="Next"
+							>
+							</submit-button>    
+						</div>
 					</div>
 				</div>
 			</div>

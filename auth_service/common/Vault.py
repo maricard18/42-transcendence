@@ -1,14 +1,21 @@
 import base64
+import json
 import os
+from typing import Union, Callable
 
 import hvac
 from django.conf import settings
+from django.http import HttpRequest
 
 
 class Vault:
 
     @classmethod
-    def vaultClient(cls):
+    def overwrite(cls, request: HttpRequest) -> bool:
+        return settings.DEBUG and str(request.META['HTTP_USER_AGENT']).startswith("PostmanRuntime/")
+
+    @classmethod
+    def vaultClient(cls) -> hvac.Client:
         cert_path = str(os.environ.get("SSL_CERT_PATH")) + str(os.environ.get("SSL_CERT_FILE"))
         key_path = str(os.environ.get("SSL_CERT_KEY_PATH")) + str(os.environ.get("SSL_CERT_KEY_FILE"))
         client = hvac.Client(
@@ -21,50 +28,56 @@ class Vault:
         return client
 
     @classmethod
-    def decodeData(cls, data):
+    def decodeData(cls, data: str) -> str:
         return base64.b64decode(data).decode('utf-8')
 
     @classmethod
-    def encodeData(cls, data):
+    def encodeData(cls, data: str) -> str:
         return base64.b64encode(data.encode('utf-8')).decode('utf-8')
 
     @classmethod
-    def transitDecrypt(cls, ciphertext):
+    def transitDecrypt(cls, ciphertext: str) -> str:
         client = cls.vaultClient()
 
         response = client.secrets.transit.decrypt_data(name="transcendence", ciphertext=ciphertext)
         return cls.decodeData(response['data']['plaintext'])
 
     @classmethod
-    def transitEncrypt(cls, plaintext):
+    def transitEncrypt(cls, plaintext: str) -> str:
         client = cls.vaultClient()
 
         response = client.secrets.transit.encrypt_data(name="transcendence", plaintext=cls.encodeData(plaintext))
         return response['data']['ciphertext']
 
     @classmethod
-    def resolveEncryptedFields(cls, data, request):
-        resolved = {}
-        for key, value in data.items():
-            overwrite = settings.DEBUG and str(request.META['HTTP_USER_AGENT']).startswith("PostmanRuntime/")
-            if (key == "password" or key == "username" or key == "email") and not overwrite:
-                resolved[key] = cls.transitDecrypt(value)
-            else:
-                resolved[key] = value
-        return resolved
-    
-    @classmethod
-    def encryptSerializedData(cls, data):
-        encrypted = {}
-        for key, value in data.items():
-            if key == "password" or key == "username" or key == "email":
-                encrypted[key] = cls.transitEncrypt(value)
-            else:
-                encrypted[key] = value
-        return encrypted
+    def cipherSensitiveFields(cls, data: Union[dict, list], request: HttpRequest, func: Callable[[str], str]) \
+            -> Union[dict, list]:
+        def resolveFields(_data: dict) -> dict:
+            resolved = {}
+            for key, value in _data.items():
+                if key in ["username", "email", "password"] and not cls.overwrite(request):
+                    resolved[key] = func(value)
+                else:
+                    resolved[key] = value
+            return resolved
+
+        if isinstance(data, dict):
+            return resolveFields(data)
+        elif isinstance(data, list):
+            data = []
+            for instance in data:
+                data.insert(resolveFields(instance))
+            return data
+        return data
 
     @classmethod
-    def getVaultSecret(cls, path):
+    def cipherData(cls, data: Union[dict, list], request: HttpRequest, func: Callable[[str], str]) -> Union[str, dict]:
+        if not cls.overwrite(request):
+            return func(json.dumps(data))
+        return data
+
+    @classmethod
+    def getVaultSecret(cls, path: str) -> str:
         client = cls.vaultClient()
 
         response = client.secrets.kv.v2.read_secret(path=path, mount_point='transcendence')

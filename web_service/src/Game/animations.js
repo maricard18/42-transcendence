@@ -10,7 +10,6 @@ export function gameStartAnimation(game) {
             );
 
             game.clear();
-            game.drawGoals("white");
             game.player1.draw(game.ctx);
             game.player2.draw(game.ctx);
 
@@ -144,7 +143,6 @@ export function gameConfettiAnimation(game) {
                     particle.size,
                     particle.size
                 );
-                game.drawGoals("white");
 
                 particle.x += particle.speedX;
                 particle.y += particle.speedY;

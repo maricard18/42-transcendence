@@ -6,7 +6,7 @@
 #    By: wcorrea- <wcorrea-@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/02/15 17:36:39 by bsilva-c          #+#    #+#              #
-#    Updated: 2024/05/08 15:47:16 by wcorrea-         ###   ########.fr        #
+#    Updated: 2024/05/10 21:05:26 by wcorrea-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -51,9 +51,9 @@ endif
 
 all: build up
 build:
-	@$(COMMAND) build --no-cache --with-dependencies $(_SERVICE)
+	@$(COMMAND) build --no-cache $(_SERVICE)
 up: build
-	@$(COMMAND) up -d --no-build $(_SERVICE)
+	@$(COMMAND) up -d --no-recreate $(_SERVICE)
 down:
 	@$(COMMAND) down $(_SERVICE)
 start:

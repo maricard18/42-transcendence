@@ -1,13 +1,11 @@
 import AbstractView from "./views/AbstractView";
-import {routes} from "./views/router";
-import {getToken} from "./functions/tokens";
-import {closeWebsocket} from "./functions/websocket";
+import { routes } from "./router";
+import { getToken } from "./functions/tokens";
+import { closeWebsocket } from "./functions/websocket";
 import "./functions/defineComponents";
 import "../static/css/index.css";
-import "bootstrap/dist/css/bootstrap.css";
-import "bootstrap/dist/js/bootstrap.bundle.js";
-
-var oldView = [];
+//import "bootstrap/dist/css/bootstrap.css";
+//import "bootstrap/dist/js/bootstrap.bundle.js";
 
 const router = async () => {
     const url = location.pathname;
@@ -44,8 +42,6 @@ const router = async () => {
     } else {
         view = new matches[0].view();
     }
-
-    oldView = view;
 
     document.querySelector("#app").innerHTML = await view.getHtml();
 };

@@ -1,7 +1,7 @@
 import AbstractView from "./AbstractView";
 import fetchData from "../functions/fetchData";
-import {navigateTo} from "..";
-import {getToken, logout} from "../functions/tokens";
+import { navigateTo } from "..";
+import { getToken, logout } from "../functions/tokens";
 
 export default class SettingsPage extends AbstractView {
     constructor(view) {
@@ -84,6 +84,9 @@ export default class SettingsPage extends AbstractView {
             );
 
             if (response.ok) {
+				const modalElement = document.getElementById("DeleteUserModal");
+				bootstrap.Modal.getInstance(modalElement).hide();
+				document.querySelector('.modal-backdrop').remove();
                 logout();
                 navigateTo("/");
             } else {
@@ -93,7 +96,7 @@ export default class SettingsPage extends AbstractView {
 
         this.removeAvatarCallback = async (event) => {
             const formDataToSend = new FormData();
-            formDataToSend.append("avatar", null);
+            formDataToSend.append("avatar", "");
 
             const accessToken = await getToken();
             const headers = {
@@ -129,17 +132,17 @@ export default class SettingsPage extends AbstractView {
             linkButton.addEventListener("click", this.linkButtonCallback);
         }
 
-        const deleteAccountButton = document.getElementById("#delete-account-button");
-        if (deleteAccountButton && !this._deleteCallback) {
-            this._deleteCallback = true;
-            deleteAccountButton.addEventListener("click", this.deleteAccountCallback);
-        }
+		const deleteAccountButton = document.getElementById("delete-account-button");
+		if (deleteAccountButton && !this._deleteCallback) {
+			this._deleteCallback = true;
+			deleteAccountButton.addEventListener("click", this.deleteAccountCallback);
+		}
 
-        const deleteAvatarButton = document.getElementById("#remove-avatar");
-        if (deleteAvatarButton && !this._clickCallback) {
-            this._clickCallback = true;
-            deleteAvatarButton.addEventListener("click", this.removeAvatarCallback);
-        }
+		const deleteAvatarButton = document.getElementById("remove-avatar");
+		if (deleteAvatarButton && !this._clickCallback) {
+			this._clickCallback = true;
+			deleteAvatarButton.addEventListener("click", this.removeAvatarCallback);
+		}
     }
 
     removeCallbacks() {
@@ -197,18 +200,20 @@ export default class SettingsPage extends AbstractView {
                 AbstractView.userInfo.avatar = URL.createObjectURL(
                     this._avatar
                 );
-                const avatarContainer = document.getElementById("avatar-container");
+                
+				const avatarContainer = document.getElementById("avatar-container");
                 avatarContainer.dispatchEvent(
                     new CustomEvent("avatar-container")
                 );
-                const p = this._parentNode.querySelector("p");
-
+                
+				const p = this._parentNode.querySelector("p");
                 if (p.classList.contains("form-error")) {
                     p.classList.remove("form-error");
                 }
                 p.classList.add("form-success");
                 p.innerText = "Changes saved";
-                setTimeout(() => {
+                
+				setTimeout(() => {
                     p.innerText = "";
                 }, 3000);
             } else {
@@ -230,10 +235,7 @@ export default class SettingsPage extends AbstractView {
         }
 
         return `
-			<div
-				class="d-flex flex-column flex-md-row align-items-center justify-content-center vh-100"
-				id="profile-page"
-			>
+			<div class="d-flex flex-column flex-md-row align-items-center justify-content-center vh-100" id="profile-page">
 				<div class="d-flex flex-column justify-content-center primary-box me-3">
 					<div class="mb-3 mt-2">
 						${avatarElement.outerHTML}
@@ -265,68 +267,64 @@ export default class SettingsPage extends AbstractView {
 								style="border-radius: 0%"
 								value="Link 42 Account"
 							></nav-button>
-							<logout-button 
-								template="primary-button extra-btn-class"
-								style="border-radius: 0%"
-								value="Logout"
-							></logout-button>
+							
 							<button 
 								type="button" 
 								id="delete-account-modal"
 								class="btn btn-primary red-button extra-btn-class" 
-								style="border-top: 0%; border-top-left-radius: 0; border-top-right-radius: 0;"
+								style="border-top-left-radius: 0%; border-top-right-radius: 0%; border-bottom-left-radius: 5px; border-bottom-right-radius: 5px;"
 								data-bs-toggle="modal" 
-								data-bs-target="#exampleModal"
+								data-bs-target="#DeleteUserModal"
 							>
 								Delete Account
 							</button>
 							
 							<div 
 								class="modal fade" 
-								id="exampleModal" 
+								id="DeleteUserModal" 
 								tabindex="-1" 
-								aria-labelledby="exampleModalLabel" 
+								aria-labelledby="DeleteUserModalLabel" 
 								aria-hidden="true"
 							>
 								<div class="modal-dialog modal-dialog-centered">
 									<div class="modal-content bg-dark text-white">
-									<div class="modal-header">
-										<h1 class="modal-title fs-5" id="exampleModalLabel">Delete Account</h1>
-										<button 
-											type="button" 
-											class="btn-close" 
-											data-bs-dismiss="modal" 
-											aria-label="Close"
-										></button>
-									</div>
-									<div class="modal-body">
-										<h6 class="d-flex justify-content-start">
-											Are you sure you want to delete your account?
-										</h6>
-										<h6 class="d-flex justify-content-start">
-											This action is irreversible.
-										</h6>
-										<h6 class="d-flex justify-content-start">
-											Click the Cancel button to abort.
-										</h6>
-									</div>
-									<div class="modal-footer">
-										<button 
-											id="delete-account-button"
-											type="button"
-											class="btn btn-primary red-button extra-btn-class"
-											style="width: 150px"
-										>
-											Delete Account
-										</button>
-										<button 
-											type="button" 
-											class="btn btn-secondary" 
-											data-bs-dismiss="modal"
-										>
-											Cancel
-										</button>
-									</div>
+										<div class="modal-header">
+											<h1 class="modal-title fs-5" id="DeleteUserModalLabel">Delete Account</h1>
+											<button 
+												type="button" 
+												class="btn-close" 
+												data-bs-dismiss="modal" 
+												aria-label="Close"
+											></button>
+										</div>
+										<div class="modal-body">
+											<h6 class="d-flex justify-content-start">
+												Are you sure you want to delete your account?
+											</h6>
+											<h6 class="d-flex justify-content-start">
+												This action is irreversible.
+											</h6>
+											<h6 class="d-flex justify-content-start">
+												Click the Cancel button to abort.
+											</h6>
+										</div>
+										<div class="modal-footer">
+											<button 
+												id="delete-account-button"
+												type="button"
+												class="btn btn-primary red-button extra-btn-class"
+												style="width: 150px"
+											>
+												Delete Account
+											</button>
+											<button 
+												type="button" 
+												class="btn btn-secondary" 
+												data-bs-dismiss="modal"
+											>
+												Cancel
+											</button>
+										</div>
 									</div>
 								</div>
 							</div>

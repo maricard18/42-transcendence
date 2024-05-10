@@ -1,6 +1,6 @@
 import {decode, getToken, logout} from "./tokens";
 import fetchData from "./fetchData";
-import { transitDecrypt } from "./vaultAccess";
+import {transitDecrypt} from "./vaultAccess";
 
 export default async function getUserInfo() {
     let accessToken, decodeToken, jsonData;

@@ -1,22 +1,18 @@
-import LandingPage from "./LandingPage";
-import LoginPage from "./LoginPage.js";
-import Login42Page from "./Login42Page.js";
-import SignUpPage from "./SignUpPage";
-import CreateProfilePage from "./CreateProfilePage.js";
-import NavigationBar from "./NavigationBar.js";
-import HomePage from "./HomePage.js";
-import ChangeUserInfo from "../components/ChangeUserInfo.js";
-import ChangePassword from "../components/ChangePassword.js";
-import { Game1, Game2 } from "../components/Games.js";
-import {
-    GameMenuOptions,
-    MultiplayerOptions,
-    SinglePlayerOptions,
-    TournamentOptions
-} from "../components/GameOptions.js";
-import WaitingRoom from "./WaitingRoom.js";
-import Pong from "./Pong.js";
-import SettingsPage from "./SettingsPage.js";
+import LandingPage from "./views/LandingPage.js";
+import LoginPage from "./views/LoginPage.js";
+import Login42Page from "./views/Login42Page.js";
+import SignUpPage from "./views/SignUpPage.js";
+import CreateProfilePage from "./views/CreateProfilePage.js";
+import Create42ProfilePage from "./views/Create42ProfilePage.js";
+import NavigationBar from "./views/NavigationBar.js";
+import HomePage from "./views/HomePage.js";
+import ChangeUserInfo from "./components/ChangeUserInfo.js";
+import ChangePassword from "./components/ChangePassword.js";
+import { Game1, Game2 } from "./components/Games.js";
+import { GameMenuOptions, MultiplayerOptions, SinglePlayerOptions, TournamentOptions } from "./components/GameOptions.js";
+import WaitingRoom from "./views/WaitingRoom.js";
+import Pong from "./views/Pong.js";
+import SettingsPage from "./views/SettingsPage.js";
 
 export const routes = [
     {
@@ -38,6 +34,10 @@ export const routes = [
     {
         path: "/create-profile",
         view: CreateProfilePage
+    },
+	{
+        path: "/create-profile-42",
+        view: Create42ProfilePage
     },
     {
         path: "/home",
@@ -65,11 +65,11 @@ export const routes = [
                     },
                     {
                         path: "/pong/multiplayer/waiting-room/2",
-                        view: [Game1, WaitingRoom]
+						view: [Game1, WaitingRoom]
                     },
                     {
                         path: "/pong/multiplayer/waiting-room/4",
-                        view: [Game1, WaitingRoom]
+						view: [Game1, WaitingRoom]
                     },
                     {
                         path: "/pong/single-player/tournament",
@@ -79,7 +79,7 @@ export const routes = [
                         path: "/pong/multiplayer/tournament",
                         view: [Game1, TournamentOptions]
                     },
-                    {
+					{
                         path: "/tic-tac-toe",
                         view: [GameMenuOptions, Game2]
                     },
@@ -93,7 +93,7 @@ export const routes = [
                     },
                     {
                         path: "/tic-tac-toe/multiplayer/waiting-room/2",
-                        view: [WaitingRoom, Game2]
+						view: [WaitingRoom, Game2]
                     },
                     {
                         path: "/tic-tac-toe/single-player/tournament",
@@ -121,21 +121,21 @@ export const routes = [
             },
             {
                 path: "/pong/play/single-player/1",
-                view: Pong
+				view: Pong
             },
             {
                 path: "/pong/play/single-player/2",
-                view: Pong
+				view: Pong
             },
             {
                 path: "/pong/play/multiplayer/2",
-                view: Pong
+				view: Pong
             },
             {
                 path: "/pong/play/multiplayer/4",
-                view: Pong
+				view: Pong
             },
-            {
+			{
                 path: "/tic-tac-toe/play/single-player/1"
             },
             {

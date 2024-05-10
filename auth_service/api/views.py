@@ -1,6 +1,6 @@
 import os
 import secrets
-from typing import Dict, Union, List
+from typing import Union
 
 import pyotp
 from django.contrib.auth import authenticate
@@ -26,16 +26,18 @@ from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSeriali
 ####  /api/users  ####
 ######################
 
-def remove_sensitive_information(user_pk: int, data: Union[Dict, List[Dict]], many: bool = False):
-    def hide_email(user_data: Dict) -> None:
+def remove_sensitive_information(user_pk: int, data: Union[dict, list]) -> Union[dict, list]:
+    def hide_email(user_data: dict) -> None:
         if 'id' in user_data and int(user_data['id']) != user_pk:
             user_data['email'] = '[hidden]'
 
-    if many:
+    if isinstance(data, list):
         for user in data:
             hide_email(user)
-    else:
+    elif isinstance(data, dict):
         hide_email(data)
+    else:
+        raise ServerError
 
     return data
 
@@ -55,12 +57,17 @@ class UserViewSet(viewsets.ViewSet):
 
     # GET /api/users
     def list(self, request):
-        serializer = UserSerializer(self.queryset, many=True)
-        return Response(remove_sensitive_information(request.user.id, serializer.data, many=True))
+        serializer = UserSerializer(self.queryset)
+
+        return Response(Vault.cipherSensitiveFields(
+            remove_sensitive_information(request.user.id, serializer.data),
+            request,
+            Vault.transitEncrypt
+        ), status=status.HTTP_200_OK)
 
     # POST /api/users
     def create(self, request):
-        data = Vault.resolveEncryptedFields(request.data, request)
+        data = Vault.cipherSensitiveFields(request.data, request, Vault.transitDecrypt)
         serializer = CreateUserSerializer(data=data)
         if serializer.is_valid(raise_exception=True):
             user = User.objects.create_user(
@@ -78,11 +85,16 @@ class UserViewSet(viewsets.ViewSet):
                 )
 
             url = generate_host(request) + request.path + '/' + str(user.id)
-            return Response({
-                'id': Vault.transitEncrypt(str(user.id)),
-                'login': Vault.transitEncrypt(user.username),
-                'url': Vault.transitEncrypt(url)
-            }, status=status.HTTP_201_CREATED)
+
+            return Response(Vault.cipherSensitiveFields(
+                {
+                    'id': str(user.id),
+                    'username': user.username,
+                    'url': url
+                },
+                request,
+                Vault.transitEncrypt
+            ), status=status.HTTP_201_CREATED)
 
         raise ServerError
 
@@ -96,14 +108,18 @@ class UserViewSet(viewsets.ViewSet):
         serializer = UserSerializer(user)
         data = Vault.encryptSerializedData(serializer.data)
 
-        return Response(remove_sensitive_information(request.user.id, data))
+        return Response(Vault.cipherSensitiveFields(
+            remove_sensitive_information(request.user.id, serializer.data),
+            request,
+            Vault.transitEncrypt
+        ), status=status.HTTP_200_OK)
 
     # PUT /api/users/:id
     def update(self, request, pk=None):
         self.check_object_permissions(request, pk)
         user = self.queryset.get(pk=pk)
 
-        data = Vault.resolveEncryptedFields(request.data, request)
+        data = Vault.cipherSensitiveFields(request.data, request, Vault.transitDecrypt)
         if data.get('avatar', None) == '':
             Avatar.objects.filter(auth_user=user).delete()
             data.pop('avatar')
@@ -176,9 +192,13 @@ class OTPViewSet(viewsets.ViewSet):
                 issuer_name='ft_transcendence'
             )
 
-            return Response({
-                'url': url
-            }, status=status.HTTP_201_CREATED)
+            return Response(Vault.cipherSensitiveFields(
+                {
+                    'url': url
+                },
+                request,
+                Vault.transitEncrypt
+            ), status=status.HTTP_201_CREATED)
 
         raise ServerError
 
@@ -190,23 +210,31 @@ class OTPViewSet(viewsets.ViewSet):
         try:
             otp = self.queryset.get(auth_user=user)
             if request.GET.get('code') is None:
-                return Response({
-                    'active': otp.active,
-                    'created_at': otp.created_at
-                }, status=status.HTTP_200_OK)
+                return Response(Vault.cipherSensitiveFields(
+                    {
+                        'active': otp.active,
+                        'created_at': otp.created_at
+                    },
+                    request,
+                    Vault.transitEncrypt
+                ), status=status.HTTP_200_OK)
 
             totp = pyotp.TOTP(otp.token)
         except OTP_Token.DoesNotExist:
             raise NotFound
 
-        valid = totp.now() == int(request.GET.get('code'))
-        if valid and request.GET.get('activate'):
+        valid = totp.now() == request.GET.get('code')
+        if valid and 'activate' in request.GET:
             otp.active = True
             otp.save()
 
-        return Response({
-            'valid': valid
-        }, status=status.HTTP_200_OK)
+        return Response(Vault.cipherSensitiveFields(
+            {
+                'valid': valid
+            },
+            request,
+            Vault.transitEncrypt
+        ), status=status.HTTP_200_OK)
 
     # DELETE /api/users/:id/otp
     def destroy(self, request, pk=None):
@@ -229,11 +257,12 @@ class TokenViewSet(viewsets.ViewSet):
 
     @staticmethod
     def new_token(request: HttpRequest) -> Response:
-        data = Vault.resolveEncryptedFields(request.data, request)
+        data = Vault.cipherSensitiveFields(request.data, request, Vault.transitDecrypt)
         serializer = AuthUserSerializer(data=data, partial=True)
         if serializer.is_valid(raise_exception=False):
-            username = serializer.validated_data.get('username')
-            email = serializer.validated_data.get('email')
+            user = None
+            username = serializer.validated_data.get('username', None)
+            email = serializer.validated_data.get('email', None)
             try:
                 if username:
                     user = User.objects.get(username=username)
@@ -249,12 +278,16 @@ class TokenViewSet(viewsets.ViewSet):
             if user is not None:
                 refresh_token = APITokenObtainPairSerializer.get_token(user)
 
-                return Response({
-                    'access_token': str(refresh_token.access_token),
-                    'token_type': "Bearer",
-                    'expires_in': refresh_token.access_token.lifetime.seconds,
-                    'refresh_token': str(refresh_token)
-                }, status=status.HTTP_200_OK)
+                return Response(Vault.cipherSensitiveFields(
+                    {
+                        'access_token': str(refresh_token.access_token),
+                        'token_type': "Bearer",
+                        'expires_in': str(refresh_token.access_token.lifetime.seconds),
+                        'refresh_token': str(refresh_token)
+                    },
+                    request,
+                    Vault.transitEncrypt
+                ), status=status.HTTP_200_OK)
             raise AuthenticationFailed
 
         raise ServerError
@@ -266,16 +299,20 @@ class TokenViewSet(viewsets.ViewSet):
         except TokenError as exc:
             raise ParseError(exc.args[0])
 
-        return Response({
-            'access_token': str(refresh_token.access_token),
-            'token_type': "Bearer",
-            'expires_in': refresh_token.access_token.lifetime.seconds,
-            'refresh_token': str(refresh_token)
-        }, status=status.HTTP_200_OK)
+        return Response(Vault.cipherSensitiveFields(
+            {
+                'access_token': str(refresh_token.access_token),
+                'token_type': "Bearer",
+                'expires_in': str(refresh_token.access_token.lifetime.seconds),
+                'refresh_token': str(refresh_token)
+            },
+            request,
+            Vault.transitEncrypt
+        ), status=status.HTTP_200_OK)
 
     # POST /auth/token
     def create(self, request):
-        data = Vault.resolveEncryptedFields(request.data, request)
+        data = Vault.cipherSensitiveFields(request.data, request, Vault.transitDecrypt)
         serializer = TokenSerializer(data=data)
         if serializer.is_valid(raise_exception=True):
             if request.data.get('grant_type') == 'password':
@@ -319,13 +356,13 @@ class SSOViewSet(viewsets.ViewSet):
                 'redirect_uri': os.environ.get('SSO_42_REDIRECT_URI')
             })
             if response.status_code == 200:
-                request = requests.get(
+                response = requests.get(
                     'https://api.intra.42.fr/v2/me',
                     headers={
                         'Authorization': 'Bearer ' + response.json()['access_token']
                     }
                 )
-                user_info = request.json()
+                user_info = response.json()
                 try:
                     user = SSO_User.objects.get(
                         sso_provider='101010',
@@ -363,16 +400,21 @@ class SSOViewSet(viewsets.ViewSet):
                         )
 
                 if action == 'link':
-                    return Response({}, status=status.HTTP_201_CREATED)
+                    return Response(None, status=status.HTTP_204_NO_CONTENT)
                 else:
                     refresh_token = APITokenObtainPairSerializer.get_token(auth_user)
 
-                    return Response({
-                        'access_token': str(refresh_token.access_token),
-                        'token_type': "Bearer",
-                        'expires_in': refresh_token.access_token.lifetime.seconds,
-                        'refresh_token': str(refresh_token)
-                    }, status=status.HTTP_200_OK if conflict is False else status.HTTP_409_CONFLICT)
+                    return Response(Vault.cipherSensitiveFields(
+                        {
+                            'access_token': str(refresh_token.access_token),
+                            'token_type': "Bearer",
+                            'expires_in': str(refresh_token.access_token.lifetime.seconds),
+                            'refresh_token': str(refresh_token)
+                        },
+                        request,
+                        Vault.transitEncrypt
+                    ), status=status.HTTP_200_OK if conflict is False else status.HTTP_409_CONFLICT)
+
             return Response(response.json(), status=response.status_code)
 
         raise ServerError
