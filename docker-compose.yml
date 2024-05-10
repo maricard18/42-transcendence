@@ -343,7 +343,6 @@ services:
       context: monitoring/prometheus/
       args:
         - PROMETHEUS_ADDR=prometheus-dev:9090
-        - PROMETHEUS_EXPORTER_ADDR=prometheus-exporter-dev:9113
         - TELEGRAF_ADDR=modsecurity-dev:9125  
     restart: always
     user: root
@@ -358,25 +357,7 @@ services:
     depends_on:
       modsecurity-dev:
         condition: service_started
-    
-  # prometheus-exporter-dev:
-  #   image: nginx/nginx-prometheus-exporter:latest
-  #   container_name: prometheus-exporter-dev
-  #   restart: always
-  #   environment:
-  #     GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER}
-  #     GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
-  #   expose:
-  #     - "9113"
-  #   networks:
-  #     - transcendence-dev
-  #   depends_on:
-  #     prometheus-dev:
-  #       condition: service_started
-  #   command:
-  #      - --nginx.scrape-uri=https://modsecurity-dev:8443/metrics
-    
-    
+
   grafana-dev:
     build:
       context: monitoring/grafana/
@@ -396,7 +377,6 @@ services:
     depends_on:
       prometheus-dev:
         condition: service_started    
-    
 
   nikto-dev:
     container_name: nikto-dev
