@@ -127,11 +127,9 @@ export default class Login2FAPage extends AbstractView {
         if (Object.values(newErrors).length !== 0) {
             this.errors = newErrors;
         }
-		console.log("errors:", newErrors);
 
         if (!newErrors.message) {
 			const jsonResponse = await transitDecrypt(AbstractView.tokens);
-			console.log("Json response:", jsonResponse);
 			const blob = new Blob([jsonResponse], {type : 'application/json'});
 			const newResponse = new Response(blob);
 			const jsonData = await newResponse.clone().json();

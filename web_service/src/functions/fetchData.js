@@ -32,6 +32,7 @@ export function checkEnterButton(functionToBeRun) {
 }
 
 export function getPageTitle(path) {
+	//TODO update all routes titles
     switch (path) {
         case "/home":
             return "Home";
@@ -47,8 +48,6 @@ export function getPageTitle(path) {
             return "Pong Multiplayer Waiting Room";
         case "/home/pong/single-player/tournament":
             return "Pong Single Player Tournament";
-        case "/home/pong/multiplayer/tournament":
-            return "Pong Multiplayer Tournament";
         case "/home/pong/play/single-player/1":
             return "Pong Single Player 1 player";
         case "/home/pong/play/single-player/2":
@@ -57,9 +56,9 @@ export function getPageTitle(path) {
             return "Pong Multiplayer 2 players";
         case "/home/pong/play/multiplayer/4":
             return "Pong Multiplayer 4 players";
-        case "/home/profile/username":
-            return "Profile";
-        case "/home/profile/password":
-            return "Profile";
+        case "/home/settings/account":
+            return "Account";
+        case "/home/settings/security":
+            return "Security";
     }
 }

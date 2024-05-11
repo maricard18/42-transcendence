@@ -153,9 +153,16 @@ export default class CreateProfilePage extends AbstractView {
             if (this._errors[id]) {
                 input.classList.add("input-error");
                 AbstractView.formData[id] = input.value;
+				setTimeout(() => {
+					input.classList.remove("input-error");
+				}, 3000);
             } else if (input.classList.contains("input-error")) {
                 input.classList.remove("input-error");
             }
+
+			setTimeout(() => {
+				p.innerText = "";
+			}, 3000);
         }
     }
 

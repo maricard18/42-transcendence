@@ -7,8 +7,8 @@ import CreateProfilePage from "./views/CreateProfilePage.js";
 import Create42ProfilePage from "./views/Create42ProfilePage.js";
 import NavigationBar from "./views/NavigationBar.js";
 import HomePage from "./views/HomePage.js";
-import ChangeUserInfo from "./components/ChangeUserInfo.js";
-import ChangePassword from "./components/ChangePassword.js";
+import Account from "./components/Account.js";
+import Security from "./components/Security.js";
 import WaitingRoom from "./views/WaitingRoom.js";
 import Pong from "./views/Pong.js";
 import SettingsPage from "./views/SettingsPage.js";
@@ -104,16 +104,16 @@ export const routes = [
                 ]
             },
             {
-                path: "/profile",
+                path: "/settings",
                 view: SettingsPage,
                 children: [
                     {
-                        path: "/username",
-                        view: ChangeUserInfo,
+                        path: "/account",
+                        view: Account,
                     },
                     {
-                        path: "/password",
-                        view: ChangePassword,
+                        path: "/security",
+                        view: Security,
                     }
                 ]
             },

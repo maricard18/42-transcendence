@@ -80,7 +80,7 @@ export default class LoginPage extends AbstractView {
         }
     }
 
-    async removeCallbacks() {
+    removeCallbacks() {
         if (!this._parentNode) {
             return;
         }
@@ -94,7 +94,6 @@ export default class LoginPage extends AbstractView {
 
         const submitButton = document.querySelector("submit-button");
         if (submitButton) {
-			console.log("removed event");
             submitButton.removeEventListener(
                 "buttonClicked",
                 this.buttonClickedCallback
@@ -123,10 +122,17 @@ export default class LoginPage extends AbstractView {
                 if (this._errors[id]) {
                     input.classList.add("input-error");
                     this._formData[id] = input.value;
+					setTimeout(() => {
+						input.classList.remove("input-error");
+					}, 3000);
                 } else if (input.classList.contains("input-error")) {
                     input.classList.remove("input-error");
                 }
             });
+
+			setTimeout(() => {
+				p.innerText = "";
+			}, 3000);
         }
     }
 
@@ -155,9 +161,8 @@ export default class LoginPage extends AbstractView {
             );
 
             if (response.ok) {
-				//! duplicate event listners here
-				AbstractView.has2FA = await checkFor2FA(response.clone());
-				await this.removeCallbacks();
+				await checkFor2FA(response.clone());
+				this.removeCallbacks();
 				if (AbstractView.has2FA) {
 					const responseBody = await response.clone().json(); 
         			AbstractView.tokens = await transitEncrypt(JSON.stringify(responseBody));
@@ -221,7 +226,6 @@ export default class LoginPage extends AbstractView {
     }
 }
 
-
 async function checkFor2FA(clone) {
 	const jsonData = await clone.json();
     const accessToken = jsonData["access_token"];
@@ -241,10 +245,15 @@ async function checkFor2FA(clone) {
 		const jsonData = await response.json();
 		if (jsonData["active"] === true) {
 			console.log("User has 2FA active");
-			return true;
+			AbstractView.has2FA = 2;
+		} else if (jsonData["active"] === false) {
+			console.log("User has 2FA active but is not valid");
+			AbstractView.has2FA = 1;
 		}
+
+		return ;
 	}
 
 	console.log("User does not have 2FA active");
-	return false;
+	AbstractView.has2FA = 0;
 }

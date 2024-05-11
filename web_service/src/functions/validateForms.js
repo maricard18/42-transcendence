@@ -177,7 +177,7 @@ export function validate2FAForm(code) {
         errors.code = 1;
 
     } else if (code.length !== 6) {
-        errors.message = "Code needs to have 6 digits";
+        errors.message = "2FA Code needs to have 6 digits";
         errors.code = 1;
     }
 

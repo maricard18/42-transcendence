@@ -59,7 +59,7 @@ export default class Create42ProfilePage extends AbstractView {
             AbstractView.formData.username = "";
             this.errors = newErrors;
         } else if (AbstractView.formData.username.length < 3 ||
-            	AbstractView.formData.username.length > 12) {
+            AbstractView.formData.username.length > 12) {
             newErrors.message = "Username must have 3-12 characters";
             newErrors.username = 1;
             AbstractView.formData.username = "";
