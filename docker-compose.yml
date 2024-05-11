@@ -353,6 +353,28 @@ services:
     depends_on:
       modsecurity-dev:
         condition: service_started
+  
+  cadvidor-dev:
+    container_name: cadvidor-dev
+    image:  gcr.io/cadvisor/cadvisor:latest
+    ports:
+      - "9100:9100"
+    networks:
+      - transcendence-dev
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    privileged: true
+    depends_on:
+      telegraf-dev:
+        condition: service_started
+    devices:
+      - "/dev/kmsg"
+    command:
+      - '-port=9100'
 
   prometheus-dev:
     container_name: prometheus-dev
@@ -360,7 +382,8 @@ services:
       context: monitoring/prometheus/
       args:
         - PROMETHEUS_ADDR=prometheus-dev:9090
-        - TELEGRAF_ADDR=telegraf-dev:9125  
+        - TELEGRAF_ADDR=telegraf-dev:9125
+        - CADVISOR_ADDR=cadvidor-dev:9100
     restart: always
     user: root
     ports:
@@ -373,6 +396,8 @@ services:
       - "--config.file=/etc/prometheus/prometheus.yml"
     depends_on:
       telegraf-dev:
+        condition: service_started
+      cadvidor-dev:
         condition: service_started
   
   grafana-dev:

@@ -2082,7 +2082,11 @@
   ],
   "refresh": "auto",
   "schemaVersion": 39,
-  "tags": [],
+  "tags": [
+    "nginx",
+    "prometheus",
+    "telegraf"
+  ],
   "templating": {
     "list": [
       {
@@ -2106,8 +2110,8 @@
       {
         "current": {
           "selected": false,
-          "text": "telegraf:9125",
-          "value": "telegraf:9125"
+          "text": "telegraf-dev:9125",
+          "value": "telegraf-dev:9125"
         },
         "datasource": {
           "uid": "$datasource"
@@ -2197,19 +2201,11 @@
   },
   "timepicker": {
     "refresh_intervals": [
-      "10s",
-      "30s",
-      "1m",
-      "5m",
-      "15m",
-      "30m",
-      "1h",
-      "2h",
-      "1d"
+      "5s"
     ]
   },
   "timezone": "",
-  "title": "Nginx",
+  "title": "Webserver Metrics",
   "uid": "4DFTt9Wnk",
   "version": 1,
   "weekStart": ""

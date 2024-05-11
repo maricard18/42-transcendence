@@ -9,7 +9,12 @@ scrape_configs:
     static_configs:
       - targets: ['$PROMETHEUS_ADDR']
   
-  - job_name: Telegraf
+  - job_name: 'Telegraf'
     scrape_interval: 5s
     static_configs:
-      - targets: ['$TELEGRAF_ADDR'] 
+      - targets: ['$TELEGRAF_ADDR']
+  
+  - job_name: 'cadvisor'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['$CADVISOR_ADDR']
