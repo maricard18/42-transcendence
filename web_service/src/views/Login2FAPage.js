@@ -137,7 +137,7 @@ export default class Login2FAPage extends AbstractView {
 			const decodeToken = decode(accessToken);
 
 			if (!accessToken) {
-				console.error("Error: failed to retreive access token");
+				console.error("Error: failed to retrieve access token");
 				navigateTo("/");
 				return ;
 			}
@@ -147,13 +147,14 @@ export default class Login2FAPage extends AbstractView {
 			};
 
 			const response = await fetchData(
-				"/api/users/" + decodeToken["user_id"] + "/otp?code=" + this._2FACode + "&activate",
+				"/api/users/" + decodeToken["user_id"] + "/otp?code=" + this._2FACode,
 				"GET",
 				headers,
 				null
 			);
 
-            if (response.ok) {
+			const responseJSON = await response.json()
+			if (response.ok && responseJSON['valid']) {
 				this.removeCallbacks();
 				await setToken(newResponse);
 				AbstractView.has2FA = 2;
