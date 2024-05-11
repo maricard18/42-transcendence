@@ -147,7 +147,6 @@ services:
       - "8080:8080"
       - "8200:8200"
       - "8443:8443"
-      - "9125:9125"
     networks:
       - transcendence-dev
     volumes:
@@ -338,13 +337,30 @@ services:
     profiles: [ "", "web_service", "tools" ]
     restart: on-failure
   
+  telegraf-dev:
+    container_name: telegraf-dev
+    build:
+      context: monitoring/telegraf/
+      args:
+        - NGINX_METRICS_URL=https://modsecurity-dev:8443/nginx_status
+    ports:
+      - "9125:9125"
+    restart: always
+    networks:
+      - transcendence-dev
+    volumes:
+      - telegraf_data-dev:/var/log/telegraf/:ro
+    depends_on:
+      modsecurity-dev:
+        condition: service_started
+
   prometheus-dev:
     container_name: prometheus-dev
     build:
       context: monitoring/prometheus/
       args:
         - PROMETHEUS_ADDR=prometheus-dev:9090
-        - TELEGRAF_ADDR=modsecurity-dev:9125  
+        - TELEGRAF_ADDR=telegraf-dev:9125  
     restart: always
     user: root
     ports:
@@ -356,9 +372,9 @@ services:
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
     depends_on:
-      modsecurity-dev:
+      telegraf-dev:
         condition: service_started
-
+  
   grafana-dev:
     build:
       context: monitoring/grafana/

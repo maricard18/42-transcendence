@@ -1788,7 +1788,11 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 576
+                "value": 212
+              },
+              {
+                "id": "custom.align",
+                "value": "left"
               }
             ]
           },
@@ -2013,7 +2017,7 @@
       "type": "table"
     }
   ],
-  "refresh": "auto",
+  "refresh": "10s",
   "schemaVersion": 39,
   "tags": [],
   "templating": {
@@ -2039,8 +2043,8 @@
       {
         "current": {
           "selected": false,
-          "text": "modsecurity-dev:9125",
-          "value": "modsecurity-dev:9125"
+          "text": "telegraf-dev:9125",
+          "value": "telegraf-dev:9125"
         },
         "datasource": {
           "uid": "$datasource"
