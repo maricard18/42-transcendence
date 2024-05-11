@@ -103,7 +103,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "percent"
         },
         "overrides": []
       },
@@ -161,7 +162,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "percent"
         },
         "overrides": []
       },
@@ -223,7 +225,7 @@
               }
             ]
           },
-          "unit": "bytes"
+          "unit": "decbytes"
         },
         "overrides": []
       },
@@ -323,7 +325,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": [
           {
@@ -338,6 +341,10 @@
                   "fixedColor": "light-blue",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "unit",
+                "value": "short"
               }
             ]
           },
@@ -353,6 +360,10 @@
                   "fixedColor": "yellow",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "unit",
+                "value": "short"
               }
             ]
           }
@@ -464,7 +475,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": [
           {
@@ -629,7 +641,7 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "decbytes"
         },
         "overrides": [
           {
@@ -704,7 +716,8 @@
                 "value": null
               }
             ]
-          }
+          },
+          "unit": "decbytes"
         },
         "overrides": []
       },
@@ -806,7 +819,7 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "decbytes"
         },
         "overrides": []
       },
@@ -865,7 +878,8 @@
                 "value": null
               }
             ]
-          }
+          },
+          "unit": "decbytes"
         },
         "overrides": []
       },
@@ -967,7 +981,7 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "decbytes"
         },
         "overrides": []
       },
@@ -1067,7 +1081,7 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "decbytes"
         },
         "overrides": []
       },
@@ -1125,7 +1139,8 @@
                 "value": null
               }
             ]
-          }
+          },
+          "unit": "decbytes"
         },
         "overrides": []
       },
@@ -1250,7 +1265,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": []
       },
@@ -1539,7 +1555,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": []
       },
@@ -1637,7 +1654,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": []
       },
@@ -1756,7 +1774,30 @@
             },
             "inspect": false
           },
-          "mappings": [],
+          "mappings": [
+            {
+              "options": {
+                "from": 100,
+                "result": {
+                  "color": "green",
+                  "index": 0
+                },
+                "to": 399
+              },
+              "type": "range"
+            },
+            {
+              "options": {
+                "from": 400,
+                "result": {
+                  "color": "red",
+                  "index": 1
+                },
+                "to": 599
+              },
+              "type": "range"
+            }
+          ],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1901,6 +1942,20 @@
               {
                 "id": "custom.width",
                 "value": 62
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "gauge",
+                  "valueDisplayMode": "color"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
               }
             ]
           },
@@ -1925,6 +1980,10 @@
               {
                 "id": "custom.width",
                 "value": 300
+              },
+              {
+                "id": "custom.align",
+                "value": "left"
               }
             ]
           },
@@ -1949,6 +2008,10 @@
               {
                 "id": "custom.width",
                 "value": 106
+              },
+              {
+                "id": "unit",
+                "value": "decbytes"
               }
             ]
           }
@@ -2017,7 +2080,7 @@
       "type": "table"
     }
   ],
-  "refresh": "10s",
+  "refresh": "auto",
   "schemaVersion": 39,
   "tags": [],
   "templating": {
@@ -2043,8 +2106,8 @@
       {
         "current": {
           "selected": false,
-          "text": "telegraf-dev:9125",
-          "value": "telegraf-dev:9125"
+          "text": "telegraf:9125",
+          "value": "telegraf:9125"
         },
         "datasource": {
           "uid": "$datasource"
