@@ -56,8 +56,9 @@ RUN rm -rf *
 
 COPY ./web_service/index.html ./index.html
 
-RUN touch /var/log/nginx/transcendence-access.log /var/log/nginx/transcendence-error.log
-RUN chmod 755 /var/log/nginx/transcendence-access.log /var/log/nginx/transcendence-error.log
+RUN mkdir -p /var/log/telegraf
+RUN touch /var/log/telegraf/transcendence-access.log /var/log/telegraf/transcendence-error.log
+RUN chmod 755 /var/log/telegraf/transcendence-access.log /var/log/telegraf/transcendence-error.log
 RUN apk add --no-cache telegraf
 
 # SECOND STAGE

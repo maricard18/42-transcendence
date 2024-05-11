@@ -1788,7 +1788,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 173
+                "value": 576
               }
             ]
           },
@@ -1944,7 +1944,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 60
+                "value": 106
               }
             ]
           }
@@ -1968,7 +1968,12 @@
           "show": false
         },
         "showHeader": true,
-        "sortBy": []
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Time"
+          }
+        ]
       },
       "pluginVersion": "10.4.2",
       "repeatDirection": "h",

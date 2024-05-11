@@ -157,6 +157,7 @@ services:
       - media_data-dev:/app/media/:ro
       - ssl_cert_data-dev:${SSL_CERT_PATH}:rw
       - ssl_cert_key_data-dev:${SSL_CERT_KEY_PATH}:rw
+      - telegraf_data-dev:/var/log/telegraf/:rw
     profiles: [ "", "auth_service", "game_service", "web_service" ]
     restart: on-failure
 
@@ -412,6 +413,7 @@ volumes:
 
   prometheus_data-dev:
   grafana_data-dev:
+  telegraf_data-dev:
 
 secrets:
   auth_service-postgres_host:
