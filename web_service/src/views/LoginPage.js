@@ -29,7 +29,28 @@ export default class LoginPage extends AbstractView {
             childList: true,
             subtree: true,
         });
+
+		this.removeCallbacksBound = this.removeCallbacks.bind(this);
+		window.addEventListener("popstate", this.removeCallbacksBound);
     }
+
+	inputCallback = (event) => {
+		const id = event.target.getAttribute("id");
+		const value = event.target.value;
+		event.target.setAttribute("value", value);
+		this._formData[id] = value;
+	};
+
+	buttonClickedCallback = () => {
+		this.handleValidation();
+	};
+
+	keydownCallback = (event) => {
+		if (event.key === "Enter") {
+			event.preventDefault();
+			this.handleValidation();
+		}
+	};
 
     async defineCallback() {
         const parentNode = document.getElementById("login-page");
@@ -38,24 +59,6 @@ export default class LoginPage extends AbstractView {
         } else {
             return;
         }
-
-        this.inputCallback = (event) => {
-            const id = event.target.getAttribute("id");
-            const value = event.target.value;
-            event.target.setAttribute("value", value);
-            this._formData[id] = value;
-        };
-
-        this.buttonClickedCallback = () => {
-            this.handleValidation();
-        };
-
-        this.keydownCallback = (event) => {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                this.handleValidation();
-            }
-        };
 
         const inputList = this._parentNode.querySelectorAll("input");
         if (inputList && inputList.length && !this._inputCallback) {
@@ -101,6 +104,8 @@ export default class LoginPage extends AbstractView {
         }
 
         window.removeEventListener("keydown", this.keydownCallback);
+
+		window.removeEventListener("popstate", this.removeCallbacksBound);
 
         this._observer.disconnect();
     }
@@ -167,12 +172,12 @@ export default class LoginPage extends AbstractView {
 					const responseBody = await response.clone().json(); 
         			AbstractView.tokens = await transitEncrypt(JSON.stringify(responseBody));
 					navigateTo("/login-2FA");
-					return ;
 				} else {
 					await setToken(response);
 					navigateTo("/home");
-					return ;
 				}
+				
+				return ;
             } else {
                 newErrors = await handleResponse(response, this._formData);
                 this.errors = newErrors;

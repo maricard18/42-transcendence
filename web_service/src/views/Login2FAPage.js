@@ -25,32 +25,35 @@ export default class Login2FAPage extends AbstractView {
             childList: true,
             subtree: true,
         });
+
+		this.removeCallbacksBound = this.removeCallbacks.bind(this);
+		window.addEventListener("popstate", this.removeCallbacksBound);
     }
 
-    async defineCallback() {
+	inputCallback = (event) => {
+		const value = event.target.value;
+		event.target.setAttribute("value", value);
+		this._2FACode = value;
+	};
+
+	buttonClickedCallback = () => {
+		this.handleValidation();
+	};
+
+	keydownCallback = (event) => {
+		if (event.key === "Enter") {
+			event.preventDefault();
+			this.handleValidation();
+		}
+	};
+
+    defineCallback() {
         const parentNode = document.getElementById("login-2FA-page");
         if (parentNode) {
             this._parentNode = parentNode;
         } else {
             return;
         }
-
-        this.inputCallback = (event) => {
-            const value = event.target.value;
-            event.target.setAttribute("value", value);
-            this._2FACode = value;
-        };
-
-        this.buttonClickedCallback = () => {
-            this.handleValidation();
-        };
-
-        this.keydownCallback = (event) => {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                this.handleValidation();
-            }
-        };
 
         const input = this._parentNode.querySelector("input");
         if (input && !this._inputCallback) {
@@ -93,6 +96,8 @@ export default class Login2FAPage extends AbstractView {
 
         window.removeEventListener("keydown", this.keydownCallback);
 
+		window.removeEventListener("popstate", this.removeCallbacksBound);
+
         this._observer.disconnect();
     }
 
@@ -111,9 +116,16 @@ export default class Login2FAPage extends AbstractView {
 			if (this.errors.code) {
 				input.classList.add("input-error");
 				this._2FACode = input.value;
+				setTimeout(() => {
+					input.classList.remove("input-error");
+				}, 3000);
 			} else if (input.classList.contains("input-error")) {
 				input.classList.remove("input-error");
 			}
+
+			setTimeout(() => {
+				p.innerHTML = "";
+			}, 3000);
         }
     }
 
@@ -147,7 +159,7 @@ export default class Login2FAPage extends AbstractView {
 			};
 
 			const response = await fetchData(
-				"/api/users/" + decodeToken["user_id"] + "/otp?code=" + this._2FACode,
+				"/api/users/" + decodeToken["user_id"] + "/otp?code=" + this._2FACode + "&activate",
 				"GET",
 				headers,
 				null
@@ -160,7 +172,11 @@ export default class Login2FAPage extends AbstractView {
 				AbstractView.has2FA = 2;
 				navigateTo("/home");
             } else {
-                newErrors = { message: "failed to login with 2FA", code: 1 };
+				if (responseJSON['valid'] === false) {
+					newErrors = { message: "2FA code is invalid", code: 1 };
+				} else {
+					newErrors = { message: "failed to login with 2FA", code: 1 };
+				}
                 this.errors = newErrors;
             }
         }
