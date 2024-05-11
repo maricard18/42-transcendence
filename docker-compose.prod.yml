@@ -354,16 +354,62 @@ services:
     volumes:
       - telegraf_data:/var/log/telegraf/:ro
     depends_on:
-      modsecurity:
+      auth_service:
         condition: service_started
+
+  cadvisor:
+    container_name: cadvisor
+    image:  gcr.io/cadvisor/cadvisor:latest
+    ports:
+      - "9200:9200"
+    networks:
+      - transcendence
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    privileged: true
+    depends_on:
+      auth_service:
+        condition: service_started
+    devices:
+      - "/dev/kmsg"
+    command:
+      - '-port=9200'
   
+  node-exporter:
+    container_name: node-exporter
+    image: prom/node-exporter:latest
+    ports:
+      - "9100:9100"
+    networks:
+      - transcendence
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+      - /:/host:ro,rslave
+    privileged: true
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)'
+    depends_on:
+      auth_service:
+        condition: service_started
+    restart: always
   prometheus:
     container_name: prometheus
     build:
       context: monitoring/prometheus/
       args:
         - PROMETHEUS_ADDR=prometheus:9090
-        - TELEGRAF_ADDR=telegraf:9125  
+        - TELEGRAF_ADDR=telegraf:9125
+        - CADVISOR_ADDR=cadvisor:9200
+        - NODE_EXPORTER_ADDR=node-exporter:9100
     restart: always
     user: root
     ports:
@@ -376,6 +422,10 @@ services:
       - "--config.file=/etc/prometheus/prometheus.yml"
     depends_on:
       telegraf:
+        condition: service_started
+      cadvisor:
+        condition: service_started
+      node-exporter:
         condition: service_started
   
   grafana:
