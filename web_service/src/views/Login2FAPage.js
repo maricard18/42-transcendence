@@ -147,7 +147,7 @@ export default class Login2FAPage extends AbstractView {
 			};
 
 			const response = await fetchData(
-				"/api/users/" + decodeToken["user_id"] + "/otp?code=" + this._2FACode + "&activate",
+                "/api/users/" + decodeToken["user_id"] + "/otp?code=" + this._2FACode,
 				"GET",
 				headers,
 				null
