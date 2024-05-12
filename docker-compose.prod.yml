@@ -401,6 +401,25 @@ services:
       auth_service:
         condition: service_started
     restart: always
+
+  alertmanager:
+    build:
+      context: monitoring/alertmanager/
+      args:
+        SLACK_ALERTMANAGER_WEBHOOK: ${SLACK_ALERTMANAGER_WEBHOOK}
+        SLACK_ALERTMANAGER_CHANNEL: ${SLACK_ALERTMANAGER_CHANNEL}
+    container_name: alertmanager
+    ports: 
+      - "9093:9093"
+    networks:
+      - transcendence
+    command:
+      - '--config.file=/etc/alertmanager/alert.yml'
+    restart: always
+    depends_on:
+      auth_service:
+        condition: service_started
+
   prometheus:
     container_name: prometheus
     build:
@@ -410,12 +429,14 @@ services:
         - TELEGRAF_ADDR=telegraf:9125
         - CADVISOR_ADDR=cadvisor:9200
         - NODE_EXPORTER_ADDR=node-exporter:9100
+        - ALERTMANAGER_ADDR=alertmanager:9093
     restart: always
     user: root
     ports:
       - "9090:9090"
     volumes:
       - prometheus_data:/prometheus
+    privileged: true
     networks:
       - transcendence
     command:
@@ -426,6 +447,8 @@ services:
       cadvisor:
         condition: service_started
       node-exporter:
+        condition: service_started
+      alertmanager:
         condition: service_started
   
   grafana:
