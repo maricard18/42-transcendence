@@ -33,13 +33,14 @@ COPY modsecurity-nginx/includes/location_game_service.conf /etc/nginx/templates/
 COPY modsecurity-nginx/includes/location_web_service.conf /etc/nginx/templates/includes/location_web_service.conf.template
 COPY modsecurity-nginx/includes/location_web_service_core.conf /etc/nginx/templates/includes/location_web_service_core.conf.template
 COPY modsecurity-nginx/includes/server_vault_service.conf /etc/nginx/templates/includes/server_vault_service.conf.template
+COPY modsecurity-nginx/includes/server_status_service.conf /etc/nginx/templates/includes/server_status_service.conf.template
 
 # SECOND STAGE
 FROM owasp/modsecurity-crs:4.1-nginx-alpine-202404070904 as dev
 LABEL authors="bsilva-c"
 
 USER root
-EXPOSE 8080 8200 8443
+EXPOSE 8080 8200 8443 8081
 
 ARG SSL_CERT_PATH
 ARG SSL_CERT_KEY_PATH
@@ -63,7 +64,7 @@ FROM owasp/modsecurity-crs:4.1-nginx-alpine-202404070904 as prod
 LABEL authors="bsilva-c"
 
 USER root
-EXPOSE 8080 8200 8443
+EXPOSE 8080 8200 8443 8081
 
 ARG SSL_CERT_PATH
 ARG SSL_CERT_KEY_PATH

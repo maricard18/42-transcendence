@@ -345,7 +345,7 @@ services:
     build:
       context: monitoring/telegraf/
       args:
-        - NGINX_METRICS_URL=https://modsecurity:8443/nginx_status
+        - NGINX_METRICS_URL=https://modsecurity:8081/nginx_status
     restart: always
     networks:
       - transcendence
