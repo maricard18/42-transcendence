@@ -1,7 +1,17 @@
 global:
-  scrape_interval: 15s
+  scrape_interval: 10s
+  evaluation_interval: 10s
   external_labels:
     monitor: 'codelab-monitor'
+
+rule_files:
+  - 'rules.yml'
+
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+      - '$ALERTMANAGER_ADDR'
 
 scrape_configs:
   - job_name: 'prometheus'

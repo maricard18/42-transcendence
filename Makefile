@@ -6,7 +6,7 @@
 #    By: wcorrea- <wcorrea-@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/02/15 17:36:39 by bsilva-c          #+#    #+#              #
-#    Updated: 2024/05/10 21:05:26 by wcorrea-         ###   ########.fr        #
+#    Updated: 2024/05/12 00:40:28 by wcorrea-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,7 +33,7 @@ endif
 #### Using Makefile to call specific service
 ##
 
-SERVICES = auth_service game_service web_service vault_service modsecurity nikto
+SERVICES = auth_service game_service web_service vault_service modsecurity nikto cadvisor grafana prometheus node-exporter telegraf alertmanager
 _SERVICE = $(SERVICE)
 
 # Check if service is valid
