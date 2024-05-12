@@ -4,7 +4,7 @@ groups:
   rules:
   
   - alert: ContainerDown
-    expr: time() - container_last_seen{name!~".*db_migrations.*", name!~"nikto.*"} > 10 
+    expr: time() - container_last_seen{name!~".*db_migrations.*", name!~"nikto.*", name!~"web_service.*", name!~""} > 10 
     for: 20s
     annotations:
       summary: "Container {{ $labels.name }} down"
