@@ -1,13 +1,24 @@
 groups:
 
-- name: MonitoringInstances
+- name: TranscendenceMonitoring
   rules:
-
-  - alert: InstanceDown
-    expr: up == 0
+  
+  - alert: ContainerDown
+    expr: time() - container_last_seen{name!~".*db_migrations.*", name!~"nikto.*"} > 10 
     for: 20s
     annotations:
-      title: 'Instance {{ $labels.instance }} down'
-      description: '{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 20 seconds.'
+      summary: "Container {{ $labels.name }} down"
+      description: "Container {{ $labels.name }} of job {{ $labels.job }} has been down for more than 10 seconds."
     labels:
-      severity: 'critical'
+      severity: critical
+
+  - alert: HighErrorRequestRate
+    expr: sum(count_over_time(nginxlog_resp_bytes{job="telegraf", resp_code=~"4.."}[1m])) > 40
+    for: 30s
+    annotations:
+      summary: "High 4xx requests rate"
+      description: "More than 40 Error requests per minute for the last 30 seconds. It is possible a server attack."
+    labels:
+      severity: warning
+  
+    
