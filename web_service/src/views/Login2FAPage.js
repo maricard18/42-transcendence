@@ -86,7 +86,7 @@ export default class Login2FAPage extends AbstractView {
             input.removeEventListener("input", this.inputCallback);
         }
 
-        const submitButton = document.querySelector("submit-button");
+        const submitButton = this._parentNode.querySelector("submit-button");
         if (submitButton) {
             submitButton.removeEventListener(
                 "buttonClicked",
@@ -95,7 +95,6 @@ export default class Login2FAPage extends AbstractView {
         }
 
         window.removeEventListener("keydown", this.keydownCallback);
-
 		window.removeEventListener("popstate", this.removeCallbacksBound);
 
         this._observer.disconnect();
@@ -159,7 +158,7 @@ export default class Login2FAPage extends AbstractView {
 			};
 
 			const response = await fetchData(
-				"/api/users/" + decodeToken["user_id"] + "/otp?code=" + this._2FACode + "&activate",
+				"/api/users/" + decodeToken["user_id"] + "/otp?code=" + this._2FACode,
 				"GET",
 				headers,
 				null

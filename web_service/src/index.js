@@ -14,7 +14,6 @@ const router = async () => {
 	}
 
     if (hasWebSocket(matches)) {
-        console.log("closing webscoket")
         closeWebsocket();
     }
 
@@ -71,7 +70,7 @@ function findMatch(url, routes, previousMatches = []) {
         });
 
         if (matchedRoute.children) {
-            return findMatch(newUrl, matchedRoute.children, previousMatches);
+			return findMatch(newUrl, matchedRoute.children, previousMatches);
         } else {
 			if (newUrl.length > 0) {
 				console.error(`Error: Location ${location.pathname} not found`);
@@ -81,6 +80,11 @@ function findMatch(url, routes, previousMatches = []) {
             return previousMatches;
         }
     } else {
+		if (url.length > 0) {
+			console.error(`Error: Location ${location.pathname} not found`);
+			navigateTo("/home");
+			return -1;
+		}
         if (previousMatches) {
             return previousMatches;
         }

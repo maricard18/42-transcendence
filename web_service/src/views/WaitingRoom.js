@@ -172,8 +172,6 @@ class PlayerQueue extends AbstractView {
                     this.loadDOMChanges.bind(this)
                 );
             }
-        } else {
-
         }
     }
 

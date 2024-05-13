@@ -24,15 +24,84 @@ export default class SettingsPage extends AbstractView {
             childList: true,
             subtree: true,
         });
+
+		this.removeCallbacksBound = this.removeCallbacks.bind(this);
+		window.addEventListener("popstate", this.removeCallbacksBound);
     }
 
-    get avatar() {
-        return this._avatar;
-    }
+	avatarCallback = (event) => {
+		if (!event.detail) {
+			const p = this._parentNode.querySelector("p");
 
-    set avatar(value) {
-        this._avatar = value;
-    }
+			if (p.classList.contains("form-success")) {
+				p.classList.remove("form-success");
+			}
+			p.classList.add("form-error");
+			p.innerText = "Avatar upload failed";
+			setTimeout(() => {
+				p.innerText = "";
+			}, 3000);
+			return;
+		}
+
+		this._avatar = event.detail;
+		this.changeAvatar();
+	};
+
+	linkButtonCallback = () => {
+		localStorage.setItem("previous_location", location.pathname);
+	}
+
+	deleteAccountCallback = async () => {
+		console.log("Delete account");
+		const accessToken = await getToken();
+		const headers = {
+			Authorization: `Bearer ${accessToken}`,
+		};
+
+		const response = await fetchData(
+			"/api/users/" + AbstractView.userInfo.id,
+			"DELETE",
+			headers,
+			null
+		);
+
+		if (response.ok) {
+			const modalElement = document.getElementById("DeleteUserModal");
+			bootstrap.Modal.getInstance(modalElement).hide();
+			document.querySelector('.modal-backdrop').remove();
+			this._observer.disconnect();
+			logout();
+			navigateTo("/");
+		} else {
+			console.error("Failed to delete user");
+		}
+	};
+
+	removeAvatarCallback = async (event) => {
+		const formDataToSend = new FormData();
+		formDataToSend.append("avatar", "");
+
+		const accessToken = await getToken();
+		const headers = {
+			Authorization: `Bearer ${accessToken}`,
+		};
+
+		const response = await fetchData(
+			"/api/users/" + AbstractView.userInfo.id,
+			"PUT",
+			headers,
+			formDataToSend
+		);
+
+		if (response.ok) {
+			event.target.dispatchEvent(new CustomEvent("remove-avatar"));
+			this._clickCallback = false;
+		} else {
+			console.log("response:", response.body);
+			console.error("failed to remove avatar");
+		}
+	}
 
     defineCallback() {
         const parentNode = document.getElementById("profile-page");
@@ -40,80 +109,6 @@ export default class SettingsPage extends AbstractView {
             this._parentNode = parentNode;
         } else {
             return;
-        }
-
-        this.avatarCallback = (event) => {
-            if (!event.detail) {
-                const p = this._parentNode.querySelector("p");
-
-                if (p.classList.contains("form-success")) {
-                    p.classList.remove("form-success");
-                }
-                p.classList.add("form-error");
-                p.innerText = "Avatar upload failed";
-                setTimeout(() => {
-                    p.innerText = "";
-                }, 3000);
-                return;
-            }
-
-            this._avatar = event.detail;
-            this.changeAvatar();
-        };
-
-        this.linkButtonCallback = () => {
-            localStorage.setItem("previous_location", location.pathname);
-        }
-
-        this.deleteAccountCallback = async () => {
-            console.log("Delete account");
-            const accessToken = await getToken();
-            const headers = {
-                Authorization: `Bearer ${accessToken}`,
-            };
-
-            const response = await fetchData(
-                "/api/users/" + AbstractView.userInfo.id,
-                "DELETE",
-                headers,
-                null
-            );
-
-            if (response.ok) {
-				const modalElement = document.getElementById("DeleteUserModal");
-				bootstrap.Modal.getInstance(modalElement).hide();
-				document.querySelector('.modal-backdrop').remove();
-				this._observer.disconnect();
-                logout();
-                navigateTo("/");
-            } else {
-                console.error("Failed to delete user");
-            }
-        };
-
-        this.removeAvatarCallback = async (event) => {
-            const formDataToSend = new FormData();
-            formDataToSend.append("avatar", "");
-
-            const accessToken = await getToken();
-            const headers = {
-                Authorization: `Bearer ${accessToken}`,
-            };
-
-            const response = await fetchData(
-                "/api/users/" + AbstractView.userInfo.id,
-                "PUT",
-                headers,
-                formDataToSend
-            );
-
-            if (response.ok) {
-                event.target.dispatchEvent(new CustomEvent("remove-avatar"));
-                this._clickCallback = false;
-            } else {
-                console.log("response:", response.body);
-                console.error("failed to remove avatar");
-            }
         }
 
         const avatarBox = this._parentNode.querySelector("avatar-box");
@@ -168,7 +163,17 @@ export default class SettingsPage extends AbstractView {
             deleteAvatarButton.removeEventListener("click", this.removeAvatarCallback);
         }
 
+		window.removeEventListener("popstate", this.removeCallbacksBound);
+
         this._observer.disconnect();
+    }
+
+	get avatar() {
+        return this._avatar;
+    }
+
+    set avatar(value) {
+        this._avatar = value;
     }
 
     async changeAvatar() {
@@ -329,7 +334,7 @@ export default class SettingsPage extends AbstractView {
 					</div>
 				</div>
 				<div class="d-flex flex-column secondary-box ms-3">
-					${this._view.getHtml()}
+					${this._view ? this._view.getHtml() : ""}
 				</div>
 			</div>
         `;

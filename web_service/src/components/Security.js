@@ -1,9 +1,9 @@
 import AbstractView from "../views/AbstractView";
 import fetchData from "../functions/fetchData";
 import handleResponse from "../functions/authenticationErrors";
-import {validate2FAForm, validateProfilePasswordForm} from "../functions/validateForms";
-import {getToken} from "../functions/tokens";
-import {transitEncrypt} from "../functions/vaultAccess";
+import { validate2FAForm, validateProfilePasswordForm } from "../functions/validateForms";
+import { getToken } from "../functions/tokens";
+import { transitEncrypt } from "../functions/vaultAccess";
 
 export default class Security extends AbstractView {
     constructor() {
@@ -142,10 +142,13 @@ export default class Security extends AbstractView {
 				if (jsonData["valid"] === true) {
 					AbstractView.has2FA = 2;
 					const modalElement = document.getElementById("2FAModal");
+					const backdrop = document.querySelector('.modal-backdrop');
 					if (modalElement) {
 						bootstrap.Modal.getInstance(modalElement).hide();
 					}
-					document.querySelector('.modal-backdrop').remove();
+					if (backdrop) {
+						backdrop.remove();
+					}
 					this.loadDOMChanges();
 				} else {
 					AbstractView.has2FA = 1;
