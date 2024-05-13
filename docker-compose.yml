@@ -407,9 +407,12 @@ services:
     networks:
       - transcendence-dev
     environment:
-      GF_SECURITY_ADMIN_USER: ${MONITORING_USERNAME}
-      GF_SECURITY_ADMIN_PASSWORD: ${MONITORING_PASSWORD}
-      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /etc/grafana/dashboards/Home.json
+      - GF_SECURITY_ADMIN_USER__FILE=/run/secrets/grafana_username
+      - GF_SECURITY_ADMIN_PASSWORD__FILE=/run/secrets/grafana_password
+      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/etc/grafana/dashboards/Home.json
+    secrets:
+      - grafana_username
+      - grafana_password
     depends_on:
       prometheus-dev:
         condition: service_started    
@@ -461,3 +464,8 @@ secrets:
     file: ./secrets/auth_service/postgres-password
   sso_42_client_secret:
     file: ./secrets/42-client-secret
+  grafana_username:
+    file: ./secrets/grafana/grafana-username
+  grafana_password:
+    file: ./secrets/grafana/grafana-password
+
