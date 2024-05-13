@@ -352,47 +352,6 @@ services:
       auth_service-dev:
         condition: service_started
   
-  cadvisor-dev:
-    container_name: cadvisor-dev
-    image:  gcr.io/cadvisor/cadvisor:latest
-    networks:
-      - transcendence-dev
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:ro
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
-      - /dev/disk/:/dev/disk:ro
-    privileged: true
-    depends_on:
-      auth_service-dev:
-        condition: service_started
-    devices:
-      - "/dev/kmsg"
-    command:
-      - '-port=9200'
-  
-  node-exporter-dev:
-    container_name: node-exporter-dev
-    image: prom/node-exporter:latest
-    networks:
-      - transcendence-dev
-    volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /:/rootfs:ro
-      - /:/host:ro,rslave
-    privileged: true
-    command:
-      - '--path.procfs=/host/proc'
-      - '--path.sysfs=/host/sys'
-      - '--path.rootfs=/rootfs'
-      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)'
-    depends_on:
-      auth_service-dev:
-        condition: service_started
-    restart: always
-  
   alertmanager-dev:
     build:
       context: monitoring/alertmanager/
@@ -416,8 +375,6 @@ services:
       args:
         PROMETHEUS_ADDR: prometheus-dev:9090
         TELEGRAF_ADDR: telegraf-dev:9125
-        CADVISOR_ADDR: cadvisor-dev:9200
-        NODE_EXPORTER_ADDR: node-exporter-dev:9100
         ALERTMANAGER_ADDR: alertmanager-dev:9093
     restart: always
     user: root
@@ -432,10 +389,6 @@ services:
       - "--config.file=/etc/prometheus/prometheus.yml"
     depends_on:
       telegraf-dev:
-        condition: service_started
-      cadvisor-dev:
-        condition: service_started
-      node-exporter-dev:
         condition: service_started
       alertmanager-dev:
         condition: service_started

@@ -23,13 +23,3 @@ scrape_configs:
     scrape_interval: 5s
     static_configs:
       - targets: ['$TELEGRAF_ADDR']
-  
-  - job_name: 'cadvisor'
-    scrape_interval: 5s
-    static_configs:
-      - targets: ['$CADVISOR_ADDR']
-
-  - job_name: 'node-exporter'
-    scrape_interval: 5s
-    static_configs:
-      - targets: ['$NODE_EXPORTER_ADDR']
