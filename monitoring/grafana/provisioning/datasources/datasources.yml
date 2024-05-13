@@ -10,7 +10,3 @@ datasources:
   version: 1
   editable: true
   uid: prometheus
-  basicAuth: true
-  basicAuthUser: $PROMETHEUS_USER
-  secureJsonData:
-    basicAuthPassword: $PROMETHEUS_PASSWORD

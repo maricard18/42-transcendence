@@ -415,8 +415,6 @@ services:
       context: monitoring/prometheus/
       args:
         PROMETHEUS_ADDR: prometheus-dev:9090
-        PROMETHEUS_USER: ${MONITORING_USERNAME}
-        PROMETHEUS_PASSWORD: ${MONITORING_PASSWORD}
         TELEGRAF_ADDR: telegraf-dev:9125
         CADVISOR_ADDR: cadvisor-dev:9200
         NODE_EXPORTER_ADDR: node-exporter-dev:9100
@@ -432,7 +430,6 @@ services:
       - transcendence-dev
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
-      - "--web.config.file=/etc/prometheus/web.yml"
     depends_on:
       telegraf-dev:
         condition: service_started
@@ -448,8 +445,6 @@ services:
       context: monitoring/grafana/
       args:
         PROMETHEUS_URL: http://prometheus-dev:9090
-        PROMETHEUS_USER: ${MONITORING_USERNAME}
-        PROMETHEUS_PASSWORD: ${MONITORING_PASSWORD}
     container_name: grafana-dev
     restart: always
     ports:
