@@ -44,7 +44,7 @@ export class Display2Usernames extends AbstractView {
 											template="red-border-sm"
 										></base-avatar-box>
 										<div class="username-text ms-3 mt-2">
-											<h3>${AbstractView.userInfo.username}</h3>
+											<h3>${AbstractView.userInfo.username ? AbstractView.userInfo.username : "loading ..."}</h3>
 										</div>
 										<div class="username-text ms-4 mt-1">
 											<h1 id="player1" style="font-size: 40px">0</h1>
@@ -111,7 +111,7 @@ export class Display2Usernames extends AbstractView {
 											<h1 id="player2" style="font-size: 40px">0</h1>
 										</div>
 										<div class="username-text me-3 mt-2">
-											<h3>${AbstractView.userInfo.username}</h3>
+											<h3>${AbstractView.userInfo.username ? AbstractView.userInfo.username : "loading ..."}</h3>
 										</div>
 										<base-avatar-box 
 											size="50px"
@@ -148,7 +148,7 @@ export class Display2Usernames extends AbstractView {
 											template="red-border-sm"
 										></base-avatar-box>
 										<div class="username-text ms-3 mt-2">
-											<h3>${AbstractView.userData[0].username}</h3>
+											<h3>${AbstractView.userData[0].username ? AbstractView.userData[0].username : "loading ..."}</h3>
 										</div>
 										<div class="username-text ms-4 mt-1">
 											<h1 id="player1" style="font-size: 40px">0</h1>
@@ -178,7 +178,7 @@ export class Display2Usernames extends AbstractView {
 											<h1 id="player2" style="font-size: 40px">0</h1>
 										</div>
 										<div class="username-text me-3 mt-2">
-											<h3>${AbstractView.userData[1].username}</h3>
+											<h3>${AbstractView.userData[1].username ? AbstractView.userData[1].username : "loading ..."}</h3>
 										</div>
 										<base-avatar-box 
 											size="50px"
@@ -279,7 +279,7 @@ export class DisplayUsername extends AbstractView {
 								template="red-border-sm"
 							></base-avatar-box>
 							<div class="username-text ms-3 mt-2">
-								<h3>${AbstractView.userData[0].username}</h3>
+								<h3>${AbstractView.userData[0].username ? AbstractView.userData[0].username : "loading ..."}</h3>
 							</div>
 							<div class="username-text ms-4 mt-1">
 								<h1 id="player1" style="font-size: 40px">0</h1>
@@ -317,7 +317,7 @@ export class DisplayUsername extends AbstractView {
 							template="blue-border-sm"
 						></base-avatar-box>
 						<div class="username-text ms-3 mt-2">
-							<h3>${AbstractView.userData[1].username}</h3>
+							<h3>${AbstractView.userData[1].username ? AbstractView.userData[1].username : "loading ..."}</h3>
 						</div>
 						<div class="username-text ms-4 mt-1">
 							<h1 id="player2" style="font-size: 40px">0</h1>
@@ -355,7 +355,7 @@ export class DisplayUsername extends AbstractView {
 								template="green-border-sm"
 							></base-avatar-box>
 							<div class="username-text ms-3 mt-2">
-								<h3>${AbstractView.userData[2].username}</h3>
+								<h3>${AbstractView.userData[2].username ? AbstractView.userData[2].username : "loading ..."}</h3>
 							</div>
 							<div class="username-text ms-4 mt-1">
 								<h1 id="player3" style="font-size: 40px">0</h1>
@@ -393,7 +393,7 @@ export class DisplayUsername extends AbstractView {
 								template="yellow-border-sm"
 							></base-avatar-box>
 							<div class="username-text ms-3 mt-2">
-								<h3>${AbstractView.userData[3].username}</h3>
+								<h3>${AbstractView.userData[3].username ? AbstractView.userData[3].username : "loading ..."}</h3>
 							</div>
 							<div class="username-text ms-4 mt-1">
 								<h1 id="player4" style="font-size: 40px">0</h1>
