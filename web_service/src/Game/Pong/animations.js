@@ -1,4 +1,4 @@
-import { ScreenHeight, ScreenWidth } from "./Pong/variables";
+import { ScreenHeight, ScreenWidth } from "./variables";
 
 export function gameStartAnimation(game) {
     return new Promise((resolve) => {
