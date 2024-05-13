@@ -144,9 +144,9 @@ export default class NavigationBar extends AbstractView {
 							></nav-button>
 							<nav-button
 								template="white-button extra-btn-class"
-								page="/home/profile/username"
+								page="/home/settings/account"
 								style="border-radius: 0%"
-								value="Profile"
+								value="Settings"
 							></nav-button>
 							<logout-button 
 								template="primary-button extra-btn-class"
