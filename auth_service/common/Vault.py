@@ -12,7 +12,7 @@ class Vault:
 
     @classmethod
     def overwrite(cls, request: HttpRequest) -> bool:
-        return settings.DEBUG and str(request.META['HTTP_USER_AGENT']).startswith("PostmanRuntime/")
+        return settings.DEBUG and str(request.META["HTTP_USER_AGENT"]).startswith("PostmanRuntime/")
 
     @classmethod
     def vaultClient(cls) -> hvac.Client:
@@ -29,25 +29,25 @@ class Vault:
 
     @classmethod
     def decodeData(cls, data: str) -> str:
-        return base64.b64decode(data).decode('utf-8')
+        return base64.b64decode(data).decode("utf-8")
 
     @classmethod
     def encodeData(cls, data: str) -> str:
-        return base64.b64encode(data.encode('utf-8')).decode('utf-8')
+        return base64.b64encode(data.encode("utf-8")).decode("utf-8")
 
     @classmethod
     def transitDecrypt(cls, ciphertext: str) -> str:
         client = cls.vaultClient()
 
         response = client.secrets.transit.decrypt_data(name="transcendence", ciphertext=ciphertext)
-        return cls.decodeData(response['data']['plaintext'])
+        return cls.decodeData(response["data"]["plaintext"])
 
     @classmethod
     def transitEncrypt(cls, plaintext: str) -> str:
         client = cls.vaultClient()
 
         response = client.secrets.transit.encrypt_data(name="transcendence", plaintext=cls.encodeData(plaintext))
-        return response['data']['ciphertext']
+        return response["data"]["ciphertext"]
 
     @classmethod
     def cipherSensitiveFields(cls, data: Union[dict, list], request: HttpRequest, func: Callable[[str], str]) \
@@ -64,10 +64,10 @@ class Vault:
         if isinstance(data, dict):
             return resolveFields(data)
         elif isinstance(data, list):
-            data = []
+            data_list = []
             for instance in data:
-                data.insert(resolveFields(instance))
-            return data
+                data_list.append(resolveFields(instance))
+            return data_list
         return data
 
     @classmethod
@@ -80,6 +80,6 @@ class Vault:
     def getVaultSecret(cls, path: str) -> str:
         client = cls.vaultClient()
 
-        response = client.secrets.kv.v2.read_secret(path=path, mount_point='transcendence')
-        secret = response['data']['data']
-        return secret['key']
+        response = client.secrets.kv.v2.read_secret(path=path, mount_point="transcendence")
+        secret = response["data"]["data"]
+        return secret["key"]

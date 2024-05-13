@@ -8,20 +8,20 @@ from rest_framework.views import exception_handler
 
 class ServerError(APIException):
     status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-    default_detail = _('Internal Server Error')
-    default_code = 'server_error'
+    default_detail = _("Internal Server Error")
+    default_code = "server_error"
 
 
 def handler(exc, context):
     if isinstance(exc, ValidationError):
         codes = exc.get_codes()
         for field in codes:
-            if 'unique' in codes.get(field):
+            if "unique" in codes.get(field):
                 return Response({
-                    'errors': exc.detail,
+                    "errors": exc.detail,
                 }, status=status.HTTP_409_CONFLICT)
         return Response({
-            'errors': exc.detail,
+            "errors": exc.detail,
         }, exc.status_code)
 
     # Call REST framework's default exception handler first,
@@ -29,8 +29,8 @@ def handler(exc, context):
     response = exception_handler(exc, context)
     if response:
         return Response({
-            'errors': {
-                'message': response.data.get('detail').strip('.'),
-                'code': response.status_code
+            "errors": {
+                "message": response.data.get("detail").strip("."),
+                "code": response.status_code
             }
         }, status=response.status_code)

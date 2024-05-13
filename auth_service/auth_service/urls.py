@@ -25,8 +25,8 @@ from api.views import UserViewSet, OTPViewSet, TokenViewSet, SSOViewSet
 
 api_router = APIRouter()
 
-api_router.register(r'users/{pk}/otp', OTPViewSet, basename='user_otp')
-api_router.register(r'users', UserViewSet, basename='user')
+api_router.register(r"users/{pk}/otp", OTPViewSet, basename="user_otp")
+api_router.register(r"users", UserViewSet, basename="user")
 
 ##########
 ## AUTH ##
@@ -34,10 +34,10 @@ api_router.register(r'users', UserViewSet, basename='user')
 
 auth_router = APIRouter()
 
-auth_router.register(r'token', TokenViewSet, basename='token')
-auth_router.register(r'sso', SSOViewSet, basename='sso')
+auth_router.register(r"token", TokenViewSet, basename="token")
+auth_router.register(r"sso", SSOViewSet, basename="sso")
 
 urlpatterns = [
-    path('api/', include(api_router.urls)),
-    path('auth/', include(auth_router.urls)),
+    path("api/", include(api_router.urls)),
+    path("auth/", include(auth_router.urls)),
 ]
