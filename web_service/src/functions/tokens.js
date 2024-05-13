@@ -1,7 +1,7 @@
 import AbstractView from "../views/AbstractView";
 import Cookies from "js-cookie";
 import fetchData from "./fetchData";
-import {transitEncrypt} from "../functions/vaultAccess";
+import { transitEncrypt } from "../functions/vaultAccess";
 import { closeWebsocket } from "./websocket";
 import { cleanTournamentStorage } from "..";
 

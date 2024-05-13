@@ -21,7 +21,28 @@ export default class SignUpPage extends AbstractView {
             childList: true,
             subtree: true,
         });
+
+		this.removeCallbacksBound = this.removeCallbacks.bind(this);
+		window.addEventListener("popstate", this.removeCallbacksBound);
     }
+
+	inputCallback = (event) => {
+		const id = event.target.getAttribute("id");
+		const value = event.target.value;
+		event.target.setAttribute("value", value);
+		AbstractView.formData[id] = value;
+	};
+
+	buttonClickedCallback = (event) => {
+		this.handleValidation();
+	};
+
+	keydownCallback = (event) => {
+		if (event.key === "Enter") {
+			event.preventDefault();
+			this.handleValidation();
+		}
+	};
 
     defineCallback() {
         const parentNode = document.getElementById("sign-up-page");
@@ -30,24 +51,6 @@ export default class SignUpPage extends AbstractView {
         } else {
             return;
         }
-
-        this.inputCallback = (event) => {
-            const id = event.target.getAttribute("id");
-            const value = event.target.value;
-            event.target.setAttribute("value", value);
-            AbstractView.formData[id] = value;
-        };
-
-        this.buttonClickedCallback = (event) => {
-            this.handleValidation();
-        };
-
-        this.keydownCallback = (event) => {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                this.handleValidation();
-            }
-        };
 
         const inputList = this._parentNode.querySelectorAll("input");
         if (inputList && inputList.length && !this._inputCallback) {
@@ -93,10 +96,8 @@ export default class SignUpPage extends AbstractView {
         }
 
         window.removeEventListener("keydown", this.keydownCallback);
+		window.removeEventListener("popstate", this.removeCallbacksBound);
 
-        this._inputCallback = false;
-        this._clickCallback = false;
-        this._enterCallback = false;
         this._observer.disconnect();
     }
 

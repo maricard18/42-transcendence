@@ -1,6 +1,7 @@
 import AbstractView from "./AbstractView";
 import getUserInfo from "../functions/getUserInfo";
 import { getPageTitle } from "../functions/fetchData";
+import { logout } from "../functions/tokens";
 
 export default class NavigationBar extends AbstractView {
     constructor(view) {
@@ -44,10 +45,11 @@ export default class NavigationBar extends AbstractView {
                     id: userData.id,
                 };
                 this._loading = false;
-                await this.loadDOMChanges();
             } else {
-                console.error("Error: failed to fetch user data");
+				console.error("Error: failed to fetch user data");
             }
+			
+			await this.loadDOMChanges();
         };
 
         let emptyFieldExists = false;
@@ -74,7 +76,18 @@ export default class NavigationBar extends AbstractView {
         const avatarElement = document.querySelector("img");
         const baseAvatar = document.querySelector("base-avatar-box");
         const h6 = document.querySelector("h6");
-        h6.innerText = AbstractView.userInfo.username;
+        h6.innerText = AbstractView.userInfo.username ? AbstractView.userInfo.username : "loading ...";
+
+		if (!AbstractView.userInfo.avatar) {
+			if (avatarElement) {
+				avatarElement.remove();
+				const noAvatar = document.createElement("base-avatar-box");
+				noAvatar.setAttribute("size", "40");
+				h6.parentNode.insertBefore(noAvatar, h6);
+			}
+			
+			return ;
+		}
 
         if (avatarElement) {
             avatarElement.setAttribute("src", AbstractView.userInfo.avatar);
@@ -133,7 +146,7 @@ export default class NavigationBar extends AbstractView {
 									: `<base-avatar-box size="40"></base-avatar-box>`
 							}
 								<h6 id="nav-bar-username" class="username-text ms-2 mt-1">
-									<b>${AbstractView.userInfo.username}</b>
+									<b>${AbstractView.userInfo.username ? AbstractView.userInfo.username : "loading ..."}</b>
 								</h6>
 							</div>
 							<nav-button

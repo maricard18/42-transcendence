@@ -14,8 +14,8 @@ services:
       - auth_service-postgres_db
       - auth_service-postgres_user
       - auth_service-postgres_password
-    ports:
-      - "5432:5432"
+    expose:
+      - "5432"
     networks:
       - transcendence-dev
     volumes:
@@ -72,10 +72,40 @@ services:
         condition: service_completed_successfully
       modsecurity-dev:
         condition: service_started
+      vault_service-init-dev:
+        condition: service_started
       vault_service-dev:
         condition: service_healthy
     profiles: [ "", "auth_service" ]
     restart: on-failure
+
+  game_service-postgres-dev:
+    container_name: game_service-postgres-dev
+    image: postgres:13-alpine3.18
+    user: postgres
+    environment:
+      POSTGRES_HOST_FILE: /run/secrets/game_service-postgres_host
+      POSTGRES_DB_FILE: /run/secrets/game_service-postgres_db
+      POSTGRES_USER_FILE: /run/secrets/game_service-postgres_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/game_service-postgres_password
+    secrets:
+      - game_service-postgres_host
+      - game_service-postgres_db
+      - game_service-postgres_user
+      - game_service-postgres_password
+    expose:
+      - "5432"
+    networks:
+      - transcendence-dev
+    volumes:
+      - game_service-postgres_data-dev:/var/lib/postgresql/data/:rw
+    healthcheck:
+      test: [ "CMD-SHELL", 'pg_isready -h "$(cat $POSTGRES_HOST_FILE)" -U "$(cat $POSTGRES_USER_FILE)" -d "$(cat $POSTGRES_DB_FILE)"' ]
+      interval: 5s
+      start_period: 5s
+      retries: 5
+    profiles: [ "", "game_service" ]
+    restart: always
 
   game_service-dev:
     container_name: game_service-dev
@@ -85,6 +115,10 @@ services:
     environment:
       REDIS_HOST: redis_service-dev
       REDIS_PORT: 6379
+      POSTGRES_HOST_FILE: /run/secrets/game_service-postgres_host
+      POSTGRES_DB_FILE: /run/secrets/game_service-postgres_db
+      POSTGRES_USER_FILE: /run/secrets/game_service-postgres_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/game_service-postgres_password
       DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
       VAULT_ADDR: https://modsecurity-dev:8200
       VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
@@ -93,6 +127,11 @@ services:
       SSL_CERT_FILE: ${SSL_CERT_FILE}
       SSL_CERT_KEY_PATH: ${SSL_CERT_KEY_PATH}
       SSL_CERT_KEY_FILE: ${SSL_CERT_KEY_FILE}
+    secrets:
+      - game_service-postgres_host
+      - game_service-postgres_db
+      - game_service-postgres_user
+      - game_service-postgres_password
     expose:
       - "8000"
     networks:
@@ -104,9 +143,15 @@ services:
       - ssl_cert_key_data-dev:${SSL_CERT_KEY_PATH}:ro
       - vault_services_data-dev:/vault/transcendence/:ro
     depends_on:
+      game_service-postgres-dev:
+        condition: service_healthy
+      game_service-db_migrations-dev:
+        condition: service_completed_successfully
       redis_service-dev:
         condition: service_healthy
       modsecurity-dev:
+        condition: service_started
+      vault_service-init-dev:
         condition: service_started
       vault_service-dev:
         condition: service_healthy
@@ -261,6 +306,8 @@ services:
     depends_on:
       auth_service-postgres-dev:
         condition: service_healthy
+      vault_service-init-dev:
+        condition: service_started
       vault_service-dev:
         condition: service_healthy
     profiles: [ "", "auth_service", "tools" ]
@@ -288,9 +335,49 @@ services:
       - ssl_cert_key_data-dev:${SSL_CERT_KEY_PATH}:ro
       - vault_services_data-dev:/vault/transcendence/:ro
     depends_on:
+      vault_service-init-dev:
+        condition: service_started
       vault_service-dev:
         condition: service_healthy
     profiles: [ "", "auth_service", "tools" ]
+
+  game_service-db_migrations-dev:
+    container_name: game_service-db_migrations-dev
+    build:
+      context: game_service/
+      target: tools
+    environment:
+      POSTGRES_HOST_FILE: /run/secrets/game_service-postgres_host
+      POSTGRES_DB_FILE: /run/secrets/game_service-postgres_db
+      POSTGRES_USER_FILE: /run/secrets/game_service-postgres_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/game_service-postgres_password
+      VAULT_ADDR: https://modsecurity-dev:8200
+      VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
+      VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
+      SSL_CERT_PATH: ${SSL_CERT_PATH}
+      SSL_CERT_FILE: ${SSL_CERT_FILE}
+      SSL_CERT_KEY_PATH: ${SSL_CERT_KEY_PATH}
+      SSL_CERT_KEY_FILE: ${SSL_CERT_KEY_FILE}
+    secrets:
+      - game_service-postgres_host
+      - game_service-postgres_db
+      - game_service-postgres_user
+      - game_service-postgres_password
+    entrypoint: [ "/bin/sh", "/app/tools/db-migrations.sh" ]
+    networks:
+      - transcendence-dev
+    volumes:
+      - ssl_cert_data-dev:${SSL_CERT_PATH}:ro
+      - ssl_cert_key_data-dev:${SSL_CERT_KEY_PATH}:ro
+      - vault_services_data-dev:/vault/transcendence/:ro
+    depends_on:
+      game_service-postgres-dev:
+        condition: service_healthy
+      vault_service-init-dev:
+        condition: service_started
+      vault_service-dev:
+        condition: service_healthy
+    profiles: [ "", "game_service", "tools" ]
 
   game_service-collectstatic-dev:
     container_name: game_service-collectstatic-dev
@@ -315,6 +402,8 @@ services:
       - ssl_cert_key_data-dev:${SSL_CERT_KEY_PATH}:ro
       - vault_services_data-dev:/vault/transcendence/:ro
     depends_on:
+      vault_service-init-dev:
+        condition: service_started
       vault_service-dev:
         condition: service_healthy
     profiles: [ "", "game_service", "tools" ]
@@ -332,6 +421,8 @@ services:
       - web_service-static_data-dev:/app/static/:rw
       - vault_services_data-dev:/vault/transcendence/:ro
     depends_on:
+      vault_service-init-dev:
+        condition: service_started
       vault_service-dev:
         condition: service_healthy
     profiles: [ "", "web_service", "tools" ]
@@ -438,6 +529,7 @@ networks:
 
 volumes:
   auth_service-postgres_data-dev:
+  game_service-postgres_data-dev:
   web_service-static_data-dev:
   static_data-dev:
   media_data-dev:
@@ -462,6 +554,14 @@ secrets:
     file: ./secrets/auth_service/postgres-user
   auth_service-postgres_password:
     file: ./secrets/auth_service/postgres-password
+  game_service-postgres_host:
+    file: ./secrets/game_service/postgres-host
+  game_service-postgres_db:
+    file: ./secrets/game_service/postgres-db
+  game_service-postgres_user:
+    file: ./secrets/game_service/postgres-user
+  game_service-postgres_password:
+    file: ./secrets/game_service/postgres-password
   sso_42_client_secret:
     file: ./secrets/42-client-secret
   grafana_username:

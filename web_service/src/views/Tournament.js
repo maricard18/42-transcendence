@@ -22,7 +22,28 @@ export default class Tournament extends AbstractView {
             childList: true,
             subtree: true,
         });
+
+		this.removeCallbacksBound = this.removeCallbacks.bind(this);
+		window.addEventListener("popstate", this.removeCallbacksBound);
     }
+
+	inputCallback = (event) => {
+		const id = event.target.getAttribute("id");
+		const value = event.target.value;
+		event.target.setAttribute("value", value);
+		this._formData[id] = value;
+	};
+
+	buttonClickedCallback = () => {
+		this.handleValidation();
+	};
+
+	keydownCallback = (event) => {
+		if (event.key === "Enter") {
+			event.preventDefault();
+			this.handleValidation();
+		}
+	};
 
     defineCallback() {
         const parentNode = document.getElementById("tournament-page");
@@ -31,24 +52,6 @@ export default class Tournament extends AbstractView {
         } else {
             return;
         }
-
-        this.inputCallback = (event) => {
-            const id = event.target.getAttribute("id");
-            const value = event.target.value;
-            event.target.setAttribute("value", value);
-            this._formData[id] = value;
-        };
-
-        this.buttonClickedCallback = () => {
-            this.handleValidation();
-        };
-
-        this.keydownCallback = (event) => {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                this.handleValidation();
-            }
-        };
 
         const inputList = this._parentNode.querySelectorAll("input");
         if (inputList && inputList.length && !this._inputCallback) {
@@ -88,11 +91,8 @@ export default class Tournament extends AbstractView {
         }
 
         window.removeEventListener("keydown", this.keydownCallback);
+		window.removeEventListener("popstate", this.removeCallbacksBound);
 
-        this._inputCallback = false;
-        this._avatarCallback = false;
-        this._clickCallback = false;
-        this._enterCallback = false;
         this._observer.disconnect();
     }
 
@@ -113,10 +113,17 @@ export default class Tournament extends AbstractView {
                 if (this._errors[id]) {
                     input.classList.add("input-error");
                     this._formData[id] = input.value;
+					setTimeout(() => {
+						input.classList.remove("input-error");
+					}, 3000);
                 } else if (input.classList.contains("input-error")) {
                     input.classList.remove("input-error");
                 }
             });
+
+			setTimeout(() => {
+				p.innerText = "";
+			}, 3000);
         }
     }
 
@@ -240,8 +247,6 @@ export class TournamentMatchmaking extends AbstractView {
 					player = this._tournament[i];
 				}
 			}
-
-			console.log("Tournament Winner:", player);
 		}
 		
 		if (this._match1 && this._match1["status"] === "finished") {
@@ -290,6 +295,9 @@ export class TournamentMatchmaking extends AbstractView {
             childList: true,
             subtree: true,
         });
+
+		this.removeCallbacksBound = this.removeCallbacks.bind(this);
+		window.addEventListener("popstate", this.removeCallbacksBound);
     }
 
 	shuffleArray(array) {
@@ -300,6 +308,72 @@ export class TournamentMatchmaking extends AbstractView {
 		return array;
 	}
 
+	buttonClickedCallback = () => {
+		if (!localStorage.getItem("match1")) {
+			const match1 = {
+				status: "not finished",
+				winner: null,
+				player1: {
+					index: this._tournament[0][0],
+					username: this._tournament[0][1][0],
+					avatar: this._tournament[0][1][1]
+				},
+				player2: {
+					index: this._tournament[1][0],
+					username: this._tournament[1][1][0],
+					avatar: this._tournament[1][1][1]
+				}
+			}
+			localStorage.setItem("match1", JSON.stringify(match1));
+		} else if (!localStorage.getItem("match2")) {
+			const match2 = {
+				status: "not finished",
+				winner: null,
+				player1: {
+					index: this._tournament[2][0],
+					username: this._tournament[2][1][0],
+					avatar: this._tournament[2][1][1]
+				},
+				player2: {
+					index: this._tournament[3][0],
+					username: this._tournament[3][1][0],
+					avatar: this._tournament[3][1][1]
+				}
+			}
+			localStorage.setItem("match2", JSON.stringify(match2));
+		} else if (!localStorage.getItem("match3")) {
+			const match3 = {
+				status: "not finished",
+				winner: null,
+				player1: {
+					index: this._finalMatch["1"][0][0],
+					username: this._finalMatch["1"][1][0],
+					avatar: this._finalMatch["1"][1][1]
+				},
+				player2: {
+					index: this._finalMatch["2"][0],
+					username: this._finalMatch["2"][1][0],
+					avatar: this._finalMatch["2"][1][1]
+				}
+			}
+			localStorage.setItem("match3", JSON.stringify(match3));
+		} else {
+			this.removeCallbacks();
+			navigateTo("/home");
+			return ;
+		}
+
+		this.removeCallbacks();
+		navigateTo("/home/pong/play/tournament/2");
+	};
+
+	keydownCallback = (event) => {
+		if (event.key === "Enter") {
+			event.preventDefault();
+			this.buttonClickedCallback();
+		}
+	};
+
 	defineCallback() {
         const parentNode = document.getElementById("tournament-matchmaking");
         if (parentNode) {
@@ -307,72 +381,6 @@ export class TournamentMatchmaking extends AbstractView {
         } else {
             return;
         }
-
-        this.buttonClickedCallback = () => {
-			if (!localStorage.getItem("match1")) {
-				const match1 = {
-					status: "not finished",
-					winner: null,
-					player1: {
-						index: this._tournament[0][0],
-						username: this._tournament[0][1][0],
-						avatar: this._tournament[0][1][1]
-					},
-					player2: {
-						index: this._tournament[1][0],
-						username: this._tournament[1][1][0],
-						avatar: this._tournament[1][1][1]
-					}
-				}
-				localStorage.setItem("match1", JSON.stringify(match1));
-			} else if (!localStorage.getItem("match2")) {
-				const match2 = {
-					status: "not finished",
-					winner: null,
-					player1: {
-						index: this._tournament[2][0],
-						username: this._tournament[2][1][0],
-						avatar: this._tournament[2][1][1]
-					},
-					player2: {
-						index: this._tournament[3][0],
-						username: this._tournament[3][1][0],
-						avatar: this._tournament[3][1][1]
-					}
-				}
-				localStorage.setItem("match2", JSON.stringify(match2));
-			} else if (!localStorage.getItem("match3")) {
-				const match3 = {
-					status: "not finished",
-					winner: null,
-					player1: {
-						index: this._finalMatch["1"][0][0],
-						username: this._finalMatch["1"][1][0],
-						avatar: this._finalMatch["1"][1][1]
-					},
-					player2: {
-						index: this._finalMatch["2"][0],
-						username: this._finalMatch["2"][1][0],
-						avatar: this._finalMatch["2"][1][1]
-					}
-				}
-				localStorage.setItem("match3", JSON.stringify(match3));
-			} else {
-				this.removeCallbacks();
-				navigateTo("/home");
-				return ;
-			}
-
-			this.removeCallbacks();
-            navigateTo("/home/pong/play/tournament/2");
-        };
-
-		this.keydownCallback = (event) => {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                this.buttonClickedCallback();
-            }
-        };
 
         const submitButton = this._parentNode.querySelector("submit-button");
         if (submitButton && !this._clickCallback) {
@@ -397,9 +405,8 @@ export class TournamentMatchmaking extends AbstractView {
         }
 
 		window.removeEventListener("keydown", this.keydownCallback);
+		window.removeEventListener("popstate", this.removeCallbacksBound);
 
-        this._clickCallback = false;
-		this._enterCallback = false;
         this._observer.disconnect();
     }
 
