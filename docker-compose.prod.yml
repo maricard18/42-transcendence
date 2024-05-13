@@ -355,46 +355,6 @@ services:
       auth_service:
         condition: service_started
 
-  cadvisor:
-    container_name: cadvisor
-    image:  gcr.io/cadvisor/cadvisor:latest
-    networks:
-      - transcendence
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:ro
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
-      - /dev/disk/:/dev/disk:ro
-    privileged: true
-    depends_on:
-      auth_service:
-        condition: service_started
-    devices:
-      - "/dev/kmsg"
-    command:
-      - '-port=9200'
-  
-  node-exporter:
-    container_name: node-exporter
-    image: prom/node-exporter:latest
-    networks:
-      - transcendence
-    volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /:/rootfs:ro
-      - /:/host:ro,rslave
-    privileged: true
-    command:
-      - '--path.procfs=/host/proc'
-      - '--path.sysfs=/host/sys'
-      - '--path.rootfs=/rootfs'
-      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)'
-    depends_on:
-      auth_service:
-        condition: service_started
-    restart: always
 
   alertmanager:
     build:
@@ -418,16 +378,10 @@ services:
       context: monitoring/prometheus/
       args:
         PROMETHEUS_ADDR: prometheus:9090
-        PROMETHEUS_USER: ${MONITORING_USERNAME}
-        PROMETHEUS_PASSWORD: ${MONITORING_PASSWORD}
         TELEGRAF_ADDR: telegraf:9125
-        CADVISOR_ADDR: cadvisor:9200
-        NODE_EXPORTER_ADDR: node-exporter:9100
         ALERTMANAGER_ADDR: alertmanager:9093
     restart: always
     user: root
-    ports:
-      - "9090:9090"
     volumes:
       - prometheus_data:/prometheus
     privileged: true
@@ -435,13 +389,8 @@ services:
       - transcendence
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
-      - "--web.config.file=/etc/prometheus/web.yml"
     depends_on:
       telegraf:
-        condition: service_started
-      cadvisor:
-        condition: service_started
-      node-exporter:
         condition: service_started
       alertmanager:
         condition: service_started
@@ -451,8 +400,6 @@ services:
       context: monitoring/grafana/
       args:
         PROMETHEUS_URL: http://prometheus:9090
-        PROMETHEUS_USER: ${MONITORING_USERNAME}
-        PROMETHEUS_PASSWORD: ${MONITORING_PASSWORD}
     container_name: grafana
     restart: always
     ports:
@@ -462,9 +409,12 @@ services:
     networks:
       - transcendence
     environment:
-      GF_SECURITY_ADMIN_USER: ${MONITORING_USERNAME}
-      GF_SECURITY_ADMIN_PASSWORD: ${MONITORING_PASSWORD}
-      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /etc/grafana/dashboards/Home.json
+      - GF_SECURITY_ADMIN_USER__FILE=/run/secrets/grafana_username
+      - GF_SECURITY_ADMIN_PASSWORD__FILE=/run/secrets/grafana_password
+      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/etc/grafana/dashboards/Home.json
+    secrets:
+      - grafana_username
+      - grafana_password
     depends_on:
       prometheus:
         condition: service_started
@@ -518,4 +468,9 @@ secrets:
     file: ./secrets/auth_service/postgres-password
   sso_42_client_secret:
     file: ./secrets/42-client-secret
+  grafana_username:
+    file: ./secrets/grafana/grafana-username
+  grafana_password:
+    file: ./secrets/grafana/grafana-password  
+    
     
