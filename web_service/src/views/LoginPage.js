@@ -2,7 +2,7 @@ import AbstractView from "./AbstractView";
 import fetchData from "../functions/fetchData";
 import handleResponse from "../functions/authenticationErrors";
 import { navigateTo } from "../index";
-import { decode, getToken, setToken } from "../functions/tokens";
+import { decode, setToken } from "../functions/tokens";
 import { validateLoginForm } from "../functions/validateForms";
 import { transitEncrypt } from "../functions/vaultAccess";
 

@@ -28,8 +28,6 @@ export default class Login2FAPage extends AbstractView {
 
 		this.removeCallbacksBound = this.removeCallbacks.bind(this);
 		window.addEventListener("popstate", this.removeCallbacksBound);
-
-		//console.log("Here");
     }
 
 	inputCallback = (event) => {
@@ -50,7 +48,6 @@ export default class Login2FAPage extends AbstractView {
 	};
 
     defineCallback() {
-		//console.log("Running Main Callback function");
         const parentNode = document.getElementById("login-2FA-page");
         if (parentNode) {
             this._parentNode = parentNode;
@@ -74,9 +71,7 @@ export default class Login2FAPage extends AbstractView {
         }
 
         if (!this._enterCallback) {
-			console.log("EnterBef:", this._enterCallback);
             this._enterCallback = true;
-			console.log("EnterAft:", this._enterCallback);
             window.addEventListener("keydown", this.keydownCallback);
         }
     }
@@ -100,7 +95,6 @@ export default class Login2FAPage extends AbstractView {
         }
 
         window.removeEventListener("keydown", this.keydownCallback);
-
 		window.removeEventListener("popstate", this.removeCallbacksBound);
 
         this._observer.disconnect();

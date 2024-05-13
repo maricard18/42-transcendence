@@ -8,14 +8,12 @@ import "../static/css/index.css";
 const router = async () => {
     const url = location.pathname;
     let matches = findMatch(url, routes);
-	console.log("object:", matches);
 
 	if (matches === -1) {
 		return ;
 	}
 
     if (hasWebSocket(matches)) {
-        console.log("closing webscoket")
         closeWebsocket();
     }
 
@@ -72,7 +70,7 @@ function findMatch(url, routes, previousMatches = []) {
         });
 
         if (matchedRoute.children) {
-            return findMatch(newUrl, matchedRoute.children, previousMatches);
+			return findMatch(newUrl, matchedRoute.children, previousMatches);
         } else {
 			if (newUrl.length > 0) {
 				console.error(`Error: Location ${location.pathname} not found`);
@@ -82,6 +80,11 @@ function findMatch(url, routes, previousMatches = []) {
             return previousMatches;
         }
     } else {
+		if (url.length > 0) {
+			console.error(`Error: Location ${location.pathname} not found`);
+			navigateTo("/home");
+			return -1;
+		}
         if (previousMatches) {
             return previousMatches;
         }
