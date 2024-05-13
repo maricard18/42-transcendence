@@ -1,19 +1,20 @@
 import LandingPage from "./views/LandingPage.js";
 import LoginPage from "./views/LoginPage.js";
+import Login2FAPage from "./views/Login2FAPage.js";
 import Login42Page from "./views/Login42Page.js";
 import SignUpPage from "./views/SignUpPage.js";
 import CreateProfilePage from "./views/CreateProfilePage.js";
 import Create42ProfilePage from "./views/Create42ProfilePage.js";
 import NavigationBar from "./views/NavigationBar.js";
 import HomePage from "./views/HomePage.js";
-import ChangeUserInfo from "./components/ChangeUserInfo.js";
-import ChangePassword from "./components/ChangePassword.js";
-import { Game1, Game2 } from "./components/Games.js";
-import { GameMenuOptions, MultiplayerOptions, SinglePlayerOptions, TournamentOptions } from "./components/GameOptions.js";
+import Account from "./components/Account.js";
+import Security from "./components/Security.js";
 import WaitingRoom from "./views/WaitingRoom.js";
 import Pong from "./views/Pong.js";
 import SettingsPage from "./views/SettingsPage.js";
 import Tournament, { TournamentMatchmaking } from "./views/Tournament.js";
+import { Game1, Game2 } from "./components/Games.js";
+import { GameMenuOptions, MultiplayerOptions, SinglePlayerOptions, TournamentOptions } from "./components/GameOptions.js";
 
 export const routes = [
     {
@@ -23,6 +24,10 @@ export const routes = [
     {
         path: "/login",
         view: LoginPage,
+    },
+	{
+        path: "/login-2FA",
+        view: Login2FAPage,
     },
     {
         path: "/login-42",
@@ -99,16 +104,16 @@ export const routes = [
                 ]
             },
             {
-                path: "/profile",
+                path: "/settings",
                 view: SettingsPage,
                 children: [
                     {
-                        path: "/username",
-                        view: ChangeUserInfo,
+                        path: "/account",
+                        view: Account,
                     },
                     {
-                        path: "/password",
-                        view: ChangePassword,
+                        path: "/security",
+                        view: Security,
                     }
                 ]
             },

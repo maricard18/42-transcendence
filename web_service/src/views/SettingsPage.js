@@ -248,15 +248,15 @@ export default class SettingsPage extends AbstractView {
 						>
 							<nav-button
 								template="white-button extra-btn-class"
-								page="/home/profile/username"
+								page="/home/settings/account"
 								style="border-bottom: 0%; border-bottom-left-radius: 0; border-bottom-right-radius: 0;"
-								value="Change Username"
+								value="Account"
 							></nav-button>
 							<nav-button
 								template="white-button extra-btn-class"
-								page="/home/profile/password"
+								page="/home/settings/security"
 								style="border-radius: 0%"
-								value="Change Password"
+								value="Security"
 							></nav-button>
 							<nav-button
 								template="primary-button extra-btn-class"

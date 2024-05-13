@@ -8,6 +8,8 @@ export default class AbstractView {
     static wsConnectionStarted = false;
     static gameOver = null;
     static previousLocation = null;
+	static has2FA = null;
+	static tokens = null;
 
     constructor() {
     }

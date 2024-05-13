@@ -29,7 +29,7 @@ export async function createToken(formData) {
 
 export async function setToken(response) {
     try {
-        const jsonData = await response.json();
+		const jsonData = await response.json();
         const accessToken = jsonData["access_token"];
         const refreshToken = jsonData["refresh_token"];
         const expiresIn = Number(jsonData["expires_in"]);
@@ -50,9 +50,8 @@ export async function setToken(response) {
 
         AbstractView.authed = true;
     } catch (error) {
-        console.error("Error: failed to set Cookies");
+        console.error("Error: failed to set Cookies", error);
         logout();
-
     }
 }
 

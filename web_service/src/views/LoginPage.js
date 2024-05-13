@@ -2,7 +2,7 @@ import AbstractView from "./AbstractView";
 import fetchData from "../functions/fetchData";
 import handleResponse from "../functions/authenticationErrors";
 import { navigateTo } from "../index";
-import { setToken } from "../functions/tokens";
+import { decode, getToken, setToken } from "../functions/tokens";
 import { validateLoginForm } from "../functions/validateForms";
 import { transitEncrypt } from "../functions/vaultAccess";
 
@@ -11,11 +11,12 @@ export default class LoginPage extends AbstractView {
         super();
         this.setTitle("Login");
         this._parentNode = null;
-        this._loading = true;
         this._insideRequest = false;
         this._inputCallback = false;
         this._clickCallback = false;
         this._enterCallback = false;
+		this._test2FA = false;
+		this._has2FA = false;
 
         this._errors = {};
         this._formData = {
@@ -28,33 +29,36 @@ export default class LoginPage extends AbstractView {
             childList: true,
             subtree: true,
         });
+
+		this.removeCallbacksBound = this.removeCallbacks.bind(this);
+		window.addEventListener("popstate", this.removeCallbacksBound);
     }
 
-    defineCallback() {
+	inputCallback = (event) => {
+		const id = event.target.getAttribute("id");
+		const value = event.target.value;
+		event.target.setAttribute("value", value);
+		this._formData[id] = value;
+	};
+
+	buttonClickedCallback = () => {
+		this.handleValidation();
+	};
+
+	keydownCallback = (event) => {
+		if (event.key === "Enter") {
+			event.preventDefault();
+			this.handleValidation();
+		}
+	};
+
+    async defineCallback() {
         const parentNode = document.getElementById("login-page");
         if (parentNode) {
             this._parentNode = parentNode;
         } else {
             return;
         }
-
-        this.inputCallback = (event) => {
-            const id = event.target.getAttribute("id");
-            const value = event.target.value;
-            event.target.setAttribute("value", value);
-            this._formData[id] = value;
-        };
-
-        this.buttonClickedCallback = () => {
-            this.handleValidation();
-        };
-
-        this.keydownCallback = (event) => {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                this.handleValidation();
-            }
-        };
 
         const inputList = this._parentNode.querySelectorAll("input");
         if (inputList && inputList.length && !this._inputCallback) {
@@ -101,6 +105,8 @@ export default class LoginPage extends AbstractView {
 
         window.removeEventListener("keydown", this.keydownCallback);
 
+		window.removeEventListener("popstate", this.removeCallbacksBound);
+
         this._observer.disconnect();
     }
 
@@ -121,10 +127,17 @@ export default class LoginPage extends AbstractView {
                 if (this._errors[id]) {
                     input.classList.add("input-error");
                     this._formData[id] = input.value;
+					setTimeout(() => {
+						input.classList.remove("input-error");
+					}, 3000);
                 } else if (input.classList.contains("input-error")) {
                     input.classList.remove("input-error");
                 }
             });
+
+			setTimeout(() => {
+				p.innerText = "";
+			}, 3000);
         }
     }
 
@@ -153,9 +166,18 @@ export default class LoginPage extends AbstractView {
             );
 
             if (response.ok) {
-                await setToken(response);
-                this.removeCallbacks();
-                navigateTo("/home");
+				await checkFor2FA(response.clone());
+				this.removeCallbacks();
+				if (AbstractView.has2FA) {
+					const responseBody = await response.clone().json(); 
+        			AbstractView.tokens = await transitEncrypt(JSON.stringify(responseBody));
+					navigateTo("/login-2FA");
+				} else {
+					await setToken(response);
+					navigateTo("/home");
+				}
+				
+				return ;
             } else {
                 newErrors = await handleResponse(response, this._formData);
                 this.errors = newErrors;
@@ -194,7 +216,7 @@ export default class LoginPage extends AbstractView {
 								value=""
 							/>
 						</div>
-						<div class="mt-3">
+						<div>
 							<submit-button
 								type="button"
 								template="primary-button extra-btn-class"
@@ -207,4 +229,36 @@ export default class LoginPage extends AbstractView {
 			</div>
 		`;
     }
+}
+
+async function checkFor2FA(clone) {
+	const jsonData = await clone.json();
+    const accessToken = jsonData["access_token"];
+	const decodeToken = decode(accessToken);
+	const headers = {
+		Authorization: `Bearer ${accessToken}`,
+	};
+
+	const response = await fetchData(
+		"/api/users/" + decodeToken["user_id"] + "/otp",
+		"GET",
+		headers,
+		null
+	);
+
+	if (response.ok) {
+		const jsonData = await response.json();
+		if (jsonData["active"] === true) {
+			console.log("User has 2FA active");
+			AbstractView.has2FA = 2;
+		} else if (jsonData["active"] === false) {
+			console.log("User has 2FA active but is not valid");
+			AbstractView.has2FA = 1;
+		}
+
+		return ;
+	}
+
+	console.log("User does not have 2FA active");
+	AbstractView.has2FA = 0;
 }

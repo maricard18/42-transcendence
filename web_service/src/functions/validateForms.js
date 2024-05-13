@@ -168,3 +168,18 @@ function checkForEqualUsername(user, formData) {
 	
 	return false;
 }
+
+export function validate2FAForm(code) {
+    const errors = {};
+
+    if (!code) {
+        errors.message = "Please insert a 6 digit code";
+        errors.code = 1;
+
+    } else if (code.length !== 6) {
+        errors.message = "2FA Code needs to have 6 digits";
+        errors.code = 1;
+    }
+
+    return errors;
+}

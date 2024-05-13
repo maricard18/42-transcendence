@@ -117,10 +117,17 @@ export default class SignUpPage extends AbstractView {
                 if (this._errors[id]) {
                     input.classList.add("input-error");
                     AbstractView.formData[id] = input.value;
+					setTimeout(() => {
+						input.classList.remove("input-error");
+					}, 3000);
                 } else if (input.classList.contains("input-error")) {
                     input.classList.remove("input-error");
                 }
             });
+
+			setTimeout(() => {
+				p.innerText = "";
+			}, 3000);
         }
     }
 
@@ -151,44 +158,44 @@ export default class SignUpPage extends AbstractView {
 						<div class="mb-5">
 							<h1 class="header">Sign Up</h1>
 						</div>
-						<div class="position-relative">
-							<p class="form-error"></p>
-						</div>
-						<div class="mb-3">
-							<input
-								id="email"
-								type="email"
-								class="form-control primary-form extra-form-class"
-								placeholder="email"
-								value=""
-							/>
-						</div>
-						<div class="mb-3">
-							<input
-								id="password"
-								type="password"
-								class="form-control primary-form extra-form-class"
-								placeholder="password"
-								value=""
-							/>
-						</div>
-						<div class="mb-3">
-							<input
-								id="confirmPassword"
-								type="password"
-								class="form-control primary-form extra-form-class"
-								placeholder="confirm password"
-								value=""
-							/>
-						</div>
-						<div class="mt-3">
-							<submit-button
-								type="button"
-								template="primary-button extra-btn-class"
-								value="Next"
-							>
-							</submit-button>	
-						</div>
+							<div class="position-relative">
+								<p class="form-error"></p>
+							</div>
+							<div class="mb-3">
+								<input
+									id="email"
+									type="email"
+									class="form-control primary-form extra-form-class"
+									placeholder="email"
+									value=""
+								/>
+							</div>
+							<div class="mb-3">
+								<input
+									id="password"
+									type="password"
+									class="form-control primary-form extra-form-class"
+									placeholder="password"
+									value=""
+								/>
+							</div>
+							<div class="mb-3">
+								<input
+									id="confirmPassword"
+									type="password"
+									class="form-control primary-form extra-form-class"
+									placeholder="confirm password"
+									value=""
+								/>
+							</div>
+							<div>
+								<submit-button
+									type="button"
+									template="primary-button extra-btn-class"
+									value="Next"
+								>
+								</submit-button>	
+							</div>
 					</div>
 				</div>
 			</div>
