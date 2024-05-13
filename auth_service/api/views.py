@@ -106,7 +106,6 @@ class UserViewSet(viewsets.ViewSet):
             raise NotFound
         
         serializer = UserSerializer(user)
-        data = Vault.encryptSerializedData(serializer.data)
 
         return Response(Vault.cipherSensitiveFields(
             remove_sensitive_information(request.user.id, serializer.data),

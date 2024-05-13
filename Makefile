@@ -6,7 +6,7 @@
 #    By: wcorrea- <wcorrea-@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/02/15 17:36:39 by bsilva-c          #+#    #+#              #
-#    Updated: 2024/05/12 00:40:28 by wcorrea-         ###   ########.fr        #
+#    Updated: 2024/05/13 18:35:29 by wcorrea-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,7 +17,7 @@ PROJECT_NAME = ft_transcendence
 ##
 PROFILES = prod dev
 PROFILE ?= dev
-MAIN_URL = https://localhost:8443
+
 # Check if profile is valid
 ifeq ($(filter $(PROFILE),$(PROFILES)),)
     $(error Invalid profile specified: `$(PROFILE)` Valid profiles are `$(PROFILES)`)
@@ -84,7 +84,7 @@ help:
 	@echo ""
 	@echo "Available profiles:"
 	@echo "  $(PROFILES)"
-.PHONY: all build up down start stop ps rm re clean fclean scan help
+.PHONY: all build up down start stop ps rm re clean fclean help
 
 define confirm
 	@printf "\033[1;33m"  # Yellow color for the warning message
