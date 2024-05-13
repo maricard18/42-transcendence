@@ -15,7 +15,7 @@ from channels.security.websocket import AllowedHostsOriginValidator
 from django.core.asgi import get_asgi_application
 from django.urls import re_path
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'game_service.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "game_service.settings")
 
 django_asgi_app = get_asgi_application()
 django.setup()
