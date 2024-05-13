@@ -1,9 +1,9 @@
 import AbstractView from "./AbstractView";
 import fetchData from "../functions/fetchData";
 import handleResponse from "../functions/authenticationErrors";
-import {navigateTo} from "../index";
-import {createToken} from "../functions/tokens";
-import {transitEncrypt} from "../functions/vaultAccess";
+import { navigateTo } from "../index";
+import { createToken } from "../functions/tokens";
+import { transitEncrypt } from "../functions/vaultAccess";
 
 export default class CreateProfilePage extends AbstractView {
     constructor() {
@@ -31,7 +31,38 @@ export default class CreateProfilePage extends AbstractView {
             childList: true,
             subtree: true,
         });
+
+		this.removeCallbacksBound = this.removeCallbacks.bind(this);
+		window.addEventListener("popstate", this.removeCallbacksBound);
     }
+
+	inputCallback = (event, input) => {
+		const id = input.getAttribute("id");
+		const value = event.target.value;
+		input.setAttribute("value", value);
+		AbstractView.formData[id] = value;
+	};
+
+	avatarCallback = (event) => {
+		this._avatar = event.detail;
+	};
+
+	buttonClickedCallback = () => {
+		this.handleValidation();
+	};
+
+	removeAvatarCallback = (event) => {
+		event.target.dispatchEvent(new CustomEvent("remove-avatar"));
+		this.avatar = null;
+		this._removeCallback = false;
+	}
+
+	keydownCallback = (event) => {
+		if (event.key === "Enter") {
+			event.preventDefault();
+			this.handleValidation();
+		}
+	};
 
     defineCallback() {
         const parentNode = document.getElementById("create-profile-page");
@@ -40,34 +71,6 @@ export default class CreateProfilePage extends AbstractView {
         } else {
             return;
         }
-
-        this.inputCallback = (event, input) => {
-            const id = input.getAttribute("id");
-            const value = event.target.value;
-            input.setAttribute("value", value);
-            AbstractView.formData[id] = value;
-        };
-
-        this.avatarCallback = (event) => {
-            this._avatar = event.detail;
-        };
-
-        this.buttonClickedCallback = () => {
-            this.handleValidation();
-        };
-
-        this.removeAvatarCallback = (event) => {
-            event.target.dispatchEvent(new CustomEvent("remove-avatar"));
-            this.avatar = null;
-            this._removeCallback = false;
-        }
-
-        this.keydownCallback = (event) => {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                this.handleValidation();
-            }
-        };
 
         const inputList = this._parentNode.querySelectorAll("input");
         const input = inputList[inputList.length - 1];
@@ -128,11 +131,8 @@ export default class CreateProfilePage extends AbstractView {
         }
 
         window.removeEventListener("keydown", this.keydownCallback);
+		window.removeEventListener("popstate", this.removeCallbacksBound);
 
-        this._inputCallback = false;
-        this._avatarCallback = false;
-        this._clickCallback = false;
-        this._enterCallback = false;
         this._observer.disconnect();
     }
 

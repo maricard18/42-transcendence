@@ -104,7 +104,6 @@ export default class LoginPage extends AbstractView {
         }
 
         window.removeEventListener("keydown", this.keydownCallback);
-
 		window.removeEventListener("popstate", this.removeCallbacksBound);
 
         this._observer.disconnect();

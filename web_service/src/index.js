@@ -8,6 +8,7 @@ import "../static/css/index.css";
 const router = async () => {
     const url = location.pathname;
     let matches = findMatch(url, routes);
+	console.log("object:", matches);
 
 	if (matches === -1) {
 		return ;

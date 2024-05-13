@@ -28,6 +28,8 @@ export default class Login2FAPage extends AbstractView {
 
 		this.removeCallbacksBound = this.removeCallbacks.bind(this);
 		window.addEventListener("popstate", this.removeCallbacksBound);
+
+		//console.log("Here");
     }
 
 	inputCallback = (event) => {
@@ -48,6 +50,7 @@ export default class Login2FAPage extends AbstractView {
 	};
 
     defineCallback() {
+		//console.log("Running Main Callback function");
         const parentNode = document.getElementById("login-2FA-page");
         if (parentNode) {
             this._parentNode = parentNode;
@@ -71,7 +74,9 @@ export default class Login2FAPage extends AbstractView {
         }
 
         if (!this._enterCallback) {
+			console.log("EnterBef:", this._enterCallback);
             this._enterCallback = true;
+			console.log("EnterAft:", this._enterCallback);
             window.addEventListener("keydown", this.keydownCallback);
         }
     }
@@ -86,7 +91,7 @@ export default class Login2FAPage extends AbstractView {
             input.removeEventListener("input", this.inputCallback);
         }
 
-        const submitButton = document.querySelector("submit-button");
+        const submitButton = this._parentNode.querySelector("submit-button");
         if (submitButton) {
             submitButton.removeEventListener(
                 "buttonClicked",
@@ -159,7 +164,7 @@ export default class Login2FAPage extends AbstractView {
 			};
 
 			const response = await fetchData(
-				"/api/users/" + decodeToken["user_id"] + "/otp?code=" + this._2FACode + "&activate",
+				"/api/users/" + decodeToken["user_id"] + "/otp?code=" + this._2FACode,
 				"GET",
 				headers,
 				null
