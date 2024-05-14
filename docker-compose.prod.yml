@@ -283,8 +283,8 @@ services:
     command: [ "--config.file=/etc/prometheus/prometheus.yml" ]
     user: root
     privileged: true
-    ports:
-      - "9090:9090"
+    expose:
+      - "9090"
     networks:
       - transcendence
     volumes:
