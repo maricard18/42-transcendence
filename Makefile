@@ -3,7 +3,7 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: wcorrea- <wcorrea-@student.42.fr>          +#+  +:+       +#+         #
+#    By: bsilva-c <bsilva-c@student.42porto.com>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/02/15 17:36:39 by bsilva-c          #+#    #+#              #
 #    Updated: 2024/05/13 18:35:29 by wcorrea-         ###   ########.fr        #
@@ -33,7 +33,7 @@ endif
 #### Using Makefile to call specific service
 ##
 
-SERVICES = auth_service game_service web_service vault_service modsecurity nikto cadvisor grafana prometheus node-exporter telegraf alertmanager
+SERVICES = auth_service game_service web_service vault_service modsecurity nikto grafana prometheus telegraf alertmanager
 _SERVICE = $(SERVICE)
 
 # Check if service is valid
@@ -72,6 +72,7 @@ fclean:
 	@images=$$(docker image ls -q "$(PROJECT_NAME)-*"); \
 	if [ -n "$$images" ]; then \
 		docker image rm $$images -f; \
+		docker system prune -af --volumes; \
 	fi
 help:
 	@echo "Usage: make [options] [target]"

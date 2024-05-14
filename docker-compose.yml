@@ -1,7 +1,6 @@
 version: '3.8'
 services:
   auth_service-postgres-dev:
-    container_name: auth_service-postgres-dev
     image: postgres:13-alpine3.18
     user: postgres
     environment:
@@ -29,7 +28,6 @@ services:
     restart: always
 
   auth_service-dev:
-    container_name: auth_service-dev
     build:
       context: auth_service/
       target: dev
@@ -80,7 +78,6 @@ services:
     restart: on-failure
 
   game_service-postgres-dev:
-    container_name: game_service-postgres-dev
     image: postgres:13-alpine3.18
     user: postgres
     environment:
@@ -108,7 +105,6 @@ services:
     restart: always
 
   game_service-dev:
-    container_name: game_service-dev
     build:
       context: game_service/
       target: dev
@@ -159,7 +155,6 @@ services:
     restart: on-failure
 
   modsecurity-dev:
-    container_name: modsecurity-dev
     build:
       context: .
       dockerfile: modsecurity-nginx/Dockerfile
@@ -206,7 +201,6 @@ services:
     restart: on-failure
 
   redis_service-dev:
-    container_name: redis_service-dev
     image: redis:7.2-alpine3.18
     expose:
       - "6379"
@@ -221,7 +215,6 @@ services:
     restart: on-failure
 
   vault_service-dev:
-    container_name: vault_service-dev
     build:
       context: vault/
       target: service
@@ -252,9 +245,75 @@ services:
     profiles: [ "", "auth_service", "web_service" ]
     restart: on-failure
 
+  telegraf-dev:
+    build:
+      context: monitoring/telegraf/
+      args:
+        - NGINX_METRICS_URL=https://modsecurity-dev:8081/nginx_status
+    networks:
+      - transcendence-dev
+    volumes:
+      - telegraf_data-dev:/var/log/telegraf/:ro
+    depends_on:
+      modsecurity-dev:
+        condition: service_started
+    profiles: [ "", "monitoring_service" ]
+    restart: on-failure
+
+  alertmanager-dev:
+    build:
+      context: monitoring/alertmanager/
+      args:
+        SLACK_ALERTMANAGER_WEBHOOK: ${SLACK_ALERTMANAGER_WEBHOOK}
+        SLACK_ALERTMANAGER_CHANNEL: ${SLACK_ALERTMANAGER_CHANNEL}
+    command: [ '--config.file=/etc/alertmanager/alert.yml' ]
+    networks:
+      - transcendence-dev
+    profiles: [ "", "monitoring_service" ]
+    restart: on-failure
+
+  prometheus-dev:
+    build:
+      context: monitoring/prometheus/
+      args:
+        PROMETHEUS_ADDR: prometheus-dev:9090
+        TELEGRAF_ADDR: telegraf-dev:9125
+        ALERTMANAGER_ADDR: alertmanager-dev:9093
+    command: [ "--config.file=/etc/prometheus/prometheus.yml" ]
+    user: root
+    privileged: true
+    ports:
+      - "9090:9090"
+    networks:
+      - transcendence-dev
+    volumes:
+      - prometheus_data-dev:/prometheus
+    profiles: [ "", "monitoring_service" ]
+    restart: on-failure
+
+  grafana-dev:
+    build:
+      context: monitoring/grafana/
+      args:
+        PROMETHEUS_URL: http://prometheus-dev:9090
+    environment:
+      GF_SECURITY_ADMIN_USER__FILE: /run/secrets/grafana_username
+      GF_SECURITY_ADMIN_PASSWORD__FILE: /run/secrets/grafana_password
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /etc/grafana/dashboards/Home.json
+    secrets:
+      - grafana_username
+      - grafana_password
+    ports:
+      - "3000:3000"
+    networks:
+      - transcendence-dev
+    volumes:
+      - grafana_data-dev:/var/lib/grafana
+    profiles: [ "", "monitoring_service" ]
+    restart: on-failure
+
   ############# TOOLS #############
   vault_service-init-dev:
-    container_name: vault_service-init-dev
     image: hashicorp/vault:1.13.3
     entrypoint: [ "/bin/sh", "/vault/scripts/init.sh"]
     environment:
@@ -275,7 +334,6 @@ services:
         condition: service_started
 
   auth_service-db_migrations-dev:
-    container_name: auth_service-db_migrations-dev
     build:
       context: auth_service/
       target: tools
@@ -313,7 +371,6 @@ services:
     profiles: [ "", "auth_service", "tools" ]
 
   auth_service-collectstatic-dev:
-    container_name: auth_service-collectstatic-dev
     build:
       context: auth_service/
       target: tools
@@ -342,7 +399,6 @@ services:
     profiles: [ "", "auth_service", "tools" ]
 
   game_service-db_migrations-dev:
-    container_name: game_service-db_migrations-dev
     build:
       context: game_service/
       target: tools
@@ -380,7 +436,6 @@ services:
     profiles: [ "", "game_service", "tools" ]
 
   game_service-collectstatic-dev:
-    container_name: game_service-collectstatic-dev
     build:
       context: game_service/
       target: tools
@@ -409,7 +464,6 @@ services:
     profiles: [ "", "game_service", "tools" ]
 
   web_service-dev:
-    container_name: web_service-dev
     build:
       context: web_service/
       target: dev
@@ -427,89 +481,8 @@ services:
         condition: service_healthy
     profiles: [ "", "web_service", "tools" ]
     restart: on-failure
-  
-  telegraf-dev:
-    container_name: telegraf-dev
-    build:
-      context: monitoring/telegraf/
-      args:
-        - NGINX_METRICS_URL=https://modsecurity-dev:8081/nginx_status
-    restart: always
-    networks:
-      - transcendence-dev
-    volumes:
-      - telegraf_data-dev:/var/log/telegraf/:ro
-    depends_on:
-      auth_service-dev:
-        condition: service_started
-  
-  alertmanager-dev:
-    build:
-      context: monitoring/alertmanager/
-      args:
-        SLACK_ALERTMANAGER_WEBHOOK: ${SLACK_ALERTMANAGER_WEBHOOK}
-        SLACK_ALERTMANAGER_CHANNEL: ${SLACK_ALERTMANAGER_CHANNEL}
-    container_name: alertmanager-dev
-    networks:
-      - transcendence-dev
-    command:
-      - '--config.file=/etc/alertmanager/alert.yml'
-    restart: always
-    depends_on:
-      auth_service-dev:
-        condition: service_started
-
-  prometheus-dev:
-    container_name: prometheus-dev
-    build:
-      context: monitoring/prometheus/
-      args:
-        PROMETHEUS_ADDR: prometheus-dev:9090
-        TELEGRAF_ADDR: telegraf-dev:9125
-        ALERTMANAGER_ADDR: alertmanager-dev:9093
-    restart: always
-    user: root
-    ports:
-      - "9090:9090"
-    volumes:
-      - prometheus_data-dev:/prometheus
-    privileged: true
-    networks:
-      - transcendence-dev
-    command:
-      - "--config.file=/etc/prometheus/prometheus.yml"
-    depends_on:
-      telegraf-dev:
-        condition: service_started
-      alertmanager-dev:
-        condition: service_started
-  
-  grafana-dev:
-    build:
-      context: monitoring/grafana/
-      args:
-        PROMETHEUS_URL: http://prometheus-dev:9090
-    container_name: grafana-dev
-    restart: always
-    ports:
-      - "3000:3000"
-    volumes:
-      - grafana_data-dev:/var/lib/grafana
-    networks:
-      - transcendence-dev
-    environment:
-      - GF_SECURITY_ADMIN_USER__FILE=/run/secrets/grafana_username
-      - GF_SECURITY_ADMIN_PASSWORD__FILE=/run/secrets/grafana_password
-      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/etc/grafana/dashboards/Home.json
-    secrets:
-      - grafana_username
-      - grafana_password
-    depends_on:
-      prometheus-dev:
-        condition: service_started    
 
   nikto-dev:
-    container_name: nikto-dev
     build:
       context: nikto/
     environment:
