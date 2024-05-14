@@ -86,6 +86,11 @@ export function gameConfettiAnimation(game) {
             );
 
             game.clear();
+			game.ctx.globalAlpha = 0.4;
+			game.drawBoard();
+			game.player1.draw(game.ctx, game.size);
+			game.player2.draw(game.ctx, game.size);
+			game.ctx.globalAlpha = 1.0;
 
             confettiParticles.forEach((particle) => {
                 game.ctx.fillStyle = particle.color;

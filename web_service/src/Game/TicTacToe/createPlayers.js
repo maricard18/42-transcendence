@@ -6,13 +6,13 @@ import { findTournamentMatch } from "../../views/Tournament";
 export function createSinglePlayerGameObjects(canvas, lobbySize) {
     const player1 =
         lobbySize == 1
-            ? new Player({ symbol: "O", info: AbstractView.userInfo })
-            : new Player({ symbol: "O", info: { username: localStorage.getItem("player1") }});
+            ? new Player({ symbol: "X", info: AbstractView.userInfo })
+            : new Player({ symbol: "X", info: AbstractView.userInfo });
 
     const player2 =
         lobbySize == 1
             ? new Cpu({ symbol: "O", info: { username: localStorage.getItem("player2") }})
-            : new Player({ symbol: "X", info: AbstractView.userInfo });
+            : new Player({ symbol: "O", info: { username: localStorage.getItem("player2") }});
 
     return new Game({
 		canvas: canvas,

@@ -1,3 +1,5 @@
+import AbstractView from "../../views/AbstractView";
+import { sendTicTacToeMessage } from "./tictactoeGame";
 import { Linewidth, ScreenMargin, ScreenSize } from "./variables";
 
 export class Game {
@@ -33,28 +35,29 @@ export class Game {
         ],
         
 		this.row1 = [
-            [[0, 0], [ScreenMargin, ScreenMargin]],
-            [[0, 0], [ScreenSize / 3 + Linewidth * 2, ScreenMargin]],
-            [[0, 0], [(ScreenSize / 3) * 2 + Linewidth / 2, ScreenMargin]],
+            [0, [ScreenMargin, ScreenMargin]],
+            [0, [ScreenSize / 3 + Linewidth * 2 + Linewidth / 2, ScreenMargin]],
+            [0, [(ScreenSize / 3) * 2 + Linewidth / 2, ScreenMargin]],
         ],
         this.row2 = [
-            [[0, 0], [ScreenMargin, ScreenSize / 3 + Linewidth * 2]],
-            [[0, 0], [ScreenSize / 3 + Linewidth * 2, ScreenSize / 3 + Linewidth * 2]],
-            [[0, 0], [(ScreenSize / 3) * 2 + Linewidth / 2, ScreenSize / 3 + Linewidth * 2]],
+            [0, [ScreenMargin, ScreenSize / 3 + Linewidth * 2 + Linewidth / 2]],
+            [0, [ScreenSize / 3 + Linewidth * 2 + Linewidth / 2, ScreenSize / 3 + Linewidth * 2 + Linewidth]],
+            [0, [(ScreenSize / 3) * 2 + Linewidth / 2, ScreenSize / 3 + Linewidth * 2 + Linewidth / 2]],
         ],
         this.row3 = [
-            [[0, 0], [ScreenMargin, (ScreenSize / 3) * 2 + Linewidth / 2]],
-            [[0, 0], [ScreenSize / 3 + Linewidth * 2, (ScreenSize / 3) * 2 + Linewidth / 2]],
-            [[0, 0], [(ScreenSize / 3) * 2 + Linewidth / 2, (ScreenSize / 3) * 2 + Linewidth / 2]],
+            [0, [ScreenMargin, (ScreenSize / 3) * 2 + Linewidth / 2]],
+            [0, [ScreenSize / 3 + Linewidth * 2 + Linewidth / 2, (ScreenSize / 3) * 2 + Linewidth / 2]],
+            [0, [(ScreenSize / 3) * 2 + Linewidth / 2, (ScreenSize / 3) * 2 + Linewidth / 2]],
         ],
         
 		this.board = [this.row1, this.row2, this.row3]
+		this.player1.board = this.board;
+		this.player2.board = this.board;
     }
 
     clear() {
-        this.ctx.fillStyle = "black";
-        this.ctx.fillRect(0, 0, ScreenSize, ScreenSize);
-    }
+		this.ctx.clearRect(0, 0, ScreenSize, ScreenSize);
+	}
 
     drawBoard() {
         this.ctx.beginPath();
@@ -82,52 +85,85 @@ export class Game {
     }
 
 	hit(x, y) {
-		for (let [rowIndex, row] of this.board.entries()) {
-			for (let [boxIndex, box] of row.entries()) {
+		for (let row of this.board) {
+			for (let box of row) {
 				if (x > box[1][0] && y > box[1][1] && x < box[1][0] + this.size && y < box[1][1] + this.size) {
-					if (!box[0][0] && this.player1.myTurn) {
-						console.log(`Hit in box ${boxIndex + 1} of row ${rowIndex + 1}`);
-						this.player1.draw(this.ctx, box[1][0], box[1][1], this.size);
-						this.player1.plays
-						box[0][0] = 1;
-						box[0][1] = 1;
-						//this.player1.myTurn = false;
-						//this.player2.myTurn = true;
+					if ((!box[0] && this.player1.myTurn && this.mode !== "multiplayer") ||
+					   ((!box[0] && this.player1.myTurn && AbstractView.userInfo.id === this.host_id && this.mode === "multiplayer"))) {
+						this.player1.addPlay(box[1][0], box[1][1]);
+						box[0] = 1;
+						this.player1.myTurn = false;
+						this.player2.myTurn = true;
+						if (this.player2.plays.length === 3 && this.mode !== "single-player") {
+							this.player2.plays[2][2] = true;
+						}
+						if (this.player1.plays.length === 3 && this.mode !== "single-player") {
+							this.player1.plays[2][2] = false;
+						}
+
+						if (this.player2.plays.length === 3 && this.mode === "multiplayer") {
+							this.player2.plays[2][2] = true;
+						}
+						if (this.player1.plays.length === 3 && this.mode === "multiplayer") {
+							this.player1.plays[2][2] = true;
+						}
+						sendTicTacToeMessage(this, 1);
+					}
+					if ((!box[0] && this.player2.myTurn && this.mode !== "multiplayer") ||
+					   ((!box[0] && this.player2.myTurn && AbstractView.userInfo.id !== this.host_id && this.mode === "multiplayer"))) {
+						this.player2.addPlay(box[1][0], box[1][1]);
+						box[0] = 2;
+						this.player2.myTurn = false;
+						this.player1.myTurn = true;
+						if (this.player1.plays.length === 3) {
+							this.player1.plays[2][2] = true;
+						}
+						if (this.player2.plays.length === 3) {
+							this.player2.plays[2][2] = false;
+						}
+						sendTicTacToeMessage(this, 2);
 					}
 				}
 			}
 		}
+		
+		this.player1.draw(this.ctx, this.size);
+		this.player2.draw(this.ctx, this.size);
 	}
 
 	checkWinner() {
 		// rows
-		for (let [index, row] of this.board.entries()) {
-			if (row[0][0] === row[1][0] && row[0][0] === row[2][0]) {
-				console.log(`Row ${index + 1} is complete by player ${row[0][1]}`);
+		for (let i = 0; i < this.board.length; i++) {
+			if (this.board[i][0][0] && this.board[i][0][0] === this.board[i][1][0] && this.board[i][0][0] === this.board[i][2][0]) {
+				this.player1.myTurn = false;
+				this.player2.myTurn = false;
 				this.over = true;
-				this.winner = row[0][0];
+				this.winner = this.board[i][0][0];
 			}
 		}
 
 		// columns
-		for (let i = 0; i < this.board[0].length; i++) {
-			if (this.board[0][i] === this.board[1][i] && this.board[0][i] === this.board[2][i]) {
-				console.log(`Column ${i + 1} is complete by player ${this.board[0][i]}`);
+		for (let i = 0; i < this.board.length; i++) {
+			if (this.board[0][i][0] && this.board[0][i][0] === this.board[1][i][0] && this.board[0][i][0] === this.board[2][i][0]) {
+				this.player1.myTurn = false;
+				this.player2.myTurn = false;
 				this.over = true;
-				this.winner = this.board[0][i];
+				this.winner = this.board[0][i][0];
 			}
 		}
 
 		// diagonals
-		if (this.board[0][0] === this.board[1][1] && this.board[0][0] === this.board[2][2]) {
-			console.log(`Left diagonal is complete by player ${this.board[0][0]}`);
+		if (this.board[0][0][0] && this.board[0][0][0] === this.board[1][1][0] && this.board[0][0][0] === this.board[2][2][0]) {
+			this.player1.myTurn = false;
+			this.player2.myTurn = false;
 			this.over = true;
-			this.winner = this.board[0][0];
+			this.winner = this.board[0][0][0];
 		}
-		if (this.board[0][2] === this.board[1][1] && this.board[0][2] === this.board[2][0]) {
-			console.log(`Right diagonal is complete by player ${this.board[0][2]}`);
+		if (this.board[0][2][0] && this.board[0][2][0] === this.board[1][1][0] && this.board[0][2][0] === this.board[2][0][0]) {
+			this.player1.myTurn = false;
+			this.player2.myTurn = false;
 			this.over = true;
-			this.winner = this.board[0][2];
+			this.winner = this.board[0][2][0];
 		}
 	}
 }

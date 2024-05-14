@@ -147,6 +147,14 @@ export const routes = [
 				view: Pong
             },
 			{
+                path: "/tic-tac-toe/tournament/creation",
+				view: Tournament
+            },
+			{
+                path: "/tic-tac-toe/tournament/matchmaking",
+				view: TournamentMatchmaking
+            },
+			{
                 path: "/tic-tac-toe/play/single-player/1",
 				view: TicTacToe
             },
@@ -156,6 +164,10 @@ export const routes = [
             },
             {
                 path: "/tic-tac-toe/play/multiplayer/2",
+				view: TicTacToe
+            },
+			{
+                path: "/tic-tac-toe/play/tournament/2",
 				view: TicTacToe
             },
         ]

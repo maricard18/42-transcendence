@@ -93,8 +93,7 @@ export default class TicTacToe extends AbstractView {
 		const ctx = canvas.getContext("2d");
 		const headlineSize = this._height * 0.12;
 		const paragraphSize = this._height * 0.03
-		ctx.fillStyle = "black";
-		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		ctx.fillStyle = "white";
 		ctx.font = `bold ${headlineSize}px Arial`;
 		ctx.textAlign = "center";
@@ -107,7 +106,7 @@ export default class TicTacToe extends AbstractView {
 		canvas.addEventListener("click", async () => {
 			if (this._gameMode === "tournament") {
 				this._observer.disconnect();
-				navigateTo("/home/pong/tournament/matchmaking");
+				navigateTo("/home/tic-tac-toe/tournament/matchmaking");
 			} else {
 				localStorage.removeItem("game_status");
 				localStorage.removeItem("game_winner");
@@ -129,7 +128,7 @@ export default class TicTacToe extends AbstractView {
 						width="${this._width}"
 						height="${this._height}"
 						class="mt-3"
-						style="border: 10px solid #fff; border-radius: 15px"
+						style="border: 10px solid #fff; border-radius: 15px; background-color: rgba(0, 0, 0, 0.7)"
 					/>
 				</div>
 			</div>
@@ -156,7 +155,7 @@ export default class TicTacToe extends AbstractView {
 			}
 			if (currentGameFinished()) {
 				this._observer.disconnect();
-				await navigateTo("/home/pong/tournament/matchmaking");
+				await navigateTo("/home/tic-tac-toe/tournament/matchmaking");
 				return ;
 			}
 		}

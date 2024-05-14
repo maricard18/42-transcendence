@@ -2,10 +2,11 @@ import AbstractView from "../../views/AbstractView";
 import { checkPlayer1Collision, checkPlayer2Collision, checkInvertedPlayer3Collision, checkInvertedPlayer4Collision } from "./collision";
 import { createSinglePlayerGameObjects, createMultiPlayer2GameObjects, createMultiPlayer4GameObjects, createTournamentGameObjects } from "./createPlayers";
 import { MyWebSocket, sendMessage } from "../../functions/websocket";
-import { multiplayerMessageHandler } from "../../functions/websocket";
+import { multiplayerPongMessageHandler } from "../../functions/websocket";
 import { gameConfettiAnimation, gameStartAnimation } from "./animations";
 import { updateVariables } from "./variables";
 import { ScreenWidth, ScreenHeight, keys } from "./variables";
+import { findTournamentWinner } from "../../views/Tournament";
 
 export function createPongGameObject(canvas, gameMode, lobbySize) {
     const ctx = canvas.getContext("2d");
@@ -44,14 +45,14 @@ export async function startPong(game) {
 		await gameConfettiAnimation(game);
 		localStorage.removeItem("game_status");
 	} else if (game.mode === "multiplayer" && game.lobbySize == 2) {
-		multiplayerMessageHandler(MyWebSocket, game);
+		multiplayerPongMessageHandler(MyWebSocket, game);
 		await gameStartAnimation(game);
 		game.last_time = Date.now();
 		await multiplayer2GameLoop(game);
 		await gameConfettiAnimation(game);
 		localStorage.removeItem("game_status");
 	} else if (game.mode === "multiplayer" && game.lobbySize == 4) {
-		multiplayerMessageHandler(MyWebSocket, game);
+		multiplayerPongMessageHandler(MyWebSocket, game);
 		await gameStartAnimation(game);
 		game.last_time = Date.now();
 		await multiplayer4GameLoop(game);
@@ -250,8 +251,7 @@ function multiplayer4GameLoop(game) {
 }
 
 export function clearBackground(ctx) {
-    ctx.fillStyle = "black";
-    ctx.fillRect(0, 0, ScreenWidth, ScreenHeight);
+	ctx.clearRect(0, 0, ScreenSize, ScreenSize);
 }
 
 export function sendHostMessage(game) {
@@ -340,32 +340,5 @@ function getPlayerWithMostGoals(players) {
     }
 
     return highestScoringPlayer;
-}
-
-function findTournamentWinner(game, players) {
-	let match1 = JSON.parse(localStorage.getItem("match1"));
-	let match2 = JSON.parse(localStorage.getItem("match2"));
-	let match3 = JSON.parse(localStorage.getItem("match3"));
-	let tournament = JSON.parse(localStorage.getItem("tournament"));
-
-	for (let i = 0; i < players.length; i++) {
-		if (players[i].info["username"] === game.winner) {
-			if (match1 && match1["status"] !== "finished") {
-				match1["winner"] = i === 0 ? match1["player1"]["index"] : match1["player2"]["index"];
-				match1["status"] = "finished";
-				localStorage.setItem("match1", JSON.stringify(match1));
-			} else if (match2 && match2["status"] !== "finished") {
-				match2["winner"] = i === 0 ? match2["player1"]["index"] : match2["player2"]["index"];
-				match2["status"] = "finished";
-				localStorage.setItem("match2", JSON.stringify(match2));
-			} else if (match3 && match3["status"] !== "finished") {
-				match3["winner"] = i === 0 ? match3["player1"]["index"] : match3["player2"]["index"];
-				match3["status"] = "finished";
-				tournament[4][0] = "finished";
-				localStorage.setItem("match3", JSON.stringify(match3));
-				localStorage.setItem("tournament", JSON.stringify(tournament));
-			}
-		}
-	}
 }
 				

@@ -3,6 +3,7 @@ import { ScreenHeight, ScreenWidth } from "../Game/Pong/variables";
 import { getPlayerIndex, sendNonHostMessage, updateScore } from "../Game/Pong/pongGame";
 import { getToken } from "./tokens";
 import { Cpu, InvertedCpu } from "../Game/Pong/Player";
+import { ScreenSize } from "../Game/TicTacToe/variables";
 
 export var MyWebSocket = {};
 
@@ -73,7 +74,92 @@ export async function connectWebsocket() {
     };
 }
 
-export function multiplayerMessageHandler(MyWebSocket, game) {
+export function multiplayerTicTacToeMessageHandler(MyWebSocket, game) {
+	if (MyWebSocket.ws) {
+        MyWebSocket.ws.onmessage = (event) => {
+            console.log("GAME", JSON.parse(event.data));
+
+            try {
+                const jsonData = JSON.parse(event.data);
+
+                if (jsonData["type"] === "user.message") {
+					const gameData = jsonData["data"]["game"];
+					
+					if (gameData["index"] == 2) {
+						game.player2.plays = gameData["plays"];
+						for (let play of game.player2.plays) {
+							play[0] = play[0] / gameData["screen_size"] * ScreenSize;
+							play[1] = play[1] / gameData["screen_size"] * ScreenSize;
+						}
+						console.log("plyer2 info:", game.player2);
+						//if (game.player2.plays.length === 3) {
+						//	game.player2.plays[2][2] = true;
+						//}
+						game.player2.draw(game.ctx, game.size);
+					}
+					
+					if (gameData["index"] == 1) {
+						game.player1.plays = gameData["plays"];
+						for (let play of game.player1.plays) {
+							play[0] = play[0] / gameData["screen_size"] * ScreenSize;
+							play[1] = play[1] / gameData["screen_size"] * ScreenSize;
+						}
+						console.log("plyer1 info:", game.player1);
+						//if (game.player1.plays.length === 3) {
+						//	game.player1.plays[2][2] = true;
+						//}
+						game.player1.draw(game.ctx, game.size);
+					}
+
+					game.board = gameData["board"];
+					game.player1.myTurn = gameData["player1_turn"];
+					game.player2.myTurn = gameData["player2_turn"];
+					game.over = gameData["over"];
+					game.winner = gameData["winner"];
+                }
+                
+				if (jsonData["type"] == "system.message") {
+                    const data = jsonData["data"];
+                    if (data["message"] === "user.disconnected") {
+						if (Object.keys(AbstractView.userData).length) {
+							AbstractView.userData.forEach((user, index) => {
+								if (data["user_id"] == user.id && game.lobbySize == 2) {
+									user.id = -1;
+								}
+								 
+							});
+						}
+
+						const newState = { ...AbstractView.userQueue };
+						for (let key in newState) {
+							if (newState[key] === data["user_id"]) {
+								delete newState[key];
+								break;
+							}
+						}
+						AbstractView.userQueue = newState;
+						
+						if (Object.keys(AbstractView.userQueue).length < 2) {
+							console.log("UserData:", AbstractView.userData);
+							for (let data of AbstractView.userData) {
+								if (data.id !== -1) {
+									localStorage.setItem("game_winner", data.username);
+								}
+							}
+							game.over = true;
+                        	closeWebsocket();
+							AbstractView.userData = {};
+						}
+					}
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        };
+    }
+}
+
+export function multiplayerPongMessageHandler(MyWebSocket, game) {
 	if (MyWebSocket.ws) {
         MyWebSocket.ws.onmessage = (event) => {
             //console.log("GAME", JSON.parse(event.data));

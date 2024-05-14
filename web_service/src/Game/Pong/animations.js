@@ -124,6 +124,7 @@ export function gameConfettiAnimation(game) {
             );
 
             game.clear();
+			game.ctx.globalAlpha = 0.4;
             game.player1.draw(game.ctx);
             game.player2.draw(game.ctx);
 
@@ -133,6 +134,8 @@ export function gameConfettiAnimation(game) {
             if (game.player4) {
                 game.player4.draw(game.ctx);
             }
+
+			game.ctx.globalAlpha = 1;
 
             confettiParticles.forEach((particle) => {
                 game.ctx.fillStyle = particle.color;
