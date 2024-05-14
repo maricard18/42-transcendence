@@ -1,6 +1,5 @@
 import os
 import secrets
-from typing import Union
 
 import pyotp
 from django.contrib.auth import authenticate
@@ -14,42 +13,17 @@ from rest_framework_simplejwt.exceptions import TokenError, AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from common.Vault import Vault
-from common.utils import get_secret_from_file
-from .exceptions import ServerError
+from common.exceptions import ServerError
+from common.utils import get_secret_from_file, remove_sensitive_information, generate_host
 from .models import OTP_Token, Avatar, SSO_User
 from .permissions import UserPermission, OTPPermission, TokenPermission, SSOPermission
 from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer, CreateOTPSerializer, \
-    AuthUserSerializer, APITokenObtainPairSerializer, TokenSerializer, SSOSerializer
+    AuthUserSerializer, APITokenObtainPairSerializer, TokenSerializer, SSOSerializer, OTPSerializer
 
 
 ######################
 ####  /api/users  ####
 ######################
-
-def remove_sensitive_information(user_pk: int, data: Union[dict, list]) -> Union[dict, list]:
-    def hide_email(user_data: dict) -> None:
-        if 'id' in user_data and int(user_data['id']) != user_pk:
-            user_data['email'] = '[hidden]'
-
-    if isinstance(data, list):
-        for user in data:
-            hide_email(user)
-    elif isinstance(data, dict):
-        hide_email(data)
-    else:
-        raise ServerError
-
-    return data
-
-
-def generate_host(request: HttpRequest) -> str:
-    scheme = request.headers.get('X-Forwarded-Proto')
-    host = request.headers.get('Host')
-    port = ""
-    if request.headers.get('X-Forwarded-Port') not in ["80", "443"]:
-        port = ":" + request.headers.get('X-Forwarded-Port')
-    return scheme + "://" + host + port
-
 
 class UserViewSet(viewsets.ViewSet):
     queryset = User.objects.all()
@@ -57,7 +31,7 @@ class UserViewSet(viewsets.ViewSet):
 
     # GET /api/users
     def list(self, request):
-        serializer = UserSerializer(self.queryset)
+        serializer = UserSerializer(self.queryset, many=True)
 
         return Response(Vault.cipherSensitiveFields(
             remove_sensitive_information(request.user.id, serializer.data),
@@ -71,12 +45,12 @@ class UserViewSet(viewsets.ViewSet):
         serializer = CreateUserSerializer(data=data)
         if serializer.is_valid(raise_exception=True):
             user = User.objects.create_user(
-                serializer.validated_data.get('username'),
-                serializer.validated_data.get('email'),
-                serializer.validated_data.get('password')
+                serializer.validated_data.get("username"),
+                serializer.validated_data.get("email"),
+                serializer.validated_data.get("password")
             )
 
-            avatar = serializer.validated_data.get('avatar')
+            avatar = serializer.validated_data.get("avatar")
             if avatar:
                 Avatar.objects.create(
                     auth_user=user,
@@ -84,13 +58,11 @@ class UserViewSet(viewsets.ViewSet):
                     request=request
                 )
 
-            url = generate_host(request) + request.path + '/' + str(user.id)
-
             return Response(Vault.cipherSensitiveFields(
                 {
-                    'id': str(user.id),
-                    'username': user.username,
-                    'url': url
+                    "id": str(user.id),
+                    "username": user.username,
+                    "url": generate_host(request) + request.path + "/" + str(user.id)
                 },
                 request,
                 Vault.transitEncrypt
@@ -118,9 +90,9 @@ class UserViewSet(viewsets.ViewSet):
         user = self.queryset.get(pk=pk)
 
         data = Vault.cipherSensitiveFields(request.data, request, Vault.transitDecrypt)
-        if data.get('avatar', None) == '':
+        if data.get("avatar", None) == "":
             Avatar.objects.filter(auth_user=user).delete()
-            data.pop('avatar')
+            data.pop("avatar")
 
         serializer = UpdateUserSerializer(data=data, partial=True)
         if serializer.is_valid(raise_exception=True):
@@ -132,7 +104,7 @@ class UserViewSet(viewsets.ViewSet):
                     setattr(user, key, value)
             user.save()
 
-            avatar = serializer.validated_data.get('avatar', None)
+            avatar = serializer.validated_data.get("avatar", None)
             if avatar:
                 Avatar.objects.update_or_create(
                     auth_user=user,
@@ -154,9 +126,12 @@ class UserViewSet(viewsets.ViewSet):
         # Delete SSO User
         SSO_User.objects.filter(auth_user=user).delete()
 
+        # Delete OTP Token
+        OTP_Token.objects.filter(auth_user=user).delete()
+
         # GDPR Anonymize User
         user.username = secrets.token_hex()
-        user.email = ''
+        user.email = ""
         user.is_active = False
         user.save()
         user.set_unusable_password()
@@ -177,7 +152,7 @@ class OTPViewSet(viewsets.ViewSet):
         user = User.objects.get(pk=pk)
 
         serializer = CreateOTPSerializer(data={
-            'auth_user': user.id
+            "auth_user": user.id
         })
         if serializer.is_valid(raise_exception=True):
             otp = self.queryset.create(
@@ -187,12 +162,12 @@ class OTPViewSet(viewsets.ViewSet):
 
             url = pyotp.totp.TOTP(otp.token).provisioning_uri(
                 name=otp.auth_user.username,
-                issuer_name='ft_transcendence'
+                issuer_name="ft_transcendence"
             )
 
             return Response(Vault.cipherSensitiveFields(
                 {
-                    'url': url
+                    "url": url
                 },
                 request,
                 Vault.transitEncrypt
@@ -207,12 +182,10 @@ class OTPViewSet(viewsets.ViewSet):
 
         try:
             otp = self.queryset.get(auth_user=user)
-            if request.GET.get('code') is None:
+            if request.GET.get("code") is None:
+                serializer = OTPSerializer(otp)
                 return Response(Vault.cipherSensitiveFields(
-                    {
-                        'active': otp.active,
-                        'created_at': otp.created_at
-                    },
+                    serializer.data,
                     request,
                     Vault.transitEncrypt
                 ), status=status.HTTP_200_OK)
@@ -221,14 +194,14 @@ class OTPViewSet(viewsets.ViewSet):
         except OTP_Token.DoesNotExist:
             raise NotFound
 
-        valid = totp.now() == request.GET.get('code')
-        if valid and 'activate' in request.GET:
+        valid = totp.now() == request.GET.get("code")
+        if valid and "activate" in request.GET:
             otp.active = True
             otp.save()
 
         return Response(Vault.cipherSensitiveFields(
             {
-                'valid': valid
+                "valid": valid
             },
             request,
             Vault.transitEncrypt
@@ -259,8 +232,8 @@ class TokenViewSet(viewsets.ViewSet):
         serializer = AuthUserSerializer(data=data, partial=True)
         if serializer.is_valid(raise_exception=False):
             user = None
-            username = serializer.validated_data.get('username', None)
-            email = serializer.validated_data.get('email', None)
+            username = serializer.validated_data.get("username", None)
+            email = serializer.validated_data.get("email", None)
             try:
                 if username:
                     user = User.objects.get(username=username)
@@ -270,18 +243,18 @@ class TokenViewSet(viewsets.ViewSet):
                 raise NotFound
 
             user = authenticate(
-                username=AuthUserSerializer(user).data.get('username'),
-                password=serializer.validated_data.get('password')
+                username=AuthUserSerializer(user).data.get("username"),
+                password=serializer.validated_data.get("password")
             )
             if user is not None:
                 refresh_token = APITokenObtainPairSerializer.get_token(user)
 
                 return Response(Vault.cipherSensitiveFields(
                     {
-                        'access_token': str(refresh_token.access_token),
-                        'token_type': "Bearer",
-                        'expires_in': str(refresh_token.access_token.lifetime.seconds),
-                        'refresh_token': str(refresh_token)
+                        "access_token": str(refresh_token.access_token),
+                        "token_type": "Bearer",
+                        "expires_in": str(refresh_token.access_token.lifetime.seconds),
+                        "refresh_token": str(refresh_token)
                     },
                     request,
                     Vault.transitEncrypt
@@ -293,16 +266,16 @@ class TokenViewSet(viewsets.ViewSet):
     @staticmethod
     def refresh_token(request: HttpRequest) -> Response:
         try:
-            refresh_token = RefreshToken(request.data.get('refresh_token'))
+            refresh_token = RefreshToken(request.data.get("refresh_token"))
         except TokenError as exc:
             raise ParseError(exc.args[0])
 
         return Response(Vault.cipherSensitiveFields(
             {
-                'access_token': str(refresh_token.access_token),
-                'token_type': "Bearer",
-                'expires_in': str(refresh_token.access_token.lifetime.seconds),
-                'refresh_token': str(refresh_token)
+                "access_token": str(refresh_token.access_token),
+                "token_type": "Bearer",
+                "expires_in": str(refresh_token.access_token.lifetime.seconds),
+                "refresh_token": str(refresh_token)
             },
             request,
             Vault.transitEncrypt
@@ -313,9 +286,9 @@ class TokenViewSet(viewsets.ViewSet):
         data = Vault.cipherSensitiveFields(request.data, request, Vault.transitDecrypt)
         serializer = TokenSerializer(data=data)
         if serializer.is_valid(raise_exception=True):
-            if request.data.get('grant_type') == 'password':
+            if request.data.get("grant_type") == "password":
                 return self.new_token(request)
-            elif request.data.get('grant_type') == 'refresh_token':
+            elif request.data.get("grant_type") == "refresh_token":
                 return self.refresh_token(request)
 
         raise ServerError
@@ -332,13 +305,13 @@ class SSOViewSet(viewsets.ViewSet):
     def sso_101010(request: HttpRequest) -> Response:
         conflict = False
         auth_user = None
-        action = request.GET.get('action', None)
-        user_id = request.GET.get('user_id', None)
-        code = request.GET.get('code', None)
+        action = request.GET.get("action", None)
+        user_id = request.GET.get("user_id", None)
+        code = request.GET.get("code", None)
 
         serializer = SSOSerializer(data=request.GET)
         if serializer.is_valid(raise_exception=True):
-            if action == 'link':
+            if action == "link":
                 try:
                     auth_user = User.objects.get(pk=user_id)
                 except User.DoesNotExist:
@@ -346,30 +319,30 @@ class SSOViewSet(viewsets.ViewSet):
 
             import requests
 
-            response = requests.post('https://api.intra.42.fr/oauth/token', data={
-                'grant_type': 'authorization_code',
-                'client_id': os.environ.get('SSO_42_CLIENT_ID'),
-                'client_secret': get_secret_from_file(os.environ.get('SSO_42_CLIENT_SECRET_FILE')),
-                'code': code,
-                'redirect_uri': os.environ.get('SSO_42_REDIRECT_URI')
+            response = requests.post("https://api.intra.42.fr/oauth/token", data={
+                "grant_type": "authorization_code",
+                "client_id": os.environ.get("SSO_42_CLIENT_ID"),
+                "client_secret": get_secret_from_file(os.environ.get("SSO_42_CLIENT_SECRET_FILE")),
+                "code": code,
+                "redirect_uri": os.environ.get("SSO_42_REDIRECT_URI")
             })
             if response.status_code == 200:
                 response = requests.get(
-                    'https://api.intra.42.fr/v2/me',
+                    "https://api.intra.42.fr/v2/me",
                     headers={
-                        'Authorization': 'Bearer ' + response.json()['access_token']
+                        "Authorization": f"Bearer {response.json()['access_token']}"
                     }
                 )
                 user_info = response.json()
                 try:
                     user = SSO_User.objects.get(
-                        sso_provider='101010',
-                        sso_id=user_info.get('id')
+                        sso_provider="101010",
+                        sso_id=user_info.get("id")
                     )
                     auth_user = user.auth_user
                 except SSO_User.DoesNotExist:
-                    if action == 'register':
-                        username = user_info.get('login')
+                    if action == "register":
+                        username = user_info.get("login")
                         while True:
                             try:
                                 User.objects.get(username=username)
@@ -380,34 +353,34 @@ class SSOViewSet(viewsets.ViewSet):
 
                         auth_user = User.objects.create_user(
                             username=username,
-                            email=user_info.get('email')
+                            email=user_info.get("email")
                         )
 
                     SSO_User.objects.create(
-                        sso_provider='101010',
-                        username=user_info.get('login'),
-                        email=user_info.get('email'),
-                        sso_id=user_info.get('id'),
+                        sso_provider="101010",
+                        username=user_info.get("login"),
+                        email=user_info.get("email"),
+                        sso_id=user_info.get("id"),
                         auth_user=auth_user
                     )
 
-                    if user_info.get('image').get('link'):
+                    if user_info.get("image").get("link"):
                         Avatar.objects.create(
                             auth_user=auth_user,
-                            link=user_info.get('image').get('versions').get('medium')
+                            link=user_info.get("image").get("versions").get("medium")
                         )
 
-                if action == 'link':
+                if action == "link":
                     return Response(None, status=status.HTTP_204_NO_CONTENT)
                 else:
                     refresh_token = APITokenObtainPairSerializer.get_token(auth_user)
 
                     return Response(Vault.cipherSensitiveFields(
                         {
-                            'access_token': str(refresh_token.access_token),
-                            'token_type': "Bearer",
-                            'expires_in': str(refresh_token.access_token.lifetime.seconds),
-                            'refresh_token': str(refresh_token)
+                            "access_token": str(refresh_token.access_token),
+                            "token_type": "Bearer",
+                            "expires_in": str(refresh_token.access_token.lifetime.seconds),
+                            "refresh_token": str(refresh_token)
                         },
                         request,
                         Vault.transitEncrypt
@@ -418,7 +391,7 @@ class SSOViewSet(viewsets.ViewSet):
         raise ServerError
 
     def callback(self, request, pk=None):
-        if str(pk) == '101010':
+        if str(pk) == "101010":
             return self.sso_101010(request)
         else:
-            raise ParseError("'" + str(pk) + "' " + _("is not a valid sso option"))
+            raise ParseError(_(f"'{pk}' is not a valid sso option"))

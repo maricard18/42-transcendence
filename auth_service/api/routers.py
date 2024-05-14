@@ -6,41 +6,41 @@ class APIRouter(DefaultRouter):
     routes = [
         # List route.
         Route(
-            url=r'^{prefix}$',
+            url=r"^{prefix}$",
             mapping={
-                'get': 'list',
-                'post': 'create'
+                "get": "list",
+                "post": "create"
             },
-            name='{basename}-list',
+            name="{basename}-list",
             detail=False,
-            initkwargs={'suffix': 'List'}
+            initkwargs={"suffix": "List"}
         ),
         # Dynamically generated list routes. Generated using
         # @action(detail=False) decorator on methods of the viewset.
         DynamicRoute(
-            url=r'^{prefix}/{url_path}$',
-            name='{basename}-{url_name}',
+            url=r"^{prefix}/{url_path}$",
+            name="{basename}-{url_name}",
             detail=False,
             initkwargs={}
         ),
         # Detail route.
         Route(
-            url=r'^{prefix}/{lookup}$',
+            url=r"^{prefix}/{lookup}$",
             mapping={
-                'get': 'retrieve',
-                'put': 'update',
-                'patch': 'partial_update',
-                'delete': 'destroy'
+                "get": "retrieve",
+                "put": "update",
+                "patch": "partial_update",
+                "delete": "destroy"
             },
-            name='{basename}-detail',
+            name="{basename}-detail",
             detail=True,
-            initkwargs={'suffix': 'Instance'}
+            initkwargs={"suffix": "Instance"}
         ),
         # Dynamically generated detail routes. Generated using
         # @action(detail=True) decorator on methods of the viewset.
         DynamicRoute(
-            url=r'^{prefix}/{lookup}/{url_path}$',
-            name='{basename}-{url_name}',
+            url=r"^{prefix}/{lookup}/{url_path}$",
+            name="{basename}-{url_name}",
             detail=True,
             initkwargs={}
         )
@@ -50,31 +50,31 @@ class APIRouter(DefaultRouter):
     routes += [
         # List route.
         Route(
-            url=r'^{prefix}/{lookup}/callback$',
+            url=r"^{prefix}/{lookup}/callback$",
             mapping={
-                'get': 'callback'
+                "get": "callback"
             },
-            name='{basename}-callback',
+            name="{basename}-callback",
             detail=True,
             initkwargs={}
         ),
         # Dynamically generated list routes. Generated using
         # @action(detail=False) decorator on methods of the viewset.
         DynamicRoute(
-            url=r'^{prefix}/{lookup}/callback/{url_path}$',
-            name='{basename}-{url_name}',
+            url=r"^{prefix}/{lookup}/callback/{url_path}$",
+            name="{basename}-{url_name}",
             detail=True,
             initkwargs={}
         ),
         # List route.
         Route(
-            url=r'^users/{lookup}/otp$',
+            url=r"^users/{lookup}/otp$",
             mapping={
-                'get': 'retrieve',
-                'post': 'create',
-                'delete': 'destroy',
+                "get": "retrieve",
+                "post": "create",
+                "delete": "destroy",
             },
-            name='{basename}-otp',
+            name="{basename}-otp",
             detail=True,
             initkwargs={}
         )
