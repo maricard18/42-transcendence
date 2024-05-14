@@ -76,6 +76,7 @@ class UserViewSet(viewsets.ViewSet):
             user = self.queryset.get(pk=pk)
         except User.DoesNotExist:
             raise NotFound
+
         serializer = UserSerializer(user)
 
         return Response(Vault.cipherSensitiveFields(
