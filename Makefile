@@ -72,7 +72,6 @@ fclean:
 	@images=$$(docker image ls -q "$(PROJECT_NAME)-*"); \
 	if [ -n "$$images" ]; then \
 		docker image rm $$images -f; \
-		docker system prune -af --volumes; \
 	fi
 help:
 	@echo "Usage: make [options] [target]"
