@@ -54,17 +54,6 @@ function singleplayerGameLoop(game) {
 			game.clear();
 			game.drawBoard();
 			game.hit(event.offsetX, event.offsetY);
-			
-            //if (game.player1.myTurn) {
-			//	console.log("Player1");
-			//	console.log("x:", event.offsetX);
-			//	console.log("y:", event.offsetY);
-            //}
-            //if (game.player2.myTurn) {
-            //    console.log("Player2");
-            //    console.log("x:", event.offsetX);
-            //    console.log("y:", event.offsetY);
-            //}
             
             if (game.over) {
                 game.canvas.removeEventListener("click", clickHandler);
