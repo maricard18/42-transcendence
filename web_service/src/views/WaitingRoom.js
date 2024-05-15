@@ -151,6 +151,7 @@ export default class WaitingRoom extends AbstractView {
 }
 
 class PlayerQueue extends AbstractView {
+	//! bug here ... probably
     constructor(view) {
         super();
         this._view = view;

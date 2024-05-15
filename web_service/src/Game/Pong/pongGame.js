@@ -1,7 +1,7 @@
 import AbstractView from "../../views/AbstractView";
 import { checkPlayer1Collision, checkPlayer2Collision, checkInvertedPlayer3Collision, checkInvertedPlayer4Collision } from "./collision";
 import { createSinglePlayerGameObjects, createMultiPlayer2GameObjects, createMultiPlayer4GameObjects, createTournamentGameObjects } from "./createPlayers";
-import { MyWebSocket, sendMessage } from "../../functions/websocket";
+import { MyWebSocket, closeWebsocket, sendMessage } from "../../functions/websocket";
 import { multiplayerPongMessageHandler } from "../../functions/websocket";
 import { gameConfettiAnimation, gameStartAnimation } from "./animations";
 import { updateVariables } from "./variables";
@@ -49,6 +49,7 @@ export async function startPong(game) {
 		await gameStartAnimation(game);
 		game.last_time = Date.now();
 		await multiplayer2GameLoop(game);
+		closeWebsocket();
 		await gameConfettiAnimation(game);
 		localStorage.removeItem("game_status");
 	} else if (game.mode === "multiplayer" && game.lobbySize == 4) {
@@ -56,6 +57,7 @@ export async function startPong(game) {
 		await gameStartAnimation(game);
 		game.last_time = Date.now();
 		await multiplayer4GameLoop(game);
+		closeWebsocket();
 		await gameConfettiAnimation(game);
 		localStorage.removeItem("game_status");
 	} else {
