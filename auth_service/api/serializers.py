@@ -11,7 +11,7 @@ from .models import OTP_Token
 class AvatarSerializer(serializers.ModelSerializer):
     class Meta:
         model = Avatar
-        fields = ('avatar', 'link')
+        fields = ("avatar", "link")
 
 
 ######################
@@ -26,7 +26,7 @@ class UserSerializer(serializers.ModelSerializer):
         try:
             avatar = Avatar.objects.get(auth_user=user)
             avatar_serializer = AvatarSerializer(avatar)
-            link = avatar_serializer.data['link']
+            link = avatar_serializer.data["link"]
             if link:
                 return {
                     "link": link
@@ -37,7 +37,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'avatar', 'is_active', 'date_joined')
+        fields = ("id", "username", "email", "avatar", "is_active", "date_joined")
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
@@ -45,7 +45,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password', 'avatar')
+        fields = ("username", "email", "password", "avatar")
 
 
 class UpdateUserSerializer(serializers.ModelSerializer):
@@ -53,10 +53,10 @@ class UpdateUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password', 'avatar')
+        fields = ("username", "email", "password", "avatar")
         extra_kwargs = {
-            'username': {'required': False},
-            'password': {'required': False}
+            "username": {"required": False},
+            "password": {"required": False}
         }
 
 
@@ -67,8 +67,13 @@ class UpdateUserSerializer(serializers.ModelSerializer):
 class CreateOTPSerializer(serializers.ModelSerializer):
     class Meta:
         model = OTP_Token
-        fields = ('auth_user',)
+        fields = ("auth_user",)
 
+
+class OTPSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OTP_Token
+        fields = ("active", "created_at")
 
 #######################
 ##### /auth/tokens ####
@@ -79,9 +84,9 @@ class AuthUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password')
+        fields = ("username", "email", "password")
         extra_kwargs = {
-            'username': {'required': False}
+            "username": {"required": False}
         }
 
 
@@ -91,7 +96,7 @@ class APITokenObtainPairSerializer(TokenObtainPairSerializer):
     def get_token(cls, user):
         token = super().get_token(user)
 
-        # token['scope'] = 'public'
+        # token["scope"] = "public"
 
         return token
 
@@ -104,30 +109,23 @@ class TokenSerializer(serializers.Serializer):
     refresh_token = serializers.CharField(required=False)
 
     def validate_grant_type(self, value):
-        """
-        Check if the grant_type is either 'password' or 'refresh_token'.
-        """
-        if value not in ['password', 'refresh_token']:
+        if value not in ["password", "refresh_token"]:
             raise serializers.ValidationError(_("This field must be 'password' or 'refresh_token'."))
         return value
 
     def validate(self, data):
         data = super().validate(data)
 
-        """
-        Validate fields based on the grant_type.
-        """
-        grant_type = data.get('grant_type')
-
-        if grant_type == 'password':
-            if not data.get('password'):
+        grant_type = data.get("grant_type")
+        if grant_type == "password":
+            if not data.get("password"):
                 raise serializers.ValidationError({
                     "password": _("This field is required.")
                 })
-            if not data.get('email') and not data.get('username'):
+            if not data.get("email") and not data.get("username"):
                 raise ParseError(_("Either 'email' or 'username' is required."))
-        elif grant_type == 'refresh_token':
-            if not data.get('refresh_token'):
+        elif grant_type == "refresh_token":
+            if not data.get("refresh_token"):
                 raise serializers.ValidationError({
                     "refresh_token": _("This field is required.")
                 })
@@ -145,22 +143,16 @@ class SSOSerializer(serializers.Serializer):
     code = serializers.CharField()
 
     def validate_action(self, value):
-        """
-        Check if the action is either 'password' or 'refresh_token'.
-        """
-        if value not in ['link', 'register']:
+        if value not in ["link", "register"]:
             raise serializers.ValidationError(_("This field must be 'link' or 'register'."))
         return value
 
     def validate(self, data):
         data = super().validate(data)
 
-        """
-        Validate fields based on the action.
-        """
-        action = data.get('action')
-        if action == 'link':
-            if not data.get('user_id'):
+        action = data.get("action")
+        if action == "link":
+            if not data.get("user_id"):
                 raise serializers.ValidationError({
                     "user_id": _("This field is required.")
                 })

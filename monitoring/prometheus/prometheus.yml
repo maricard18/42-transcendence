@@ -1,0 +1,25 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+  external_labels:
+    monitor: 'transcendence-monitor'
+
+rule_files:
+  - 'rules.yml'
+
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+      - '$ALERTMANAGER_ADDR'
+
+scrape_configs:
+  - job_name: 'prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['$PROMETHEUS_ADDR']
+  
+  - job_name: 'telegraf'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['$TELEGRAF_ADDR']

@@ -106,16 +106,16 @@ class SSO_UserManager(models.Manager):
         created = False
         try:
             user = SSO_User.objects.get(
-                sso_provider=kwargs['sso_provider'],
-                sso_id=kwargs['sso_id']
+                sso_provider=kwargs["sso_provider"],
+                sso_id=kwargs["sso_id"]
             )
         except SSO_User.DoesNotExist:
             user = SSO_User.objects.create_user(
-                sso_provider=kwargs['sso_provider'],
-                sso_id=kwargs['sso_id'],
-                username=kwargs['username'],
-                email=kwargs['email'],
-                auth_user=kwargs['auth_user']
+                sso_provider=kwargs["sso_provider"],
+                sso_id=kwargs["sso_id"],
+                username=kwargs["username"],
+                email=kwargs["email"],
+                auth_user=kwargs["auth_user"]
             )
             created = True
         return user, created
@@ -126,11 +126,11 @@ class SSO_UserManager(models.Manager):
 ######################
 
 def path_and_rename(instance, filename):
-    upload_path = 'avatars/'
-    ext = filename.split('.')[-1]
+    upload_path = "avatars/"
+    ext = filename.split(".")[-1]
 
-    filename = '{}.{}'.format(secrets.token_hex(), ext)
-    instance.link = os.path.join('/', str(settings.MEDIA_ROOT).lstrip(str(settings.BASE_DIR)), upload_path, filename)
+    filename = "{}.{}".format(secrets.token_hex(), ext)
+    instance.link = os.path.join("/", str(settings.MEDIA_ROOT).lstrip(str(settings.BASE_DIR)), upload_path, filename)
     return os.path.join(upload_path, filename)
 
 
@@ -153,8 +153,9 @@ class Avatar(models.Model):
         }
     )
     created_at = models.DateTimeField(
-        _("date joined"),
-        default=timezone.now
+        _("date created"),
+        default=timezone.now,
+        editable=False
     )
 
     objects = AvatarManager()
@@ -164,7 +165,7 @@ class SSO_User(models.Model):
     sso_provider = models.CharField(
         _("sso_provider"),
         max_length=8,
-        help_text=_("Required. The SSO that was used to signup/login.")
+        help_text=_("Required. The SSO used to signup/login.")
     )
 
     username_validator = UnicodeUsernameValidator()
@@ -184,7 +185,7 @@ class SSO_User(models.Model):
     )
     sso_id = models.IntegerField(
         _("sso_id"),
-        help_text=_("Required. An unique identifier at the SSO.")
+        help_text=_("Required. An unique identifier at the SSO identity.")
     )
     auth_user = models.OneToOneField(
         User,
@@ -196,14 +197,15 @@ class SSO_User(models.Model):
         }
     )
     created_at = models.DateTimeField(
-        _("date joined"),
-        default=timezone.now
+        _("date created"),
+        default=timezone.now,
+        editable=False
     )
 
     objects = SSO_UserManager()
 
     class Meta:
-        unique_together = ['sso_provider', 'sso_id']
+        unique_together = ["sso_provider", "sso_id"]
 
     @classmethod
     def normalize_username(cls, username):
@@ -233,8 +235,9 @@ class OTP_Token(models.Model):
         }
     )
     created_at = models.DateTimeField(
-        _("date joined"),
-        default=timezone.now
+        _("date created"),
+        default=timezone.now,
+        editable=False
     )
 
     objects = models.Manager()
