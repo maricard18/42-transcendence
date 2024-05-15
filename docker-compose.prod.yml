@@ -45,8 +45,6 @@ services:
       VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
       SSL_CERT_PATH: ${SSL_CERT_PATH}
       SSL_CERT_FILE: ${SSL_CERT_FILE}
-      SSL_CERT_KEY_PATH: ${SSL_CERT_KEY_PATH}
-      SSL_CERT_KEY_FILE: ${SSL_CERT_KEY_FILE}
     secrets:
       - auth_service-postgres_host
       - auth_service-postgres_db
@@ -61,7 +59,6 @@ services:
       - auth_service-daphne_sock:/run/daphne/:rw
       - media_data:/app/media/:rw
       - ssl_cert_data:${SSL_CERT_PATH}:ro
-      - ssl_cert_key_data:${SSL_CERT_KEY_PATH}:ro
       - vault_services_data:/vault/transcendence/:ro
     depends_on:
       auth_service-postgres:
@@ -109,7 +106,7 @@ services:
       context: game_service/
       target: prod
     environment:
-      REDIS_HOST: redis_service
+      REDIS_HOST: game_service-redis_service
       REDIS_PORT: 6379
       POSTGRES_HOST_FILE: /run/secrets/game_service-postgres_host
       POSTGRES_DB_FILE: /run/secrets/game_service-postgres_db
@@ -121,8 +118,6 @@ services:
       VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
       SSL_CERT_PATH: ${SSL_CERT_PATH}
       SSL_CERT_FILE: ${SSL_CERT_FILE}
-      SSL_CERT_KEY_PATH: ${SSL_CERT_KEY_PATH}
-      SSL_CERT_KEY_FILE: ${SSL_CERT_KEY_FILE}
     secrets:
       - game_service-postgres_host
       - game_service-postgres_db
@@ -136,14 +131,13 @@ services:
       - game_service-daphne_sock:/run/daphne/:rw
       - media_data:/app/media/:rw
       - ssl_cert_data:${SSL_CERT_PATH}:ro
-      - ssl_cert_key_data:${SSL_CERT_KEY_PATH}:ro
       - vault_services_data:/vault/transcendence/:ro
     depends_on:
       game_service-postgres:
         condition: service_healthy
       game_service-db_migrations:
         condition: service_completed_successfully
-      redis_service:
+      game_service-redis_service:
         condition: service_healthy
       modsecurity:
         condition: service_started
@@ -152,6 +146,80 @@ services:
       vault_service:
         condition: service_healthy
     profiles: [ "", "game_service" ]
+    restart: always
+
+  friendship_service-postgres:
+    image: postgres:13-alpine3.18
+    user: postgres
+    environment:
+      POSTGRES_HOST_FILE: /run/secrets/friendship_service-postgres_host
+      POSTGRES_DB_FILE: /run/secrets/friendship_service-postgres_db
+      POSTGRES_USER_FILE: /run/secrets/friendship_service-postgres_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/friendship_service-postgres_password
+    secrets:
+      - friendship_service-postgres_host
+      - friendship_service-postgres_db
+      - friendship_service-postgres_user
+      - friendship_service-postgres_password
+    expose:
+      - "5432"
+    networks:
+      - transcendence
+    volumes:
+      - friendship_service-postgres_data:/var/lib/postgresql/data/:rw
+    healthcheck:
+      test: [ "CMD-SHELL", 'pg_isready -h "$(cat $POSTGRES_HOST_FILE)" -U "$(cat $POSTGRES_USER_FILE)" -d "$(cat $POSTGRES_DB_FILE)"' ]
+      interval: 5s
+      start_period: 5s
+      retries: 5
+    profiles: [ "", "friendship_service" ]
+    restart: always
+
+  friendship_service:
+    build:
+      context: friendship_service/
+      target: prod
+    environment:
+      REDIS_HOST: friendship_service-redis_service
+      REDIS_PORT: 6379
+      POSTGRES_HOST_FILE: /run/secrets/friendship_service-postgres_host
+      POSTGRES_DB_FILE: /run/secrets/friendship_service-postgres_db
+      POSTGRES_USER_FILE: /run/secrets/friendship_service-postgres_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/friendship_service-postgres_password
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
+      VAULT_ADDR: https://modsecurity:8200
+      VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
+      VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
+      SSL_CERT_PATH: ${SSL_CERT_PATH}
+      SSL_CERT_FILE: ${SSL_CERT_FILE}
+    secrets:
+      - friendship_service-postgres_host
+      - friendship_service-postgres_db
+      - friendship_service-postgres_user
+      - friendship_service-postgres_password
+    expose:
+      - "8000"
+    networks:
+      - transcendence
+    volumes:
+      - friendship_service-daphne_sock:/run/daphne/:rw
+      - media_data:/app/media/:rw
+      - ssl_cert_data:${SSL_CERT_PATH}:ro
+      - vault_services_data:/vault/transcendence/:ro
+    depends_on:
+      friendship_service-postgres:
+        condition: service_healthy
+      friendship_service-db_migrations:
+        condition: service_completed_successfully
+      friendship_service-redis_service:
+        condition: service_healthy
+      modsecurity:
+        condition: service_started
+      vault_service-init:
+        condition: service_started
+      vault_service:
+        condition: service_healthy
+    profiles: [ "", "friendship_service" ]
     restart: always
 
   modsecurity:
@@ -166,9 +234,10 @@ services:
         - SSL_CERT_KEY_FILE
     environment:
       # NGINX
-      AUTH_SERVICE_BACKEND: http://unix:/run/daphne/auth_service/daphne.sock
-      GAME_SERVICE_BACKEND: http://unix:/run/daphne/game_service/daphne.sock
-      VAULT_SERVICE_BACKEND: https://vault_service:8200
+      AUTH_SERVICE_ADDR: http://unix:/run/daphne/auth_service/daphne.sock
+      GAME_SERVICE_ADDR: http://unix:/run/daphne/game_service/daphne.sock
+      FRIENDSHIP_SERVICE_ADDR: http://unix:/run/daphne/friendship_service/daphne.sock
+      VAULT_SERVICE_ADDR: https://vault_service:8200
       NGINX_ALWAYS_TLS_REDIRECT: on
       SSL_CERT_PATH: ${SSL_CERT_PATH}
       SSL_CERT_FILE: ${SSL_CERT_FILE}
@@ -192,16 +261,17 @@ services:
     volumes:
       - auth_service-daphne_sock:/run/daphne/auth_service/:rw
       - game_service-daphne_sock:/run/daphne/game_service/:rw
+      - friendship_service-daphne_sock:/run/daphne/friendship_service/:rw
       - web_service-data:/usr/share/nginx/html/:ro
       - static_data:/app/static/:ro
       - media_data:/app/media/:ro
       - ssl_cert_data:${SSL_CERT_PATH}:rw
       - ssl_cert_key_data:${SSL_CERT_KEY_PATH}:rw
       - telegraf_data:/var/log/telegraf/:rw
-    profiles: [ "", "auth_service", "game_service", "web_service" ]
+    profiles: [ "", "auth_service", "game_service", "friendship_service", "web_service", "monitoring_service" ]
     restart: always
 
-  redis_service:
+  game_service-redis_service:
     image: redis:7.2-alpine3.18
     expose:
       - "6379"
@@ -213,6 +283,20 @@ services:
       start_period: 5s
       retries: 5
     profiles: [ "", "game_service" ]
+    restart: always
+
+  friendship_service-redis_service:
+    image: redis:7.2-alpine3.18
+    expose:
+      - "6379"
+    networks:
+      - transcendence
+    healthcheck:
+      test: [ "CMD-SHELL", 'redis-cli ping || exit 1' ]
+      interval: 5s
+      start_period: 5s
+      retries: 5
+    profiles: [ "", "friendship_service" ]
     restart: always
 
   vault_service:
@@ -348,8 +432,6 @@ services:
       VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
       SSL_CERT_PATH: ${SSL_CERT_PATH}
       SSL_CERT_FILE: ${SSL_CERT_FILE}
-      SSL_CERT_KEY_PATH: ${SSL_CERT_KEY_PATH}
-      SSL_CERT_KEY_FILE: ${SSL_CERT_KEY_FILE}
     secrets:
       - auth_service-postgres_host
       - auth_service-postgres_db
@@ -360,7 +442,6 @@ services:
       - transcendence
     volumes:
       - ssl_cert_data:${SSL_CERT_PATH}:ro
-      - ssl_cert_key_data:${SSL_CERT_KEY_PATH}:ro
       - vault_services_data:/vault/transcendence/:ro
     depends_on:
       auth_service-postgres:
@@ -382,8 +463,6 @@ services:
       VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
       SSL_CERT_PATH: ${SSL_CERT_PATH}
       SSL_CERT_FILE: ${SSL_CERT_FILE}
-      SSL_CERT_KEY_PATH: ${SSL_CERT_KEY_PATH}
-      SSL_CERT_KEY_FILE: ${SSL_CERT_KEY_FILE}
     entrypoint: [ "python3", "/app/manage.py", "collectstatic", "--noinput" ]
     networks:
       - transcendence
@@ -391,7 +470,6 @@ services:
       - ./auth_service/:/app/:ro
       - static_data:/app/static/:rw
       - ssl_cert_data:${SSL_CERT_PATH}:ro
-      - ssl_cert_key_data:${SSL_CERT_KEY_PATH}:ro
       - vault_services_data:/vault/transcendence/:ro
     depends_on:
       vault_service-init:
@@ -415,8 +493,6 @@ services:
       VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
       SSL_CERT_PATH: ${SSL_CERT_PATH}
       SSL_CERT_FILE: ${SSL_CERT_FILE}
-      SSL_CERT_KEY_PATH: ${SSL_CERT_KEY_PATH}
-      SSL_CERT_KEY_FILE: ${SSL_CERT_KEY_FILE}
     secrets:
       - game_service-postgres_host
       - game_service-postgres_db
@@ -427,7 +503,6 @@ services:
       - transcendence
     volumes:
       - ssl_cert_data:${SSL_CERT_PATH}:ro
-      - ssl_cert_key_data:${SSL_CERT_KEY_PATH}:ro
       - vault_services_data:/vault/transcendence/:ro
     depends_on:
       game_service-postgres:
@@ -449,8 +524,6 @@ services:
       VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
       SSL_CERT_PATH: ${SSL_CERT_PATH}
       SSL_CERT_FILE: ${SSL_CERT_FILE}
-      SSL_CERT_KEY_PATH: ${SSL_CERT_KEY_PATH}
-      SSL_CERT_KEY_FILE: ${SSL_CERT_KEY_FILE}
     entrypoint: [ "python3", "/app/manage.py", "collectstatic", "--noinput" ]
     networks:
       - transcendence
@@ -458,7 +531,6 @@ services:
       - ./game_service/:/app/:ro
       - static_data:/app/static/:rw
       - ssl_cert_data:${SSL_CERT_PATH}:ro
-      - ssl_cert_key_data:${SSL_CERT_KEY_PATH}:ro
       - vault_services_data:/vault/transcendence/:ro
     depends_on:
       vault_service-init:
@@ -466,6 +538,67 @@ services:
       vault_service:
         condition: service_healthy
     profiles: [ "", "game_service", "tools" ]
+    restart: on-failure
+
+  friendship_service-db_migrations:
+    build:
+      context: friendship_service/
+      target: tools
+    environment:
+      POSTGRES_HOST_FILE: /run/secrets/friendship_service-postgres_host
+      POSTGRES_DB_FILE: /run/secrets/friendship_service-postgres_db
+      POSTGRES_USER_FILE: /run/secrets/friendship_service-postgres_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/friendship_service-postgres_password
+      VAULT_ADDR: https://modsecurity:8200
+      VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
+      VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
+      SSL_CERT_PATH: ${SSL_CERT_PATH}
+      SSL_CERT_FILE: ${SSL_CERT_FILE}
+    secrets:
+      - friendship_service-postgres_host
+      - friendship_service-postgres_db
+      - friendship_service-postgres_user
+      - friendship_service-postgres_password
+    entrypoint: [ "/bin/sh", "/app/tools/db-migrations.sh" ]
+    networks:
+      - transcendence
+    volumes:
+      - ssl_cert_data:${SSL_CERT_PATH}:ro
+      - vault_services_data:/vault/transcendence/:ro
+    depends_on:
+      friendship_service-postgres:
+        condition: service_healthy
+      vault_service-init:
+        condition: service_started
+      vault_service:
+        condition: service_healthy
+    profiles: [ "", "friendship_service", "tools" ]
+    restart: on-failure
+
+  friendship_service-collectstatic:
+    build:
+      context: friendship_service/
+      target: tools
+    environment:
+      VAULT_ADDR: https://modsecurity:8200
+      VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
+      VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
+      SSL_CERT_PATH: ${SSL_CERT_PATH}
+      SSL_CERT_FILE: ${SSL_CERT_FILE}
+    entrypoint: [ "python3", "/app/manage.py", "collectstatic", "--noinput" ]
+    networks:
+      - transcendence
+    volumes:
+      - ./friendship_service/:/app/:ro
+      - static_data:/app/static/:rw
+      - ssl_cert_data:${SSL_CERT_PATH}:ro
+      - vault_services_data:/vault/transcendence/:ro
+    depends_on:
+      vault_service-init:
+        condition: service_started
+      vault_service:
+        condition: service_healthy
+    profiles: [ "", "friendship_service", "tools" ]
     restart: on-failure
 
   web_service:
@@ -507,8 +640,10 @@ networks:
 volumes:
   auth_service-postgres_data:
   game_service-postgres_data:
+  friendship_service-postgres_data:
   auth_service-daphne_sock:
   game_service-daphne_sock:
+  friendship_service-daphne_sock:
   web_service-data:
   static_data:
   media_data:
@@ -541,6 +676,14 @@ secrets:
     file: ./secrets/game_service/postgres-user
   game_service-postgres_password:
     file: ./secrets/game_service/postgres-password
+  friendship_service-postgres_host:
+    file: ./secrets/friendship_service/postgres-host
+  friendship_service-postgres_db:
+    file: ./secrets/friendship_service/postgres-db
+  friendship_service-postgres_user:
+    file: ./secrets/friendship_service/postgres-user
+  friendship_service-postgres_password:
+    file: ./secrets/friendship_service/postgres-password
   sso_42_client_secret:
     file: ./secrets/42-client-secret
   grafana_username:

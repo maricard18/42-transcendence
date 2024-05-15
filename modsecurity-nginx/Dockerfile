@@ -30,6 +30,7 @@ RUN chmod o+r ${SSL_CERT_KEY}
 COPY modsecurity-nginx/conf.d/default.conf /etc/nginx/templates/conf.d/default.conf.template
 COPY modsecurity-nginx/includes/location_auth_service.conf /etc/nginx/templates/includes/location_auth_service.conf.template
 COPY modsecurity-nginx/includes/location_game_service.conf /etc/nginx/templates/includes/location_game_service.conf.template
+COPY modsecurity-nginx/includes/location_friendship_service.conf /etc/nginx/templates/includes/location_friendship_service.conf.template
 COPY modsecurity-nginx/includes/location_web_service.conf /etc/nginx/templates/includes/location_web_service.conf.template
 COPY modsecurity-nginx/includes/location_web_service_core.conf /etc/nginx/templates/includes/location_web_service_core.conf.template
 COPY modsecurity-nginx/includes/server_vault_service.conf /etc/nginx/templates/includes/server_vault_service.conf.template

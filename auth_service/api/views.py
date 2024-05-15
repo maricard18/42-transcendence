@@ -31,7 +31,13 @@ class UserViewSet(viewsets.ViewSet):
 
     # GET /api/users
     def list(self, request):
-        serializer = UserSerializer(self.queryset, many=True)
+        username_filter = request.GET.get('filter[username]', None)
+        if username_filter:
+            queryset = self.queryset.filter(username__icontains=username_filter)
+        else:
+            queryset = self.queryset
+
+        serializer = UserSerializer(queryset, many=True)
 
         return Response(Vault.cipherSensitiveFields(
             remove_sensitive_information(request.user.id, serializer.data),

@@ -116,7 +116,7 @@ class GameConsumer(JsonWebsocketConsumer):
                 {
                     "type": "user.message",
                     "channel_name": self.channel_name,
-                    "data": json.dumps(data)
+                    "data": data
                 }
             )
         except json.decoder.JSONDecodeError:
@@ -126,7 +126,7 @@ class GameConsumer(JsonWebsocketConsumer):
         if event["channel_name"] != self.channel_name:
             self.send(text_data=json.dumps({
                 "type": event["type"],
-                "data": json.loads(event["data"])
+                "data": event["data"]
             }))
 
     def system_message(self, event):
