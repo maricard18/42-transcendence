@@ -8,6 +8,13 @@ export default class Tournament extends AbstractView {
         this._insideRequest = false;
         this._inputCallback = false;
         this._enterCallback = false;
+		
+		const currentLocation = location.pathname;
+        if (currentLocation.charAt(6) === "p") {
+            this._game = "pong";
+        } else {
+            this._game = "tic-tac-toe";
+        }
 
 		this._formData = {
 			"username1": "",
@@ -148,7 +155,12 @@ export default class Tournament extends AbstractView {
 			localStorage.setItem("user2-image", "/static/images/darth-vader.png");
 			localStorage.setItem("user3-image", "/static/images/spider-man.png");
 			localStorage.setItem("user4-image", "/static/images/angry-birds.png");
-            navigateTo("/home/pong/tournament/matchmaking");
+
+			if (this._game === "pong") {
+				navigateTo("/home/pong/tournament/matchmaking");
+			} else {
+				navigateTo("/home/tic-tac-toe/tournament/matchmaking");
+			}
         }
 
         this._insideRequest = false;
@@ -229,6 +241,13 @@ export class TournamentMatchmaking extends AbstractView {
 		this._match2 = JSON.parse(localStorage.getItem("match2"));
 		this._match3 = JSON.parse(localStorage.getItem("match3"));
 
+		const currentLocation = location.pathname;
+        if (currentLocation.charAt(6) === "p") {
+            this._game = "pong";
+        } else {
+            this._game = "tic-tac-toe";
+        }
+
 		if (!localStorage.getItem("tournament")) {
 			this._tournament = {
 				1: [localStorage.getItem("user1-name"), localStorage.getItem("user1-image")],
@@ -272,7 +291,11 @@ export class TournamentMatchmaking extends AbstractView {
 
 		if (!this._tournament || !this._tournament["1"][0] || !this._tournament["1"][1][0]) {
 			setTimeout(() => {
-				navigateTo("/home/pong/tournament/creation");
+				if (this._game === "pong") {
+					navigateTo("/home/pong/tournament/creation");
+				} else {
+					navigateTo("/home/tic-tac-toe/tournament/creation");
+				}
 			}, 5);
 			return;
 		} else {
@@ -364,7 +387,12 @@ export class TournamentMatchmaking extends AbstractView {
 		}
 
 		this.removeCallbacks();
-		navigateTo("/home/pong/play/tournament/2");
+
+		if (this._game === "pong") {
+			navigateTo("/home/pong/play/tournament/2");
+		} else {
+			navigateTo("/home/tic-tac-toe/play/tournament/2");
+		}
 	};
 
 	keydownCallback = (event) => {
@@ -623,4 +651,31 @@ export function findTournamentMatch() {
 
 	console.error("Error: findTorunamentMatch()");
 	return null;
+}
+
+export function findTournamentWinner(game, players) {
+	let match1 = JSON.parse(localStorage.getItem("match1"));
+	let match2 = JSON.parse(localStorage.getItem("match2"));
+	let match3 = JSON.parse(localStorage.getItem("match3"));
+	let tournament = JSON.parse(localStorage.getItem("tournament"));
+
+	for (let i = 0; i < players.length; i++) {
+		if (players[i].info["username"] === game.winner) {
+			if (match1 && match1["status"] !== "finished") {
+				match1["winner"] = i === 0 ? match1["player1"]["index"] : match1["player2"]["index"];
+				match1["status"] = "finished";
+				localStorage.setItem("match1", JSON.stringify(match1));
+			} else if (match2 && match2["status"] !== "finished") {
+				match2["winner"] = i === 0 ? match2["player1"]["index"] : match2["player2"]["index"];
+				match2["status"] = "finished";
+				localStorage.setItem("match2", JSON.stringify(match2));
+			} else if (match3 && match3["status"] !== "finished") {
+				match3["winner"] = i === 0 ? match3["player1"]["index"] : match3["player2"]["index"];
+				match3["status"] = "finished";
+				tournament[4][0] = "finished";
+				localStorage.setItem("match3", JSON.stringify(match3));
+				localStorage.setItem("tournament", JSON.stringify(tournament));
+			}
+		}
+	}
 }

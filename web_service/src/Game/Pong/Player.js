@@ -15,7 +15,6 @@ export class Player {
         this.keyUp = keyUp;
         this.keyDown = keyDown;
         this.info = info;
-		this.image = new Image();
 		this.initial_x = x;
         this.initial_y = y;
         this.width = PaddleWidth;
