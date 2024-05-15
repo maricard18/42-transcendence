@@ -92,10 +92,6 @@ export function multiplayerTicTacToeMessageHandler(MyWebSocket, game) {
 							play[1] = play[1] / gameData["screen_size"] * ScreenSize;
 						}
 						console.log("plyer2 info:", game.player2);
-						//if (game.player2.plays.length === 3) {
-						//	game.player2.plays[2][2] = true;
-						//}
-						game.player2.draw(game.ctx, game.size);
 					}
 					
 					if (gameData["index"] == 1) {
@@ -105,17 +101,22 @@ export function multiplayerTicTacToeMessageHandler(MyWebSocket, game) {
 							play[1] = play[1] / gameData["screen_size"] * ScreenSize;
 						}
 						console.log("plyer1 info:", game.player1);
-						//if (game.player1.plays.length === 3) {
-						//	game.player1.plays[2][2] = true;
-						//}
-						game.player1.draw(game.ctx, game.size);
 					}
-
+					
+					game.clear();
+					game.drawBoard();
+					game.player1.draw(game.ctx, game.size);
+					game.player2.draw(game.ctx, game.size);
+					
 					game.board = gameData["board"];
 					game.player1.myTurn = gameData["player1_turn"];
 					game.player2.myTurn = gameData["player2_turn"];
 					game.over = gameData["over"];
 					game.winner = gameData["winner"];
+					
+					if (game.over) {
+						game.canvas.click();
+					}
                 }
                 
 				if (jsonData["type"] == "system.message") {
@@ -126,7 +127,6 @@ export function multiplayerTicTacToeMessageHandler(MyWebSocket, game) {
 								if (data["user_id"] == user.id && game.lobbySize == 2) {
 									user.id = -1;
 								}
-								 
 							});
 						}
 
@@ -149,6 +149,7 @@ export function multiplayerTicTacToeMessageHandler(MyWebSocket, game) {
 							game.over = true;
                         	closeWebsocket();
 							AbstractView.userData = {};
+							game.canvas.click();
 						}
 					}
                 }

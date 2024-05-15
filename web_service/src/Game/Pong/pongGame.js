@@ -251,7 +251,7 @@ function multiplayer4GameLoop(game) {
 }
 
 export function clearBackground(ctx) {
-	ctx.clearRect(0, 0, ScreenSize, ScreenSize);
+	ctx.clearRect(0, 0, ScreenWidth, ScreenHeight);
 }
 
 export function sendHostMessage(game) {

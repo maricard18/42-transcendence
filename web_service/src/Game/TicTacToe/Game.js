@@ -94,19 +94,17 @@ export class Game {
 						box[0] = 1;
 						this.player1.myTurn = false;
 						this.player2.myTurn = true;
-						if (this.player2.plays.length === 3 && this.mode !== "single-player") {
-							this.player2.plays[2][2] = true;
-						}
-						if (this.player1.plays.length === 3 && this.mode !== "single-player") {
-							this.player1.plays[2][2] = false;
-						}
 
-						if (this.player2.plays.length === 3 && this.mode === "multiplayer") {
+						if (this.player2.plays.length === 3 && this.mode !== "multiplayer") {
 							this.player2.plays[2][2] = true;
+						}
+						if (this.player1.plays.length === 3 && this.mode !== "multiplayer") {
+							this.player1.plays[2][2] = false;
 						}
 						if (this.player1.plays.length === 3 && this.mode === "multiplayer") {
 							this.player1.plays[2][2] = true;
 						}
+
 						sendTicTacToeMessage(this, 1);
 					}
 					if ((!box[0] && this.player2.myTurn && this.mode !== "multiplayer") ||
@@ -115,12 +113,17 @@ export class Game {
 						box[0] = 2;
 						this.player2.myTurn = false;
 						this.player1.myTurn = true;
-						if (this.player1.plays.length === 3) {
+
+						if (this.player1.plays.length === 3 && this.mode !== "multiplayer") {
 							this.player1.plays[2][2] = true;
 						}
-						if (this.player2.plays.length === 3) {
-							this.player2.plays[2][2] = false;
+						if (this.player2.plays.length === 3 && this.mode !== "multiplayer") {
+							this.player2.plays[2][2] = flase;
 						}
+						if (this.player2.plays.length === 3 && this.mode === "multiplayer") {
+							this.player2.plays[2][2] = true;
+						}
+						
 						sendTicTacToeMessage(this, 2);
 					}
 				}
@@ -139,6 +142,7 @@ export class Game {
 				this.player2.myTurn = false;
 				this.over = true;
 				this.winner = this.board[i][0][0];
+				console.log(`Row ${i + 1} was completed by player ${this.board[i][0][0]}`)
 			}
 		}
 
@@ -149,6 +153,7 @@ export class Game {
 				this.player2.myTurn = false;
 				this.over = true;
 				this.winner = this.board[0][i][0];
+				console.log(`Column ${i + 1} was completed by player ${this.board[0][i][0]}`)
 			}
 		}
 
@@ -158,12 +163,14 @@ export class Game {
 			this.player2.myTurn = false;
 			this.over = true;
 			this.winner = this.board[0][0][0];
+			console.log(`Left diagonal was completed by player ${this.board[0][0][0]}`)
 		}
 		if (this.board[0][2][0] && this.board[0][2][0] === this.board[1][1][0] && this.board[0][2][0] === this.board[2][0][0]) {
 			this.player1.myTurn = false;
 			this.player2.myTurn = false;
 			this.over = true;
 			this.winner = this.board[0][2][0];
+			console.log(`Right diagonal was completed by player ${this.board[0][2][0]}`)
 		}
 	}
 }

@@ -85,6 +85,7 @@ function multiplayer2GameLoop(game) {
 					game.winner = localStorage.getItem("game_winner");
 				}
 				game.over = true;
+				console.log("Left through here");
 				resolve();
 			} else {
 				game.clear();
@@ -92,11 +93,12 @@ function multiplayer2GameLoop(game) {
 				game.hit(event.offsetX, event.offsetY);
 				game.checkWinner();
 				
-				if ((game.over || !MyWebSocket.ws || !localStorage.getItem("game_status"))) {
+				if ((game.over || !MyWebSocket.ws || !localStorage.getItem("game_status")) && 
+					AbstractView.userInfo.id === game.host_id) {
 					game.canvas.removeEventListener("click", clickHandler);
 					game.winner = game.winner === 1 ? game.player1.info.username : game.player2.info.username;
 					game.last_time = Date.now();
-					sendMessage(game, 1);
+					sendTicTacToeMessage(game, 1);
 					resolve();
 				}
 			}
