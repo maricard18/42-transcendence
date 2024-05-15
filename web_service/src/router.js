@@ -15,6 +15,8 @@ import SettingsPage from "./views/SettingsPage.js";
 import Tournament, { TournamentMatchmaking } from "./views/Tournament.js";
 import { Game1, Game2 } from "./components/Games.js";
 import { GameMenuOptions, MultiplayerOptions, SinglePlayerOptions, TournamentOptions } from "./components/GameOptions.js";
+import FirendsPage from "./views/FriendsPage.js";
+import SearchFriends from "./components/SearchFriends.js";
 
 export const routes = [
     {
@@ -115,6 +117,16 @@ export const routes = [
                         path: "/security",
                         view: Security,
                     }
+                ]
+            },
+			{
+                path: "/friends",
+                view: FirendsPage,
+                children: [
+                    {
+                        path: "",
+                        view: SearchFriends,
+                    },
                 ]
             },
 			{
