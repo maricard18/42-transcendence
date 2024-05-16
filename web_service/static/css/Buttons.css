@@ -135,7 +135,48 @@
 }
 
 .user-info {
-    background-color: #5610c7;
+    border-color: #3e0d8e;
+    border-width: 3px;
+    border-style: solid;
     border-radius: 5px;
-	height: 60px;
+    height: 60px;
+	width: 550px;;
+}
+
+.friend-block {
+	background-color: #7439d2;
+	border-color: #3e0d8e;
+	border-width: 2px;
+	border-style: solid;
+	border-radius: 10px;
+	height: 80px;
+	width: 200px;
+	margin-right: 10px;
+}
+
+#friends-block-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+
+#friends-block-list::-webkit-scrollbar-thumb {
+    background: #fff;
+    border-radius: 10px;
+}
+
+#friends-block-list::-webkit-scrollbar-thumb:active {
+    background: #ccc;
+}
+
+#user-info-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+#user-info-list::-webkit-scrollbar-thumb {
+    background: #fff;
+    border-radius: 10px;
+}
+
+#user-info-list::-webkit-scrollbar-thumb:active {
+    background: #ccc;
 }

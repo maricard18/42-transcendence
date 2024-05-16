@@ -260,7 +260,7 @@ services:
       - transcendence-dev
     volumes:
       - ./web_service/:/usr/share/nginx/html/:ro
-      - web_service-static_data-dev:/usr/share/nginx/html/static/:ro
+      - web_service-static_data-dev:/usr/share/nginx/html/static/js/:ro
       - static_data-dev:/app/static/:ro
       - media_data-dev:/app/media/:ro
       - ssl_cert_data-dev:${SSL_CERT_PATH}:rw
@@ -602,7 +602,7 @@ services:
       SSO_42_REDIRECT_URI: ${SSO_42_REDIRECT_URI}
     volumes:
       - ./web_service/:/app/:ro
-      - web_service-static_data-dev:/app/static/:rw
+      - web_service-static_data-dev:/app/static/js/:rw
       - vault_services_data-dev:/vault/transcendence/:ro
     depends_on:
       vault_service-init-dev:

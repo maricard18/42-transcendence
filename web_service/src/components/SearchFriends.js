@@ -14,7 +14,7 @@ export default class SearchFriends extends AbstractView {
 		this._enterCallback = false;
 
 		this._searchBar = "";
-		this._userList;
+		this._userList = null;
 
         this._errors = {};
         this._success = {};
@@ -145,9 +145,9 @@ export default class SearchFriends extends AbstractView {
 
 		if (!newErrors.message) {
 			this._insideRequest = true;
-			this._accessToken = await getToken();
+			const accessToken = await getToken();
 			const headers = {
-				Authorization: `Bearer ${this._accessToken}`,
+				Authorization: `Bearer ${accessToken}`,
 			};
 	
 			const response = await fetchData(
@@ -170,62 +170,124 @@ export default class SearchFriends extends AbstractView {
         this._insideRequest = false;
     }
 
+	addEventListeners() {
+        for (let [index, user] of this._userList.entries()) {
+            const avataraAndUsernameDiv = document.getElementById(`user-${user.id}`);
+            avataraAndUsernameDiv.addEventListener("click", async () => await navigateTo(`/home/profile/${user.id}`));
+
+            const button = document.getElementById(`friend-btn-${user.id}`);
+            button.addEventListener("click", async () => await this.addFriend(user.id));
+        }
+    };
+
+	async addFriend(id) {
+		console.log("Adding friend!");
+		const formDataToSend = new FormData();
+		formDataToSend.append("user_id", AbstractView.userInfo.id);
+		formDataToSend.append("friend_id", id);
+
+		const accessToken = await getToken();
+		const headers = {
+			Authorization: `Bearer ${accessToken}`,
+		};
+
+		const response = await fetchData(
+			"/api/friendships",
+			"POST",
+			headers,
+			formDataToSend
+		);
+
+		if (response.ok) {
+			const jsonData = await response.json();
+			console.log("FriendRequestResponse:", jsonData);
+			
+			const myFriendList = document.getElementById("friend-list");
+			if (myFriendList) {
+				myFriendList.dispatchEvent( new CustomEvent("reload-friend-list") );
+			}
+		} else {
+			console.error("Error: failed to send friend request ", response.status);
+		}
+	}
+
 	async loadDOMChanges() {
 		const parentNode = document.getElementById("user-list");
-		console.log(parentNode);
 		parentNode.innerHTML = await this.loadSearchBarResult();
+		this.addEventListeners();
 	}
 
 	async loadSearchBarResult() {
 		if (!this._userList) {
 			return ``;
 		}
-
-		const div = document.createElement("div");
-		div.setAttribute("class", "mt-4");
 		
+		const parentDiv = document.createElement("div");
+		parentDiv.setAttribute("class", "mt-4");
+
 		const title = document.createElement("h3");
 		title.setAttribute("class", "d-flex justify-content-start ms-1");
-		title.setAttribute("style", "font-size: 30px; font-weight: bold");
-		title.innerText = `Search results for ${this._searchBar}`;
-		div.appendChild(title);
+		title.setAttribute("style", "font-size: 25px; font-weight: bold");
+		title.innerHTML = `Search results for&nbsp;<u>${this._searchBar}</u>`;
+		parentDiv.appendChild(title);
+
+		const div = document.createElement("div");
+		div.setAttribute("class", "mt-2");
+		div.id = "user-info-list";
+		div.style.maxHeight = "320px";
+		div.style.overflowY = "auto";
 		
-		for (let user of this._userList.entries()) {
+		for (let [index, user] of this._userList.entries()) {
 			const userDiv = document.createElement("div");
 			userDiv.setAttribute("class", "d-flex flex-row align-items-center user-info mt-3");
+			userDiv.id = `user-info-${index}`;
+
+			const avataraAndUsernameDiv = document.createElement("div");
+			avataraAndUsernameDiv.setAttribute("class", "d-flex flex-row align-items-center");
+			avataraAndUsernameDiv.id = `user-${user.id}`;
 			
-			if (user[1].avatar) {
+			if (user.avatar) {
 				const img = document.createElement("img");
             	img.setAttribute("class", "white-border-sm ms-3");
             	img.setAttribute("alt", "Avatar preview");
             	img.setAttribute("width", "40");
             	img.setAttribute("height", "40");
             	img.setAttribute("style", "border-radius: 50%");
-            	img.setAttribute("src", user[1].avatar.link);
-				userDiv.appendChild(img);
+            	img.setAttribute("src", user.avatar.link);
+				avataraAndUsernameDiv.appendChild(img);
 			} else {
 				const avatar = document.createElement("base-avatar-box");
 				avatar.setAttribute("template", "ms-3");
 				avatar.setAttribute("size", "40");
-				userDiv.appendChild(avatar);
+				avataraAndUsernameDiv.appendChild(avatar);
 			}
 			
 			const username = document.createElement("h3");
 			username.setAttribute("class", "ms-3 mt-2");
-			username.setAttribute("style", "font-size: 30px; font-weight: bold");
-			username.innerText = await transitDecrypt(user[1].username);
-			userDiv.appendChild(username);
+			username.setAttribute("style", "font-size: 20px; font-weight: bold");
+			username.innerText = await transitDecrypt(user.username);
+			avataraAndUsernameDiv.appendChild(username);
+			userDiv.appendChild(avataraAndUsernameDiv);
+
+			const buttonDiv = document.createElement("div");
+			buttonDiv.setAttribute("class", "d-flex justify-content-end");
+			buttonDiv.style.marginLeft = "auto";
 			
-			const navButton = document.createElement("nav-button");
-			navButton.setAttribute("template", "white-friend-button extra-btn-class ms-5");
-			navButton.setAttribute("page", `/home/user-info/${user[1].id}`);
-			navButton.setAttribute("value", "Add friend");
-			userDiv.appendChild(navButton);
-			
+			const button = document.createElement("button");
+			button.setAttribute("class", "btn btn-primary primary-button extra-btn-class me-3");
+			button.id = `friend-btn-${user.id}`;
+			button.style.width = "100px";
+			button.style.height = "35px";
+			button.textContent = "Add friend";
+			buttonDiv.appendChild(button);
+			userDiv.appendChild(buttonDiv);
+
 			div.appendChild(userDiv);
 		}
+
+		parentDiv.appendChild(div);
 	
-		return div.outerHTML;
+		return parentDiv.outerHTML;
 	}
 
     async getHtml() {

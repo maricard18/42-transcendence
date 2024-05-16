@@ -2,11 +2,15 @@ import {decode, getToken, logout} from "./tokens";
 import fetchData from "./fetchData";
 import {transitDecrypt} from "./vaultAccess";
 
-export default async function getUserInfo() {
-    let accessToken, decodeToken, jsonData;
+export default async function getUserInfo(token = null, id = null) {
+    let accessToken, decodeToken, jsonData, user_id;
 
     try {
-        accessToken = await getToken();
+		if (!token) {
+			accessToken = await getToken();
+		} else {
+			accessToken = token;
+		}
     } catch (error) {
         console.log("Error: failed to get access token");
         logout();
@@ -14,7 +18,12 @@ export default async function getUserInfo() {
     }
 
     try {
-        decodeToken = decode(accessToken);
+		if (!id) {
+			decodeToken = decode(accessToken);
+			user_id = decodeToken["user_id"];
+		} else {
+			user_id = id;
+		}
     } catch (error) {
         console.log("Error: failed to decode token.");
         logout();
@@ -26,7 +35,7 @@ export default async function getUserInfo() {
     };
 
     const response = await fetchData(
-        "/api/users/" + decodeToken["user_id"],
+        "/api/users/" + user_id,
         "GET",
         headers
     );
@@ -49,7 +58,7 @@ export default async function getUserInfo() {
         username: await transitDecrypt(jsonData["username"]),
         email: await transitDecrypt(jsonData["email"]),
         avatar: null,
-        id: decodeToken["user_id"],
+        id: user_id,
     };
 
     if (jsonData["avatar"]) {
