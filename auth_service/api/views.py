@@ -18,7 +18,8 @@ from common.utils import get_secret_from_file, remove_sensitive_information, gen
 from .models import OTP_Token, Avatar, SSO_User
 from .permissions import UserPermission, OTPPermission, TokenPermission, SSOPermission
 from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer, CreateOTPSerializer, \
-    AuthUserSerializer, APITokenObtainPairSerializer, TokenSerializer, SSOSerializer, OTPSerializer
+    AuthUserSerializer, APITokenObtainPairSerializer, TokenSerializer, SSOSerializer, OTPSerializer, \
+    UpdateAvatarSerializer
 
 
 ######################
@@ -89,10 +90,19 @@ class UserViewSet(viewsets.ViewSet):
     def update(self, request, pk=None):
         self.check_object_permissions(request, pk)
         user = self.queryset.get(pk=pk)
-
         data = Vault.cipherSensitiveFields(request.data, request, Vault.transitDecrypt)
-        if data.get("avatar", None) == "":
-            Avatar.objects.filter(auth_user=user).delete()
+        avatar = data.get("avatar", None)
+        if avatar:
+            if avatar == "":
+                Avatar.objects.filter(auth_user=user).delete()
+            else:
+                serializer = UpdateAvatarSerializer(data={"avatar": data.get("avatar")})
+                if serializer.is_valid(raise_exception=True):
+                    Avatar.objects.update_or_create(
+                        auth_user=user,
+                        avatar=serializer.validated_data.get("avatar"),
+                        request=request
+                    )
             data.pop("avatar")
 
         serializer = UpdateUserSerializer(data=data, partial=True)
@@ -104,14 +114,6 @@ class UserViewSet(viewsets.ViewSet):
                 if hasattr(user, key):
                     setattr(user, key, value)
             user.save()
-
-            avatar = serializer.validated_data.get("avatar", None)
-            if avatar:
-                Avatar.objects.update_or_create(
-                    auth_user=user,
-                    avatar=avatar,
-                    request=request
-                )
             return Response(None, status=status.HTTP_204_NO_CONTENT)
 
         raise ServerError
