@@ -47,35 +47,4 @@ class APIRouter(DefaultRouter):
     ]
 
     # User-defined routes
-    routes += [
-        # List route.
-        Route(
-            url=r"^{prefix}/{lookup}/callback$",
-            mapping={
-                "get": "callback"
-            },
-            name="{basename}-callback",
-            detail=True,
-            initkwargs={}
-        ),
-        # Dynamically generated list routes. Generated using
-        # @action(detail=False) decorator on methods of the viewset.
-        DynamicRoute(
-            url=r"^{prefix}/{lookup}/callback/{url_path}$",
-            name="{basename}-{url_name}",
-            detail=True,
-            initkwargs={}
-        ),
-        # List route.
-        Route(
-            url=r"^users/{lookup}/otp$",
-            mapping={
-                "get": "retrieve",
-                "post": "create",
-                "delete": "destroy",
-            },
-            name="{basename}-otp",
-            detail=True,
-            initkwargs={}
-        )
-    ]
+    routes += []

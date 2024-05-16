@@ -13,6 +13,7 @@ ARG SSL_CERT_KEY_FILE
 ARG SSL_CERT_KEY=${SSL_CERT_KEY_PATH}${SSL_CERT_KEY_FILE}
 
 RUN apk update && apk add --no-cache openssl
+    
 
 # Generate TLS Certificate
 RUN mkdir -p /etc/ssl/
@@ -32,13 +33,14 @@ COPY modsecurity-nginx/includes/location_game_service.conf /etc/nginx/templates/
 COPY modsecurity-nginx/includes/location_web_service.conf /etc/nginx/templates/includes/location_web_service.conf.template
 COPY modsecurity-nginx/includes/location_web_service_core.conf /etc/nginx/templates/includes/location_web_service_core.conf.template
 COPY modsecurity-nginx/includes/server_vault_service.conf /etc/nginx/templates/includes/server_vault_service.conf.template
+COPY modsecurity-nginx/includes/server_status_service.conf /etc/nginx/templates/includes/server_status_service.conf.template
 
 # SECOND STAGE
 FROM owasp/modsecurity-crs:4.1-nginx-alpine-202404070904 as dev
 LABEL authors="bsilva-c"
 
 USER root
-EXPOSE 8080 8200 8443
+EXPOSE 8080 8200 8443 8081
 
 ARG SSL_CERT_PATH
 ARG SSL_CERT_KEY_PATH
@@ -53,12 +55,16 @@ RUN rm -rf *
 
 COPY ./web_service/index.html ./index.html
 
+RUN mkdir -p /var/log/telegraf
+RUN touch /var/log/telegraf/transcendence-access.log /var/log/telegraf/transcendence-error.log
+RUN chmod 755 /var/log/telegraf/transcendence-access.log /var/log/telegraf/transcendence-error.log
+
 # SECOND STAGE
 FROM owasp/modsecurity-crs:4.1-nginx-alpine-202404070904 as prod
 LABEL authors="bsilva-c"
 
 USER root
-EXPOSE 8080 8200 8443
+EXPOSE 8080 8200 8443 8081
 
 ARG SSL_CERT_PATH
 ARG SSL_CERT_KEY_PATH
@@ -70,5 +76,10 @@ COPY --from=build /etc/nginx/templates/ /etc/nginx/templates/
 
 WORKDIR /usr/share/nginx/html/
 RUN rm -rf *
+
+RUN mkdir -p /var/log/telegraf
+RUN touch /var/log/telegraf/transcendence-access.log /var/log/telegraf/transcendence-error.log
+RUN chmod 755 /var/log/telegraf/transcendence-access.log /var/log/telegraf/transcendence-error.log
+RUN chown -R nginx:nginx /var/log/telegraf
 
 USER nginx

@@ -1,7 +1,6 @@
 version: '3.8'
 services:
   auth_service-postgres:
-    container_name: auth_service-postgres
     image: postgres:13-alpine3.18
     user: postgres
     environment:
@@ -29,7 +28,6 @@ services:
     restart: always
 
   auth_service:
-    container_name: auth_service
     build:
       context: auth_service/
       target: prod
@@ -72,19 +70,51 @@ services:
         condition: service_completed_successfully
       modsecurity:
         condition: service_started
+      vault_service-init:
+        condition: service_started
       vault_service:
         condition: service_healthy
     profiles: [ "", "auth_service" ]
     restart: always
 
+  game_service-postgres:
+    image: postgres:13-alpine3.18
+    user: postgres
+    environment:
+      POSTGRES_HOST_FILE: /run/secrets/game_service-postgres_host
+      POSTGRES_DB_FILE: /run/secrets/game_service-postgres_db
+      POSTGRES_USER_FILE: /run/secrets/game_service-postgres_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/game_service-postgres_password
+    secrets:
+      - game_service-postgres_host
+      - game_service-postgres_db
+      - game_service-postgres_user
+      - game_service-postgres_password
+    expose:
+      - "5432"
+    networks:
+      - transcendence
+    volumes:
+      - game_service-postgres_data:/var/lib/postgresql/data/:rw
+    healthcheck:
+      test: [ "CMD-SHELL", 'pg_isready -h "$(cat $POSTGRES_HOST_FILE)" -U "$(cat $POSTGRES_USER_FILE)" -d "$(cat $POSTGRES_DB_FILE)"' ]
+      interval: 5s
+      start_period: 5s
+      retries: 5
+    profiles: [ "", "game_service" ]
+    restart: always
+
   game_service:
-    container_name: game_service
     build:
       context: game_service/
       target: prod
     environment:
       REDIS_HOST: redis_service
       REDIS_PORT: 6379
+      POSTGRES_HOST_FILE: /run/secrets/game_service-postgres_host
+      POSTGRES_DB_FILE: /run/secrets/game_service-postgres_db
+      POSTGRES_USER_FILE: /run/secrets/game_service-postgres_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/game_service-postgres_password
       DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
       VAULT_ADDR: https://modsecurity:8200
       VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
@@ -93,6 +123,11 @@ services:
       SSL_CERT_FILE: ${SSL_CERT_FILE}
       SSL_CERT_KEY_PATH: ${SSL_CERT_KEY_PATH}
       SSL_CERT_KEY_FILE: ${SSL_CERT_KEY_FILE}
+    secrets:
+      - game_service-postgres_host
+      - game_service-postgres_db
+      - game_service-postgres_user
+      - game_service-postgres_password
     expose:
       - "8000"
     networks:
@@ -104,9 +139,15 @@ services:
       - ssl_cert_key_data:${SSL_CERT_KEY_PATH}:ro
       - vault_services_data:/vault/transcendence/:ro
     depends_on:
+      game_service-postgres:
+        condition: service_healthy
+      game_service-db_migrations:
+        condition: service_completed_successfully
       redis_service:
         condition: service_healthy
       modsecurity:
+        condition: service_started
+      vault_service-init:
         condition: service_started
       vault_service:
         condition: service_healthy
@@ -114,7 +155,6 @@ services:
     restart: always
 
   modsecurity:
-    container_name: modsecurity
     build:
       context: .
       dockerfile: modsecurity-nginx/Dockerfile
@@ -157,11 +197,11 @@ services:
       - media_data:/app/media/:ro
       - ssl_cert_data:${SSL_CERT_PATH}:rw
       - ssl_cert_key_data:${SSL_CERT_KEY_PATH}:rw
+      - telegraf_data:/var/log/telegraf/:rw
     profiles: [ "", "auth_service", "game_service", "web_service" ]
     restart: always
 
   redis_service:
-    container_name: redis_service
     image: redis:7.2-alpine3.18
     expose:
       - "6379"
@@ -176,7 +216,6 @@ services:
     restart: always
 
   vault_service:
-    container_name: vault_service
     build:
       context: vault/
       target: service
@@ -207,9 +246,75 @@ services:
     profiles: [ "", "auth_service", "web_service" ]
     restart: always
 
+  telegraf:
+    build:
+      context: monitoring/telegraf/
+      args:
+        - NGINX_METRICS_URL=https://modsecurity:8081/nginx_status
+    networks:
+      - transcendence
+    volumes:
+      - telegraf_data:/var/log/telegraf/:ro
+    depends_on:
+      modsecurity-dev:
+        condition: service_started
+    profiles: [ "", "monitoring_service" ]
+    restart: always
+
+  alertmanager:
+    build:
+      context: monitoring/alertmanager/
+      args:
+        SLACK_ALERTMANAGER_WEBHOOK: ${SLACK_ALERTMANAGER_WEBHOOK}
+        SLACK_ALERTMANAGER_CHANNEL: ${SLACK_ALERTMANAGER_CHANNEL}
+    command: [ '--config.file=/etc/alertmanager/alert.yml' ]
+    networks:
+      - transcendence
+    profiles: [ "", "monitoring_service" ]
+    restart: always
+
+  prometheus:
+    build:
+      context: monitoring/prometheus/
+      args:
+        PROMETHEUS_ADDR: prometheus:9090
+        TELEGRAF_ADDR: telegraf:9125
+        ALERTMANAGER_ADDR: alertmanager:9093
+    command: [ "--config.file=/etc/prometheus/prometheus.yml" ]
+    user: root
+    privileged: true
+    expose:
+      - "9090"
+    networks:
+      - transcendence
+    volumes:
+      - prometheus_data:/prometheus
+    profiles: [ "", "monitoring_service" ]
+    restart: always
+
+  grafana:
+    build:
+      context: monitoring/grafana/
+      args:
+        PROMETHEUS_URL: http://prometheus:9090
+    environment:
+      GF_SECURITY_ADMIN_USER__FILE: /run/secrets/grafana_username
+      GF_SECURITY_ADMIN_PASSWORD__FILE: /run/secrets/grafana_password
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /etc/grafana/dashboards/Home.json
+    secrets:
+      - grafana_username
+      - grafana_password
+    ports:
+      - "3000:3000"
+    networks:
+      - transcendence
+    volumes:
+      - grafana_data:/var/lib/grafana
+    profiles: [ "", "monitoring_service" ]
+    restart: always
+
   ############# TOOLS #############
   vault_service-init:
-    container_name: vault_service-init
     build:
       context: vault/
       target: init
@@ -230,7 +335,6 @@ services:
     restart: on-failure
 
   auth_service-db_migrations:
-    container_name: auth_service-db_migrations
     build:
       context: auth_service/
       target: tools
@@ -261,13 +365,14 @@ services:
     depends_on:
       auth_service-postgres:
         condition: service_healthy
+      vault_service-init:
+        condition: service_started
       vault_service:
         condition: service_healthy
     profiles: [ "", "auth_service", "tools" ]
     restart: on-failure
 
   auth_service-collectstatic:
-    container_name: auth_service-collectstatic
     build:
       context: auth_service/
       target: tools
@@ -289,15 +394,54 @@ services:
       - ssl_cert_key_data:${SSL_CERT_KEY_PATH}:ro
       - vault_services_data:/vault/transcendence/:ro
     depends_on:
+      vault_service-init:
+        condition: service_started
       vault_service:
         condition: service_healthy
     profiles: [ "", "auth_service", "tools" ]
     restart: on-failure
 
-  game_service-collectstatic:
-    container_name: game_service-collectstatic
+  game_service-db_migrations:
     build:
-      context: auth_service/
+      context: game_service/
+      target: tools
+    environment:
+      POSTGRES_HOST_FILE: /run/secrets/game_service-postgres_host
+      POSTGRES_DB_FILE: /run/secrets/game_service-postgres_db
+      POSTGRES_USER_FILE: /run/secrets/game_service-postgres_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/game_service-postgres_password
+      VAULT_ADDR: https://modsecurity:8200
+      VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
+      VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
+      SSL_CERT_PATH: ${SSL_CERT_PATH}
+      SSL_CERT_FILE: ${SSL_CERT_FILE}
+      SSL_CERT_KEY_PATH: ${SSL_CERT_KEY_PATH}
+      SSL_CERT_KEY_FILE: ${SSL_CERT_KEY_FILE}
+    secrets:
+      - game_service-postgres_host
+      - game_service-postgres_db
+      - game_service-postgres_user
+      - game_service-postgres_password
+    entrypoint: [ "/bin/sh", "/app/tools/db-migrations.sh" ]
+    networks:
+      - transcendence
+    volumes:
+      - ssl_cert_data:${SSL_CERT_PATH}:ro
+      - ssl_cert_key_data:${SSL_CERT_KEY_PATH}:ro
+      - vault_services_data:/vault/transcendence/:ro
+    depends_on:
+      game_service-postgres:
+        condition: service_healthy
+      vault_service-init:
+        condition: service_started
+      vault_service:
+        condition: service_healthy
+    profiles: [ "", "game_service", "tools" ]
+    restart: on-failure
+
+  game_service-collectstatic:
+    build:
+      context: game_service/
       target: tools
     environment:
       VAULT_ADDR: https://modsecurity:8200
@@ -317,13 +461,14 @@ services:
       - ssl_cert_key_data:${SSL_CERT_KEY_PATH}:ro
       - vault_services_data:/vault/transcendence/:ro
     depends_on:
+      vault_service-init:
+        condition: service_started
       vault_service:
         condition: service_healthy
     profiles: [ "", "game_service", "tools" ]
     restart: on-failure
 
   web_service:
-    container_name: web_service
     build:
       context: web_service/
       target: prod
@@ -334,13 +479,14 @@ services:
       - web_service-data:/app/:rw
       - vault_services_data:/vault/transcendence/:ro
     depends_on:
+      vault_service-init:
+        condition: service_started
       vault_service:
         condition: service_healthy
     profiles: [ "", "web_service", "tools" ]
     restart: on-failure
 
   nikto:
-    container_name: nikto
     build:
       context: nikto/
     environment:
@@ -360,6 +506,7 @@ networks:
 
 volumes:
   auth_service-postgres_data:
+  game_service-postgres_data:
   auth_service-daphne_sock:
   game_service-daphne_sock:
   web_service-data:
@@ -373,6 +520,10 @@ volumes:
   vault_keys_data:
   vault_services_data:
 
+  prometheus_data:
+  grafana_data:
+  telegraf_data:
+
 secrets:
   auth_service-postgres_host:
     file: ./secrets/auth_service/postgres-host
@@ -382,5 +533,19 @@ secrets:
     file: ./secrets/auth_service/postgres-user
   auth_service-postgres_password:
     file: ./secrets/auth_service/postgres-password
+  game_service-postgres_host:
+    file: ./secrets/game_service/postgres-host
+  game_service-postgres_db:
+    file: ./secrets/game_service/postgres-db
+  game_service-postgres_user:
+    file: ./secrets/game_service/postgres-user
+  game_service-postgres_password:
+    file: ./secrets/game_service/postgres-password
   sso_42_client_secret:
     file: ./secrets/42-client-secret
+  grafana_username:
+    file: ./secrets/grafana/grafana-username
+  grafana_password:
+    file: ./secrets/grafana/grafana-password  
+    
+    
