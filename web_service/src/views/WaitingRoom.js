@@ -18,6 +18,13 @@ export default class WaitingRoom extends AbstractView {
         this._wsCreatedRender = false;
         this._lobbyFull = false;
 
+		const currentLocation = location.pathname;
+        if (currentLocation.charAt(6) === "p") {
+            this._game = "pong";
+        } else {
+            this._game = "tic-tac-toe";
+        }
+
         this._observer = new MutationObserver(this.defineCallback.bind(this));
         this._observer.observe(document.body, {
             childList: true,
@@ -101,9 +108,12 @@ export default class WaitingRoom extends AbstractView {
                 localStorage.setItem("previous_location", location.pathname);
                 AbstractView.gameOver = false;
 				this.removeCallbacks();
-                navigateTo(
-                    "/home/pong/play/multiplayer/" + this._lobbySize
-                );
+
+				if (this._game === "pong") {
+					navigateTo("/home/pong/play/multiplayer/" + this._lobbySize);
+				} else {
+					navigateTo("/home/tic-tac-toe/play/multiplayer/" + this._lobbySize);
+				}
             }
         }
     }

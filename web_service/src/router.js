@@ -17,6 +17,7 @@ import { Game1, Game2 } from "./components/Games.js";
 import { GameMenuOptions, MultiplayerOptions, SinglePlayerOptions, TournamentOptions } from "./components/GameOptions.js";
 import FirendsPage from "./views/FriendsPage.js";
 import SearchFriends from "./components/SearchFriends.js";
+import TicTacToe from "./views/TicTacToe.js";
 
 export const routes = [
     {
@@ -158,13 +159,28 @@ export const routes = [
 				view: Pong
             },
 			{
-                path: "/tic-tac-toe/play/single-player/1"
+                path: "/tic-tac-toe/tournament/creation",
+				view: Tournament
+            },
+			{
+                path: "/tic-tac-toe/tournament/matchmaking",
+				view: TournamentMatchmaking
+            },
+			{
+                path: "/tic-tac-toe/play/single-player/1",
+				view: TicTacToe
             },
             {
-                path: "/tic-tac-toe/play/single-player/2"
+                path: "/tic-tac-toe/play/single-player/2",
+				view: TicTacToe
             },
             {
-                path: "/tic-tac-toe/play/multiplayer/2"
+                path: "/tic-tac-toe/play/multiplayer/2",
+				view: TicTacToe
+            },
+			{
+                path: "/tic-tac-toe/play/tournament/2",
+				view: TicTacToe
             },
         ]
     }
