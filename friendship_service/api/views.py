@@ -49,9 +49,9 @@ class FriendshipViewSet(viewsets.ViewSet):
         raise ServerError
 
     def retrieve(self, request, pk=None):
-        self.check_object_permissions(request, pk)
         try:
             friendship = Friendship.objects.get(pk=pk)
+            self.check_object_permissions(request, friendship.user_id)
         except Friendship.DoesNotExist:
             raise NotFound
 
@@ -63,9 +63,9 @@ class FriendshipViewSet(viewsets.ViewSet):
         ), status=status.HTTP_200_OK)
 
     def destroy(self, request, pk=None):
-        self.check_object_permissions(request, pk)
         try:
             friendship = Friendship.objects.get(pk=pk)
+            self.check_object_permissions(request, friendship.user_id)
         except Friendship.DoesNotExist:
             raise NotFound
 

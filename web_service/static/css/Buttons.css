@@ -138,7 +138,7 @@
     border-color: #3e0d8e;
     border-width: 3px;
     border-style: solid;
-    border-radius: 5px;
+    border-radius: 10px;
     height: 60px;
 	width: 550px;;
 }
@@ -146,11 +146,11 @@
 .friend-block {
 	background-color: #7439d2;
 	border-color: #3e0d8e;
-	border-width: 2px;
+	border-width: 3px;
 	border-style: solid;
 	border-radius: 10px;
 	height: 80px;
-	width: 200px;
+	width: 215px;
 	margin-right: 10px;
 }
 

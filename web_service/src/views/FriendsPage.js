@@ -1,3 +1,4 @@
+import { navigateTo } from "..";
 import fetchData from "../functions/fetchData";
 import getUserInfo from "../functions/getUserInfo";
 import { getToken } from "../functions/tokens";
@@ -15,9 +16,7 @@ export default class FirendsPage extends AbstractView {
         this._clickCallback = false;
         this._insideRequest = false;
 
-		this._friendList = null;
-        this._errors = {};
-        this._avatar = AbstractView.userInfo.avatar;
+		this._friendshipList = null;
 
         this._observer = new MutationObserver(this.defineCallback.bind(this));
         this._observer.observe(document.body, {
@@ -28,6 +27,45 @@ export default class FirendsPage extends AbstractView {
 		this.removeCallbacksBound = this.removeCallbacks.bind(this);
 		window.addEventListener("popstate", this.removeCallbacksBound);
     }
+
+	async addEventListeners() {
+		if (!this._friendshipList) {
+			return ;
+		}
+		
+        for (let [index, friendship] of this._friendshipList.entries()) {
+			console.log("StoredFriendList:", friendship);
+            const avataraAndUsernameDiv = document.getElementById(`friend-${friendship.friend_id}`);
+            avataraAndUsernameDiv.addEventListener("click", async () => await navigateTo(`/home/profile/${friendship.friend_id}`));
+
+            const button = document.getElementById(`remove-friendship-${friendship.id}`);
+            button.addEventListener("click", async () => await this.removeFriend(friendship.id));
+        }
+    };
+
+	async removeFriend(id) {
+		console.log("removing friend!");
+
+		const accessToken = await getToken();
+		const headers = {
+			Authorization: `Bearer ${accessToken}`,
+		};
+
+		const response = await fetchData(
+			`/api/friendships/${id}`,
+			"DELETE",
+			headers,
+			null
+		);
+
+		if (response.ok) {
+			console.log("Deleted friendship ", id);
+			await this.getMyFriends();
+		} else {
+			console.error("Error: failed to delete friend ", response.status);
+		}
+	}
+
 
 	async getMyFriends() {
 		const accessToken = await getToken();
@@ -43,8 +81,8 @@ export default class FirendsPage extends AbstractView {
 		);
 
 		if (response.ok) {
-			this._friendList = await response.json();
-			console.log("MyFriendsList:", this._friendList);
+			this._friendshipList = await response.json();
+			console.log("MyFriendsList:", this._friendshipList);
 			await this.loadDOMChanges();
 		} else {
 			console.error("Error: failed to fetch my friends list ", response.status);
@@ -62,7 +100,7 @@ export default class FirendsPage extends AbstractView {
 		const friendListDiv = document.getElementById("friend-list");
 		if (friendListDiv && !this._setFriendCallback) {
 			this._setFriendCallback = true;
-			friendListDiv.addEventListener("reload-friend-list", this.getMyFriends);
+			friendListDiv.addEventListener("reload-friend-list", this.getMyFriends.bind(this));
 		}
 
 		if (!this._friendCallback && AbstractView.userInfo.id) {
@@ -84,10 +122,11 @@ export default class FirendsPage extends AbstractView {
 	async loadDOMChanges() {
 		const parentNode = document.getElementById("friend-list");
 		parentNode.innerHTML = await this.loadFriendList();
+		await this.addEventListeners();
 	}
 
 	async loadFriendList() {
-		if (!this._friendList) {
+		if (!this._friendshipList) {
 			return ``;
 		}
 
@@ -99,16 +138,20 @@ export default class FirendsPage extends AbstractView {
 		div.style.maxHeight = "360px";
 		div.style.overflowY = "auto";
 		
-		for (let [index, user] of this._friendList.entries()) {
-			const friendInfo = await getUserInfo(accessToken, user.friend_id);
+		for (let [index, friendship] of this._friendshipList.entries()) {
+			const friendInfo = await getUserInfo(accessToken, friendship.friend_id);
 			console.log("FriendInfo:", friendInfo);
+			
 			const userDiv = document.createElement("div");
-			userDiv.setAttribute("class", "d-flex flex-row align-items-center friend-block mt-2");
+			userDiv.setAttribute("class", "d-flex flex-row friend-block mt-2");
 			userDiv.id = `friend-block-${index}`;
+
+			const friendInfoDiv = document.createElement("div");
+			friendInfoDiv.setAttribute("class", "d-flex flex-column align-items-start justify-content-start mt-1 ms-1");
 
 			const avataraAndUsernameDiv = document.createElement("div");
 			avataraAndUsernameDiv.setAttribute("class", "d-flex flex-row align-items-center");
-			avataraAndUsernameDiv.id = `friend-id-${user.id}`;
+			avataraAndUsernameDiv.id = `friend-${friendInfo.id}`;
 			
 			if (friendInfo.avatar) {
 				const img = document.createElement("img");
@@ -117,37 +160,39 @@ export default class FirendsPage extends AbstractView {
             	img.setAttribute("width", "40");
             	img.setAttribute("height", "40");
             	img.setAttribute("style", "border-radius: 50%");
-            	img.setAttribute("src", friendInfo.avatar.link);
+            	img.setAttribute("src", friendInfo.avatar);
 				avataraAndUsernameDiv.appendChild(img);
 			} else {
 				const avatar = document.createElement("base-avatar-box");
-				avatar.setAttribute("template", "ms-3");
+				avatar.setAttribute("template", "ms-1");
 				avatar.setAttribute("size", "40");
 				avataraAndUsernameDiv.appendChild(avatar);
 			}
 			
 			const username = document.createElement("h3");
-			username.setAttribute("class", "ms-3 mt-2");
-			username.setAttribute("style", "font-size: 20px; font-weight: bold");
+			username.setAttribute("class", "ms-2 mt-2");
+			username.setAttribute("style", "font-size: 18px; font-weight: bold");
 			username.innerText = friendInfo.username;
 			avataraAndUsernameDiv.appendChild(username);
-			userDiv.appendChild(avataraAndUsernameDiv);
+			friendInfoDiv.appendChild(avataraAndUsernameDiv);
+			userDiv.appendChild(friendInfoDiv);
 
-			//const buttonDiv = document.createElement("div");
-			//buttonDiv.setAttribute("class", "d-flex justify-content-end");
-			//buttonDiv.style.marginLeft = "auto";
+			const buttonDiv = document.createElement("div");
+			buttonDiv.setAttribute("class", "d-flex flex-row align-items-center me-2");
+			buttonDiv.style.marginLeft = "auto";
 			
-			//const button = document.createElement("button");
-			//button.setAttribute("class", "btn btn-primary primary-button extra-btn-class me-3");
-			//button.id = `friend-btn-${friendInfo.id}`;
-			//button.style.width = "100px";
-			//button.style.height = "35px";
-			//button.textContent = "Add friend";
-			//buttonDiv.appendChild(button);
-			//userDiv.appendChild(buttonDiv);
-
+			const button = document.createElement("button");
+			button.setAttribute("id", `remove-friendship-${friendship.id}`);
+			button.setAttribute("type", "button");
+			button.setAttribute("class", "btn-close align-itens-bottom");
+			button.setAttribute("aria-label", "Close");
+			buttonDiv.appendChild(button);
+			userDiv.appendChild(buttonDiv);
+			
 			div.appendChild(userDiv);
 		}
+
+		console.log("friendListInfo:", this._friendshipList);
 	
 		return div.outerHTML;
 	}
@@ -159,7 +204,7 @@ export default class FirendsPage extends AbstractView {
 					<div class="d-flex flex-row justify-content-center mt-2">
 						<h1 style="font-size: 30px; font-weight: bold">My Friends</h1>
 					</div>
-					<div class="d-flex flex-row justify-content-center mt-3" id="friend-list">
+					<div class="d-flex flex-row justify-content-center mt-2" id="friend-list">
 						<loading-icon size="3rem"></loading-icon>
 					</div>
 				</div>

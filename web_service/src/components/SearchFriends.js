@@ -1,3 +1,4 @@
+import { navigateTo } from "..";
 import fetchData from "../functions/fetchData";
 import { getToken } from "../functions/tokens";
 import { transitDecrypt } from "../functions/vaultAccess";
@@ -18,10 +19,6 @@ export default class SearchFriends extends AbstractView {
 
         this._errors = {};
         this._success = {};
-        this._formData = {
-            username: AbstractView.userInfo.username,
-            email: AbstractView.userInfo.email,
-        };
 
         this._observer = new MutationObserver(this.defineCallback.bind(this));
         this._observer.observe(document.body, {
@@ -170,7 +167,7 @@ export default class SearchFriends extends AbstractView {
         this._insideRequest = false;
     }
 
-	addEventListeners() {
+	async addEventListeners() {
         for (let [index, user] of this._userList.entries()) {
             const avataraAndUsernameDiv = document.getElementById(`user-${user.id}`);
             avataraAndUsernameDiv.addEventListener("click", async () => await navigateTo(`/home/profile/${user.id}`));
@@ -214,7 +211,7 @@ export default class SearchFriends extends AbstractView {
 	async loadDOMChanges() {
 		const parentNode = document.getElementById("user-list");
 		parentNode.innerHTML = await this.loadSearchBarResult();
-		this.addEventListeners();
+		await this.addEventListeners();
 	}
 
 	async loadSearchBarResult() {

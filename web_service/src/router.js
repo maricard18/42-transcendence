@@ -18,6 +18,7 @@ import { GameMenuOptions, MultiplayerOptions, SinglePlayerOptions, TournamentOpt
 import FirendsPage from "./views/FriendsPage.js";
 import SearchFriends from "./components/SearchFriends.js";
 import TicTacToe from "./views/TicTacToe.js";
+import ProfilePage from "./views/ProfilePage.js";
 
 export const routes = [
     {
@@ -129,6 +130,10 @@ export const routes = [
                         view: SearchFriends,
                     },
                 ]
+            },
+			{
+                path: "/profile/:id",
+                view: ProfilePage
             },
 			{
                 path: "/pong/tournament/creation",
