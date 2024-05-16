@@ -49,7 +49,7 @@ export default class FirendsPage extends AbstractView {
 					<h3>Friends List</h3>
 				</div>
 				<div class="d-flex flex-column secondary-box ms-3">
-					${this._view ? this._view.getHtml() : ""}
+					${this._view ? await this._view.getHtml() : ""}
 				</div>
 			</div>
         `;

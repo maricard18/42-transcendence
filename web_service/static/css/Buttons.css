@@ -46,6 +46,21 @@
     border-color: #e6e6e6;
 }
 
+.white-friend-button.extra-btn-class {
+    color: #343A40;
+    background-color: white;
+    border-color: white;
+    width: 120px;
+    font-weight: bold;
+}
+
+.white-friend-button.extra-btn-class:hover,
+.white-friend-button.extra-btn-class:active {
+    color: #343A40;
+    background-color: #e6e6e6;
+    border-color: #e6e6e6;
+}
+
 .red-button.extra-btn-class {
     color: white;
     background-color: #8B0000;
@@ -117,4 +132,10 @@
     border-color: #140330;
     padding: 10px;
     border-radius: 10px;
+}
+
+.user-info {
+    background-color: #5610c7;
+    border-radius: 5px;
+	height: 60px;
 }

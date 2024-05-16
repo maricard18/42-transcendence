@@ -1,5 +1,6 @@
 import fetchData from "../functions/fetchData";
 import { getToken } from "../functions/tokens";
+import { transitDecrypt } from "../functions/vaultAccess";
 import AbstractView from "../views/AbstractView";
 
 export default class SearchFriends extends AbstractView {
@@ -13,6 +14,7 @@ export default class SearchFriends extends AbstractView {
 		this._enterCallback = false;
 
 		this._searchBar = "";
+		this._userList;
 
         this._errors = {};
         this._success = {};
@@ -156,8 +158,9 @@ export default class SearchFriends extends AbstractView {
 			);
 	
 			if (response.ok) {
-				const jsonData = await response.json();
-				console.log("Response:", jsonData);
+				this._userList = await response.json();
+				console.log("Response:", this._userList);
+				await this.loadDOMChanges();
 			} else {
 				console.error("Error: failed to get user data list ", response.status);
 			}
@@ -167,7 +170,65 @@ export default class SearchFriends extends AbstractView {
         this._insideRequest = false;
     }
 
-    getHtml() {
+	async loadDOMChanges() {
+		const parentNode = document.getElementById("user-list");
+		console.log(parentNode);
+		parentNode.innerHTML = await this.loadSearchBarResult();
+	}
+
+	async loadSearchBarResult() {
+		if (!this._userList) {
+			return ``;
+		}
+
+		const div = document.createElement("div");
+		div.setAttribute("class", "mt-4");
+		
+		const title = document.createElement("h3");
+		title.setAttribute("class", "d-flex justify-content-start ms-1");
+		title.setAttribute("style", "font-size: 30px; font-weight: bold");
+		title.innerText = `Search results for ${this._searchBar}`;
+		div.appendChild(title);
+		
+		for (let user of this._userList.entries()) {
+			const userDiv = document.createElement("div");
+			userDiv.setAttribute("class", "d-flex flex-row align-items-center user-info mt-3");
+			
+			if (user[1].avatar) {
+				const img = document.createElement("img");
+            	img.setAttribute("class", "white-border-sm ms-3");
+            	img.setAttribute("alt", "Avatar preview");
+            	img.setAttribute("width", "40");
+            	img.setAttribute("height", "40");
+            	img.setAttribute("style", "border-radius: 50%");
+            	img.setAttribute("src", user[1].avatar.link);
+				userDiv.appendChild(img);
+			} else {
+				const avatar = document.createElement("base-avatar-box");
+				avatar.setAttribute("template", "ms-3");
+				avatar.setAttribute("size", "40");
+				userDiv.appendChild(avatar);
+			}
+			
+			const username = document.createElement("h3");
+			username.setAttribute("class", "ms-3 mt-2");
+			username.setAttribute("style", "font-size: 30px; font-weight: bold");
+			username.innerText = await transitDecrypt(user[1].username);
+			userDiv.appendChild(username);
+			
+			const navButton = document.createElement("nav-button");
+			navButton.setAttribute("template", "white-friend-button extra-btn-class ms-5");
+			navButton.setAttribute("page", `/home/user-info/${user[1].id}`);
+			navButton.setAttribute("value", "Add friend");
+			userDiv.appendChild(navButton);
+			
+			div.appendChild(userDiv);
+		}
+	
+		return div.outerHTML;
+	}
+
+    async getHtml() {
 		return `
 			<div class="d-flex flex-column justify-content-center" id="search-friends">
 				<div class="ms-2 position-relative">
@@ -177,6 +238,9 @@ export default class SearchFriends extends AbstractView {
 					<input class="form-control me-2" type="search" placeholder="Search for usernames here" aria-label="Search">
 					<button id="search-button" class="btn primary-button extra-btn-class" style="width: 120px">Search</button>
 				</div>
+				<div id="user-list" class="mt-2">
+					${await this.loadSearchBarResult()}
+				<div>
 			</div>
 		`;
 	}
