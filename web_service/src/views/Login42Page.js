@@ -39,18 +39,21 @@ export default class Login42Page extends AbstractView {
 				localStorage.removeItem("previousLocation");
 				navigateTo(this._previousLocation);
 			} else {
-				navigateTo("/menu");
+				navigateTo("/home");
 			}
 		} else {
 			if (response.status === 409) {
 				await setToken(response);
 				this._observer.disconnect();
+				console.log("navigating to create profile 42");
 				navigateTo("/create-profile-42");
 			} else {
 				console.error("Error: failed to sign up with 42");
 				this._observer.disconnect();
 				navigateTo("/");
 			}
+
+			return ;
 		}
 	}
 

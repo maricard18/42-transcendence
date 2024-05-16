@@ -231,6 +231,7 @@ export default class Create42ProfilePage extends AbstractView {
 				}
 
 				this.removeCallbacks();
+				localStorage.setItem("previous_location", location.pathname);
 				navigateTo("/home");
             } else {
 				if (response.status === 409) {

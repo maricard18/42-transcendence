@@ -1,6 +1,6 @@
 import AbstractView from "../../views/AbstractView";
 import { createSinglePlayerGameObjects, createMultiPlayer2GameObjects, createTournamentGameObjects } from "./createPlayers";
-import { MyWebSocket, sendMessage } from "../../functions/websocket";
+import { MyWebSocket, closeWebsocket, sendMessage } from "../../functions/websocket";
 import { multiplayerTicTacToeMessageHandler } from "../../functions/websocket";
 import { gameConfettiAnimation, gameStartAnimation } from "./animations";
 import { updateVariables } from "./variables";
@@ -35,6 +35,7 @@ export async function startTicTacToe(game) {
 		await gameStartAnimation(game);
 		game.last_time = Date.now();
 		await multiplayer2GameLoop(game);
+		closeWebsocket();
 		await gameConfettiAnimation(game);
 		localStorage.removeItem("game_status");
 	} else {
@@ -69,9 +70,9 @@ function singleplayerGameLoop(game) {
             }
         };
         
-		game.canvas.addEventListener("click", clickHandler);
 		game.clear();
 		game.drawBoard();
+		game.canvas.addEventListener("click", clickHandler);
     });
 }
 
@@ -85,7 +86,8 @@ function multiplayer2GameLoop(game) {
 					game.winner = localStorage.getItem("game_winner");
 				}
 				game.over = true;
-				console.log("Left through here");
+				game.last_time = Date.now();
+				game.canvas.removeEventListener("click", clickHandler);
 				resolve();
 			} else {
 				game.clear();
@@ -93,20 +95,25 @@ function multiplayer2GameLoop(game) {
 				game.hit(event.offsetX, event.offsetY);
 				game.checkWinner();
 				
-				if ((game.over || !MyWebSocket.ws || !localStorage.getItem("game_status")) && 
-					AbstractView.userInfo.id === game.host_id) {
-					game.canvas.removeEventListener("click", clickHandler);
+				if ((game.over || !MyWebSocket.ws || !localStorage.getItem("game_status"))) {
+					const id = AbstractView.userInfo.id === game.host_id ? 1 : 2;
 					game.winner = game.winner === 1 ? game.player1.info.username : game.player2.info.username;
 					game.last_time = Date.now();
-					sendTicTacToeMessage(game, 1);
+					game.canvas.removeEventListener("click", clickHandler);
+					sendTicTacToeMessage(game, id);
 					resolve();
 				}
 			}
         };
-        
-		game.canvas.addEventListener("click", clickHandler);
-		game.clear();
-		game.drawBoard();
+
+		if (game.over || !MyWebSocket.ws || !localStorage.getItem("game_status")) {
+			game.winner = localStorage.getItem("game_winner");
+			resolve() ;
+		} else {
+			game.clear();
+			game.drawBoard();
+			game.canvas.addEventListener("click", clickHandler);
+		} 
     });
 }
 

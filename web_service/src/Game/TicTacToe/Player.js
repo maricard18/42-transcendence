@@ -6,10 +6,9 @@ export class Player {
         this.info = info;
 		this.myTurn = false;
 		this.plays = [];
-		this.board = null;
     }
 
-	addPlay(x, y) {
+	addPlay(board, x, y) {
 		if (!this.plays.length) {
 			this.plays.push([x, y, false]);
 			return ;
@@ -20,7 +19,7 @@ export class Player {
 		if (this.plays.length === 4) {
 			const firstPlay = this.plays.pop();
 			
-			for (let row of this.board) {
+			for (let row of board) {
 				for (let box of row) {
 					if (firstPlay[0] === box[1][0] && firstPlay[1] === box[1][1]) {
 						box[0] = 0;
@@ -39,13 +38,13 @@ export class Player {
 				ctx.moveTo(play[0] + size - BoxMargin, play[1] + BoxMargin);
 				ctx.lineTo(play[0] + BoxMargin, play[1] + size - BoxMargin);
 				ctx.lineWidth = Linewidth + Linewidth / 3;
-				ctx.strokeStyle = !play[2] ? "#520dc2" : "#150433";
+				ctx.strokeStyle = !play[2] ? "#6511ed" : "#370f75";
 				ctx.stroke();
 			   } else {
 				ctx.beginPath();
 				ctx.arc(play[0] + size / 2, play[1] + size / 2, size / 2.5, 0, 2 * Math.PI);
 				ctx.lineWidth = Linewidth + Linewidth / 3;
-				ctx.strokeStyle = !play[2] ? "#9461e6" : "#211533";
+				ctx.strokeStyle = !play[2] ? "#9461e6" : "#402963";
 				ctx.stroke();
 			}
 		}

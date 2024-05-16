@@ -13,8 +13,15 @@ export async function connectWebsocket() {
 	const protocol = window.location.protocol === "http:" ? "ws:" : "wss:";
 	const lobyySize = location.pathname.substring(location.pathname.length - 1);
 	const waitingRoomNode = document.getElementById("waiting-room");
+	const currentLocation = location.pathname;
+	let game;
+	if (currentLocation.charAt(6) === "p") {
+		game = "1";
+	} else {
+		game = "2";
+	}
     
-	MyWebSocket.ws = new WebSocket(protocol + "//" + host + "/ws/games/1/queue/" + lobyySize, [
+	MyWebSocket.ws = new WebSocket(`${protocol}//${host}/ws/games/${game}/queue/${lobyySize}`, [
         "Authorization",
         accessToken,
     ]);
@@ -77,7 +84,7 @@ export async function connectWebsocket() {
 export function multiplayerTicTacToeMessageHandler(MyWebSocket, game) {
 	if (MyWebSocket.ws) {
         MyWebSocket.ws.onmessage = (event) => {
-            console.log("GAME", JSON.parse(event.data));
+            //console.log("GAME", JSON.parse(event.data));
 
             try {
                 const jsonData = JSON.parse(event.data);
@@ -91,7 +98,13 @@ export function multiplayerTicTacToeMessageHandler(MyWebSocket, game) {
 							play[0] = play[0] / gameData["screen_size"] * ScreenSize;
 							play[1] = play[1] / gameData["screen_size"] * ScreenSize;
 						}
-						console.log("plyer2 info:", game.player2);
+
+						if (game.player1.plays.length === 3) {
+							game.player1.plays[2][2] = true;
+						}
+						if (game.player2.plays.length === 3) {
+							game.player2.plays[2][2] = false;
+						}
 					}
 					
 					if (gameData["index"] == 1) {
@@ -100,19 +113,32 @@ export function multiplayerTicTacToeMessageHandler(MyWebSocket, game) {
 							play[0] = play[0] / gameData["screen_size"] * ScreenSize;
 							play[1] = play[1] / gameData["screen_size"] * ScreenSize;
 						}
-						console.log("plyer1 info:", game.player1);
+						
+						if (game.player2.plays.length === 3) {
+							game.player2.plays[2][2] = true;
+						}
+						if (game.player1.plays.length === 3) {
+							game.player1.plays[2][2] = false;
+						}
 					}
+					
+					game.board = gameData["board"];
+					for (let row of game.board) {
+						for (let box of row) {
+							box[1][0] = box[1][0] / gameData["screen_size"] * ScreenSize;
+							box[1][1] = box[1][1] / gameData["screen_size"] * ScreenSize;
+						}
+					}
+
+					game.player1.myTurn = gameData["player1_turn"];
+					game.player2.myTurn = gameData["player2_turn"];
+					game.over = gameData["over"];
+					game.winner = gameData["winner"];
 					
 					game.clear();
 					game.drawBoard();
 					game.player1.draw(game.ctx, game.size);
 					game.player2.draw(game.ctx, game.size);
-					
-					game.board = gameData["board"];
-					game.player1.myTurn = gameData["player1_turn"];
-					game.player2.myTurn = gameData["player2_turn"];
-					game.over = gameData["over"];
-					game.winner = gameData["winner"];
 					
 					if (game.over) {
 						game.canvas.click();

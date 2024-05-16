@@ -1,5 +1,5 @@
-import AbstractView from "../views/AbstractView";
-import { findTournamentMatch } from "../views/Tournament";
+import AbstractView from "../../views/AbstractView";
+import { findTournamentMatch } from "../../views/Tournament";
 
 export class Display2Usernames extends AbstractView {
     constructor(view) {

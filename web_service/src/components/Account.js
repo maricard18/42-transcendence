@@ -217,9 +217,9 @@ export default class Account extends AbstractView {
                 return;
             }
 
-			this._accessToken = await getToken();
+			const accessToken = await getToken();
             const headers = {
-                Authorization: `Bearer ${this._accessToken}`,
+                Authorization: `Bearer ${accessToken}`,
             };
 
             const response = await fetchData(

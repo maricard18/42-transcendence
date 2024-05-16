@@ -51,8 +51,6 @@ export class Game {
         ],
         
 		this.board = [this.row1, this.row2, this.row3]
-		this.player1.board = this.board;
-		this.player2.board = this.board;
     }
 
     clear() {
@@ -84,47 +82,45 @@ export class Game {
         this.ctx.stroke();
     }
 
-	hit(x, y) {
+	hit(x, y) {		
 		for (let row of this.board) {
 			for (let box of row) {
 				if (x > box[1][0] && y > box[1][1] && x < box[1][0] + this.size && y < box[1][1] + this.size) {
 					if ((!box[0] && this.player1.myTurn && this.mode !== "multiplayer") ||
 					   ((!box[0] && this.player1.myTurn && AbstractView.userInfo.id === this.host_id && this.mode === "multiplayer"))) {
-						this.player1.addPlay(box[1][0], box[1][1]);
+						this.player1.addPlay(this.board, box[1][0], box[1][1]);
 						box[0] = 1;
 						this.player1.myTurn = false;
 						this.player2.myTurn = true;
 
-						if (this.player2.plays.length === 3 && this.mode !== "multiplayer") {
+						if (this.player2.plays.length === 3) {
 							this.player2.plays[2][2] = true;
 						}
-						if (this.player1.plays.length === 3 && this.mode !== "multiplayer") {
+						if (this.player1.plays.length === 3) {
 							this.player1.plays[2][2] = false;
 						}
-						if (this.player1.plays.length === 3 && this.mode === "multiplayer") {
-							this.player1.plays[2][2] = true;
-						}
 
-						sendTicTacToeMessage(this, 1);
+						if (this.mode === "multiplayer") {
+							sendTicTacToeMessage(this, 1);
+						}
 					}
 					if ((!box[0] && this.player2.myTurn && this.mode !== "multiplayer") ||
 					   ((!box[0] && this.player2.myTurn && AbstractView.userInfo.id !== this.host_id && this.mode === "multiplayer"))) {
-						this.player2.addPlay(box[1][0], box[1][1]);
+						this.player2.addPlay(this.board, box[1][0], box[1][1]);
 						box[0] = 2;
 						this.player2.myTurn = false;
 						this.player1.myTurn = true;
 
-						if (this.player1.plays.length === 3 && this.mode !== "multiplayer") {
+						if (this.player1.plays.length === 3) {
 							this.player1.plays[2][2] = true;
 						}
-						if (this.player2.plays.length === 3 && this.mode !== "multiplayer") {
-							this.player2.plays[2][2] = flase;
-						}
-						if (this.player2.plays.length === 3 && this.mode === "multiplayer") {
-							this.player2.plays[2][2] = true;
+						if (this.player2.plays.length === 3) {
+							this.player2.plays[2][2] = false;
 						}
 						
-						sendTicTacToeMessage(this, 2);
+						if (this.mode === "multiplayer") {
+							sendTicTacToeMessage(this, 2);
+						}
 					}
 				}
 			}
