@@ -1,5 +1,5 @@
 import AbstractView from "./AbstractView";
-import { Display2Usernames } from "../components/DisplayUsernames";
+import { Display2Usernames } from "../Game/TicTacToe/DisplayUsernames";
 import { navigateTo } from "..";
 import { closeWebsocket } from "../functions/websocket";
 import { createTicTacToeGameObject, startTicTacToe } from "../Game/TicTacToe/tictactoeGame";
@@ -22,7 +22,7 @@ export default class TicTacToe extends AbstractView {
 
 		if (this._gameMode === "single-player") {
 			if (this._lobbySize == 2) {
-				localStorage.setItem("player1", "Opponent");
+				localStorage.setItem("player2", "Opponent");
 			} else {
 				localStorage.setItem("player2", "CPU");
 			}	
@@ -79,7 +79,6 @@ export default class TicTacToe extends AbstractView {
                 this._gameMode,
                 this._lobbySize
             );
-			console.error("GAME:", this._game);
             await startTicTacToe(this._game);
         }
     }
@@ -128,8 +127,9 @@ export default class TicTacToe extends AbstractView {
 						width="${this._width}"
 						height="${this._height}"
 						class="mt-3"
-						style="border: 10px solid #fff; border-radius: 15px; background-color: rgba(0, 0, 0, 0.7)"
-					/>
+						style="border: 10px solid #fff; border-radius: 15px; background-color: rgba(0, 0, 0, 0.6)"
+					>
+					</canvas>
 				</div>
 			</div>
         `;

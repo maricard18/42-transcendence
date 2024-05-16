@@ -106,12 +106,16 @@ async function hasPermission(matches) {
     } else {
         AbstractView.authed = false;
     }
+	
+	const previousLocation = localStorage.getItem("previous_location");
 
     if (baseUrl === "/home" && !AbstractView.authed) {
         navigateTo("/");
         return false;
     } else if (localStorage.getItem("previous_location") &&
         baseUrl === "/login-42" && AbstractView.authed) {
+        return true;
+    } else if (!previousLocation && baseUrl === "/create-profile-42" && AbstractView.authed) {
         return true;
     } else if (baseUrl !== "/home" && AbstractView.authed) {
         navigateTo("/home");
@@ -192,7 +196,6 @@ window.addEventListener("popstate", async () => {
 		AbstractView.previousLocation === "/home/tic-tac-toe/play/single-player/2" ||
 		AbstractView.previousLocation === "/home/tic-tac-toe/play/multiplayer/2" ||
 		AbstractView.previousLocation === "/home/tic-tac-toe/play/tournament/2") {
-		console.log("1");
 		localStorage.removeItem("game_status");
 	}
 	

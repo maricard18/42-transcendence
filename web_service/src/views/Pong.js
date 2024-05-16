@@ -1,7 +1,7 @@
 import AbstractView from "./AbstractView";
 import { createPongGameObject } from "../Game/Pong/pongGame";
 import { startPong } from "../Game/Pong/pongGame";
-import { Display2Usernames, DisplayUsername } from "../components/DisplayUsernames";
+import { Display2Usernames, DisplayUsername } from "../Game/Pong/DisplayUsernames";
 import { navigateTo } from "..";
 import { closeWebsocket } from "../functions/websocket";
 
@@ -138,8 +138,8 @@ export default class Pong extends AbstractView {
 						width="${this._width}"
 						height="${this._height}"
 						class="mt-3"
-						style="border: 10px solid #fff; border-radius: 15px; background-color: rgba(0, 0, 0, 0.7)"
-					/>
+						style="border: 10px solid #fff; border-radius: 15px; background-color: rgba(0, 0, 0, 0.6)"
+					></canvas>
 				</div>
 			</div>
         `;
@@ -157,7 +157,7 @@ export default class Pong extends AbstractView {
 								width="${this._width}"
 								height="${this._height}"
 								class="mt-3"
-								style="border: 10px solid #fff; border-radius: 15px"
+								style="border: 10px solid #fff; border-radius: 15px; background-color: rgba(0, 0, 0, 0.6)"
 							/>
 						</div>
 						${new DisplayUsername().getHtml("player2")}
