@@ -252,12 +252,13 @@ users play Pong with others. Must have a nice user interface and real-time multi
 #### Sign-up Email
 - [ ] Empty fields show an error?
 - [ ] Only symbols show an error?
-- [ ] Many chars show an error? Try something like `1000` chars
+- [ ] Many chars show an error? Try something like `this_is_a_very_long_email_address_with_many_chars@this_is_a_very_long_email_address_with_many_chars.com`
+- [ ] Mixing valid chars and spaces show an error? Try something like `its the user@email.com
 - [ ] Only spaces show an error?
-- [ ] Using email without @ show an error?
-- [ ] Using two @ on email show an error?
-- [ ] Using email without dot show an error?
-- [ ] SQL injection show an error? Try something like `SELECT * FROM users`
+- [ ] Using email without `@` show an error?
+- [ ] Using two `@` on email show an error?
+- [ ] Using email without `dot` show an error?
+- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
 - [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
@@ -266,11 +267,12 @@ users play Pong with others. Must have a nice user interface and real-time multi
 #### Sign-up Password
 - [ ] Empty fields show an error?
 - [ ] Only symbols show an error?
-- [ ] Many chars show an error? Try something like `1000` chars
+- [ ] Many chars show an error? Try something like `this_is_a_very_long_password_with_many_chars_1234567890!@#$%^&*()_+`
+- [ ] Mixing valid chars and spaces show an error? Try something like `this is a password`
 - [ ] Only spaces show an error?
 - [ ] Are masked when typing?
 - [ ] Using different passwords show an error?
-- [ ] SQL injection show an error? Try something like `SELECT * FROM users`
+- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
 - [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
@@ -279,9 +281,10 @@ users play Pong with others. Must have a nice user interface and real-time multi
 #### Sign-up Username
 - [ ] Empty fields show an error?
 - [ ] Only symbols show an error?
-- [ ] Many chars show an error? Try something like `1000` chars
+- [ ] Many chars show an error? Try something like `this_is_a_very_long_username_with_many_chars_1234567890!@#$%^&*()_+`
+- [ ] Mixing valid chars and spaces show an error? Try something like `its the user`
 - [ ] Only spaces show an error?
-- [ ] SQL injection show an error? Try something like `SELECT * FROM users`
+- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
 - [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
@@ -290,9 +293,10 @@ users play Pong with others. Must have a nice user interface and real-time multi
 #### Login Username
 - [ ] Empty fields show an error?
 - [ ] Only symbols show an error?
-- [ ] Many chars show an error? Try something like `1000` chars
+- [ ] Many chars show an error? Try something like `this_is_a_very_long_username_with_many_chars_1234567890!@#$%^&*()_+`
+- [ ] Mixing valid chars and spaces show an error? Try something like `its the user`
 - [ ] Only spaces show an error?
-- [ ] SQL injection show an error? Try something like `SELECT * FROM users`
+- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
 - [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
@@ -301,10 +305,11 @@ users play Pong with others. Must have a nice user interface and real-time multi
 #### Login Password
 - [ ] Empty fields show an error?
 - [ ] Only symbols show an error?
-- [ ] Many chars show an error? Try something like `1000` chars
+- [ ] Many chars show an error? Try something like `this_is_a_very_long_password_with_many_chars_1234567890!@#$%^&*()_+`
+- [ ] Mixing valid chars and spaces show an error? Try something like `this is a password`
 - [ ] Only spaces show an error?
 - [ ] Are masked when typing?
-- [ ] SQL injection show an error? Try something like `SELECT * FROM users`
+- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
 - [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
@@ -312,11 +317,12 @@ users play Pong with others. Must have a nice user interface and real-time multi
 
 #### Login 2FA
 - [ ] Empty fields show an error?
-- [ ] Anything different than numbers show an error?
-- [ ] Many chars show an error? Try something like `1000` numbers
+- [ ] Anything different than numbers show an error? Try something like `abcohj`
+- [ ] Many chars show an error? Try something like `1234567890987456321012345678909874563210`
+- [ ] Mixing valid chars and spaces show an error? Try something like `123 56`
 - [ ] Only spaces show an error?
 - [ ] Wrong codes show an error?
-- [ ] SQL injection show an error? Try something like `SELECT * FROM users`
+- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
 - [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
@@ -325,9 +331,10 @@ users play Pong with others. Must have a nice user interface and real-time multi
 #### Settings Username
 - [ ] Empty fields show an error?
 - [ ] Only symbols show an error?
-- [ ] Many chars show an error? Try something like `1000` chars
+- [ ] Many chars show an error? Try something like `this_is_a_very_long_username_with_many_chars_1234567890!@#$%^&*()_+`
+- [ ] Mixing valid chars and spaces show an error? Try something like `its the user`
 - [ ] Only spaces show an error?
-- [ ] SQL injection show an error? Try something like `SELECT * FROM users`
+- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
 - [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
@@ -336,13 +343,14 @@ users play Pong with others. Must have a nice user interface and real-time multi
 #### Settings Email
 - [ ] Empty fields show an error?
 - [ ] Only symbols show an error?
-- [ ] Many chars show an error? Try something like `1000` chars
+- [ ] Many chars show an error? Try something like `this_is_a_very_long_email_address_with_many_chars@this_is_a_very_long_email_address_with_many_chars.com`
+- [ ] Mixing valid chars and spaces show an error? Try something like `its the user@email.com
 - [ ] Only spaces show an error?
-- [ ] Using email without @ show an error?
-- [ ] Using two @ on email show an error?
-- [ ] Using email without dot show an error?
+- [ ] Using email without `@` show an error?
+- [ ] Using two `@` on email show an error?
+- [ ] Using email without `dot` show an error?
 - [ ] Duplicate email show an error?
-- [ ] SQL injection show an error? Try something like `SELECT * FROM users`
+- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
 - [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
@@ -355,7 +363,7 @@ users play Pong with others. Must have a nice user interface and real-time multi
 - [ ] Only spaces show an error?
 - [ ] Are masked when typing?
 - [ ] Using different passwords show an error?
-- [ ] SQL injection show an error? Try something like `SELECT * FROM users`
+- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
 - [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
@@ -363,11 +371,12 @@ users play Pong with others. Must have a nice user interface and real-time multi
 
 #### Settings 2FA
 - [ ] Empty fields show an error?
-- [ ] Anything different than numbers show an error?
-- [ ] Many chars show an error? Try something like `1000` numbers
+- [ ] Anything different than numbers show an error? Try something like `abcohj`
+- [ ] Many chars show an error? Try something like `1234567890987456321012345678909874563210`
+- [ ] Mixing valid chars and spaces show an error? Try something like `123 56`
 - [ ] Only spaces show an error?
 - [ ] Wrong codes show an error?
-- [ ] SQL injection show an error? Try something like `SELECT * FROM users`
+- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
 - [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
@@ -376,9 +385,10 @@ users play Pong with others. Must have a nice user interface and real-time multi
 #### Friends Search Field
 - [ ] Empty fields show an message?
 - [ ] Only symbols show an error?
-- [ ] Many chars show an error? Try something like `1000` chars
+- [ ] Many chars show an error? Try something like `this_is_a_very_long_term_with_many_chars_to_search_a_friend`
+- [ ] Mixing valid chars and spaces show an error? Try something like `its my friend`
 - [ ] Only spaces show an message?
-- [ ] SQL injection show an error? Try something like `SELECT * FROM users`
+- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
 - [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
@@ -387,9 +397,10 @@ users play Pong with others. Must have a nice user interface and real-time multi
 #### Pong Tournament Field 1
 - [ ] Empty fields show an message?
 - [ ] Only symbols show an error?
-- [ ] Many chars show an error? Try something like `1000` chars
+- [ ] Many chars show an error? Try something like `this_is_a_very_long_alias_with_many_chars_1234567890!@#$%^&*()_+`
+- [ ] Mixing valid chars and spaces show an error? Try something like `its my alias`
 - [ ] Only spaces show an message?
-- [ ] SQL injection show an error? Try something like `SELECT * FROM users`
+- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
 - [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
@@ -398,9 +409,10 @@ users play Pong with others. Must have a nice user interface and real-time multi
 #### Pong Tournament Field 2
 - [ ] Empty fields show an message?
 - [ ] Only symbols show an error?
-- [ ] Many chars show an error? Try something like `1000` chars
+- [ ] Many chars show an error? Try something like `this_is_a_very_long_alias_with_many_chars_1234567890!@#$%^&*()_+`
+- [ ] Mixing valid chars and spaces show an error? Try something like `its my alias`
 - [ ] Only spaces show an message?
-- [ ] SQL injection show an error? Try something like `SELECT * FROM users`
+- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
 - [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
@@ -409,9 +421,10 @@ users play Pong with others. Must have a nice user interface and real-time multi
 #### Pong Tournament Field 3
 - [ ] Empty fields show an message?
 - [ ] Only symbols show an error?
-- [ ] Many chars show an error? Try something like `1000` chars
+- [ ] Many chars show an error? Try something like `this_is_a_very_long_alias_with_many_chars_1234567890!@#$%^&*()_+`
+- [ ] Mixing valid chars and spaces show an error? Try something like `its my alias`
 - [ ] Only spaces show an message?
-- [ ] SQL injection show an error? Try something like `SELECT * FROM users`
+- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
 - [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
@@ -420,9 +433,10 @@ users play Pong with others. Must have a nice user interface and real-time multi
 #### Pong Tournament Field 4
 - [ ] Empty fields show an message?
 - [ ] Only symbols show an error?
-- [ ] Many chars show an error? Try something like `1000` chars
+- [ ] Many chars show an error? Try something like `this_is_a_very_long_alias_with_many_chars_1234567890!@#$%^&*()_+`
+- [ ] Mixing valid chars and spaces show an error? Try something like `its my alias`
 - [ ] Only spaces show an message?
-- [ ] SQL injection show an error? Try something like `SELECT * FROM users`
+- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
 - [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
@@ -431,9 +445,10 @@ users play Pong with others. Must have a nice user interface and real-time multi
 #### Tic Tac Toe Tournament Field 1
 - [ ] Empty fields show an message?
 - [ ] Only symbols show an error?
-- [ ] Many chars show an error? Try something like `1000` chars
+- [ ] Many chars show an error? Try something like `this_is_a_very_long_alias_with_many_chars_1234567890!@#$%^&*()_+`
+- [ ] Mixing valid chars and spaces show an error? Try something like `its my alias`
 - [ ] Only spaces show an message?
-- [ ] SQL injection show an error? Try something like `SELECT * FROM users`
+- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
 - [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
@@ -442,9 +457,10 @@ users play Pong with others. Must have a nice user interface and real-time multi
 #### Tic Tac Toe Tournament Field 2
 - [ ] Empty fields show an message?
 - [ ] Only symbols show an error?
-- [ ] Many chars show an error? Try something like `1000` chars
+- [ ] Many chars show an error? Try something like `this_is_a_very_long_alias_with_many_chars_1234567890!@#$%^&*()_+`
+- [ ] Mixing valid chars and spaces show an error? Try something like `its my alias`
 - [ ] Only spaces show an message?
-- [ ] SQL injection show an error? Try something like `SELECT * FROM users`
+- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
 - [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
@@ -453,9 +469,10 @@ users play Pong with others. Must have a nice user interface and real-time multi
 #### Tic Tac Toe Tournament Field 3
 - [ ] Empty fields show an message?
 - [ ] Only symbols show an error?
-- [ ] Many chars show an error? Try something like `1000` chars
+- [ ] Many chars show an error? Try something like `this_is_a_very_long_alias_with_many_chars_1234567890!@#$%^&*()_+`
+- [ ] Mixing valid chars and spaces show an error? Try something like `its my alias`
 - [ ] Only spaces show an message?
-- [ ] SQL injection show an error? Try something like `SELECT * FROM users`
+- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
 - [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
@@ -464,9 +481,10 @@ users play Pong with others. Must have a nice user interface and real-time multi
 #### Tic Tac Toe Tournament Field 4
 - [ ] Empty fields show an message?
 - [ ] Only symbols show an error?
-- [ ] Many chars show an error? Try something like `1000` chars
+- [ ] Many chars show an error? Try something like `this_is_a_very_long_alias_with_many_chars_1234567890!@#$%^&*()_+`
+- [ ] Mixing valid chars and spaces show an error? Try something like `its my alias`
 - [ ] Only spaces show an message?
-- [ ] SQL injection show an error? Try something like `SELECT * FROM users`
+- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
 - [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
