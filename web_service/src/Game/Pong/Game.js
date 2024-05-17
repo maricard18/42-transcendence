@@ -23,10 +23,9 @@ export class Game {
 		this.player4Left = false;
     }
 
-    clear() {
-        this.ctx.fillStyle = "black";
-        this.ctx.fillRect(0, 0, ScreenWidth, ScreenHeight);
-    }
+	clear() {
+		this.ctx.clearRect(0, 0, ScreenWidth, ScreenHeight);
+	}
 
     drawScore(player, x) {
         this.ctx.font = `${0.05 * ScreenWidth}px Arial`;

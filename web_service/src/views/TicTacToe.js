@@ -1,11 +1,10 @@
 import AbstractView from "./AbstractView";
-import { createPongGameObject } from "../Game/Pong/pongGame";
-import { startPong } from "../Game/Pong/pongGame";
-import { Display2Usernames, DisplayUsername } from "../Game/Pong/DisplayUsernames";
+import { Display2Usernames } from "../Game/TicTacToe/DisplayUsernames";
 import { navigateTo } from "..";
 import { closeWebsocket } from "../functions/websocket";
+import { createTicTacToeGameObject, startTicTacToe } from "../Game/TicTacToe/tictactoeGame";
 
-export default class Pong extends AbstractView {
+export default class TicTacToe extends AbstractView {
     constructor(view) {
         super();
         this._view = view;
@@ -14,18 +13,16 @@ export default class Pong extends AbstractView {
         this._gameMode = this._location.match(/\/([^\/]+)\/[^\/]+$/)[1];
         this._lobbySize = this._location.substring(this._location.length - 1);
         AbstractView.previousLocation = this._location;
-        this._aspectRatioRectangle = 4 / 3;
-        this._aspectRatioSquare = 1;
         (this._maxWidth = 1280), (this._maxHeight = 960);
         (this._minWidth = 640), (this._minHeight = 480);
-        this._aspectRatio;
+        this._aspectRatio = 1;
         this._width;
         this._height;
         this._game;
 
 		if (this._gameMode === "single-player") {
 			if (this._lobbySize == 2) {
-				localStorage.setItem("player1", "Opponent");
+				localStorage.setItem("player2", "Opponent");
 			} else {
 				localStorage.setItem("player2", "CPU");
 			}	
@@ -39,13 +36,6 @@ export default class Pong extends AbstractView {
             childList: true,
             subtree: true,
         });
-
-        if (this._gameMode === "single-player" || this._gameMode === "tournament" ||
-           (this._gameMode === "multiplayer" && this._lobbySize == 2)) {
-            this._aspectRatio = this._aspectRatioRectangle;
-        } else if (this._gameMode === "multiplayer" && this._lobbySize == 4) {
-            this._aspectRatio = this._aspectRatioSquare;
-        }
 
         if (window.innerWidth / window.innerHeight > this._aspectRatio) {
             this._height = window.innerHeight - 300;
@@ -69,28 +59,27 @@ export default class Pong extends AbstractView {
     }
 
     async defineCallback() {
-        const parentNode = document.getElementById("pong");
+        const parentNode = document.getElementById("tic-tac-toe");
         if (parentNode) {
             this._parentNode = parentNode;
             if (!this._gameRunning) {
                 this._gameRunning = true;
-                await this.startPongGame();
+                await this.startTicTacToeGame();
 				await this.gameOverScreen();
             }
         }
     }
 
-    async startPongGame() {
+    async startTicTacToeGame() {
         if (this._gameMode === "single-player" || this._gameMode === "tournament" ||
            (this._gameMode === "multiplayer" && Object.values(AbstractView.userQueue).length == this._lobbySize)) {
 			const canvas = document.querySelector("canvas");
-            this._game = createPongGameObject(
+            this._game = createTicTacToeGameObject(
                 canvas,
                 this._gameMode,
                 this._lobbySize
             );
-			console.error("GAME:", this._game);
-            await startPong(this._game);
+            await startTicTacToe(this._game);
         }
     }
 
@@ -116,7 +105,7 @@ export default class Pong extends AbstractView {
 		canvas.addEventListener("click", async () => {
 			if (this._gameMode === "tournament") {
 				this._observer.disconnect();
-				navigateTo("/home/pong/tournament/matchmaking");
+				navigateTo("/home/tic-tac-toe/tournament/matchmaking");
 			} else {
 				localStorage.removeItem("game_status");
 				localStorage.removeItem("game_winner");
@@ -128,9 +117,9 @@ export default class Pong extends AbstractView {
 		});
 	}
 
-    loadPong() {
+    loadTicTacToe() {
         return `
-			<div class="outlet-padding center" id="pong">
+			<div class="outlet-padding center" id="tic-tac-toe">
 				<div class="d-flex flex-column">
 					${new Display2Usernames().getHtml()}
 					<canvas
@@ -139,30 +128,8 @@ export default class Pong extends AbstractView {
 						height="${this._height}"
 						class="mt-3"
 						style="border: 10px solid #fff; border-radius: 15px; background-color: rgba(0, 0, 0, 0.6)"
-					></canvas>
-				</div>
-			</div>
-        `;
-    }
-
-    load4Pong() {
-        return `
-			<div class="outlet-padding center" id="pong">
-				<div>
-					${new DisplayUsername().getHtml("player3")}
-					<div class="d-flex flex-row">
-						${new DisplayUsername().getHtml("player1")}
-						<div class="d-flex flex-column">
-							<canvas
-								width="${this._width}"
-								height="${this._height}"
-								class="mt-3"
-								style="border: 10px solid #fff; border-radius: 15px; background-color: rgba(0, 0, 0, 0.6)"
-							/>
-						</div>
-						${new DisplayUsername().getHtml("player2")}
-					</div>
-					${new DisplayUsername().getHtml("player4")}
+					>
+					</canvas>
 				</div>
 			</div>
         `;
@@ -188,17 +155,14 @@ export default class Pong extends AbstractView {
 			}
 			if (currentGameFinished()) {
 				this._observer.disconnect();
-				await navigateTo("/home/pong/tournament/matchmaking");
+				await navigateTo("/home/tic-tac-toe/tournament/matchmaking");
 				return ;
 			}
 		}
 
-        if (this._lobbySize != 4) {
-            return this.loadPong();
-        } else {
-            return this.load4Pong();
-        }
-    }
+
+    	return this.loadTicTacToe();
+	}
 }
 
 function currentGameFinished() {

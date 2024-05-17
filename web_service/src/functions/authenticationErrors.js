@@ -1,14 +1,10 @@
 export default async function handleResponse(response) {
     const errors = {};
-    const jsonData = await response.json();
-    const responseMessage = jsonData["errors"]["message"];
 
-    if (response.status === 400) {
-        if (jsonData["errors"]["username"][0] === "A user with that username already exists.") {
-            errors.message = "This username already exists";
-            errors.username = 1;
-        }
-    } else if (responseMessage === "Unauthorized") {
+    if (response.status === 409) {
+        errors.message = "This username already exists";
+        errors.username = 1;
+    } else if (response.status === 401) {
         errors.message = "Incorrect password";
         errors.password = 1;
     } else if (response.status === 404) {

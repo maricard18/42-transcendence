@@ -60,6 +60,15 @@ class UpdateUserSerializer(serializers.ModelSerializer):
         }
 
 
+class UpdateAvatarSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Avatar
+        fields = ("avatar",)
+        extra_kwargs = {
+            "avatar": {"required": False}
+        }
+
+
 ##############################
 ##### /api/users/:id/otp #####
 ##############################
