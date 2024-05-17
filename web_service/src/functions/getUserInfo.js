@@ -13,7 +13,6 @@ export default async function getUserInfo(token = null, id = null) {
 		}
     } catch (error) {
         console.log("Error: failed to get access token");
-        logout();
         return;
     }
 
@@ -26,7 +25,6 @@ export default async function getUserInfo(token = null, id = null) {
 		}
     } catch (error) {
         console.log("Error: failed to decode token.");
-        logout();
         return;
     }
 
@@ -42,7 +40,6 @@ export default async function getUserInfo(token = null, id = null) {
 
     if (!response.ok) {
         console.log("Error: failed to fetch user data.");
-        logout();
         return;
     }
 
@@ -50,7 +47,6 @@ export default async function getUserInfo(token = null, id = null) {
         jsonData = await response.json();
     } catch (error) {
         console.log("Error: failed to parse response");
-        logout();
         return;
     }
 

@@ -48,6 +48,7 @@ const router = async () => {
 };
 
 function findMatch(url, routes, previousMatches = []) {
+	const regex = /^\d+$/;
     let longestMatch = -1;
     let index = -1;
 
@@ -72,12 +73,18 @@ function findMatch(url, routes, previousMatches = []) {
         if (matchedRoute.children) {
 			return findMatch(newUrl, matchedRoute.children, previousMatches);
         } else {
+			if (previousMatches[previousMatches.length - 1].path === "/profile/" && regex.test(newUrl)) {
+				previousMatches[previousMatches.length - 1].path += newUrl;
+				return previousMatches;
+			}
+
 			if (newUrl.length > 0) {
 				console.error(`Error: Location ${location.pathname} not found`);
 				navigateTo("/home");
 				return -1;
 			}
-            return previousMatches;
+            
+			return previousMatches;
         }
     } else {
 		if (url.length > 0) {

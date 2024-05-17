@@ -157,15 +157,15 @@ export default class NavigationBar extends AbstractView {
 							></nav-button>
 							<nav-button
 								template="white-button extra-btn-class"
-								page="/home/settings/account"
-								style="border-radius: 0%"
-								value="Settings"
-							></nav-button>
-							<nav-button
-								template="white-button extra-btn-class"
 								page="/home/friends"
 								style="border-radius: 0%"
 								value="Friends"
+							></nav-button>
+							<nav-button
+								template="white-button extra-btn-class"
+								page="/home/settings/account"
+								style="border-radius: 0%"
+								value="Settings"
 							></nav-button>
 							<logout-button 
 								template="primary-button extra-btn-class"

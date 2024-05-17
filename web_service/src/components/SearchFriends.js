@@ -1,8 +1,8 @@
-import { navigateTo } from "..";
+import AbstractView from "../views/AbstractView";
 import fetchData from "../functions/fetchData";
+import { navigateTo } from "..";
 import { getToken } from "../functions/tokens";
 import { transitDecrypt } from "../functions/vaultAccess";
-import AbstractView from "../views/AbstractView";
 
 export default class SearchFriends extends AbstractView {
     constructor() {
@@ -156,7 +156,6 @@ export default class SearchFriends extends AbstractView {
 	
 			if (response.ok) {
 				this._userList = await response.json();
-				console.log("Response:", this._userList);
 				await this.loadDOMChanges();
 			} else {
 				console.error("Error: failed to get user data list ", response.status);
@@ -178,7 +177,6 @@ export default class SearchFriends extends AbstractView {
     };
 
 	async addFriend(id) {
-		console.log("Adding friend!");
 		const formDataToSend = new FormData();
 		formDataToSend.append("user_id", AbstractView.userInfo.id);
 		formDataToSend.append("friend_id", id);
@@ -197,7 +195,6 @@ export default class SearchFriends extends AbstractView {
 
 		if (response.ok) {
 			const jsonData = await response.json();
-			console.log("FriendRequestResponse:", jsonData);
 			
 			const myFriendList = document.getElementById("friend-list");
 			if (myFriendList) {

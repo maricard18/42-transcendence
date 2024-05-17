@@ -132,7 +132,7 @@ export const routes = [
                 ]
             },
 			{
-                path: "/profile/:id",
+                path: "/profile/",
                 view: ProfilePage
             },
 			{
