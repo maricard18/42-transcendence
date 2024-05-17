@@ -1,7 +1,7 @@
 import AbstractView from "./AbstractView";
 import fetchData from "../functions/fetchData";
-import { getToken } from "../functions/tokens";
 import getUserInfo from "../functions/getUserInfo";
+import { getToken } from "../functions/tokens";
 import { navigateTo } from "..";
 
 export default class ProfilePage extends AbstractView {
@@ -14,6 +14,7 @@ export default class ProfilePage extends AbstractView {
         this._iserInfoCallback = false;
 
 		this._userInfo = null;
+		this._matchHistory = null;
 
         this._observer = new MutationObserver(this.defineCallback.bind(this));
         this._observer.observe(document.body, {
@@ -21,6 +22,26 @@ export default class ProfilePage extends AbstractView {
             subtree: true,
         });
     }
+
+	async getUserMatches() {
+		const accessToken = await getToken();
+		const headers = {
+			Authorization: `Bearer ${accessToken}`,
+		};
+
+		const response = await fetchData(
+			`/api/games?filter[user_id]=${this._userInfo.id}`,
+			"GET",
+			headers,
+			null
+		);
+
+		if (response.ok) {
+			return await response.json();
+		} else {
+			console.error("Error: failed to get user match history ", response.status);
+		}
+	}
 
     async defineCallback() {
         const parentNode = document.getElementById("profile-page");
@@ -34,11 +55,11 @@ export default class ProfilePage extends AbstractView {
 			this._iserInfoCallback = true;
 
 			this._userInfo = await getUserInfo(null, this._userId);
+			this._matchHistory = await this.getUserMatches();
 			if (!this._userInfo) {
 				navigateTo("/home/friends");
 			} else {
-				const parentNode = document.getElementById("profile-page");
-				parentNode.innerHTML = await this.loadProfilePage();
+				await this.loadDOMChanges();
 			}
 		}
     }
@@ -51,77 +72,152 @@ export default class ProfilePage extends AbstractView {
         this._observer.disconnect();
     }
 
-	async loadMatchHistory() {
-	//	if (!this._userList) {
-	//		return ``;
-	//	}
+	async loadUserInfo(accessToken, users) {
+		const playersInfo = [];
+		let info;
+
+		for (let [index, id] of Object.entries(users)) {
+			if (id === -1) {
+				info = {
+					username: "CPU",
+					avatar: "/static/images/cpu.png"
+				}
+			} else if (id === -2) {
+				info = {
+					username: "Opponent",
+					avatar: "/static/images/michael-scott.png"
+				}
+			} else {
+				info = await getUserInfo(accessToken, id);
+			}
+
+			playersInfo.push(info);
+		}
+
+		return playersInfo;
+	}
+
+	async loadMatchHistory() {		
+		if (!this._matchHistory) {
+			return `
+				<div class="d-flex flex-row justify-content-center align-items-center mt-5">
+					<h1 style="font-size: 50px">No match history</h1>
+				</div>
+			`;
+		}
 		
-	//	const parentDiv = document.createElement("div");
-	//	parentDiv.setAttribute("class", "mt-4");
-
-	//	const title = document.createElement("h3");
-	//	title.setAttribute("class", "d-flex justify-content-start ms-1");
-	//	title.setAttribute("style", "font-size: 25px; font-weight: bold");
-	//	title.innerHTML = `Search results for&nbsp;<u>${this._searchBar}</u>`;
-	//	parentDiv.appendChild(title);
-
-	//	const div = document.createElement("div");
-	//	div.setAttribute("class", "mt-2");
-	//	div.id = "user-info-list";
-	//	div.style.maxHeight = "320px";
-	//	div.style.overflowY = "auto";
+		const accessToken = await getToken();
 		
-	//	for (let [index, user] of this._userList.entries()) {
-	//		const userDiv = document.createElement("div");
-	//		userDiv.setAttribute("class", "d-flex flex-row align-items-center user-info mt-3");
-	//		userDiv.id = `user-info-${index}`;
-
-	//		const avataraAndUsernameDiv = document.createElement("div");
-	//		avataraAndUsernameDiv.setAttribute("class", "d-flex flex-row align-items-center");
-	//		avataraAndUsernameDiv.id = `user-${user.id}`;
+		const div = document.createElement("div");
+		div.setAttribute("class", "mt-2");
+		div.id = "match-history-list";
+		div.style.maxHeight = "360px";
+		div.style.overflowY = "auto";
+		
+		for (let [index, match] of this._matchHistory.entries()) {
+			console.log(match);
+			const playersInfo = await this.loadUserInfo(accessToken, match.players);
 			
-	//		if (user.avatar) {
-	//			const img = document.createElement("img");
-    //        	img.setAttribute("class", "white-border-sm ms-3");
-    //        	img.setAttribute("alt", "Avatar preview");
-    //        	img.setAttribute("width", "40");
-    //        	img.setAttribute("height", "40");
-    //        	img.setAttribute("style", "border-radius: 50%");
-    //        	img.setAttribute("src", user.avatar.link);
-	//			avataraAndUsernameDiv.appendChild(img);
-	//		} else {
-	//			const avatar = document.createElement("base-avatar-box");
-	//			avatar.setAttribute("template", "ms-3");
-	//			avatar.setAttribute("size", "40");
-	//			avataraAndUsernameDiv.appendChild(avatar);
-	//		}
+			const matchDiv = document.createElement("div");
+			matchDiv.setAttribute("class", "d-flex flex-column align-items-center match-history mt-3 me-3");
+			matchDiv.id = `match-${index}`;
+
+			const gameInfoDiv = document.createElement("div");
+			gameInfoDiv.setAttribute("class", "d-flex flex-row justify-content-start w-100 ms-2");
+
+			const game = document.createElement("h3");
+			game.setAttribute("class", "ms-3 mt-1");
+			game.setAttribute("style", "font-size: 20px; font-weight: bold");
+			game.innerText = match.game === "pong" ? "Pong" : "Tic Tac Toe";
+			gameInfoDiv.appendChild(game);
+
+			const mode = document.createElement("h3");
+			mode.setAttribute("class", "ms-1 mt-1");
+			mode.setAttribute("style", "font-size: 20px; font-weight: bold");
+			mode.innerText = match.mode === "single" ? "Single Player" : "Multiplayer";
+			gameInfoDiv.appendChild(mode);
+
+			const date = document.createElement("h3");
+			date.setAttribute("class", "d-flex justify-content-end w-100 me-4 mt-1");
+			date.setAttribute("style", "font-size: 20px; font-weight: bold");
+			date.innerText = match.date;
+			gameInfoDiv.appendChild(date);
+
+			matchDiv.appendChild(gameInfoDiv);
+
+			const gamePlayersAndResultsDiv = document.createElement("div");
+			gamePlayersAndResultsDiv.setAttribute("class", "d-flex flex-row justify-content-start w-100 ms-2");
+
+			const gameImageDiv = document.createElement("div");
+			gameImageDiv.setAttribute("class", "d-flex felx-column align-items-start m-3")
 			
-	//		const username = document.createElement("h3");
-	//		username.setAttribute("class", "ms-3 mt-2");
-	//		username.setAttribute("style", "font-size: 20px; font-weight: bold");
-	//		username.innerText = await transitDecrypt(user.username);
-	//		avataraAndUsernameDiv.appendChild(username);
-	//		userDiv.appendChild(avataraAndUsernameDiv);
-
-	//		const buttonDiv = document.createElement("div");
-	//		buttonDiv.setAttribute("class", "d-flex justify-content-end");
-	//		buttonDiv.style.marginLeft = "auto";
+			const gameImage = document.createElement("img");
+			gameImage.setAttribute("alt", "game preview");
+			gameImage.setAttribute("width", "125");
+			gameImage.setAttribute("height", "125");
+			gameImage.setAttribute("src", `/static/images/${match.game === "pong" ? "pong.png" : "tictactoe.png"}`);
+			gameImageDiv.appendChild(gameImage);
 			
-	//		const button = document.createElement("button");
-	//		button.setAttribute("class", "btn btn-primary primary-button extra-btn-class me-3");
-	//		button.id = `friend-btn-${user.id}`;
-	//		button.style.width = "100px";
-	//		button.style.height = "35px";
-	//		button.textContent = "Add friend";
-	//		buttonDiv.appendChild(button);
-	//		userDiv.appendChild(buttonDiv);
+			gamePlayersAndResultsDiv.appendChild(gameImageDiv);
 
-	//		div.appendChild(userDiv);
-	//	}
+			const playersDiv = document.createElement("div");
+			playersDiv.setAttribute("class", "d-flex flex-column align-items-start ms-3 mt-4");
 
-	//	parentDiv.appendChild(div);
+			for (let [index, player] of playersInfo.entries()) {
+				const avataraAndUsernameDiv = document.createElement("div");
+				avataraAndUsernameDiv.setAttribute("class", `d-flex flex-row align-items-center mt-1 mb-3`);
+				avataraAndUsernameDiv.id = `player${index + 1}`;
+				
+				if (player.avatar) {
+					const img = document.createElement("img");
+					img.setAttribute("class", "white-border-sm");
+					img.setAttribute("alt", "Avatar preview");
+					img.setAttribute("width", "40");
+					img.setAttribute("height", "40");
+					img.setAttribute("style", "border-radius: 50%");
+					img.setAttribute("src", player.avatar);
+					avataraAndUsernameDiv.appendChild(img);
+				} else {
+					const avatar = document.createElement("base-avatar-box");
+					avatar.setAttribute("template", "ms-3");
+					avatar.setAttribute("size", "40");
+					avataraAndUsernameDiv.appendChild(avatar);
+				}
+				
+				const username = document.createElement("h3");
+				username.setAttribute("class", "ms-3 mt-2");
+				username.setAttribute("style", "font-size: 20px; font-weight: bold");
+				username.innerText = player.username;
+				avataraAndUsernameDiv.appendChild(username);
+				
+				playersDiv.appendChild(avataraAndUsernameDiv);
+			}
+
+			gamePlayersAndResultsDiv.appendChild(playersDiv);
+
+			const playerScoresDiv = document.createElement("div");
+			playerScoresDiv.setAttribute("class", "d-flex flex-column align-items-end w-100 mt-4 me-5");
+
+			for (let [index, player] of playersInfo.entries()) {
+				const scoreDiv = document.createElement("div");
+				scoreDiv.setAttribute("class", `d-flex flex-row align-items-center justify-content-center mt-2`);
+				scoreDiv.id = `score${index + 1}`;
+
+				const score = document.createElement("h3");
+				score.setAttribute("style", "font-size: 30px; font-weight: bold");
+				score.innerText = match.results[`player_${index + 1}`];;
+				scoreDiv.appendChild(score);
+							
+				playerScoresDiv.appendChild(scoreDiv);
+			}
+
+			gamePlayersAndResultsDiv.appendChild(playerScoresDiv);
+			
+			matchDiv.appendChild(gamePlayersAndResultsDiv);
+			div.appendChild(matchDiv);
+		}
 	
-	//	return parentDiv.outerHTML;
+		return div.outerHTML;
 	}
 
 	async loadProfilePage() {
@@ -129,30 +225,53 @@ export default class ProfilePage extends AbstractView {
 			<div class="center">
 				<div class="d-flex flex-column justify-content-start main-box">
 					<div id="profile-content" class="mt-2">
-						<div class="d-flex flex-column align-items-center mt-2">
-							<div id="avatar">
-								${
-									this._userInfo.avatar
-										? `<img
-												id="nav-bar-avatar"
-												class="white-border-sm"
-												src="${this._userInfo.avatar}"
-												alt="avatar"
-												width="150"
-												height="150"
-												style="border-radius: 50%"
-											/>`
-										: `<base-avatar-box size="150"></base-avatar-box>`
-								}
+						<div class="d-flex flex-row">
+							<div class="d-flex flex-column align-items-start mt-2 mb-1 ms-3 me-5">
+								<div id="avatar">
+									${
+										this._userInfo.avatar
+											? `<img
+													id="nav-bar-avatar"
+													class="white-border-lg"
+													src="${this._userInfo.avatar}"
+													alt="avatar"
+													width="150"
+													height="150"
+													style="border-radius: 50%"
+												/>`
+											: `<base-avatar-box size="150"></base-avatar-box>`
+									}
+								</div>
 							</div>
-							<div id="username" class="mt-2">
-								<h1 style="font-size: 50px">${this._userInfo.username}</h1>
+							<div class="d-flex flex-column align-items-start mt-2">
+								<div id="username" class="mb-2">
+									<h1 style="font-size: 50px; color: white; border-bottom: 2px solid #ffd700;">${this._userInfo.username}</h1>
+								</div>
+								<div id="date-joined">
+									<h1 style="font-size: 18px"><span style="color: #ffd700;">Date joined:</span> <span style="color: white;">${this._userInfo.date_joined}</span></h1>
+								</div>
+								<div id="matches-played">
+									<h1 style="font-size: 18px"><span style="color: #ffd700;">Matches played:</span> <span style="color: white;"> ${this._matchHistory ? this._matchHistory.length : 0}</span></h1>
+								</div>
+								<div id="online-status">
+									<h1 style="font-size: 18px">online status here</h1>
+								</div>
+							</div>
+						</div>
+						<div class="d-flex flex-column align-items-center mt-2">
+							<div id="match-history">
+								${await this.loadMatchHistory()}
 							</div>
 						</div>
 					<div>
 				</div>
 			</div>
 		`;
+	}
+
+	async loadDOMChanges() {
+		const parentNode = document.getElementById("profile-page");
+		parentNode.innerHTML = await this.loadProfilePage();
 	}
 
     async getHtml() {

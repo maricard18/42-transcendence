@@ -13,6 +13,7 @@ export default class SearchFriends extends AbstractView {
 		this._inputCallback = false;
 		this._clickCallback = false;
 		this._enterCallback = false;
+		this._loadDOM = false;
 
 		this._searchBar = "";
 		this._userList = null;
@@ -68,6 +69,11 @@ export default class SearchFriends extends AbstractView {
             this._enterCallback = true;
             window.addEventListener("keydown", this.keydownCallback);
         }
+
+		if (!this._loadDOM) {
+			this._loadDOM = true;
+			this.loadDOMChanges();
+		}
     }
 
     removeCallbacks() {
@@ -130,8 +136,8 @@ export default class SearchFriends extends AbstractView {
 		const usernamePattern = /^[a-zA-Z0-9@.+_-]+$/;
         let newErrors = {};
 
-		if (this._searchBar.length < 3 || this._searchBar.length > 12) {
-            newErrors.message = "Username must have 3-12 characters";
+		if (this._searchBar.length > 12) {
+            newErrors.message = "Username can't have more than 12 characters";
             newErrors.search = 1;
             this.errors = newErrors;
         } else if (!usernamePattern.test(this._searchBar)) {
@@ -176,6 +182,26 @@ export default class SearchFriends extends AbstractView {
         }
     };
 
+	async loadAllUsers() {
+		const accessToken = await getToken();
+		const headers = {
+			Authorization: `Bearer ${accessToken}`,
+		};
+
+		const response = await fetchData(
+			"/api/users",
+			"GET",
+			headers,
+			null
+		);
+
+		if (response.ok) {
+			return await response.json();
+		} else {
+			console.error("Error: failed to load all users ", response.status);
+		}
+	}
+
 	async addFriend(id) {
 		const formDataToSend = new FormData();
 		formDataToSend.append("user_id", AbstractView.userInfo.id);
@@ -194,8 +220,6 @@ export default class SearchFriends extends AbstractView {
 		);
 
 		if (response.ok) {
-			const jsonData = await response.json();
-			
 			const myFriendList = document.getElementById("friend-list");
 			if (myFriendList) {
 				myFriendList.dispatchEvent( new CustomEvent("reload-friend-list") );
@@ -212,18 +236,26 @@ export default class SearchFriends extends AbstractView {
 	}
 
 	async loadSearchBarResult() {
+		let showAllUsers = false;
 		if (!this._userList) {
-			return ``;
+			showAllUsers = true;
+			this._userList = await this.loadAllUsers();
 		}
 		
 		const parentDiv = document.createElement("div");
 		parentDiv.setAttribute("class", "mt-4");
 
-		const title = document.createElement("h3");
-		title.setAttribute("class", "d-flex justify-content-start ms-1");
-		title.setAttribute("style", "font-size: 25px; font-weight: bold");
-		title.innerHTML = `Search results for&nbsp;<u>${this._searchBar}</u>`;
-		parentDiv.appendChild(title);
+		if (!showAllUsers) {
+			const title = document.createElement("h3");
+			title.setAttribute("class", "d-flex justify-content-start ms-1");
+			title.setAttribute("style", "font-size: 25px; font-weight: bold");
+			if (this._userList.length) {
+				title.innerHTML = `Search results for&nbsp;<u>${this._searchBar}</u>`;
+			} else {
+				title.innerHTML = `No search results for&nbsp;<u>${this._searchBar}</u>`;
+			}
+			parentDiv.appendChild(title);
+		}
 
 		const div = document.createElement("div");
 		div.setAttribute("class", "mt-2");
@@ -237,7 +269,7 @@ export default class SearchFriends extends AbstractView {
 			userDiv.id = `user-info-${index}`;
 
 			const avataraAndUsernameDiv = document.createElement("div");
-			avataraAndUsernameDiv.setAttribute("class", "d-flex flex-row align-items-center");
+			avataraAndUsernameDiv.setAttribute("class", "d-flex flex-row align-items-center avatar-username");
 			avataraAndUsernameDiv.id = `user-${user.id}`;
 			
 			if (user.avatar) {
@@ -295,7 +327,7 @@ export default class SearchFriends extends AbstractView {
 					<button id="search-button" class="btn primary-button extra-btn-class" style="width: 120px">Search</button>
 				</div>
 				<div id="user-list" class="mt-2">
-					${await this.loadSearchBarResult()}
+					<loading-icon size="3rem"></loading-icon>
 				<div>
 			</div>
 		`;

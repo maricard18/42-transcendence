@@ -143,7 +143,7 @@ export default class FirendsPage extends AbstractView {
 			friendInfoDiv.setAttribute("class", "d-flex flex-column align-items-start justify-content-start mt-1 ms-1");
 
 			const avataraAndUsernameDiv = document.createElement("div");
-			avataraAndUsernameDiv.setAttribute("class", "d-flex flex-row align-items-center");
+			avataraAndUsernameDiv.setAttribute("class", "d-flex flex-row align-items-center avatar-username");
 			avataraAndUsernameDiv.id = `friend-${friendInfo.id}`;
 			
 			if (friendInfo.avatar) {
@@ -161,7 +161,7 @@ export default class FirendsPage extends AbstractView {
 				avatar.setAttribute("size", "30");
 				avataraAndUsernameDiv.appendChild(avatar);
 			}
-			
+
 			const username = document.createElement("h3");
 			username.setAttribute("class", "ms-2 mt-2");
 			username.setAttribute("style", "font-size: 18px; font-weight: bold");

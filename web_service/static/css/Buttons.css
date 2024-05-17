@@ -98,6 +98,10 @@
     margin-bottom: 10px;
 }
 
+.avatar-username:hover {
+  cursor: pointer;
+}
+
 .box {
     padding: 10px;
     background-color: rgba(20, 3, 48, 0.8);
@@ -152,6 +156,15 @@
 	width: 550px;;
 }
 
+.match-history {
+    border-color: #3e0d8e;
+    border-width: 3px;
+    border-style: solid;
+    border-radius: 10px;
+    height: auto;
+	width: 500px;;
+}
+
 .friend-block {
 	background-color: #7439d2;
 	border-color: #3e0d8e;
@@ -187,5 +200,18 @@
 }
 
 #user-info-list::-webkit-scrollbar-thumb:active {
+    background: #ccc;
+}
+
+#match-history-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+#match-history-list::-webkit-scrollbar-thumb {
+    background: #fff;
+    border-radius: 10px;
+}
+
+#match-history-list::-webkit-scrollbar-thumb:active {
     background: #ccc;
 }

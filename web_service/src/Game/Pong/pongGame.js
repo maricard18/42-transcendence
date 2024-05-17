@@ -7,6 +7,7 @@ import { gameConfettiAnimation, gameStartAnimation } from "./animations";
 import { updateVariables } from "./variables";
 import { ScreenWidth, ScreenHeight, keys } from "./variables";
 import { findTournamentWinner } from "../../views/Tournament";
+import logGameResult from "../../functions/logGameResult";
 
 export function createPongGameObject(canvas, gameMode, lobbySize) {
     const ctx = canvas.getContext("2d");
@@ -97,6 +98,7 @@ function singleplayerGameLoop(game) {
 						findTournamentWinner(game, players);
 					}
 
+					logGameResult("pong", "single", players);
                     resolve();
                 }
 
@@ -154,6 +156,7 @@ function multiplayer2GameLoop(game) {
 					game.winner = getPlayerWithMostGoals(players).info.username;
 					game.over = true;
 					sendHostMessage(game);
+					logGameResult("pong", "multi", players);
 					resolve();
 				}
 				
@@ -230,6 +233,7 @@ function multiplayer4GameLoop(game) {
 					game.winner = getPlayerWithMostGoals(players).info.username;
 					game.over = true;
 					sendHostMessage(game);
+					logGameResult("pong", "multi", players);
 					resolve();
 				}
 		

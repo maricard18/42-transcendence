@@ -55,6 +55,8 @@ export default async function getUserInfo(token = null, id = null) {
         email: await transitDecrypt(jsonData["email"]),
         avatar: null,
         id: user_id,
+		is_active: jsonData["is_active"],
+		date_joined: jsonData["date_joined"]
     };
 
     if (jsonData["avatar"]) {

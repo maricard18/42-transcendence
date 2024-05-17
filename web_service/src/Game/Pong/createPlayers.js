@@ -22,7 +22,7 @@ export function createSinglePlayerGameObjects(ctx, lobbySize) {
                 color: "red",
                 keyUp: "w",
                 keyDown: "s",
-                info: { username: localStorage.getItem("player1") }
+                info: { id: -2, username: localStorage.getItem("player1") }
             });
 
     const player2 =
@@ -31,7 +31,7 @@ export function createSinglePlayerGameObjects(ctx, lobbySize) {
                 x: ScreenWidth - PaddleStartX - PaddleWidth,
                 y: ScreenHeight / 2 - PaddleHeight / 2,
                 color: "blue",
-				info: { username: localStorage.getItem("player2") }
+				info: { id: -1, username: localStorage.getItem("player2") }
             })
             : new Player({
                 x: ScreenWidth - PaddleStartX - PaddleWidth,
