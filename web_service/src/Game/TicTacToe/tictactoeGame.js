@@ -6,6 +6,7 @@ import { gameConfettiAnimation, gameStartAnimation } from "./animations";
 import { updateVariables } from "./variables";
 import { ScreenSize } from "./variables";
 import { findTournamentWinner } from "../../views/Tournament";
+import logGameResult from "../../functions/logGameResult";
 
 export function createTicTacToeGameObject(canvas, gameMode, lobbySize) {
     const ctx = canvas.getContext("2d");
@@ -66,6 +67,7 @@ function singleplayerGameLoop(game) {
 					findTournamentWinner(game, [game.player1, game.player2]);
 				}
 
+				logGameResult("ttt", "single", [game.player1, game.player2]);
                 resolve();
             }
         };
@@ -101,6 +103,7 @@ function multiplayer2GameLoop(game) {
 					game.last_time = Date.now();
 					game.canvas.removeEventListener("click", clickHandler);
 					sendTicTacToeMessage(game, id);
+					logGameResult("ttt", "multi", [game.player1, game.player2]);
 					resolve();
 				}
 			}

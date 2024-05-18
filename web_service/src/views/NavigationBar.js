@@ -163,6 +163,12 @@ export default class NavigationBar extends AbstractView {
 							></nav-button>
 							<nav-button
 								template="white-button extra-btn-class"
+								page="/home/profile/${AbstractView.userInfo.id}"
+								style="border-radius: 0%"
+								value="Profile"
+							></nav-button>
+							<nav-button
+								template="secondary-button extra-btn-class"
 								page="/home/settings/account"
 								style="border-radius: 0%"
 								value="Settings"

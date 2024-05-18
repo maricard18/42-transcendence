@@ -111,15 +111,14 @@ export default class ProfilePage extends AbstractView {
 		const div = document.createElement("div");
 		div.setAttribute("class", "mt-2");
 		div.id = "match-history-list";
-		div.style.maxHeight = "360px";
+		div.style.maxHeight = "480px";
 		div.style.overflowY = "auto";
 		
 		for (let [index, match] of this._matchHistory.entries()) {
-			console.log(match);
 			const playersInfo = await this.loadUserInfo(accessToken, match.players);
 			
 			const matchDiv = document.createElement("div");
-			matchDiv.setAttribute("class", "d-flex flex-column align-items-center match-history mt-3 me-3");
+			matchDiv.setAttribute("class", "d-flex flex-column align-items-center match-history-box mt-3 me-3");
 			matchDiv.id = `match-${index}`;
 
 			const gameInfoDiv = document.createElement("div");
@@ -127,19 +126,19 @@ export default class ProfilePage extends AbstractView {
 
 			const game = document.createElement("h3");
 			game.setAttribute("class", "ms-3 mt-1");
-			game.setAttribute("style", "font-size: 20px; font-weight: bold");
+			game.setAttribute("style", "font-size: 20px; font-weight: bold; display: inline-block");
 			game.innerText = match.game === "pong" ? "Pong" : "Tic Tac Toe";
 			gameInfoDiv.appendChild(game);
 
 			const mode = document.createElement("h3");
-			mode.setAttribute("class", "ms-1 mt-1");
-			mode.setAttribute("style", "font-size: 20px; font-weight: bold");
+			mode.setAttribute("class", "ms-3 mt-1");
+			mode.setAttribute("style", "font-size: 20px; font-weight: bold; display: inline-block");
 			mode.innerText = match.mode === "single" ? "Single Player" : "Multiplayer";
 			gameInfoDiv.appendChild(mode);
 
 			const date = document.createElement("h3");
 			date.setAttribute("class", "d-flex justify-content-end w-100 me-4 mt-1");
-			date.setAttribute("style", "font-size: 20px; font-weight: bold");
+			date.setAttribute("style", "font-size: 20px; font-weight: bold; display: inline-block");
 			date.innerText = match.date;
 			gameInfoDiv.appendChild(date);
 
@@ -223,7 +222,7 @@ export default class ProfilePage extends AbstractView {
 	async loadProfilePage() {
 		return `
 			<div class="center">
-				<div class="d-flex flex-column justify-content-start main-box">
+				<div class="d-flex flex-column justify-content-start profile-box">
 					<div id="profile-content" class="mt-2">
 						<div class="d-flex flex-row">
 							<div class="d-flex flex-column align-items-start mt-2 mb-1 ms-3 me-5">

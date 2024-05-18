@@ -70,15 +70,17 @@ export class SinglePlayerOptions extends AbstractView {
 		<div class="d-flex flex-column col-md-6">
 			<div class="p-3 p-lg-5 pd-xl-0">
 				<div class="mb-3">
-					<nav-button
-						template="primary-button extra-btn-class"
-						page="	${
-									this._game === "pong"
-										? "/home/pong/play/single-player/1"
-										: "/home/tic-tac-toe/play/single-player/1"
-								}"
-						value="Computer"
-					></nav-button>
+				${
+					this._game === "pong"
+						? `<div class="mb-3">
+								<nav-button
+									template="primary-button extra-btn-class"
+									page="/home/pong/play/single-player/1"	
+									value="Computer"
+								></nav-button>
+							</div>`
+						: ""
+				}
 				</div>
 				<div class="mb-3">
 					<nav-button

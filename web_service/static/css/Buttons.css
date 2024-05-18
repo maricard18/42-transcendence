@@ -127,10 +127,10 @@
     outline: #250a5c 2px solid;
 }
 
-.main-box {
+.profile-box {
     padding: 10px;
-    width: 600px;
-    height: 600px;
+    width: 700px;
+    height: 740px;
     background-color: rgba(20, 3, 48, 0.8);
     border-radius: 10px;
     outline: #250a5c 2px solid;
@@ -156,13 +156,13 @@
 	width: 550px;;
 }
 
-.match-history {
+.match-history-box{
     border-color: #3e0d8e;
     border-width: 3px;
     border-style: solid;
     border-radius: 10px;
     height: auto;
-	width: 500px;;
+	width: 600px;;
 }
 
 .friend-block {

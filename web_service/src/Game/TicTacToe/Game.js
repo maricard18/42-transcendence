@@ -138,6 +138,7 @@ export class Game {
 				this.player2.myTurn = false;
 				this.over = true;
 				this.winner = this.board[i][0][0];
+				this[`player${this.board[i][0][0]}`].score = 1;
 				console.log(`Row ${i + 1} was completed by player ${this.board[i][0][0]}`)
 			}
 		}
@@ -149,6 +150,7 @@ export class Game {
 				this.player2.myTurn = false;
 				this.over = true;
 				this.winner = this.board[0][i][0];
+				this[`player${this.board[0][i][0]}`].score = 1;
 				console.log(`Column ${i + 1} was completed by player ${this.board[0][i][0]}`)
 			}
 		}
@@ -159,6 +161,7 @@ export class Game {
 			this.player2.myTurn = false;
 			this.over = true;
 			this.winner = this.board[0][0][0];
+			this[`player${this.board[0][0][0]}`].score = 1;
 			console.log(`Left diagonal was completed by player ${this.board[0][0][0]}`)
 		}
 		if (this.board[0][2][0] && this.board[0][2][0] === this.board[1][1][0] && this.board[0][2][0] === this.board[2][0][0]) {
@@ -166,6 +169,7 @@ export class Game {
 			this.player2.myTurn = false;
 			this.over = true;
 			this.winner = this.board[0][2][0];
+			this[`player${this.board[0][2][0]}`].score = 1;
 			console.log(`Right diagonal was completed by player ${this.board[0][2][0]}`)
 		}
 	}

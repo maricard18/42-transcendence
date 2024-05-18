@@ -171,10 +171,6 @@ export const routes = [
                 path: "/tic-tac-toe/tournament/matchmaking",
 				view: TournamentMatchmaking
             },
-			{
-                path: "/tic-tac-toe/play/single-player/1",
-				view: TicTacToe
-            },
             {
                 path: "/tic-tac-toe/play/single-player/2",
 				view: TicTacToe
