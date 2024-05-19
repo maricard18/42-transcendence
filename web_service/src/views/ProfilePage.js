@@ -9,6 +9,8 @@ export default class ProfilePage extends AbstractView {
         super();
 		const index = location.pathname.lastIndexOf("/");
 		this._userId = location.pathname.substring(index + 1);
+		this._winRecord = 0;
+		this._lossRecord = 0;
         
 		this._parentNode = null;
         this._iserInfoCallback = false;
@@ -72,6 +74,22 @@ export default class ProfilePage extends AbstractView {
         this._observer.disconnect();
     }
 
+	getPlayerRecord() {
+		for (let [index, match] of this._matchHistory.entries()) {
+			for (let [index, player] of Object.entries(match.players)) {
+				if (player == this._userId) {
+					if (match.game === "pong" && match.results[`${index}`] === 5) {
+						this._winRecord++;
+					} else if (match.game === "ttt" && match.results[`${index}`] === 1) {
+						this._winRecord++;
+					} else {
+						this._lossRecord++;
+					}
+				}
+			}
+		}
+	}
+
 	async loadUserInfo(accessToken, users) {
 		const playersInfo = [];
 		let info;
@@ -98,7 +116,7 @@ export default class ProfilePage extends AbstractView {
 	}
 
 	async loadMatchHistory() {		
-		if (!this._matchHistory) {
+		if (!this._matchHistory || !this._matchHistory.length) {
 			return `
 				<div class="d-flex flex-row justify-content-center align-items-center mt-5">
 					<h1 style="font-size: 50px">No match history</h1>
@@ -111,7 +129,7 @@ export default class ProfilePage extends AbstractView {
 		const div = document.createElement("div");
 		div.setAttribute("class", "mt-2");
 		div.id = "match-history-list";
-		div.style.maxHeight = "480px";
+		div.style.maxHeight = "350px";
 		div.style.overflowY = "auto";
 		
 		for (let [index, match] of this._matchHistory.entries()) {
@@ -122,23 +140,23 @@ export default class ProfilePage extends AbstractView {
 			matchDiv.id = `match-${index}`;
 
 			const gameInfoDiv = document.createElement("div");
-			gameInfoDiv.setAttribute("class", "d-flex flex-row justify-content-start w-100 ms-2");
+			gameInfoDiv.setAttribute("class", "d-flex flex-row justify-content-start w-100 ms-2 mt-1");
 
 			const game = document.createElement("h3");
 			game.setAttribute("class", "ms-3 mt-1");
-			game.setAttribute("style", "font-size: 20px; font-weight: bold; display: inline-block");
+			game.setAttribute("style", "font-size: 20px; font-weight: bold; width: 185px");
 			game.innerText = match.game === "pong" ? "Pong" : "Tic Tac Toe";
 			gameInfoDiv.appendChild(game);
 
 			const mode = document.createElement("h3");
 			mode.setAttribute("class", "ms-3 mt-1");
-			mode.setAttribute("style", "font-size: 20px; font-weight: bold; display: inline-block");
-			mode.innerText = match.mode === "single" ? "Single Player" : "Multiplayer";
+			mode.setAttribute("style", "font-size: 20px; font-weight: bold; width: 250px");
+			mode.innerText = match.type === "single" ? "Single Player" : "Multiplayer";
 			gameInfoDiv.appendChild(mode);
 
 			const date = document.createElement("h3");
 			date.setAttribute("class", "d-flex justify-content-end w-100 me-4 mt-1");
-			date.setAttribute("style", "font-size: 20px; font-weight: bold; display: inline-block");
+			date.setAttribute("style", "font-size: 20px; font-weight: bold");
 			date.innerText = match.date;
 			gameInfoDiv.appendChild(date);
 
@@ -152,6 +170,7 @@ export default class ProfilePage extends AbstractView {
 			
 			const gameImage = document.createElement("img");
 			gameImage.setAttribute("alt", "game preview");
+			gameImage.setAttribute("class", "img-outline-sm");
 			gameImage.setAttribute("width", "125");
 			gameImage.setAttribute("height", "125");
 			gameImage.setAttribute("src", `/static/images/${match.game === "pong" ? "pong.png" : "tictactoe.png"}`);
@@ -220,12 +239,14 @@ export default class ProfilePage extends AbstractView {
 	}
 
 	async loadProfilePage() {
+		this.getPlayerRecord();
+
 		return `
 			<div class="center">
 				<div class="d-flex flex-column justify-content-start profile-box">
 					<div id="profile-content" class="mt-2">
-						<div class="d-flex flex-row">
-							<div class="d-flex flex-column align-items-start mt-2 mb-1 ms-3 me-5">
+						<div class="d-flex flex-row ms-4">
+							<div class="d-flex flex-column align-items-start mt-2 mb-1 ms-3 me-5 mt-4">
 								<div id="avatar">
 									${
 										this._userInfo.avatar
@@ -244,16 +265,33 @@ export default class ProfilePage extends AbstractView {
 							</div>
 							<div class="d-flex flex-column align-items-start mt-2">
 								<div id="username" class="mb-2">
-									<h1 style="font-size: 50px; color: white; border-bottom: 2px solid #ffd700;">${this._userInfo.username}</h1>
+									<h1 style="font-size: 50px; color: white; border-bottom: 2px solid #ffd700;">
+										${this._userInfo.username}
+									</h1>
 								</div>
 								<div id="date-joined">
-									<h1 style="font-size: 18px"><span style="color: #ffd700;">Date joined:</span> <span style="color: white;">${this._userInfo.date_joined}</span></h1>
+									<h1 style="font-size: 18px">
+										<span style="color: #ffd700;">Date joined:</span> 
+										<span style="color: white;">${this._userInfo.date_joined}</span>
+									</h1>
 								</div>
 								<div id="matches-played">
-									<h1 style="font-size: 18px"><span style="color: #ffd700;">Matches played:</span> <span style="color: white;"> ${this._matchHistory ? this._matchHistory.length : 0}</span></h1>
+									<h1 style="font-size: 18px">
+										<span style="color: #ffd700;">Matches played:</span> 
+										<span style="color: white;"> ${this._matchHistory ? this._matchHistory.length : 0}</span>
+									</h1>
 								</div>
-								<div id="online-status">
-									<h1 style="font-size: 18px">online status here</h1>
+								<div id="player-record">
+									<h1 style="font-size: 18px">
+										<span style="color: #ffd700;">Record:</span> 
+										<span style="color: white;"> ${this._winRecord}W-${this._lossRecord}L</span>
+									</h1>
+								</div>
+								<div id="player-record">
+									<h1 style="font-size: 18px">
+										<span style="color: #ffd700;">Win rate:</span> 
+										<span style="color: white;"> ${!this._matchHistory.length ? 0 : this._winRecord / this._matchHistory.length * 100}%</span>
+									</h1>
 								</div>
 							</div>
 						</div>
@@ -261,7 +299,7 @@ export default class ProfilePage extends AbstractView {
 							<div id="match-history">
 								${await this.loadMatchHistory()}
 							</div>
-						</div>
+						</div
 					<div>
 				</div>
 			</div>
