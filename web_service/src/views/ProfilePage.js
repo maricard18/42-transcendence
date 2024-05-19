@@ -144,13 +144,13 @@ export default class ProfilePage extends AbstractView {
 
 			const game = document.createElement("h3");
 			game.setAttribute("class", "ms-3 mt-1");
-			game.setAttribute("style", "font-size: 20px; font-weight: bold; width: 185px");
+			game.setAttribute("style", "font-size: 20px; font-weight: bold; white-space: nowrap;");
 			game.innerText = match.game === "pong" ? "Pong" : "Tic Tac Toe";
 			gameInfoDiv.appendChild(game);
 
 			const mode = document.createElement("h3");
-			mode.setAttribute("class", "ms-3 mt-1");
-			mode.setAttribute("style", "font-size: 20px; font-weight: bold; width: 250px");
+			mode.setAttribute("class", "d-flex justify-content-start w-100 ms-3 mt-1");
+			mode.setAttribute("style", "font-size: 20px; font-weight: bold");
 			mode.innerText = match.type === "single" ? "Single Player" : "Multiplayer";
 			gameInfoDiv.appendChild(mode);
 
