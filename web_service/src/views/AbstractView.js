@@ -4,6 +4,7 @@ export default class AbstractView {
     static userData = {};
     static userReadyList = {};
 	static onlineStatus = {};
+	static friendList = [];
 	static statusWsCreated = false;
     static gameWsCreated = false;
     static wsConnectionStarted = false;

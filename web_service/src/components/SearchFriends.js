@@ -3,6 +3,8 @@ import fetchData from "../functions/fetchData";
 import { navigateTo } from "..";
 import { getToken } from "../functions/tokens";
 import { transitDecrypt } from "../functions/vaultAccess";
+import { StatusWebsocket, sendMessage } from "../functions/websocket";
+import { getFriendship } from "../views/FriendsPage";
 
 export default class SearchFriends extends AbstractView {
     constructor() {
@@ -224,6 +226,15 @@ export default class SearchFriends extends AbstractView {
 		);
 
 		if (response.ok) {
+			const data = await response.json();
+			await getFriendship(data.id);
+
+			const message = {
+				message: "friendship.created",
+				friend_id: id
+			};
+			sendMessage(StatusWebsocket.ws, message);
+
 			const myFriendList = document.getElementById("friend-list");
 			if (myFriendList) {
 				myFriendList.dispatchEvent( new CustomEvent("reload-friend-list") );
@@ -278,7 +289,7 @@ export default class SearchFriends extends AbstractView {
 			userDiv.id = `user-info-${index}`;
 
 			const avataraAndUsernameDiv = document.createElement("div");
-			avataraAndUsernameDiv.setAttribute("class", "d-flex flex-row align-items-center avatar-username");
+			avataraAndUsernameDiv.setAttribute("class", "d-flex flex-row align-items-center pointer");
 			avataraAndUsernameDiv.id = `user-${user.id}`;
 			
 			if (user.avatar) {

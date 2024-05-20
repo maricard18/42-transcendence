@@ -21,9 +21,10 @@ const router = async () => {
         return;
     }
 
-	if (!AbstractView.statusWsCreated) {
+	if (!AbstractView.statusWsCreated && url.startsWith("/home")) {
 		connectOnlineStatusWebsocket();
 	}
+
 
     var view = [];
     if (matches.length > 1) {

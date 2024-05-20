@@ -3,12 +3,15 @@ import fetchData from "../functions/fetchData";
 import getUserInfo from "../functions/getUserInfo";
 import { getToken } from "../functions/tokens";
 import { navigateTo } from "..";
+import { getFriendship } from "./FriendsPage";
+import { StatusWebsocket, sendMessage } from "../functions/websocket";
 
 export default class ProfilePage extends AbstractView {
     constructor() {
         super();
 		const index = location.pathname.lastIndexOf("/");
 		this._userId = location.pathname.substring(index + 1);
+		this._friendship = null;
 		this._winRecord = 0;
 		this._lossRecord = 0;
         
@@ -73,6 +76,88 @@ export default class ProfilePage extends AbstractView {
 
         this._observer.disconnect();
     }
+
+	addEventListners() {
+		const addFriendIcon = document.getElementById(`add-friend-${this._userId}`);
+		if (addFriendIcon) {
+			addFriendIcon.addEventListener("click", () => { this.addFriend(this._userId) });
+		}
+
+		const removeFriendIcon = document.getElementById(`remove-friend-${this._friendship ? this._friendship.id : ""}`);
+		if (removeFriendIcon) {
+			removeFriendIcon.addEventListener("click", () => { this.removeFriend(this._friendship.id) });
+		}
+	}
+
+	async addFriend(id) {
+		const formDataToSend = new FormData();
+		formDataToSend.append("user_id", AbstractView.userInfo.id);
+		formDataToSend.append("friend_id", id);
+
+		const accessToken = await getToken();
+		const headers = {
+			Authorization: `Bearer ${accessToken}`,
+		};
+
+		const response = await fetchData(
+			"/api/friendships",
+			"POST",
+			headers,
+			formDataToSend
+		);
+
+		if (response.ok) {
+			const data = await response.json();
+			await getFriendship(data.id);
+
+			const message = {
+				message: "friendship.created",
+				friend_id: id
+			};
+			sendMessage(StatusWebsocket.ws, message);
+			
+			this.loadDOMChanges();
+		} else {
+			console.error("Error: failed to send friend request ", response.status);
+		}
+	}
+
+	async removeFriend(id) {
+		const accessToken = await getToken();
+		const headers = {
+			Authorization: `Bearer ${accessToken}`,
+		};
+
+		const response = await fetchData(
+			`/api/friendships/${id}`,
+			"DELETE",
+			headers,
+			null
+		);
+
+		if (response.ok) {
+			let friend_id;
+			for (let [index, friendship] of AbstractView.friendships.entries()) {
+				console.log(id, friendship, AbstractView.friendships[index])
+				if (id === friendship.id) {
+					friend_id = friendship.friend_id;
+					AbstractView.friendships.splice(index, 1);
+					break ;
+				}
+			}
+
+			const message = {
+				message: "friendship.destroyed",
+				friend_id: friend_id
+			};
+			sendMessage(StatusWebsocket.ws, message);
+
+			this._friendship = null;
+			this.loadDOMChanges();
+		} else {
+			console.error("Error: failed to delete friend ", response.status);
+		}
+	}
 
 	getPlayerRecord() {
 		for (let [index, match] of this._matchHistory.entries()) {
@@ -197,7 +282,6 @@ export default class ProfilePage extends AbstractView {
 					avataraAndUsernameDiv.appendChild(img);
 				} else {
 					const avatar = document.createElement("base-avatar-box");
-					avatar.setAttribute("template", "ms-3");
 					avatar.setAttribute("size", "40");
 					avataraAndUsernameDiv.appendChild(avatar);
 				}
@@ -239,9 +323,16 @@ export default class ProfilePage extends AbstractView {
 	}
 
 	async loadProfilePage() {
-		let isOnline = AbstractView.onlineStatus[this._userId] || this._userId === AbstractView.userInfo.id;
-		this.getPlayerRecord();
-
+		this.getPlayerRecord();		
+		
+		for (let friendship of AbstractView.friendships.values()) {
+			if (friendship.friend_id == this._userId) {
+				this._friendship = friendship;
+				console.log(this._friendship)
+				break ;
+			}
+		}
+		
 		return `
 			<div class="center">
 				<div class="d-flex flex-column justify-content-start profile-box">
@@ -264,11 +355,28 @@ export default class ProfilePage extends AbstractView {
 									}
 								</div>
 							</div>
-							<div class="d-flex flex-column align-items-start mt-2">
-								<div id="username" class="mb-2">
+							<div class="d-flex flex-column align-items-start w-100 mt-2">
+								<div id="username" class="d-flex flex-row w-100 mb-2">
 									<h1 style="font-size: 50px; color: white; border-bottom: 2px solid #ffd700;">
 										${this._userInfo.username}
 									</h1>
+									${
+										this._userId != AbstractView.userInfo.id
+											? !this._friendship
+												?	`<div class="d-flex justify-content-end w-100 me-5 mt-3 pointer" id="add-friend-${this._userId}">
+														<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-person-plus-fill" viewBox="0 0 16 16">
+															<path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+															<path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5"/>
+														</svg>
+													</div>`
+												:	`<div class="d-flex justify-content-end w-100 me-5 mt-3 pointer" id="remove-friend-${this._friendship.id}">
+														<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-person-dash-fill" viewBox="0 0 16 16">
+															<path fill-rule="evenodd" d="M11 7.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5"/>
+															<path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+														</svg>
+													</div>`
+											:	``
+									}
 								</div>
 								<div id="date-joined">
 									<h1 style="font-size: 18px">
@@ -294,10 +402,17 @@ export default class ProfilePage extends AbstractView {
 										<span style="color: white;"> ${!this._matchHistory.length ? 0 : this._winRecord / this._matchHistory.length * 100}%</span>
 									</h1>
 								</div>
-								<div id="online-status" class="d-flex flex-row">
-									<span class="${isOnline ? "online-lg mt-1" : "offline-lg mt-1"}"></span>
-									<h3 class="ms-2 mt-1" style="font-size: 18px; font-weight: bold">${isOnline ? "online" : "offline"}</h3>
-								</div>
+								${
+									this._friendship
+										?	`<div id="online-status-info-${this._userId}" class="d-flex flex-row">
+												<span class="${this._friendship.online ? "online-lg mt-1" : "offline-lg mt-1"}"></span>
+												<h3 
+													class="ms-2" 
+													style="font-size: 18px; font-weight: bold">${this._friendship.online ? "online" : "offline"}
+												</h3>
+											</div>`
+										: 	``
+								}
 							</div>
 						</div>
 						<div class="d-flex flex-column align-items-center mt-2">
@@ -314,6 +429,7 @@ export default class ProfilePage extends AbstractView {
 	async loadDOMChanges() {
 		const parentNode = document.getElementById("profile-page");
 		parentNode.innerHTML = await this.loadProfilePage();
+		this.addEventListners();
 	}
 
     async getHtml() {

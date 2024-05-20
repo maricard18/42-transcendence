@@ -3,8 +3,9 @@ import fetchData from "../functions/fetchData";
 import getUserInfo from "../functions/getUserInfo";
 import { navigateTo } from "..";
 import { getToken } from "../functions/tokens";
+import { StatusWebsocket, sendMessage } from "../functions/websocket";
 
-export default class FirendsPage extends AbstractView {
+export default class FriendsPage extends AbstractView {
     constructor(view) {
         super();
         this._view = view;
@@ -14,8 +15,6 @@ export default class FirendsPage extends AbstractView {
 		this._friendCallback = null;
         this._clickCallback = false;
         this._insideRequest = false;
-
-		this._friendshipList = null;
 
         this._observer = new MutationObserver(this.defineCallback.bind(this));
         this._observer.observe(document.body, {
@@ -28,11 +27,11 @@ export default class FirendsPage extends AbstractView {
     }
 
 	async addEventListeners() {
-		if (!this._friendshipList) {
+		if (!AbstractView.friendships) {
 			return ;
 		}
 		
-        for (let [index, friendship] of this._friendshipList.entries()) {
+        for (let [index, friendship] of AbstractView.friendships.entries()) {
             const avataraAndUsernameDiv = document.getElementById(`friend-${friendship.friend_id}`);
             avataraAndUsernameDiv.addEventListener("click", async () => await navigateTo(`/home/profile/${friendship.friend_id}`));
 
@@ -55,31 +54,25 @@ export default class FirendsPage extends AbstractView {
 		);
 
 		if (response.ok) {
-			await this.getMyFriends();
+			let friend_id;
+			for (let [index, friendship] of AbstractView.friendships.entries()) {
+				console.log(id, friendship, AbstractView.friendships[index])
+				if (id === friendship.id) {
+					friend_id = friendship.friend_id;
+					AbstractView.friendships.splice(index, 1);
+					break ;
+				}
+			}
+
+			const message = {
+				message: "friendship.destroyed",
+				friend_id: friend_id
+			};
+			sendMessage(StatusWebsocket.ws, message);
+
+			this.loadDOMChanges();
 		} else {
 			console.error("Error: failed to delete friend ", response.status);
-		}
-	}
-
-
-	async getMyFriends() {
-		const accessToken = await getToken();
-		const headers = {
-			Authorization: `Bearer ${accessToken}`,
-		};
-
-		const response = await fetchData(
-			"/api/friendships",
-			"GET",
-			headers,
-			null
-		);
-
-		if (response.ok) {
-			this._friendshipList = await response.json();
-			await this.loadDOMChanges();
-		} else {
-			console.error("Error: failed to fetch my friends list ", response.status);
 		}
 	}
 
@@ -94,12 +87,12 @@ export default class FirendsPage extends AbstractView {
 		const friendListDiv = document.getElementById("friend-list");
 		if (friendListDiv && !this._setFriendCallback) {
 			this._setFriendCallback = true;
-			friendListDiv.addEventListener("reload-friend-list", this.getMyFriends.bind(this));
+			friendListDiv.addEventListener("reload-friend-list", this.loadDOMChanges.bind(this));
 		}
 
 		if (!this._friendCallback && AbstractView.userInfo.id) {
 			this._friendCallback = true;
-			await this.getMyFriends();
+			this.loadDOMChanges();
 		}
     }
 
@@ -113,14 +106,8 @@ export default class FirendsPage extends AbstractView {
         this._observer.disconnect();
     }
 
-	async loadDOMChanges() {
-		const parentNode = document.getElementById("friend-list");
-		parentNode.innerHTML = await this.loadFriendList();
-		await this.addEventListeners();
-	}
-
 	async loadFriendList() {
-		if (!this._friendshipList) {
+		if (!AbstractView.friendships) {
 			return ``;
 		}
 
@@ -132,7 +119,7 @@ export default class FirendsPage extends AbstractView {
 		div.style.maxHeight = "360px";
 		div.style.overflowY = "auto";
 		
-		for (let [index, friendship] of this._friendshipList.entries()) {
+		for (let [index, friendship] of AbstractView.friendships.entries()) {
 			const friendInfo = await getUserInfo(accessToken, friendship.friend_id);
 
 			const userDiv = document.createElement("div");
@@ -141,14 +128,14 @@ export default class FirendsPage extends AbstractView {
 
 			const friendInfoDiv = document.createElement("div");
 			friendInfoDiv.setAttribute("class", "d-flex flex-column align-items-start justify-content-start mt-1 ms-1");
-
+			
 			const avataraAndUsernameDiv = document.createElement("div");
-			avataraAndUsernameDiv.setAttribute("class", "d-flex flex-row align-items-center avatar-username");
+			avataraAndUsernameDiv.setAttribute("class", "d-flex flex-row align-items-center pointer ms-2");
 			avataraAndUsernameDiv.id = `friend-${friendInfo.id}`;
 			
 			if (friendInfo.avatar) {
 				const img = document.createElement("img");
-            	img.setAttribute("class", "white-border-sm ms-3");
+            	img.setAttribute("class", "white-border-sm");
             	img.setAttribute("alt", "Avatar preview");
             	img.setAttribute("width", "30");
             	img.setAttribute("height", "30");
@@ -157,7 +144,6 @@ export default class FirendsPage extends AbstractView {
 				avataraAndUsernameDiv.appendChild(img);
 			} else {
 				const avatar = document.createElement("base-avatar-box");
-				avatar.setAttribute("template", "ms-1");
 				avatar.setAttribute("size", "30");
 				avataraAndUsernameDiv.appendChild(avatar);
 			}
@@ -170,23 +156,24 @@ export default class FirendsPage extends AbstractView {
 			friendInfoDiv.appendChild(avataraAndUsernameDiv);
 
 			const onlineStatus = document.createElement("div");
+			onlineStatus.id = `online-status-info-${friendInfo.id}`;
 			onlineStatus.setAttribute("class", "d-flex flex-row align-items-center ms-2");
 
 			const circle = document.createElement("span");
-			circle.setAttribute("class", `${AbstractView.onlineStatus[friendInfo.id] ? "online-sm" : "offline-sm"}`);
+			circle.setAttribute("class", `${friendship.online ? "online-sm ms-1" : "offline-sm ms-1"}`);
 			onlineStatus.appendChild(circle);
 
 			const h3 = document.createElement("h3");
 			h3.setAttribute("class", "ms-1 mt-2");
 			h3.setAttribute("style", "font-size: 12px; font-weight: bold");
-			h3.innerText = AbstractView.onlineStatus[friendInfo.id] ? "online" : "offline";
+			h3.innerText = friendship.online ? "online" : "offline";
 			onlineStatus.appendChild(h3);
 			friendInfoDiv.appendChild(onlineStatus);
 			
 			userDiv.appendChild(friendInfoDiv);
 
 			const buttonDiv = document.createElement("div");
-			buttonDiv.setAttribute("class", "d-flex flex-row align-items-center me-2");
+			buttonDiv.setAttribute("class", "d-flex flex-row align-items-center me-3");
 			buttonDiv.style.marginLeft = "auto";
 			
 			const button = document.createElement("button");
@@ -201,6 +188,12 @@ export default class FirendsPage extends AbstractView {
 		}
 	
 		return div.outerHTML;
+	}
+
+	async loadDOMChanges() {
+		const parentNode = document.getElementById("friend-list");
+		parentNode.innerHTML = await this.loadFriendList();
+		await this.addEventListeners();
 	}
 
     async getHtml() {
@@ -220,4 +213,89 @@ export default class FirendsPage extends AbstractView {
 			</div>
         `;
     }
+}
+
+export async function getFriendship(id) {
+	const accessToken = await getToken();
+	const headers = {
+		Authorization: `Bearer ${accessToken}`,
+	};
+
+	const response = await fetchData(
+		`/api/friendships/${id}`,
+		"GET",
+		headers,
+		null
+	);
+
+	if (response.ok) {
+		AbstractView.friendships.push(await response.json());
+	} else {
+		console.error("Error: failed to get specific friendship ", response.status);
+	}
+}
+
+export async function getMyFriendships() {
+	const accessToken = await getToken();
+	const headers = {
+		Authorization: `Bearer ${accessToken}`,
+	};
+
+	const response = await fetchData(
+		"/api/friendships",
+		"GET",
+		headers,
+		null
+	);
+
+	if (response.ok) {
+		AbstractView.friendships = await response.json();
+	} else {
+		console.error("Error: failed to fetch my friends list ", response.status);
+	}
+}
+
+export function updateFriendOnlineStatus(id, action = null) {
+	if (!id) {
+		return ;
+	}
+
+	const parentDiv = document.getElementById(`online-status-info-${id}`);
+	if (parentDiv && action === "disconnected") {
+		const circle = parentDiv.querySelector("span");
+		if (circle.classList.contains("online-sm")) {
+			circle.classList.remove("online-sm")
+			circle.classList.add("offline-sm");
+		} else {
+			circle.classList.remove("online-lg");	
+			circle.classList.add("offline-lg");
+		}
+		const h3 = parentDiv.querySelector("h3");
+		h3.innerText = "offline";
+	} else if (parentDiv && action === "connected") {
+		const circle = parentDiv.querySelector("span");
+		if (circle.classList.contains("offline-sm")) {
+			circle.classList.remove("offline-sm")
+			circle.classList.add("online-sm");
+		} else {
+			circle.classList.remove("offline-lg");	
+			circle.classList.add("online-lg");
+		}
+		const h3 = parentDiv.querySelector("h3");
+		h3.innerText = "online";
+	}
+}
+
+export async function updateFriendsListOnlineStatus(id = null, action = null) {
+	await getMyFriendships();
+
+	for (let [index, friendship] of AbstractView.friendships.entries()) {
+		if (id == friendship.friend_id) {
+			AbstractView.friendships[index]["online"] = action === "connected" ? true : false;
+		} else {
+			AbstractView.friendships[index]["online"] = false;
+		}
+
+		updateFriendOnlineStatus(id, action);
+	}
 }

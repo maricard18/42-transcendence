@@ -86,6 +86,7 @@ function multiplayer2GameLoop(game) {
 			if (game.over || !GameWebsocket.ws || !localStorage.getItem("game_status")) {
 				if (!game.winner) {
 					game.winner = localStorage.getItem("game_winner");
+					logGameResult("ttt", "multi", [game.player1, game.player2]);
 				}
 				game.over = true;
 				game.last_time = Date.now();

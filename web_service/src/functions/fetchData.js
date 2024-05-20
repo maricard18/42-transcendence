@@ -1,3 +1,6 @@
+import AbstractView from "../views/AbstractView";
+import { getToken } from "./tokens";
+
 export default async function fetchData(endpoint, method, headers = {}, body = null) {
     const fetchOptions = {
         method: method,

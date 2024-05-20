@@ -4,11 +4,14 @@ import { getPlayerIndex, sendNonHostMessage, updateScore } from "../Game/Pong/po
 import { getToken } from "./tokens";
 import { Cpu, InvertedCpu } from "../Game/Pong/Player";
 import { ScreenSize } from "../Game/TicTacToe/variables";
+import { updateFriendsListOnlineStatus } from "../views/FriendsPage";
+import { getMyFriendships } from "../views/FriendsPage";
 
 export var StatusWebsocket = {};
 export var GameWebsocket = {};
 
 export async function connectOnlineStatusWebsocket() {
+	console.log("Inside Websocket func");
     const accessToken = await getToken();
     const host = window.location.host;
 	const protocol = window.location.protocol === "http:" ? "ws:" : "wss:";
@@ -18,9 +21,12 @@ export async function connectOnlineStatusWebsocket() {
         accessToken,
     ]);
 
-    StatusWebsocket.ws.onopen = () => {
+    StatusWebsocket.ws.onopen = async () => {
 		console.log("Created Status Websocket!")
 		AbstractView.statusWsCreated = true;
+		await getMyFriendships();
+		updateFriendsListOnlineStatus();
+		//TODO get all friends here only, update all online status in onMessage
     };
 
 	StatusWebsocket.ws.onerror = (error) => {
@@ -37,17 +43,12 @@ export async function connectOnlineStatusWebsocket() {
 				const info = jsonData["data"];
 				
 				if (info.message === "user.connected") {
-					AbstractView.onlineStatus[info.user_id] = true;
+					updateFriendsListOnlineStatus(info.user_id, "connected");
 				}
 				if (info.message === "user.disconnected") {
-					AbstractView.onlineStatus[info.user_id] = false;
+					updateFriendsListOnlineStatus(info.user_id, "disconnected");
 				}
-
-				console.log("Online Status:", AbstractView.onlineStatus);
 			}
-            if (jsonData["type"] === "user.message") {
-				console.log("Message from user");
-            }
         } catch (error) {
             console.log(error);
         }
