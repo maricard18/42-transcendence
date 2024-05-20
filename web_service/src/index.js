@@ -1,7 +1,7 @@
 import AbstractView from "./views/AbstractView";
 import { routes } from "./router";
 import { getToken } from "./functions/tokens";
-import { closeWebsocket } from "./functions/websocket";
+import { closeWebsocket, connectOnlineStatusWebsocket } from "./functions/websocket";
 import "./functions/defineComponents";
 import "../static/css/index.css";
 
@@ -20,6 +20,10 @@ const router = async () => {
     if (!await hasPermission(matches)) {
         return;
     }
+
+	if (!AbstractView.statusWsCreated) {
+		connectOnlineStatusWebsocket();
+	}
 
     var view = [];
     if (matches.length > 1) {

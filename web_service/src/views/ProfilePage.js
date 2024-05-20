@@ -129,7 +129,7 @@ export default class ProfilePage extends AbstractView {
 		const div = document.createElement("div");
 		div.setAttribute("class", "mt-2");
 		div.id = "match-history-list";
-		div.style.maxHeight = "350px";
+		div.style.maxHeight = "320px";
 		div.style.overflowY = "auto";
 		
 		for (let [index, match] of this._matchHistory.entries()) {
@@ -239,6 +239,7 @@ export default class ProfilePage extends AbstractView {
 	}
 
 	async loadProfilePage() {
+		let isOnline = AbstractView.onlineStatus[this._userId] || this._userId === AbstractView.userInfo.id;
 		this.getPlayerRecord();
 
 		return `
@@ -246,7 +247,7 @@ export default class ProfilePage extends AbstractView {
 				<div class="d-flex flex-column justify-content-start profile-box">
 					<div id="profile-content" class="mt-2">
 						<div class="d-flex flex-row ms-4">
-							<div class="d-flex flex-column align-items-start mt-2 mb-1 ms-3 me-5 mt-4">
+							<div class="d-flex flex-column align-items-start mt-2 ms-3 me-5 mt-5">
 								<div id="avatar">
 									${
 										this._userInfo.avatar
@@ -292,6 +293,10 @@ export default class ProfilePage extends AbstractView {
 										<span style="color: #ffd700;">Win rate:</span> 
 										<span style="color: white;"> ${!this._matchHistory.length ? 0 : this._winRecord / this._matchHistory.length * 100}%</span>
 									</h1>
+								</div>
+								<div id="online-status" class="d-flex flex-row">
+									<span class="${isOnline ? "online-lg mt-1" : "offline-lg mt-1"}"></span>
+									<h3 class="ms-2 mt-1" style="font-size: 18px; font-weight: bold">${isOnline ? "online" : "offline"}</h3>
 								</div>
 							</div>
 						</div>

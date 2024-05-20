@@ -168,6 +168,21 @@ export default class FirendsPage extends AbstractView {
 			username.innerText = friendInfo.username;
 			avataraAndUsernameDiv.appendChild(username);
 			friendInfoDiv.appendChild(avataraAndUsernameDiv);
+
+			const onlineStatus = document.createElement("div");
+			onlineStatus.setAttribute("class", "d-flex flex-row align-items-center ms-2");
+
+			const circle = document.createElement("span");
+			circle.setAttribute("class", `${AbstractView.onlineStatus[friendInfo.id] ? "online-sm" : "offline-sm"}`);
+			onlineStatus.appendChild(circle);
+
+			const h3 = document.createElement("h3");
+			h3.setAttribute("class", "ms-1 mt-2");
+			h3.setAttribute("style", "font-size: 12px; font-weight: bold");
+			h3.innerText = AbstractView.onlineStatus[friendInfo.id] ? "online" : "offline";
+			onlineStatus.appendChild(h3);
+			friendInfoDiv.appendChild(onlineStatus);
+			
 			userDiv.appendChild(friendInfoDiv);
 
 			const buttonDiv = document.createElement("div");

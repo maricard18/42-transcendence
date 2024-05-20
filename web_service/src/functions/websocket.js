@@ -5,9 +5,56 @@ import { getToken } from "./tokens";
 import { Cpu, InvertedCpu } from "../Game/Pong/Player";
 import { ScreenSize } from "../Game/TicTacToe/variables";
 
-export var MyWebSocket = {};
+export var StatusWebsocket = {};
+export var GameWebsocket = {};
 
-export async function connectWebsocket() {
+export async function connectOnlineStatusWebsocket() {
+    const accessToken = await getToken();
+    const host = window.location.host;
+	const protocol = window.location.protocol === "http:" ? "ws:" : "wss:";
+    
+	StatusWebsocket.ws = new WebSocket(`${protocol}//${host}/ws/friendships`, [
+        "Authorization",
+        accessToken,
+    ]);
+
+    StatusWebsocket.ws.onopen = () => {
+		console.log("Created Status Websocket!")
+		AbstractView.statusWsCreated = true;
+    };
+
+	StatusWebsocket.ws.onerror = (error) => {
+        console.error("Error while connecting to the Status WS:", error);
+    };
+
+    StatusWebsocket.ws.onmessage = (event) => {
+        console.log("STATUS:", JSON.parse(event.data));
+
+        try {
+            const jsonData = JSON.parse(event.data);
+
+			if (jsonData["type"] === "system.message") {
+				const info = jsonData["data"];
+				
+				if (info.message === "user.connected") {
+					AbstractView.onlineStatus[info.user_id] = true;
+				}
+				if (info.message === "user.disconnected") {
+					AbstractView.onlineStatus[info.user_id] = false;
+				}
+
+				console.log("Online Status:", AbstractView.onlineStatus);
+			}
+            if (jsonData["type"] === "user.message") {
+				console.log("Message from user");
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+}
+
+export async function connectGameWebsocket() {
     const accessToken = await getToken();
     const host = window.location.host;
 	const protocol = window.location.protocol === "http:" ? "ws:" : "wss:";
@@ -21,24 +68,24 @@ export async function connectWebsocket() {
 		game = "2";
 	}
     
-	MyWebSocket.ws = new WebSocket(`${protocol}//${host}/ws/games/${game}/queue/${lobyySize}`, [
+	GameWebsocket.ws = new WebSocket(`${protocol}//${host}/ws/games/${game}/queue/${lobyySize}`, [
         "Authorization",
         accessToken,
     ]);
 
-    MyWebSocket.ws.onopen = () => {
+    GameWebsocket.ws.onopen = () => {
 		console.log("Created websocket!")
-        AbstractView.wsCreated = true;
+        AbstractView.gameWsCreated = true;
 		AbstractView.wsConnectionStarted = false;
 		waitingRoomNode.dispatchEvent( new CustomEvent ("waiting-room-callback") );
     };
 
-	MyWebSocket.ws.onerror = (error) => {
+	GameWebsocket.ws.onerror = (error) => {
 		AbstractView.wsConnectionStarted = false;
         console.error("Error while connecting to the WS:", error);
     };
 
-    MyWebSocket.ws.onmessage = (event) => {
+    GameWebsocket.ws.onmessage = (event) => {
         //console.log("SYSTEM", JSON.parse(event.data));
 
         try {
@@ -81,9 +128,9 @@ export async function connectWebsocket() {
     };
 }
 
-export function multiplayerTicTacToeMessageHandler(MyWebSocket, game) {
-	if (MyWebSocket.ws) {
-        MyWebSocket.ws.onmessage = (event) => {
+export function multiplayerTicTacToeMessageHandler(GameWebsocket, game) {
+	if (GameWebsocket.ws) {
+        GameWebsocket.ws.onmessage = (event) => {
             //console.log("GAME", JSON.parse(event.data));
 
             try {
@@ -186,9 +233,9 @@ export function multiplayerTicTacToeMessageHandler(MyWebSocket, game) {
     }
 }
 
-export function multiplayerPongMessageHandler(MyWebSocket, game) {
-	if (MyWebSocket.ws) {
-        MyWebSocket.ws.onmessage = (event) => {
+export function multiplayerPongMessageHandler(GameWebsocket, game) {
+	if (GameWebsocket.ws) {
+        GameWebsocket.ws.onmessage = (event) => {
             //console.log("GAME", JSON.parse(event.data));
 
             try {
@@ -312,13 +359,22 @@ export function sendMessage(ws, message) {
 }
 
 export function closeWebsocket() {
-    if (MyWebSocket.ws) {
+    if (GameWebsocket.ws) {
 		console.error("CLOSING WEBSOCKET");
 		localStorage.removeItem("game_status");
-        MyWebSocket.ws.close();
-        delete MyWebSocket.ws;
+        GameWebsocket.ws.close();
+        delete GameWebsocket.ws;
 		AbstractView.cleanGameData();
 		AbstractView.gameOver = true;
+    }
+}
+
+export function closeStatusWebsocket() {
+    if (StatusWebsocket.ws) {
+		console.error("CLOSING STATUS WEBSOCKET");
+        StatusWebsocket.ws.close();
+        delete StatusWebsocket.ws;
+		AbstractView.statusWsCreated = false;
     }
 }
 

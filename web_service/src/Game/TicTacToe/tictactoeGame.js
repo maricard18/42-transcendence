@@ -1,6 +1,6 @@
 import AbstractView from "../../views/AbstractView";
 import { createSinglePlayerGameObjects, createMultiPlayer2GameObjects, createTournamentGameObjects } from "./createPlayers";
-import { MyWebSocket, closeWebsocket, sendMessage } from "../../functions/websocket";
+import { GameWebsocket, closeWebsocket, sendMessage } from "../../functions/websocket";
 import { multiplayerTicTacToeMessageHandler } from "../../functions/websocket";
 import { gameConfettiAnimation, gameStartAnimation } from "./animations";
 import { updateVariables } from "./variables";
@@ -32,7 +32,7 @@ export async function startTicTacToe(game) {
 		await gameConfettiAnimation(game);
 		localStorage.removeItem("game_status");
 	} else if (game.mode === "multiplayer" && game.lobbySize == 2) {
-		multiplayerTicTacToeMessageHandler(MyWebSocket, game);
+		multiplayerTicTacToeMessageHandler(GameWebsocket, game);
 		await gameStartAnimation(game);
 		game.last_time = Date.now();
 		await multiplayer2GameLoop(game);
@@ -83,7 +83,7 @@ function multiplayer2GameLoop(game) {
 
 	return new Promise((resolve) => {
         const clickHandler = (event) => {
-			if (game.over || !MyWebSocket.ws || !localStorage.getItem("game_status")) {
+			if (game.over || !GameWebsocket.ws || !localStorage.getItem("game_status")) {
 				if (!game.winner) {
 					game.winner = localStorage.getItem("game_winner");
 				}
@@ -97,7 +97,7 @@ function multiplayer2GameLoop(game) {
 				game.hit(event.offsetX, event.offsetY);
 				game.checkWinner();
 				
-				if ((game.over || !MyWebSocket.ws || !localStorage.getItem("game_status"))) {
+				if ((game.over || !GameWebsocket.ws || !localStorage.getItem("game_status"))) {
 					const id = AbstractView.userInfo.id === game.host_id ? 1 : 2;
 					game.winner = game.winner === 1 ? game.player1.info.username : game.player2.info.username;
 					game.last_time = Date.now();
@@ -109,7 +109,7 @@ function multiplayer2GameLoop(game) {
 			}
         };
 
-		if (game.over || !MyWebSocket.ws || !localStorage.getItem("game_status")) {
+		if (game.over || !GameWebsocket.ws || !localStorage.getItem("game_status")) {
 			game.winner = localStorage.getItem("game_winner");
 			resolve() ;
 		} else {
@@ -138,7 +138,7 @@ export function sendTicTacToeMessage(game, index) {
         }
     }
 
-    sendMessage(MyWebSocket.ws, message);
+    sendMessage(GameWebsocket.ws, message);
 }
 
 export function updateScore(game) {

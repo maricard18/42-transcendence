@@ -1,10 +1,11 @@
-export default class AbstractView {
+export default class AbstractView {	
+	static authed = false;
     static userQueue = {};
-
-    static authed = false;
     static userData = {};
     static userReadyList = {};
-    static wsCreated = false;
+	static onlineStatus = {};
+	static statusWsCreated = false;
+    static gameWsCreated = false;
     static wsConnectionStarted = false;
     static gameOver = null;
     static previousLocation = null;
@@ -13,7 +14,8 @@ export default class AbstractView {
 
     constructor() {
     }
-    static formData = {
+    
+	static formData = {
         username: "",
         email: "",
         password: "",
@@ -30,7 +32,7 @@ export default class AbstractView {
         this.userQueue = {};
         this.userData = {};
         this.userReadyList = {};
-        this.wsCreated = false;
+        this.gameWsCreated = false;
         this.wsConnectionStarted = false;
         this.previousLocation = null;
         this.gameOver = null;

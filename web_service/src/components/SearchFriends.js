@@ -175,10 +175,14 @@ export default class SearchFriends extends AbstractView {
 	async addEventListeners() {
         for (let [index, user] of this._userList.entries()) {
             const avataraAndUsernameDiv = document.getElementById(`user-${user.id}`);
-            avataraAndUsernameDiv.addEventListener("click", async () => await navigateTo(`/home/profile/${user.id}`));
+			if (avataraAndUsernameDiv) {
+				avataraAndUsernameDiv.addEventListener("click", async () => await navigateTo(`/home/profile/${user.id}`));
+			}
 
             const button = document.getElementById(`friend-btn-${user.id}`);
-            button.addEventListener("click", async () => await this.addFriend(user.id));
+			if (button) {
+				button.addEventListener("click", async () => await this.addFriend(user.id));
+			}
         }
     };
 
@@ -237,6 +241,7 @@ export default class SearchFriends extends AbstractView {
 
 	async loadSearchBarResult() {
 		let showAllUsers = false;
+
 		if (!this._userList) {
 			showAllUsers = true;
 			this._userList = await this.loadAllUsers();
@@ -264,6 +269,10 @@ export default class SearchFriends extends AbstractView {
 		div.style.overflowY = "auto";
 		
 		for (let [index, user] of this._userList.entries()) {
+			if (user.id === AbstractView.userInfo.id) {
+				continue ;
+			}
+
 			const userDiv = document.createElement("div");
 			userDiv.setAttribute("class", "d-flex flex-row align-items-center user-info mt-3");
 			userDiv.id = `user-info-${index}`;

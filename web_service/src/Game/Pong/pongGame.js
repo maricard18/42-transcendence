@@ -1,7 +1,7 @@
 import AbstractView from "../../views/AbstractView";
 import { checkPlayer1Collision, checkPlayer2Collision, checkInvertedPlayer3Collision, checkInvertedPlayer4Collision } from "./collision";
 import { createSinglePlayerGameObjects, createMultiPlayer2GameObjects, createMultiPlayer4GameObjects, createTournamentGameObjects } from "./createPlayers";
-import { MyWebSocket, closeWebsocket, sendMessage } from "../../functions/websocket";
+import { GameWebsocket, closeWebsocket, sendMessage } from "../../functions/websocket";
 import { multiplayerPongMessageHandler } from "../../functions/websocket";
 import { gameConfettiAnimation, gameStartAnimation } from "./animations";
 import { updateVariables } from "./variables";
@@ -46,7 +46,7 @@ export async function startPong(game) {
 		await gameConfettiAnimation(game);
 		localStorage.removeItem("game_status");
 	} else if (game.mode === "multiplayer" && game.lobbySize == 2) {
-		multiplayerPongMessageHandler(MyWebSocket, game);
+		multiplayerPongMessageHandler(GameWebsocket, game);
 		await gameStartAnimation(game);
 		game.last_time = Date.now();
 		await multiplayer2GameLoop(game);
@@ -54,7 +54,7 @@ export async function startPong(game) {
 		await gameConfettiAnimation(game);
 		localStorage.removeItem("game_status");
 	} else if (game.mode === "multiplayer" && game.lobbySize == 4) {
-		multiplayerPongMessageHandler(MyWebSocket, game);
+		multiplayerPongMessageHandler(GameWebsocket, game);
 		await gameStartAnimation(game);
 		game.last_time = Date.now();
 		await multiplayer4GameLoop(game);
@@ -121,7 +121,7 @@ function singleplayerGameLoop(game) {
 function multiplayer2GameLoop(game) {
 	return new Promise((resolve) => {
         const playPong = () => {
-            if (game.over || !MyWebSocket.ws || !localStorage.getItem("game_status")) {
+            if (game.over || !GameWebsocket.ws || !localStorage.getItem("game_status")) {
 				if (!game.winner) {
 					game.winner = localStorage.getItem("game_winner");
 				}
@@ -180,7 +180,7 @@ function multiplayer2GameLoop(game) {
 function multiplayer4GameLoop(game) {
 	return new Promise((resolve) => {
         const playPong = () => {
-            if (game.over || !MyWebSocket.ws || !localStorage.getItem("game_status")) {
+            if (game.over || !GameWebsocket.ws || !localStorage.getItem("game_status")) {
 				if (!game.winner) {
 					game.winner = localStorage.getItem("game_winner");
 				}
@@ -285,7 +285,7 @@ export function sendHostMessage(game) {
         baseMessage.game.player4_score = game.player4.score;
     }
 
-    sendMessage(MyWebSocket.ws, baseMessage);
+    sendMessage(GameWebsocket.ws, baseMessage);
 }
 
 export function sendNonHostMessage(game, index) {
@@ -305,7 +305,7 @@ export function sendNonHostMessage(game, index) {
         },
     };
 
-    sendMessage(MyWebSocket.ws, message);
+    sendMessage(GameWebsocket.ws, message);
 }
 
 export function getPlayerIndex() {
