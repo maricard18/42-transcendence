@@ -65,9 +65,10 @@ function singleplayerGameLoop(game) {
 
 				if (game.mode === "tournament") {
 					findTournamentWinner(game, [game.player1, game.player2]);
+				} else {
+					logGameResult("ttt", "single", [game.player1, game.player2]);
 				}
 
-				logGameResult("ttt", "single", [game.player1, game.player2]);
                 resolve();
             }
         };

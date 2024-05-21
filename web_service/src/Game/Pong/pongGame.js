@@ -96,9 +96,10 @@ function singleplayerGameLoop(game) {
 
 					if (game.mode === "tournament") {
 						findTournamentWinner(game, players);
+					} else {
+						logGameResult("pong", "single", players);
 					}
 
-					logGameResult("pong", "single", players);
                     resolve();
                 }
 
