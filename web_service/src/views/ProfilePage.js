@@ -303,7 +303,8 @@ export default class ProfilePage extends AbstractView {
 
 			for (let [index, player] of playersInfo.entries()) {
 				const scoreDiv = document.createElement("div");
-				scoreDiv.setAttribute("class", `d-flex flex-row align-items-center justify-content-center mt-2`);
+				scoreDiv.setAttribute("class", "d-flex flex-row align-items-center justify-content-center");
+				scoreDiv.style.height = "60px";
 				scoreDiv.id = `score${index + 1}`;
 
 				const score = document.createElement("h3");
@@ -325,7 +326,12 @@ export default class ProfilePage extends AbstractView {
 
 	async loadProfilePage() {
 		this.getPlayerRecord();		
-		
+		let winPercentage = this._winRecord / this._matchHistory.length * 100;
+
+		if (!winPercentage) {
+			winPercentage = 0;
+		}
+
 		for (let friendship of AbstractView.friendships.values()) {
 			if (friendship.friend_id == this._userId) {
 				this._friendship = friendship;
@@ -399,7 +405,7 @@ export default class ProfilePage extends AbstractView {
 								<div id="player-record">
 									<h1 style="font-size: 18px">
 										<span style="color: #ffd700;">Win rate:</span> 
-										<span style="color: white;"> ${!this._matchHistory.length ? 0 : this._winRecord / this._matchHistory.length * 100}%</span>
+										<span style="color: white;"> ${Math.trunc(winPercentage)}%</span>
 									</h1>
 								</div>
 								${
