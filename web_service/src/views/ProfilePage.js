@@ -165,7 +165,6 @@ export default class ProfilePage extends AbstractView {
 			};
 			sendMessage(StatusWebsocket.ws, message);
 
-			this._friendship = null;
 			this.loadDOMChanges();
 		} else {
 			console.error("Error: failed to delete friend ", response.status);
@@ -230,7 +229,8 @@ export default class ProfilePage extends AbstractView {
 		div.style.maxHeight = "340px";
 		div.style.overflowY = "auto";
 		
-		for (let [index, match] of this._matchHistory.entries()) {
+		const reversedMatchHistory = this._matchHistory.reverse();
+		for (let [index, match] of reversedMatchHistory.entries()) {
 			const playersInfo = await this.loadUserInfo(accessToken, match.players);
 			
 			const matchDiv = document.createElement("div");
@@ -356,7 +356,7 @@ export default class ProfilePage extends AbstractView {
 			<div class="center">
 				<div class="d-flex flex-column justify-content-start profile-box">
 					<div id="profile-content" class="mt-2">
-						<div class="d-flex flex-row ms-4">
+						<div class="d-flex flex-row ms-4 mb-3">
 							<div class="d-flex flex-column align-items-start mt-2 ms-3 me-5 mt-5">
 								<div id="avatar">
 									${
@@ -446,6 +446,9 @@ export default class ProfilePage extends AbstractView {
 	}
 
 	async loadDOMChanges() {
+		this._winRecord = 0;
+		this._lossRecord = 0;
+		this._friendship = null;
 		const parentNode = document.getElementById("profile-page");
 		parentNode.innerHTML = await this.loadProfilePage();
 		this.addEventListners();
