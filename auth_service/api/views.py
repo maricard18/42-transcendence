@@ -162,7 +162,7 @@ class OTPViewSet(viewsets.ViewSet):
             "auth_user": user.id
         })
         if serializer.is_valid(raise_exception=True):
-            otp = User.objects.create(
+            otp = OTP_Token.objects.create(
                 auth_user=user,
                 token=pyotp.random_base32()
             )
@@ -188,7 +188,7 @@ class OTPViewSet(viewsets.ViewSet):
         user = User.objects.get(pk=pk)
 
         try:
-            otp = User.objects.get(auth_user=user)
+            otp = OTP_Token.objects.get(auth_user=user)
             if request.GET.get("code") is None:
                 serializer = OTPSerializer(otp)
                 return Response(Vault.cipherSensitiveFields(
@@ -220,7 +220,7 @@ class OTPViewSet(viewsets.ViewSet):
         user = User.objects.get(pk=pk)
 
         try:
-            User.objects.get(auth_user=user).delete()
+            OTP_Token.objects.get(auth_user=user).delete()
             return Response(None, status=status.HTTP_204_NO_CONTENT)
         except OTP_Token.DoesNotExist:
             raise NotFound
