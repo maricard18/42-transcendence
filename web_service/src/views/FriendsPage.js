@@ -56,7 +56,6 @@ export default class FriendsPage extends AbstractView {
 		if (response.ok) {
 			let friend_id;
 			for (let [index, friendship] of AbstractView.friendships.entries()) {
-				console.log(id, friendship, AbstractView.friendships[index])
 				if (id === friendship.id) {
 					friend_id = friendship.friend_id;
 					AbstractView.friendships.splice(index, 1);
@@ -119,6 +118,7 @@ export default class FriendsPage extends AbstractView {
 		div.style.maxHeight = "360px";
 		div.style.overflowY = "auto";
 		
+		console.log("Friend List:", AbstractView.friendships);
 		for (let [index, friendship] of AbstractView.friendships.entries()) {
 			const friendInfo = await getUserInfo(accessToken, friendship.friend_id);
 
@@ -261,6 +261,7 @@ export function updateFriendOnlineStatus(id, action = null) {
 	}
 
 	const parentDiv = document.getElementById(`online-status-info-${id}`);
+	console.log("Parent:", parentDiv);
 	if (parentDiv && action === "disconnected") {
 		const circle = parentDiv.querySelector("span");
 		if (circle.classList.contains("online-sm")) {
@@ -297,5 +298,10 @@ export async function updateFriendsListOnlineStatus(id = null, action = null) {
 		}
 
 		updateFriendOnlineStatus(id, action);
+	}
+
+	const myFriendList = document.getElementById("friend-list");
+	if (myFriendList) {
+		myFriendList.dispatchEvent( new CustomEvent("reload-friend-list") );
 	}
 }

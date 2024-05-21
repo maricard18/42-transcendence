@@ -26,7 +26,6 @@ export async function connectOnlineStatusWebsocket() {
 		AbstractView.statusWsCreated = true;
 		await getMyFriendships();
 		updateFriendsListOnlineStatus();
-		//TODO get all friends here only, update all online status in onMessage
     };
 
 	StatusWebsocket.ws.onerror = (error) => {
@@ -291,9 +290,8 @@ export function multiplayerPongMessageHandler(GameWebsocket, game) {
 								if (data["user_id"] == user.id && game.lobbySize == 4) {
 									addCpuPlayer(index, game);
 								} else if (data["user_id"] == user.id && game.lobbySize == 2) {
-									user.id = -1;
+									user.id *= -1;
 								}
-								 
 							});
 						}
 
@@ -309,7 +307,7 @@ export function multiplayerPongMessageHandler(GameWebsocket, game) {
 						if (Object.keys(AbstractView.userQueue).length < 2) {
 							console.log("UserData:", AbstractView.userData);
 							for (let data of AbstractView.userData) {
-								if (data.id !== -1) {
+								if (data.id >= 0) {
 									localStorage.setItem("game_winner", data.username);
 								}
 							}

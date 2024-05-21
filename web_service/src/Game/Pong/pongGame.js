@@ -124,6 +124,13 @@ function multiplayer2GameLoop(game) {
             if (game.over || !GameWebsocket.ws || !localStorage.getItem("game_status")) {
 				if (!game.winner) {
 					game.winner = localStorage.getItem("game_winner");
+					if (game.winner === game.player1.info.username) {
+						game.player1.score = 5;
+						game.player2.score = 0;
+					} else {
+						game.player2.score = 5;
+						game.player1.score = 0;
+					}
 					logGameResult("pong", "multi", [game.player1, game.player2]);
 				}
 				game.over = true;

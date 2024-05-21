@@ -86,6 +86,11 @@ function multiplayer2GameLoop(game) {
 			if (game.over || !GameWebsocket.ws || !localStorage.getItem("game_status")) {
 				if (!game.winner) {
 					game.winner = localStorage.getItem("game_winner");
+					if (game.winner === game.player1.info.username) {
+						game.player1.score = 1;
+					} else {
+						game.player2.score = 1;
+					}
 					logGameResult("ttt", "multi", [game.player1, game.player2]);
 				}
 				game.over = true;
@@ -112,6 +117,12 @@ function multiplayer2GameLoop(game) {
 
 		if (game.over || !GameWebsocket.ws || !localStorage.getItem("game_status")) {
 			game.winner = localStorage.getItem("game_winner");
+			if (game.winner === game.player1.info.username) {
+				game.player1.score = 1;
+			} else {
+				game.player2.score = 1;
+			}
+			logGameResult("ttt", "multi", [game.player1, game.player2]);
 			resolve() ;
 		} else {
 			game.clear();

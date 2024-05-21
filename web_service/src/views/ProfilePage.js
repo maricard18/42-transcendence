@@ -138,8 +138,9 @@ export default class ProfilePage extends AbstractView {
 		if (response.ok) {
 			let friend_id;
 			for (let [index, friendship] of AbstractView.friendships.entries()) {
-				console.log(id, friendship, AbstractView.friendships[index])
 				if (id === friendship.id) {
+					console.log("Friendship id:", id);
+					console.log("Friendship:", friendship);
 					friend_id = friendship.friend_id;
 					AbstractView.friendships.splice(index, 1);
 					break ;
@@ -328,7 +329,6 @@ export default class ProfilePage extends AbstractView {
 		for (let friendship of AbstractView.friendships.values()) {
 			if (friendship.friend_id == this._userId) {
 				this._friendship = friendship;
-				console.log(this._friendship)
 				break ;
 			}
 		}
