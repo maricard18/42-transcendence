@@ -340,7 +340,7 @@ services:
     volumes:
       - telegraf_data:/var/log/telegraf/:ro
     depends_on:
-      modsecurity-dev:
+      modsecurity:
         condition: service_started
     profiles: [ "", "monitoring_service" ]
     restart: always
