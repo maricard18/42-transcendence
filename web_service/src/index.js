@@ -1,7 +1,7 @@
 import AbstractView from "./views/AbstractView";
 import { routes } from "./router";
 import { getToken } from "./functions/tokens";
-import { closeWebsocket } from "./functions/websocket";
+import { closeWebsocket, connectOnlineStatusWebsocket } from "./functions/websocket";
 import "./functions/defineComponents";
 import "../static/css/index.css";
 
@@ -20,6 +20,11 @@ const router = async () => {
     if (!await hasPermission(matches)) {
         return;
     }
+
+	if (!AbstractView.statusWsCreated && url.startsWith("/home")) {
+		connectOnlineStatusWebsocket();
+	}
+
 
     var view = [];
     if (matches.length > 1) {
@@ -48,6 +53,7 @@ const router = async () => {
 };
 
 function findMatch(url, routes, previousMatches = []) {
+	const regex = /^\d+$/;
     let longestMatch = -1;
     let index = -1;
 
@@ -72,12 +78,18 @@ function findMatch(url, routes, previousMatches = []) {
         if (matchedRoute.children) {
 			return findMatch(newUrl, matchedRoute.children, previousMatches);
         } else {
+			if (previousMatches[previousMatches.length - 1].path === "/profile/" && regex.test(newUrl)) {
+				previousMatches[previousMatches.length - 1].path += newUrl;
+				return previousMatches;
+			}
+
 			if (newUrl.length > 0) {
 				console.error(`Error: Location ${location.pathname} not found`);
 				navigateTo("/home");
 				return -1;
 			}
-            return previousMatches;
+            
+			return previousMatches;
         }
     } else {
 		if (url.length > 0) {

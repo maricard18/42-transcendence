@@ -89,7 +89,7 @@ export default class Pong extends AbstractView {
                 this._gameMode,
                 this._lobbySize
             );
-			console.error("GAME:", this._game);
+			console.warn("GAME:", this._game);
             await startPong(this._game);
         }
     }

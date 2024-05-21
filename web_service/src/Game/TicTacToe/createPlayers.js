@@ -11,8 +11,8 @@ export function createSinglePlayerGameObjects(canvas, lobbySize) {
 
     const player2 =
         lobbySize == 1
-            ? new Cpu({ symbol: "O", info: { username: localStorage.getItem("player2") }})
-            : new Player({ symbol: "O", info: { username: localStorage.getItem("player2") }});
+            ? new Cpu({ symbol: "O", info: { id: -1, username: localStorage.getItem("player2") }})
+            : new Player({ symbol: "O", info: { id: -2, username: localStorage.getItem("player2") }});
 
     return new Game({
 		canvas: canvas,

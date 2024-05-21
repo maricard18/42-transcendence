@@ -15,7 +15,10 @@ import SettingsPage from "./views/SettingsPage.js";
 import Tournament, { TournamentMatchmaking } from "./views/Tournament.js";
 import { Game1, Game2 } from "./components/Games.js";
 import { GameMenuOptions, MultiplayerOptions, SinglePlayerOptions, TournamentOptions } from "./components/GameOptions.js";
+import FriendsPage from "./views/FriendsPage.js";
+import SearchFriends from "./components/SearchFriends.js";
 import TicTacToe from "./views/TicTacToe.js";
+import ProfilePage from "./views/ProfilePage.js";
 
 export const routes = [
     {
@@ -119,6 +122,20 @@ export const routes = [
                 ]
             },
 			{
+                path: "/friends",
+                view: FriendsPage,
+                children: [
+                    {
+                        path: "",
+                        view: SearchFriends,
+                    },
+                ]
+            },
+			{
+                path: "/profile/",
+                view: ProfilePage
+            },
+			{
                 path: "/pong/tournament/creation",
 				view: Tournament
             },
@@ -153,10 +170,6 @@ export const routes = [
 			{
                 path: "/tic-tac-toe/tournament/matchmaking",
 				view: TournamentMatchmaking
-            },
-			{
-                path: "/tic-tac-toe/play/single-player/1",
-				view: TicTacToe
             },
             {
                 path: "/tic-tac-toe/play/single-player/2",

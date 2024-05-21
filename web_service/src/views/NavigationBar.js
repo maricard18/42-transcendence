@@ -131,7 +131,7 @@ export default class NavigationBar extends AbstractView {
 							role="group"
 							aria-label="Vertical button group"
 						>
-							<div class="d-flex flex-row align-items-center mb-3" id="avatar-container">
+							<div class="d-flex flex-row align-items-center mb-3 ms-2" id="avatar-container">
 							${
 								AbstractView.userInfo.avatar
 									? `<img
@@ -145,7 +145,7 @@ export default class NavigationBar extends AbstractView {
 										/>`
 									: `<base-avatar-box size="40"></base-avatar-box>`
 							}
-								<h6 id="nav-bar-username" class="username-text ms-2 mt-1">
+								<h6 id="nav-bar-username" class="username-text ms-3 mt-1" style="font-size: 20px">
 									<b>${AbstractView.userInfo.username ? AbstractView.userInfo.username : "loading ..."}</b>
 								</h6>
 							</div>
@@ -157,6 +157,18 @@ export default class NavigationBar extends AbstractView {
 							></nav-button>
 							<nav-button
 								template="white-button extra-btn-class"
+								page="/home/friends"
+								style="border-radius: 0%"
+								value="Friends"
+							></nav-button>
+							<nav-button
+								template="white-button extra-btn-class"
+								page="/home/profile/${AbstractView.userInfo.id}"
+								style="border-radius: 0%"
+								value="Profile"
+							></nav-button>
+							<nav-button
+								template="secondary-button extra-btn-class"
 								page="/home/settings/account"
 								style="border-radius: 0%"
 								value="Settings"
