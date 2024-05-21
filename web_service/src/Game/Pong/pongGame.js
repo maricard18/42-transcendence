@@ -122,7 +122,7 @@ function multiplayer2GameLoop(game) {
 	return new Promise((resolve) => {
         const playPong = () => {
             if (game.over || !GameWebsocket.ws || !localStorage.getItem("game_status")) {
-				console.log("Left Outside of the game");
+				console.debug("Left Outside of the game");
 				game.over = true;
 				updateScore(game);
 				resolve();
@@ -155,7 +155,7 @@ function multiplayer2GameLoop(game) {
 					game.over = true;
 					sendHostMessage(game);
 					logGameResult("pong", "multi", players);
-					console.log("Left inside of the game");
+					console.debug("Left inside of the game");
 					resolve();
 				}
 				

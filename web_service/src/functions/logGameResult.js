@@ -6,7 +6,7 @@ export default async function logGameResult(game, mode, players) {
 	const playersResultMessage = {};
 
 	for (let [index, player] of players.entries()) {
-		playersInfoMessage[`player_${index + 1}`] = player.id;
+		playersInfoMessage[`player_${index + 1}`] = player.info.id;
 		playersResultMessage[`player_${index + 1}`] = player.score;
 	}
 
@@ -16,8 +16,6 @@ export default async function logGameResult(game, mode, players) {
 		players: playersInfoMessage,
 		results: playersResultMessage
 	}
-
-	console.log("Game Message:", gameMessage);
             
 	const accessToken = await getToken();
 	const headers = {

@@ -151,8 +151,6 @@ export default class ProfilePage extends AbstractView {
 			let friend_id;
 			for (let [index, friendship] of AbstractView.friendships.entries()) {
 				if (id === friendship.id) {
-					console.log("Friendship id:", id);
-					console.log("Friendship:", friendship);
 					friend_id = friendship.friend_id;
 					AbstractView.friendships.splice(index, 1);
 					break ;
@@ -277,7 +275,7 @@ export default class ProfilePage extends AbstractView {
 			gamePlayersAndResultsDiv.appendChild(gameImageDiv);
 
 			const playersDiv = document.createElement("div");
-			playersDiv.setAttribute("class", "d-flex flex-column align-items-start ms-3 mt-4");
+			playersDiv.setAttribute("class", "d-flex flex-column align-items-start w-100 ms-3 mt-4");
 			playersDiv.id= `game-log-${index}`;
 
 			for (let [index, player] of playersInfo.entries()) {
@@ -345,10 +343,12 @@ export default class ProfilePage extends AbstractView {
 			winPercentage = 0;
 		}
 
-		for (let friendship of AbstractView.friendships.values()) {
-			if (friendship.friend_id == this._userId) {
-				this._friendship = friendship;
-				break ;
+		if (AbstractView.friendships) {
+			for (let friendship of AbstractView.friendships.values()) {
+				if (friendship.friend_id == this._userId) {
+					this._friendship = friendship;
+					break ;
+				}
 			}
 		}
 		

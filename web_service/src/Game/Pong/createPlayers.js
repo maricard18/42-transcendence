@@ -250,9 +250,9 @@ export function createMultiPlayer4GameObjects(ctx, lobbySize) {
         });
     }
 
-	console.error("UserInfo:", AbstractView.userInfo);
-	console.error("UserData:", AbstractView.userData);
-	console.error("Players:", player1, player2, player3, player4);
+	console.warn("UserInfo:", AbstractView.userInfo);
+	console.warn("UserData:", AbstractView.userData);
+	console.warn("Players:", player1, player2, player3, player4);
 
     return new Game({
         ctx: ctx,
