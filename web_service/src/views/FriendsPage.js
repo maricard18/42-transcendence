@@ -33,10 +33,14 @@ export default class FriendsPage extends AbstractView {
 		
         for (let [index, friendship] of AbstractView.friendships.entries()) {
             const avataraAndUsernameDiv = document.getElementById(`friend-${friendship.friend_id}`);
-            avataraAndUsernameDiv.addEventListener("click", async () => await navigateTo(`/home/profile/${friendship.friend_id}`));
+			if (avataraAndUsernameDiv) {
+				avataraAndUsernameDiv.addEventListener("click", async () => await navigateTo(`/home/profile/${friendship.friend_id}`));
+			}
 
             const button = document.getElementById(`remove-friendship-${friendship.id}`);
-            button.addEventListener("click", async () => await this.removeFriend(friendship.id));
+			if (button) {
+				button.addEventListener("click", async () => await this.removeFriend(friendship.id));
+			}
         }
     };
 
