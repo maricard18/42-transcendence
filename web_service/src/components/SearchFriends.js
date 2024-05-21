@@ -132,6 +132,7 @@ export default class SearchFriends extends AbstractView {
 
 		if (!this._searchBar) {
 			this._insideRequest = false;
+			await this.loadDOMChanges();
 			return ;
 		}
 
@@ -261,13 +262,13 @@ export default class SearchFriends extends AbstractView {
 		const parentDiv = document.createElement("div");
 		parentDiv.setAttribute("class", "mt-4");
 
-		if (!showAllUsers) {
+		if (!showAllUsers && this._searchBar) {
 			const title = document.createElement("h3");
 			title.setAttribute("class", "d-flex justify-content-start ms-1");
 			title.setAttribute("style", "font-size: 25px; font-weight: bold");
 			if (this._userList.length) {
 				title.innerHTML = `Search results for&nbsp;<u>${this._searchBar}</u>`;
-			} else {
+			} else  {
 				title.innerHTML = `No search results for&nbsp;<u>${this._searchBar}</u>`;
 			}
 			parentDiv.appendChild(title);
