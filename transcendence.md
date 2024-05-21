@@ -51,6 +51,8 @@ users play Pong with others. Must have a nice user interface and real-time multi
 - [ ] `Mandatory` Is the game graphically similar to the original pong?
 - [ ] `Mandatory` Can the users play pong with each other with the same keyboard?
 - [ ] `Mandatory` Are all players playing with the same rules, speed and paddle?
+- [ ] `Mandatory` Is there a a screen with a fast explanation about the game rules?
+- [ ] `Mandatory` When the game is over, there is a end game screen?
 - [ ] `Mandatory` Has the game a tournament system? [Go →](#tournament-system)
 - [ ] `Major Module` Has an **AI Opponent** available to play against the user? [Go →](#ai-algo)                            
 - [ ] `Major Module` Can the user play against a **remote player** on the same game? [Go →](#remote-multiplayer)
@@ -63,9 +65,10 @@ users play Pong with others. Must have a nice user interface and real-time multi
 - [ ] `Major Module` Is possible to use a **Remote Authentication**? [Go →](#remote-authentication)
 
 ### Security
-- [ ] `Mandatory` Uses HTTPS? 
-- [ ] `Mandatory` Are The Credentials, API keys and environment vars on .env?
-- [ ] `Mandatory` Is the password stored hashed if applicable? **⚠ ALERT POINT!**
+- [ ] `Mandatory` Uses HTTPS?
+- [ ] `Mandatory` The backend also Use HTTPS? 
+- [ ] `Mandatory` Are The Credentials, API keys and environment vars on .env? **⚠ ALERT POINT!**
+- [ ] `Mandatory` Is the password stored hashed? **⚠ ALERT POINT!**
 - [ ] `Major Module` Is the **WAF/ModSecurity** protecting the App against attacks? [Go →](#modsecurity)
 - [ ] `Mandatory` Has protection against SQL Injection/XXS? [Go →](#modsecurity)
 - [ ] `Major Module` Are the sensitive App data encrypted and stored on the **HashiCorp Vault**? [Go →](#hashicorp-vault) 
