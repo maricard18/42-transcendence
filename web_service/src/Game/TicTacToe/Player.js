@@ -4,6 +4,8 @@ export class Player {
     constructor({symbol, info}) {
 		this.symbol = symbol;
         this.info = info;
+		this.id = this.info.id;
+		this.username = this.info.username;
 		this.score = 0;
 		this.myTurn = false;
 		this.plays = [];

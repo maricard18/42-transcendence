@@ -15,6 +15,8 @@ export class Player {
         this.keyUp = keyUp;
         this.keyDown = keyDown;
         this.info = info;
+		this.id = this.info.id;
+		this.username = this.info.username;
 		this.initial_x = x;
         this.initial_y = y;
         this.width = PaddleWidth;
@@ -110,6 +112,8 @@ export class InvertedPlayer {
         this.keyRight = keyRight;
         this.keyLeft = keyLeft;
         this.info = info;
+		this.id = this.info.id;
+		this.username = this.info.username;
         this.initial_x = x;
         this.initial_y = y;
         this.width = PaddleHeight;

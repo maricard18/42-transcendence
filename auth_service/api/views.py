@@ -139,7 +139,7 @@ class UserViewSet(viewsets.ViewSet):
         OTP_Token.objects.filter(auth_user=user).delete()
 
         # GDPR Anonymize User
-        user.username = secrets.token_hex()
+        user.username = secrets.token_hex(8)
         user.email = ""
         user.is_active = False
         user.save()

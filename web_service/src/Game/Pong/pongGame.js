@@ -50,17 +50,17 @@ export async function startPong(game) {
 		await gameStartAnimation(game);
 		game.last_time = Date.now();
 		await multiplayer2GameLoop(game);
+		localStorage.removeItem("game_status");
 		closeWebsocket();
 		await gameConfettiAnimation(game);
-		localStorage.removeItem("game_status");
 	} else if (game.mode === "multiplayer" && game.lobbySize == 4) {
 		multiplayerPongMessageHandler(GameWebsocket, game);
 		await gameStartAnimation(game);
 		game.last_time = Date.now();
 		await multiplayer4GameLoop(game);
+		localStorage.removeItem("game_status");
 		closeWebsocket();
 		await gameConfettiAnimation(game);
-		localStorage.removeItem("game_status");
 	} else {
 		await gameStartAnimation(game);
 		game.last_time = Date.now();
@@ -122,17 +122,7 @@ function multiplayer2GameLoop(game) {
 	return new Promise((resolve) => {
         const playPong = () => {
             if (game.over || !GameWebsocket.ws || !localStorage.getItem("game_status")) {
-				if (!game.winner) {
-					game.winner = localStorage.getItem("game_winner");
-					if (game.winner === game.player1.info.username) {
-						game.player1.score = 5;
-						game.player2.score = 0;
-					} else {
-						game.player2.score = 5;
-						game.player1.score = 0;
-					}
-					logGameResult("pong", "multi", [game.player1, game.player2]);
-				}
+				console.log("Left Outside of the game");
 				game.over = true;
 				updateScore(game);
 				resolve();
@@ -165,6 +155,7 @@ function multiplayer2GameLoop(game) {
 					game.over = true;
 					sendHostMessage(game);
 					logGameResult("pong", "multi", players);
+					console.log("Left inside of the game");
 					resolve();
 				}
 				
@@ -189,9 +180,6 @@ function multiplayer4GameLoop(game) {
 	return new Promise((resolve) => {
         const playPong = () => {
             if (game.over || !GameWebsocket.ws || !localStorage.getItem("game_status")) {
-				if (!game.winner) {
-					game.winner = localStorage.getItem("game_winner");
-				}
 				game.over = true;
 				updateScore(game);
 				resolve();

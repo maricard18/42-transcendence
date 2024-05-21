@@ -36,9 +36,9 @@ export async function startTicTacToe(game) {
 		await gameStartAnimation(game);
 		game.last_time = Date.now();
 		await multiplayer2GameLoop(game);
+		localStorage.removeItem("game_status");
 		closeWebsocket();
 		await gameConfettiAnimation(game);
-		localStorage.removeItem("game_status");
 	} else {
 		await gameStartAnimation(game);
 		game.last_time = Date.now();
@@ -84,15 +84,6 @@ function multiplayer2GameLoop(game) {
 	return new Promise((resolve) => {
         const clickHandler = (event) => {
 			if (game.over || !GameWebsocket.ws || !localStorage.getItem("game_status")) {
-				if (!game.winner) {
-					game.winner = localStorage.getItem("game_winner");
-					if (game.winner === game.player1.info.username) {
-						game.player1.score = 1;
-					} else {
-						game.player2.score = 1;
-					}
-					logGameResult("ttt", "multi", [game.player1, game.player2]);
-				}
 				game.over = true;
 				game.last_time = Date.now();
 				game.canvas.removeEventListener("click", clickHandler);
@@ -116,13 +107,6 @@ function multiplayer2GameLoop(game) {
         };
 
 		if (game.over || !GameWebsocket.ws || !localStorage.getItem("game_status")) {
-			game.winner = localStorage.getItem("game_winner");
-			if (game.winner === game.player1.info.username) {
-				game.player1.score = 1;
-			} else {
-				game.player2.score = 1;
-			}
-			logGameResult("ttt", "multi", [game.player1, game.player2]);
 			resolve() ;
 		} else {
 			game.clear();

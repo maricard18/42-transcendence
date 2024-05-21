@@ -6,6 +6,7 @@ import { Cpu, InvertedCpu } from "../Game/Pong/Player";
 import { ScreenSize } from "../Game/TicTacToe/variables";
 import { updateFriendsListOnlineStatus } from "../views/FriendsPage";
 import { getMyFriendships } from "../views/FriendsPage";
+import logGameResult from "./logGameResult";
 
 export var StatusWebsocket = {};
 export var GameWebsocket = {};
@@ -25,7 +26,10 @@ export async function connectOnlineStatusWebsocket() {
 		console.log("Created Status Websocket!")
 		AbstractView.statusWsCreated = true;
 		await getMyFriendships();
-		updateFriendsListOnlineStatus();
+
+		if (!AbstractView.friendList) {
+			updateFriendsListOnlineStatus();
+		}
     };
 
 	StatusWebsocket.ws.onerror = (error) => {
@@ -213,12 +217,19 @@ export function multiplayerTicTacToeMessageHandler(GameWebsocket, game) {
 						AbstractView.userQueue = newState;
 						
 						if (Object.keys(AbstractView.userQueue).length < 2) {
-							console.log("UserData:", AbstractView.userData);
-							for (let data of AbstractView.userData) {
-								if (data.id !== -1) {
-									localStorage.setItem("game_winner", data.username);
+							if (!game.winner) {
+								for (let [index, data] of AbstractView.userData.entries()) {
+									if (data.id !== -1) {
+										game.winner = data.username;
+										localStorage.setItem("game_winner", data.username);
+										game[`player${index + 1}`].score = 1;
+									} else {
+										game[`player${index + 1}`].score = 0;
+									}
 								}
+								logGameResult("ttt", "multi", [game.player1, game.player2]);
 							}
+
 							game.over = true;
                         	closeWebsocket();
 							AbstractView.userData = {};
@@ -305,12 +316,26 @@ export function multiplayerPongMessageHandler(GameWebsocket, game) {
 						AbstractView.userQueue = newState;
 						
 						if (Object.keys(AbstractView.userQueue).length < 2) {
-							console.log("UserData:", AbstractView.userData);
-							for (let data of AbstractView.userData) {
-								if (data.id >= 0) {
-									localStorage.setItem("game_winner", data.username);
+							let players;
+
+							if (!game.winner) {
+								if (game.lobbySize == 4) {
+									players = [game.player1, game.player2, game.player3, game.player4];
+								} else {
+									players = [game.player1, game.player2];
 								}
+
+								for (let [index, data] of AbstractView.userData.entries()) {
+									if (data.id >= 0) {
+										game.winner = data.username;
+										game[`player${index + 1}`].score = 5;
+									} else {
+										game[`player${index + 1}`].score = 0;
+									}
+								}
+								logGameResult("pong", "multi", players);
 							}
+
 							game.over = true;
                         	closeWebsocket();
 							AbstractView.userData = {};

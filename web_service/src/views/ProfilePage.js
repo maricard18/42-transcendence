@@ -87,6 +87,18 @@ export default class ProfilePage extends AbstractView {
 		if (removeFriendIcon) {
 			removeFriendIcon.addEventListener("click", () => { this.removeFriend(this._friendship.id) });
 		}
+
+		for (let [index, match] of this._matchHistory.entries()) {
+			const gameLog = document.getElementById(`game-log-${index}`);
+			if (gameLog) {
+				for (let id of Object.values(match.players)) {
+					const avataraAndUsernameDiv = gameLog.querySelector(`#player-id-${id}`);
+					if (avataraAndUsernameDiv) {
+						avataraAndUsernameDiv.addEventListener("click", async () => await navigateTo(`/home/profile/${id}`));
+					}
+				}
+			}
+		}
 	}
 
 	async addFriend(id) {
@@ -215,7 +227,7 @@ export default class ProfilePage extends AbstractView {
 		const div = document.createElement("div");
 		div.setAttribute("class", "mt-2");
 		div.id = "match-history-list";
-		div.style.maxHeight = "320px";
+		div.style.maxHeight = "340px";
 		div.style.overflowY = "auto";
 		
 		for (let [index, match] of this._matchHistory.entries()) {
@@ -266,11 +278,12 @@ export default class ProfilePage extends AbstractView {
 
 			const playersDiv = document.createElement("div");
 			playersDiv.setAttribute("class", "d-flex flex-column align-items-start ms-3 mt-4");
+			playersDiv.id= `game-log-${index}`;
 
 			for (let [index, player] of playersInfo.entries()) {
 				const avataraAndUsernameDiv = document.createElement("div");
-				avataraAndUsernameDiv.setAttribute("class", `d-flex flex-row align-items-center mt-1 mb-3`);
-				avataraAndUsernameDiv.id = `player${index + 1}`;
+				avataraAndUsernameDiv.setAttribute("class", `d-flex flex-row align-items-center pointer mt-1 mb-3`);
+				avataraAndUsernameDiv.id = `player-id-${player.id}`;
 				
 				if (player.avatar) {
 					const img = document.createElement("img");

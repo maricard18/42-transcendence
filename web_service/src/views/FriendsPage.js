@@ -118,7 +118,6 @@ export default class FriendsPage extends AbstractView {
 		div.style.maxHeight = "360px";
 		div.style.overflowY = "auto";
 		
-		console.log("Friend List:", AbstractView.friendships);
 		for (let [index, friendship] of AbstractView.friendships.entries()) {
 			const friendInfo = await getUserInfo(accessToken, friendship.friend_id);
 
@@ -261,7 +260,6 @@ export function updateFriendOnlineStatus(id, action = null) {
 	}
 
 	const parentDiv = document.getElementById(`online-status-info-${id}`);
-	console.log("Parent:", parentDiv);
 	if (parentDiv && action === "disconnected") {
 		const circle = parentDiv.querySelector("span");
 		if (circle.classList.contains("online-sm")) {
