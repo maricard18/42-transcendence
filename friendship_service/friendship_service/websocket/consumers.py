@@ -21,7 +21,6 @@ class BearerAuth(requests.auth.AuthBase):
 
 class FriendshipConsumer(JsonWebsocketConsumer):
     def get_friendship_list(self, auth: str) -> Union[list, None]:
-
         cert_path = os.environ.get("SSL_CERT_PATH") + os.environ.get("SSL_CERT_FILE")
         response = requests.get(
             "https://modsecurity-dev:8443/api/friendships",
@@ -31,18 +30,6 @@ class FriendshipConsumer(JsonWebsocketConsumer):
         if response.status_code == 200:
             return response.json()
         return None
-
-    def send_user_connected(self, user_id):
-        async_to_sync(self.channel_layer.group_send)(
-            self.room_group_name,
-            {
-                "type": "system.message",
-                "data": {
-                    "message": "user.connected",
-                    "user_id": user_id
-                }
-            }
-        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -55,7 +42,17 @@ class FriendshipConsumer(JsonWebsocketConsumer):
             self.room_group_name, self.channel_name
         )
         self.accept("Authorization")
-        self.send_user_connected(self.scope["user"])
+        async_to_sync(self.channel_layer.group_send)(
+            self.room_group_name,
+            {
+                "type": "system.message",
+                "data": {
+                    "message": "user.connected",
+                    "user_id": self.scope["user"]
+                }
+            }
+        )
+
         self.friendships = [friendship.get('friend_id') for friendship in self.get_friendship_list(self.scope["auth"])]
         for friend_id in self.friendships:
             if friend_id in FriendshipMiddleware.connected:
@@ -105,7 +102,7 @@ class FriendshipConsumer(JsonWebsocketConsumer):
     def user_message(self, event):
         if event["channel_name"] == self.channel_name:
             message = event["data"]["message"]
-            friend_id = event["data"]["friend_id"]
+            friend_id = int(event["data"]["friend_id"])
             if message == "friendship.created":
                 self.friendships.append(friend_id)
                 if friend_id in FriendshipMiddleware.connected:
@@ -117,15 +114,8 @@ class FriendshipConsumer(JsonWebsocketConsumer):
                         }
                     }))
             elif message == "friendship.destroyed":
-                self.friendships.remove(friend_id)
-                if friend_id in FriendshipMiddleware.connected:
-                    self.send(text_data=json.dumps({
-                        "type": "system.message",
-                        "data": {
-                            "message": "user.disconnected",
-                            "user_id": friend_id
-                        }
-                    }))
+                if friend_id in self.friendships:
+                    self.friendships.remove(friend_id)
 
     def system_message(self, event):
         if event["data"]["user_id"] in self.friendships:
