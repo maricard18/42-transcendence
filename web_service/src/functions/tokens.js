@@ -55,7 +55,7 @@ export async function setToken(response) {
 
 export async function refreshToken() {
     const refreshToken = Cookies.get("refresh_token");
-    if (!refreshToken) {
+    if (!refreshToken || (refreshToken && refreshToken === "undefined")) {
         if (location.pathname.startsWith("/home")) {
             console.error("Error: refresh_token doesn't exist");
             logout();
@@ -86,7 +86,7 @@ export async function refreshToken() {
 export async function getToken() {
     const accessToken = Cookies.get("access_token");
 
-    if (accessToken) {
+    if (accessToken && accessToken !== "undefined") {
         return accessToken;
     } else {
         await refreshToken();
