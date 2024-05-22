@@ -1,66 +1,159 @@
-#! /bin/sh
+#!/bin/sh
 
-set -ex
-apk add jq
+set -euo pipefail
 
-APP_NAME=transcendence
-INIT_FILE=/vault/keys/vault.init
-APP_INIT_FILE=/vault/${APP_NAME}/${APP_NAME}.init
+apk add --no-cache jq openssl
 
-if [[ -f "${INIT_FILE}" ]]; then
-    echo "${INIT_FILE} exists. Vault already initialized."
+create_approle() {
+  echo "Creating $1 Approle..."
+  vault write auth/approle/role/"$1" token_policies="$1" token_ttl=2h token_max_ttl=6h
+  vault read auth/approle/role/"$1"
+
+  # Fetching and storing the role-id
+  ROLE_ID_OUTPUT=$(vault read auth/approle/role/"$1"/role-id)
+  echo "$ROLE_ID_OUTPUT"
+  echo ""
+  echo "$ROLE_ID_OUTPUT" | grep "role_id" | awk 'NR == 1 {print $2}' > /vault/"$1"/role-id
+
+  # Fetching and storing the secret-id
+  SECRET_ID_OUTPUT=$(vault write -force auth/approle/role/"$1"/secret-id)
+  echo "$SECRET_ID_OUTPUT"
+  echo ""
+  echo "$SECRET_ID_OUTPUT" | grep "secret_id" | awk 'NR == 1 {print $2}' > /vault/"$1"/secret-id
+  echo "$1 Approle creation complete."
+}
+
+VAULT_INIT_FILE="/vault/keys/vault.init"
+
+echo ""
+echo "Initializing Vault..."
+if [ -f "${VAULT_INIT_FILE}" ]; then
+    echo "Vault already initialized."
+    echo ""
 else
-  echo "Initializing Vault..."
-  sleep 5
-  vault operator init -key-shares=3 -key-threshold=2 | tee ${INIT_FILE} > /dev/null
-  ### Store unseal keys to files
-  COUNTER=1
-  cat ${INIT_FILE} | grep '^Unseal' | awk '{print $4}' | for key in $(cat -); do
-    echo "${key}" > /vault/keys/key-${COUNTER}
-    COUNTER=$((COUNTER + 1))
-  done
-  ### Store Root Key to file
-  cat ${INIT_FILE}| grep '^Initial Root Token' | awk '{print $4}' | tee /vault/root/token > /dev/null
-  echo "Vault setup complete."
+    vault operator init -key-shares=3 -key-threshold=2 | tee "${VAULT_INIT_FILE}" > /dev/null
+
+    # Store unseal keys to files
+    COUNTER=1
+    grep '^Unseal' "${VAULT_INIT_FILE}" | awk '{print $4}' | while read -r key; do
+        echo "${key}" > "/vault/keys/key-${COUNTER}"
+        COUNTER=$((COUNTER + 1))
+    done
+
+    # Store Root Token to file
+    grep '^Initial Root Token' "${VAULT_INIT_FILE}" | awk '{print $4}' > /vault/root/token
+
+    echo "Vault initialization complete."
+    echo ""
 fi
 
-if [ ! -s /vault/root/token -o ! -s /vault/keys/key-1 -o ! -s /vault/keys/key-2 ] ; then
-    echo "Vault is initialized, but unseal keys or token are missing"
-    return 1
+# Check if all necessary files are present
+if [ ! -s /vault/root/token ] || [ ! -s /vault/keys/key-1 ] || [ ! -s /vault/keys/key-2 ]; then
+    echo "Vault initialized, but unseal keys or token are missing."
+    exit 1
 fi
-echo "Unsealing Vault"
+
+# Check Vault seal status
+echo "Unsealing Vault..."
 export VAULT_TOKEN=$(cat /vault/root/token)
-vault operator unseal "$(cat /vault/keys/key-1)"
-vault operator unseal "$(cat /vault/keys/key-2)"
-
-vault status | grep "^Version" | awk '{print $2}' | tee /vault/${APP_NAME}/version > /dev/null
-
-if [[ -f "${APP_INIT_FILE}" ]]; then
-    echo "${APP_INIT_FILE} exists. Vault already initialized for ${APP_NAME}."
+echo "${VAULT_TOKEN}"
+if vault_status=$(vault status -format=json); then
+    echo "Vault already unsealed."
+    echo ""
 else
-    echo "Enabling Secrets Engine for ${APP_NAME}..."
-    vault secrets enable -path=${APP_NAME} kv-v2
+    if echo "${vault_status}" | jq -e '.sealed' | grep -q 'true'; then
+        vault operator unseal "$(cat /vault/keys/key-1)"
+        vault operator unseal "$(cat /vault/keys/key-2)"
+        echo "Vault unsealing complete."
+        echo ""
+    else
+        echo "${vault_status}"
+        exit 1
+    fi
+fi
 
-    vault secrets enable transit
-    vault write -f transit/keys/${APP_NAME}
+PROJECT_NAME="transcendence"
+PROJECT_INIT_FILE="/vault/${PROJECT_NAME}/.init"
 
-    echo "Creating ${APP_NAME} Policy..."
-    vault policy write ${APP_NAME} /vault/policies/${APP_NAME}.hcl
+echo "Initializing Project ${PROJECT_NAME}..."
+if [ -f "${PROJECT_INIT_FILE}" ]; then
+    echo "Project ${PROJECT_NAME} already initialized."
+    echo ""
+else
+    echo "Creating ${PROJECT_NAME} Policy..."
+    vault policy write "${PROJECT_NAME}" "/vault/policies/${PROJECT_NAME}.hcl"
+    echo "${PROJECT_NAME} Policy created."
+
+    echo "Enabling CORS for Vault..."
+    vault write sys/config/cors allowed_origins="*" allowed_headers="*" allowed_methods="GET,POST,PUT,DELETE,OPTIONS"
+    echo "CORS for Vault enabled..."
 
     echo "Enabling AppRole Auth Backend..."
     vault auth enable approle
+    echo "AppRole Auth Backend enabled."
 
-    echo "Creating ${APP_NAME} Approle Auth Backend..."
-    vault write auth/approle/role/${APP_NAME} token_policies=${APP_NAME} token_ttl=2h token_max_ttl=6h
-    vault read auth/approle/role/${APP_NAME}
-    vault read auth/approle/role/${APP_NAME}/role-id | grep "role_id" | awk '{print $2}' | tee /vault/${APP_NAME}/${APP_NAME}-role-id > /dev/null
-    vault write -force auth/approle/role/${APP_NAME}/secret-id | grep "secret_id" | awk '{print $2}' | head -n 1 | tee /vault/${APP_NAME}/${APP_NAME}-secret-id > /dev/null
+    create_approle "${PROJECT_NAME}"
 
-    vault write sys/config/cors allowed_origins="*" allowed_headers="*" allowed_methods="GET,POST,PUT,DELETE,OPTIONS"
+    echo "Enabling Secrets Engine for ${PROJECT_NAME}..."
+    vault secrets enable -path="${PROJECT_NAME}" kv-v2
+    vault secrets enable transit
+    vault write -f transit/keys/"${PROJECT_NAME}"
+    echo "Secrets Engine for ${PROJECT_NAME} enabled."
 
-    vault kv put -mount=${APP_NAME} django-secret key=$(tr -dc 'A-Za-z0-9!#$%&*_+-' </dev/urandom | head -c 32; echo)
-    vault kv put -mount=${APP_NAME} jwt-signing-key key=$(tr -dc 'A-Za-z0-9!#$%&*_+-' </dev/urandom | head -c 32; echo)
+    echo "Adding jwt-signing-key to ${PROJECT_NAME}..."
+    vault kv put -mount="${PROJECT_NAME}" jwt-signing-key key="$(openssl rand -base64 32)"
+    echo "jwt-signing-key added to ${PROJECT_NAME}..."
 
-    echo "${APP_NAME} Approle creation complete."
-    touch ${APP_INIT_FILE}
+    touch "${PROJECT_INIT_FILE}"
+    echo "Project ${PROJECT_NAME} initialization complete."
+    echo ""
 fi
+
+# Loop through entities and initialize them
+for entity in $VAULT_APPROLE_ENTITIES; do
+    APP_NAME="$entity"
+    APP_INIT_FILE="/vault/${APP_NAME}/.init"
+
+    echo "Initializing Entity ${APP_NAME}..."
+    mkdir -p /vault/"${APP_NAME}"
+    if [ -f "${APP_INIT_FILE}" ]; then
+        echo "Entity ${APP_NAME} already initialized."
+        echo ""
+    else
+        echo "Creating ${APP_NAME} Policy..."
+        vault policy write "${APP_NAME}" "/vault/policies/${APP_NAME}.hcl"
+        echo "${APP_NAME} Policy created."
+
+        create_approle "${APP_NAME}"
+
+        echo "Enabling Secrets Engine for ${APP_NAME}..."
+        vault secrets enable -path="${APP_NAME}" kv-v2
+        echo "Secrets Engine for ${APP_NAME} enabled."
+
+        echo "Adding django-secret to ${APP_NAME}..."
+        vault kv put -mount="${APP_NAME}" django-secret key="$(openssl rand -base64 32)"
+        echo "django-secret added to ${APP_NAME}."
+
+        echo "Adding postgres-db to ${APP_NAME}..."
+        vault kv put -mount="${APP_NAME}" postgres-db key="${PROJECT_NAME}"
+        echo "postgres-db added to ${APP_NAME}."
+
+        echo "Adding postgres-user to ${APP_NAME}..."
+        vault kv put -mount="${APP_NAME}" postgres-user key="${APP_NAME}"
+        echo "postgres-user added to ${APP_NAME}."
+
+        echo "Adding postgres-password to ${APP_NAME}..."
+        vault kv put -mount="${APP_NAME}" postgres-password key="$(openssl rand -base64 32)"
+        echo "postgres-password added to ${APP_NAME}."
+
+        if [ "${APP_NAME}" = "auth_service" ]; then
+            echo "Adding sso-42-client-secret to ${APP_NAME}..."
+            vault kv put -mount="${APP_NAME}" sso-sso-sso-42-client-secret key="$(cat "$SSO_42_CLIENT_SECRET_FILE")"
+            echo "sso-42-client-secret added to ${APP_NAME}..."
+        fi
+
+        touch "${APP_INIT_FILE}"
+        echo "Entity ${APP_NAME} initialization complete."
+        echo ""
+    fi
+done

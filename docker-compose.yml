@@ -1,29 +1,38 @@
-version: '3.8'
 services:
   auth_service-postgres-dev:
-    image: postgres:13-alpine3.18
+    build:
+      context: postgres/
     user: postgres
     environment:
       POSTGRES_HOST_FILE: /run/secrets/auth_service-postgres_host
-      POSTGRES_DB_FILE: /run/secrets/auth_service-postgres_db
-      POSTGRES_USER_FILE: /run/secrets/auth_service-postgres_user
-      POSTGRES_PASSWORD_FILE: /run/secrets/auth_service-postgres_password
+      VAULT_ADDR: https://vault_service-dev:8200
+      VAULT_MOUNT: auth_service
+      VAULT_SKIP_VERIFY: true
+      VAULT_CACERT: ${SSL_CERT_PATH}${SSL_CERT_FILE}
+      VAULT_ROLE_ID_FILE: /vault/auth_service/role-id
+      VAULT_SECRET_ID_FILE: /vault/auth_service/secret-id
     secrets:
       - auth_service-postgres_host
-      - auth_service-postgres_db
-      - auth_service-postgres_user
-      - auth_service-postgres_password
     expose:
       - "5432"
     networks:
       - transcendence-dev
     volumes:
       - auth_service-postgres_data-dev:/var/lib/postgresql/data/:rw
+      - ssl_cert_data-dev:${SSL_CERT_PATH}:ro
+      - vault_services-auth_service-data-dev:/vault/auth_service/:ro
     healthcheck:
-      test: [ "CMD-SHELL", 'pg_isready -h "$(cat $POSTGRES_HOST_FILE)" -U "$(cat $POSTGRES_USER_FILE)" -d "$(cat $POSTGRES_DB_FILE)"' ]
+      test: [ "CMD-SHELL", "docker-healthcheck.sh" ]
       interval: 5s
-      start_period: 5s
+      start_period: 10s
       retries: 5
+    depends_on:
+      vault_service-init-dev:
+        condition: service_started
+      vault_service-dev:
+        condition: service_healthy
+    cap_add:
+      - IPC_LOCK
     profiles: [ "", "auth_service" ]
     restart: always
 
@@ -33,24 +42,15 @@ services:
       target: dev
     environment:
       POSTGRES_HOST_FILE: /run/secrets/auth_service-postgres_host
-      POSTGRES_DB_FILE: /run/secrets/auth_service-postgres_db
-      POSTGRES_USER_FILE: /run/secrets/auth_service-postgres_user
-      POSTGRES_PASSWORD_FILE: /run/secrets/auth_service-postgres_password
-      SSO_42_CLIENT_SECRET_FILE: /run/secrets/sso_42_client_secret
       SSO_42_CLIENT_ID: ${SSO_42_CLIENT_ID}
       SSO_42_REDIRECT_URI: ${SSO_42_REDIRECT_URI}
       DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
       VAULT_ADDR: https://modsecurity-dev:8200
-      VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
-      VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
-      SSL_CERT_PATH: ${SSL_CERT_PATH}
-      SSL_CERT_FILE: ${SSL_CERT_FILE}
+      VAULT_ROLE_ID_FILE: /vault/auth_service/role-id
+      VAULT_SECRET_ID_FILE: /vault/auth_service/secret-id
+      SSL_CERT_PATH: ${SSL_CERT_PATH}${SSL_CERT_FILE}
     secrets:
       - auth_service-postgres_host
-      - auth_service-postgres_db
-      - auth_service-postgres_user
-      - auth_service-postgres_password
-      - sso_42_client_secret
     expose:
       - "8000"
     networks:
@@ -59,7 +59,7 @@ services:
       - ./auth_service/:/app/:ro
       - media_data-dev:/app/media/:rw
       - ssl_cert_data-dev:${SSL_CERT_PATH}:ro
-      - vault_services_data-dev:/vault/transcendence/:ro
+      - vault_services-auth_service-data-dev:/vault/auth_service/:ro
     depends_on:
       auth_service-postgres-dev:
         condition: service_healthy
@@ -75,28 +75,52 @@ services:
     restart: on-failure
 
   game_service-postgres-dev:
-    image: postgres:13-alpine3.18
+    build:
+      context: postgres/
     user: postgres
     environment:
       POSTGRES_HOST_FILE: /run/secrets/game_service-postgres_host
-      POSTGRES_DB_FILE: /run/secrets/game_service-postgres_db
-      POSTGRES_USER_FILE: /run/secrets/game_service-postgres_user
-      POSTGRES_PASSWORD_FILE: /run/secrets/game_service-postgres_password
+      VAULT_ADDR: https://vault_service-dev:8200
+      VAULT_MOUNT: game_service
+      VAULT_SKIP_VERIFY: true
+      VAULT_CACERT: ${SSL_CERT_PATH}${SSL_CERT_FILE}
+      VAULT_ROLE_ID_FILE: /vault/game_service/role-id
+      VAULT_SECRET_ID_FILE: /vault/game_service/secret-id
     secrets:
       - game_service-postgres_host
-      - game_service-postgres_db
-      - game_service-postgres_user
-      - game_service-postgres_password
     expose:
       - "5432"
     networks:
       - transcendence-dev
     volumes:
       - game_service-postgres_data-dev:/var/lib/postgresql/data/:rw
+      - ssl_cert_data-dev:${SSL_CERT_PATH}:ro
+      - vault_services-game_service-data-dev:/vault/game_service/:ro
     healthcheck:
-      test: [ "CMD-SHELL", 'pg_isready -h "$(cat $POSTGRES_HOST_FILE)" -U "$(cat $POSTGRES_USER_FILE)" -d "$(cat $POSTGRES_DB_FILE)"' ]
+      test: [ "CMD-SHELL", "docker-healthcheck.sh" ]
       interval: 5s
-      start_period: 5s
+      start_period: 10s
+      retries: 5
+    depends_on:
+      vault_service-init-dev:
+        condition: service_started
+      vault_service-dev:
+        condition: service_healthy
+    cap_add:
+      - IPC_LOCK
+    profiles: [ "", "game_service" ]
+    restart: always
+
+  game_service-redis-dev:
+    image: redis:7.2-alpine3.18
+    expose:
+      - "6379"
+    networks:
+      - transcendence-dev
+    healthcheck:
+      test: [ "CMD-SHELL", 'redis-cli ping || exit 1' ]
+      interval: 5s
+      start_period: 10s
       retries: 5
     profiles: [ "", "game_service" ]
     restart: always
@@ -106,23 +130,16 @@ services:
       context: game_service/
       target: dev
     environment:
-      REDIS_HOST: game_service-redis_service-dev
+      REDIS_HOST: game_service-redis-dev
       REDIS_PORT: 6379
       POSTGRES_HOST_FILE: /run/secrets/game_service-postgres_host
-      POSTGRES_DB_FILE: /run/secrets/game_service-postgres_db
-      POSTGRES_USER_FILE: /run/secrets/game_service-postgres_user
-      POSTGRES_PASSWORD_FILE: /run/secrets/game_service-postgres_password
       DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
       VAULT_ADDR: https://modsecurity-dev:8200
-      VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
-      VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
-      SSL_CERT_PATH: ${SSL_CERT_PATH}
-      SSL_CERT_FILE: ${SSL_CERT_FILE}
+      VAULT_ROLE_ID_FILE: /vault/game_service/role-id
+      VAULT_SECRET_ID_FILE: /vault/game_service/secret-id
+      SSL_CERT_PATH: ${SSL_CERT_PATH}${SSL_CERT_FILE}
     secrets:
       - game_service-postgres_host
-      - game_service-postgres_db
-      - game_service-postgres_user
-      - game_service-postgres_password
     expose:
       - "8000"
     networks:
@@ -131,13 +148,13 @@ services:
       - ./game_service/:/app/:ro
       - media_data-dev:/app/media/:rw
       - ssl_cert_data-dev:${SSL_CERT_PATH}:ro
-      - vault_services_data-dev:/vault/transcendence/:ro
+      - vault_services-game_service-data-dev:/vault/game_service/:ro
     depends_on:
       game_service-postgres-dev:
         condition: service_healthy
       game_service-db_migrations-dev:
         condition: service_completed_successfully
-      game_service-redis_service-dev:
+      game_service-redis-dev:
         condition: service_healthy
       modsecurity-dev:
         condition: service_started
@@ -149,28 +166,52 @@ services:
     restart: on-failure
 
   friendship_service-postgres-dev:
-    image: postgres:13-alpine3.18
+    build:
+      context: postgres/
     user: postgres
     environment:
       POSTGRES_HOST_FILE: /run/secrets/friendship_service-postgres_host
-      POSTGRES_DB_FILE: /run/secrets/friendship_service-postgres_db
-      POSTGRES_USER_FILE: /run/secrets/friendship_service-postgres_user
-      POSTGRES_PASSWORD_FILE: /run/secrets/friendship_service-postgres_password
+      VAULT_ADDR: https://vault_service-dev:8200
+      VAULT_MOUNT: friendship_service
+      VAULT_SKIP_VERIFY: true
+      VAULT_CACERT: ${SSL_CERT_PATH}${SSL_CERT_FILE}
+      VAULT_ROLE_ID_FILE: /vault/friendship_service/role-id
+      VAULT_SECRET_ID_FILE: /vault/friendship_service/secret-id
     secrets:
       - friendship_service-postgres_host
-      - friendship_service-postgres_db
-      - friendship_service-postgres_user
-      - friendship_service-postgres_password
     expose:
       - "5432"
     networks:
       - transcendence-dev
     volumes:
       - friendship_service-postgres_data-dev:/var/lib/postgresql/data/:rw
+      - ssl_cert_data-dev:${SSL_CERT_PATH}:ro
+      - vault_services-friendship_service-data-dev:/vault/friendship_service/:ro
     healthcheck:
-      test: [ "CMD-SHELL", 'pg_isready -h "$(cat $POSTGRES_HOST_FILE)" -U "$(cat $POSTGRES_USER_FILE)" -d "$(cat $POSTGRES_DB_FILE)"' ]
+      test: [ "CMD-SHELL", "docker-healthcheck.sh" ]
       interval: 5s
-      start_period: 5s
+      start_period: 10s
+      retries: 5
+    depends_on:
+      vault_service-init-dev:
+        condition: service_started
+      vault_service-dev:
+        condition: service_healthy
+    cap_add:
+      - IPC_LOCK
+    profiles: [ "", "friendship_service" ]
+    restart: always
+
+  friendship_service-redis-dev:
+    image: redis:7.2-alpine3.18
+    expose:
+      - "6379"
+    networks:
+      - transcendence-dev
+    healthcheck:
+      test: [ "CMD-SHELL", 'redis-cli ping || exit 1' ]
+      interval: 5s
+      start_period: 10s
       retries: 5
     profiles: [ "", "friendship_service" ]
     restart: always
@@ -180,23 +221,16 @@ services:
       context: friendship_service/
       target: dev
     environment:
-      REDIS_HOST: friendship_service-redis_service-dev
+      REDIS_HOST: friendship_service-redis-dev
       REDIS_PORT: 6379
       POSTGRES_HOST_FILE: /run/secrets/friendship_service-postgres_host
-      POSTGRES_DB_FILE: /run/secrets/friendship_service-postgres_db
-      POSTGRES_USER_FILE: /run/secrets/friendship_service-postgres_user
-      POSTGRES_PASSWORD_FILE: /run/secrets/friendship_service-postgres_password
       DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
       VAULT_ADDR: https://modsecurity-dev:8200
-      VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
-      VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
-      SSL_CERT_PATH: ${SSL_CERT_PATH}
-      SSL_CERT_FILE: ${SSL_CERT_FILE}
+      VAULT_ROLE_ID_FILE: /vault/friendship_service/role-id
+      VAULT_SECRET_ID_FILE: /vault/friendship_service/secret-id
+      SSL_CERT_PATH: ${SSL_CERT_PATH}${SSL_CERT_FILE}
     secrets:
       - friendship_service-postgres_host
-      - friendship_service-postgres_db
-      - friendship_service-postgres_user
-      - friendship_service-postgres_password
     expose:
       - "8000"
     networks:
@@ -205,13 +239,13 @@ services:
       - ./friendship_service/:/app/:ro
       - media_data-dev:/app/media/:rw
       - ssl_cert_data-dev:${SSL_CERT_PATH}:ro
-      - vault_services_data-dev:/vault/transcendence/:ro
+      - vault_services-friendship_service-data-dev:/vault/friendship_service/:ro
     depends_on:
       friendship_service-postgres-dev:
         condition: service_healthy
       friendship_service-db_migrations-dev:
         condition: service_completed_successfully
-      friendship_service-redis_service-dev:
+      friendship_service-redis-dev:
         condition: service_healthy
       modsecurity-dev:
         condition: service_started
@@ -239,10 +273,8 @@ services:
       FRIENDSHIP_SERVICE_ADDR: http://friendship_service-dev:8000
       VAULT_SERVICE_ADDR: https://vault_service-dev:8200
       NGINX_ALWAYS_SSL_REDIRECT: on
-      SSL_CERT_PATH: ${SSL_CERT_PATH}
-      SSL_CERT_FILE: ${SSL_CERT_FILE}
-      SSL_CERT_KEY_PATH: ${SSL_CERT_KEY_PATH}
-      SSL_CERT_KEY_FILE: ${SSL_CERT_KEY_FILE}
+      SSL_CERT_PATH: ${SSL_CERT_PATH}${SSL_CERT_FILE}
+      SSL_CERT_KEY_PATH: ${SSL_CERT_KEY_PATH}${SSL_CERT_KEY_FILE}
       VAULT_PORT: 8200
       SSL_PORT: 8443
       PORT: 8080
@@ -266,35 +298,7 @@ services:
       - ssl_cert_data-dev:${SSL_CERT_PATH}:rw
       - ssl_cert_key_data-dev:${SSL_CERT_KEY_PATH}:rw
       - telegraf_data-dev:/var/log/telegraf/:rw
-    profiles: [ "", "auth_service", "game_service", "friendship_service", "web_service", "monitoring_service" ]
-    restart: on-failure
-
-  game_service-redis_service-dev:
-    image: redis:7.2-alpine3.18
-    expose:
-      - "6379"
-    networks:
-      - transcendence-dev
-    healthcheck:
-      test: [ "CMD-SHELL", 'redis-cli ping || exit 1' ]
-      interval: 5s
-      start_period: 5s
-      retries: 5
-    profiles: [ "", "game_service" ]
-    restart: on-failure
-
-  friendship_service-redis_service-dev:
-    image: redis:7.2-alpine3.18
-    expose:
-      - "6379"
-    networks:
-      - transcendence-dev
-    healthcheck:
-      test: [ "CMD-SHELL", 'redis-cli ping || exit 1' ]
-      interval: 5s
-      start_period: 5s
-      retries: 5
-    profiles: [ "", "friendship_service" ]
+    profiles: [ "", "auth_service", "game_service", "friendship_service", "web_service" ]
     restart: on-failure
 
   vault_service-dev:
@@ -302,10 +306,8 @@ services:
       context: vault/
       target: service
       args:
-        - SSL_CERT_PATH
-        - SSL_CERT_FILE
-        - SSL_CERT_KEY_PATH
-        - SSL_CERT_KEY_FILE
+        SSL_CERT_PATH: ${SSL_CERT_PATH}${SSL_CERT_FILE}
+        SSL_CERT_KEY_PATH: ${SSL_CERT_KEY_PATH}${SSL_CERT_KEY_FILE}
     environment:
       VAULT_SKIP_VERIFY: true
     expose:
@@ -318,7 +320,7 @@ services:
     healthcheck:
       test: [ "CMD-SHELL", 'vault status' ]
       interval: 5s
-      start_period: 5s
+      start_period: 10s
       retries: 5
     depends_on:
       modsecurity-dev:
@@ -347,8 +349,8 @@ services:
     build:
       context: monitoring/alertmanager/
       args:
-        SLACK_ALERTMANAGER_WEBHOOK: ${SLACK_ALERTMANAGER_WEBHOOK}
-        SLACK_ALERTMANAGER_CHANNEL: ${SLACK_ALERTMANAGER_CHANNEL}
+        - SLACK_ALERTMANAGER_WEBHOOK
+        - SLACK_ALERTMANAGER_CHANNEL
     command: [ '--config.file=/etc/alertmanager/alert.yml' ]
     networks:
       - transcendence-dev
@@ -362,9 +364,9 @@ services:
         PROMETHEUS_ADDR: prometheus-dev:9090
         TELEGRAF_ADDR: telegraf-dev:9125
         ALERTMANAGER_ADDR: alertmanager-dev:9093
-    command: [ "--config.file=/etc/prometheus/prometheus.yml" ]
     user: root
     privileged: true
+    command: [ "--config.file=/etc/prometheus/prometheus.yml" ]
     ports:
       - "9090:9090"
     networks:
@@ -379,6 +381,10 @@ services:
       context: monitoring/grafana/
       args:
         PROMETHEUS_URL: http://prometheus-dev:9090
+        SSL_CERT_PATH: ${SSL_CERT_PATH}
+        SSL_CERT_FILE: ${SSL_CERT_FILE}
+        SSL_CERT_KEY_PATH: ${SSL_CERT_KEY_PATH}
+        SSL_CERT_KEY_FILE: ${SSL_CERT_KEY_FILE}
     environment:
       GF_SECURITY_ADMIN_USER__FILE: /run/secrets/grafana_username
       GF_SECURITY_ADMIN_PASSWORD__FILE: /run/secrets/grafana_password
@@ -397,12 +403,17 @@ services:
 
   ############# TOOLS #############
   vault_service-init-dev:
-    image: hashicorp/vault:1.13.3
-    entrypoint: [ "/bin/sh", "/vault/scripts/init.sh"]
+    build:
+      context: vault/
+      target: init
     environment:
       VAULT_ADDR: https://vault_service-dev:8200
       VAULT_SKIP_VERIFY: true
       VAULT_CACERT: ${SSL_CERT_PATH}${SSL_CERT_FILE}
+      VAULT_APPROLE_ENTITIES: auth_service game_service friendship_service
+      SSO_42_CLIENT_SECRET_FILE: /run/secrets/sso_42_client_secret
+    secrets:
+      - sso_42_client_secret
     networks:
       - transcendence-dev
     volumes:
@@ -411,10 +422,15 @@ services:
       - ssl_cert_data-dev:${SSL_CERT_PATH}:ro
       - vault_keys_data-dev:/vault/keys/:rw
       - vault_root_data-dev:/vault/root/:rw
-      - vault_services_data-dev:/vault/transcendence/:rw
+      - vault_services-project-data-dev:/vault/transcendence/:rw
+      - vault_services-auth_service-data-dev:/vault/auth_service/:rw
+      - vault_services-game_service-data-dev:/vault/game_service/:rw
+      - vault_services-friendship_service-data-dev:/vault/friendship_service/:rw
+      - vault_services-web_service-data-dev:/vault/web_service/:rw
     depends_on:
       vault_service-dev:
         condition: service_started
+    restart: no
 
   auth_service-db_migrations-dev:
     build:
@@ -422,25 +438,18 @@ services:
       target: tools
     environment:
       POSTGRES_HOST_FILE: /run/secrets/auth_service-postgres_host
-      POSTGRES_DB_FILE: /run/secrets/auth_service-postgres_db
-      POSTGRES_USER_FILE: /run/secrets/auth_service-postgres_user
-      POSTGRES_PASSWORD_FILE: /run/secrets/auth_service-postgres_password
       VAULT_ADDR: https://modsecurity-dev:8200
-      VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
-      VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
-      SSL_CERT_PATH: ${SSL_CERT_PATH}
-      SSL_CERT_FILE: ${SSL_CERT_FILE}
+      VAULT_ROLE_ID_FILE: /vault/auth_service/role-id
+      VAULT_SECRET_ID_FILE: /vault/auth_service/secret-id
+      SSL_CERT_PATH: ${SSL_CERT_PATH}${SSL_CERT_FILE}
     secrets:
       - auth_service-postgres_host
-      - auth_service-postgres_db
-      - auth_service-postgres_user
-      - auth_service-postgres_password
     entrypoint: [ "/bin/sh", "/app/tools/db-migrations.sh" ]
     networks:
       - transcendence-dev
     volumes:
       - ssl_cert_data-dev:${SSL_CERT_PATH}:ro
-      - vault_services_data-dev:/vault/transcendence/:ro
+      - vault_services-auth_service-data-dev:/vault/auth_service/:ro
     depends_on:
       auth_service-postgres-dev:
         condition: service_healthy
@@ -449,6 +458,7 @@ services:
       vault_service-dev:
         condition: service_healthy
     profiles: [ "", "auth_service", "tools" ]
+    restart: no
 
   auth_service-collectstatic-dev:
     build:
@@ -456,10 +466,9 @@ services:
       target: tools
     environment:
       VAULT_ADDR: https://modsecurity-dev:8200
-      VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
-      VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
-      SSL_CERT_PATH: ${SSL_CERT_PATH}
-      SSL_CERT_FILE: ${SSL_CERT_FILE}
+      VAULT_ROLE_ID_FILE: /vault/auth_service/role-id
+      VAULT_SECRET_ID_FILE: /vault/auth_service/secret-id
+      SSL_CERT_PATH: ${SSL_CERT_PATH}${SSL_CERT_FILE}
     entrypoint: [ "python3", "/app/manage.py", "collectstatic", "--noinput" ]
     networks:
       - transcendence-dev
@@ -467,13 +476,14 @@ services:
       - ./auth_service/:/app/:ro
       - static_data-dev:/app/static/:rw
       - ssl_cert_data-dev:${SSL_CERT_PATH}:ro
-      - vault_services_data-dev:/vault/transcendence/:ro
+      - vault_services-auth_service-data-dev:/vault/auth_service/:ro
     depends_on:
       vault_service-init-dev:
         condition: service_started
       vault_service-dev:
         condition: service_healthy
     profiles: [ "", "auth_service", "tools" ]
+    restart: no
 
   game_service-db_migrations-dev:
     build:
@@ -481,25 +491,18 @@ services:
       target: tools
     environment:
       POSTGRES_HOST_FILE: /run/secrets/game_service-postgres_host
-      POSTGRES_DB_FILE: /run/secrets/game_service-postgres_db
-      POSTGRES_USER_FILE: /run/secrets/game_service-postgres_user
-      POSTGRES_PASSWORD_FILE: /run/secrets/game_service-postgres_password
       VAULT_ADDR: https://modsecurity-dev:8200
-      VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
-      VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
-      SSL_CERT_PATH: ${SSL_CERT_PATH}
-      SSL_CERT_FILE: ${SSL_CERT_FILE}
+      VAULT_ROLE_ID_FILE: /vault/game_service/role-id
+      VAULT_SECRET_ID_FILE: /vault/game_service/secret-id
+      SSL_CERT_PATH: ${SSL_CERT_PATH}${SSL_CERT_FILE}
     secrets:
       - game_service-postgres_host
-      - game_service-postgres_db
-      - game_service-postgres_user
-      - game_service-postgres_password
     entrypoint: [ "/bin/sh", "/app/tools/db-migrations.sh" ]
     networks:
       - transcendence-dev
     volumes:
       - ssl_cert_data-dev:${SSL_CERT_PATH}:ro
-      - vault_services_data-dev:/vault/transcendence/:ro
+      - vault_services-game_service-data-dev:/vault/game_service/:ro
     depends_on:
       game_service-postgres-dev:
         condition: service_healthy
@@ -508,6 +511,7 @@ services:
       vault_service-dev:
         condition: service_healthy
     profiles: [ "", "game_service", "tools" ]
+    restart: no
 
   game_service-collectstatic-dev:
     build:
@@ -515,10 +519,9 @@ services:
       target: tools
     environment:
       VAULT_ADDR: https://modsecurity-dev:8200
-      VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
-      VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
-      SSL_CERT_PATH: ${SSL_CERT_PATH}
-      SSL_CERT_FILE: ${SSL_CERT_FILE}
+      VAULT_ROLE_ID_FILE: /vault/game_service/role-id
+      VAULT_SECRET_ID_FILE: /vault/game_service/secret-id
+      SSL_CERT_PATH: ${SSL_CERT_PATH}${SSL_CERT_FILE}
     entrypoint: [ "python3", "/app/manage.py", "collectstatic", "--noinput" ]
     networks:
       - transcendence-dev
@@ -526,13 +529,14 @@ services:
       - ./game_service/:/app/:ro
       - static_data-dev:/app/static/:rw
       - ssl_cert_data-dev:${SSL_CERT_PATH}:ro
-      - vault_services_data-dev:/vault/transcendence/:ro
+      - vault_services-game_service-data-dev:/vault/game_service/:ro
     depends_on:
       vault_service-init-dev:
         condition: service_started
       vault_service-dev:
         condition: service_healthy
     profiles: [ "", "game_service", "tools" ]
+    restart: no
 
   friendship_service-db_migrations-dev:
     build:
@@ -540,25 +544,18 @@ services:
       target: tools
     environment:
       POSTGRES_HOST_FILE: /run/secrets/friendship_service-postgres_host
-      POSTGRES_DB_FILE: /run/secrets/friendship_service-postgres_db
-      POSTGRES_USER_FILE: /run/secrets/friendship_service-postgres_user
-      POSTGRES_PASSWORD_FILE: /run/secrets/friendship_service-postgres_password
       VAULT_ADDR: https://modsecurity-dev:8200
-      VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
-      VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
-      SSL_CERT_PATH: ${SSL_CERT_PATH}
-      SSL_CERT_FILE: ${SSL_CERT_FILE}
+      VAULT_ROLE_ID_FILE: /vault/friendship_service/role-id
+      VAULT_SECRET_ID_FILE: /vault/friendship_service/secret-id
+      SSL_CERT_PATH: ${SSL_CERT_PATH}${SSL_CERT_FILE}
     secrets:
       - friendship_service-postgres_host
-      - friendship_service-postgres_db
-      - friendship_service-postgres_user
-      - friendship_service-postgres_password
     entrypoint: [ "/bin/sh", "/app/tools/db-migrations.sh" ]
     networks:
       - transcendence-dev
     volumes:
       - ssl_cert_data-dev:${SSL_CERT_PATH}:ro
-      - vault_services_data-dev:/vault/transcendence/:ro
+      - vault_services-friendship_service-data-dev:/vault/friendship_service/:ro
     depends_on:
       friendship_service-postgres-dev:
         condition: service_healthy
@@ -567,6 +564,7 @@ services:
       vault_service-dev:
         condition: service_healthy
     profiles: [ "", "friendship_service", "tools" ]
+    restart: no
 
   friendship_service-collectstatic-dev:
     build:
@@ -574,10 +572,9 @@ services:
       target: tools
     environment:
       VAULT_ADDR: https://modsecurity-dev:8200
-      VAULT_ROLE_ID_FILE: /vault/transcendence/transcendence-role-id
-      VAULT_SECRET_ID_FILE: /vault/transcendence/transcendence-secret-id
-      SSL_CERT_PATH: ${SSL_CERT_PATH}
-      SSL_CERT_FILE: ${SSL_CERT_FILE}
+      VAULT_ROLE_ID_FILE: /vault/friendship_service/role-id
+      VAULT_SECRET_ID_FILE: /vault/friendship_service/secret-id
+      SSL_CERT_PATH: ${SSL_CERT_PATH}${SSL_CERT_FILE}
     entrypoint: [ "python3", "/app/manage.py", "collectstatic", "--noinput" ]
     networks:
       - transcendence-dev
@@ -585,13 +582,14 @@ services:
       - ./friendship_service/:/app/:ro
       - static_data-dev:/app/static/:rw
       - ssl_cert_data-dev:${SSL_CERT_PATH}:ro
-      - vault_services_data-dev:/vault/transcendence/:ro
+      - vault_services-friendship_service-data-dev:/vault/friendship_service/:ro
     depends_on:
       vault_service-init-dev:
         condition: service_started
       vault_service-dev:
         condition: service_healthy
     profiles: [ "", "friendship_service", "tools" ]
+    restart: no
 
   web_service-dev:
     build:
@@ -603,7 +601,7 @@ services:
     volumes:
       - ./web_service/:/app/:ro
       - web_service-static_data-dev:/app/static/js/:rw
-      - vault_services_data-dev:/vault/transcendence/:ro
+      - vault_services-project-data-dev:/vault/transcendence/:ro
     depends_on:
       vault_service-init-dev:
         condition: service_started
@@ -625,6 +623,7 @@ services:
       modsecurity-dev:
         condition: service_started
     profiles: [ "web_service", "tools" ]
+    restart: on-failure
 
 networks:
   transcendence-dev:
@@ -643,7 +642,11 @@ volumes:
 
   vault_root_data-dev:
   vault_keys_data-dev:
-  vault_services_data-dev:
+  vault_services-project-data-dev:
+  vault_services-auth_service-data-dev:
+  vault_services-game_service-data-dev:
+  vault_services-friendship_service-data-dev:
+  vault_services-web_service-data-dev:
 
   prometheus_data-dev:
   grafana_data-dev:
@@ -652,30 +655,12 @@ volumes:
 secrets:
   auth_service-postgres_host:
     file: ./secrets/auth_service/postgres-host
-  auth_service-postgres_db:
-    file: ./secrets/auth_service/postgres-db
-  auth_service-postgres_user:
-    file: ./secrets/auth_service/postgres-user
-  auth_service-postgres_password:
-    file: ./secrets/auth_service/postgres-password
   game_service-postgres_host:
     file: ./secrets/game_service/postgres-host
-  game_service-postgres_db:
-    file: ./secrets/game_service/postgres-db
-  game_service-postgres_user:
-    file: ./secrets/game_service/postgres-user
-  game_service-postgres_password:
-    file: ./secrets/game_service/postgres-password
   friendship_service-postgres_host:
     file: ./secrets/friendship_service/postgres-host
-  friendship_service-postgres_db:
-    file: ./secrets/friendship_service/postgres-db
-  friendship_service-postgres_user:
-    file: ./secrets/friendship_service/postgres-user
-  friendship_service-postgres_password:
-    file: ./secrets/friendship_service/postgres-password
   sso_42_client_secret:
-    file: ./secrets/42-client-secret
+    file: ./secrets/sso-42-client-secret
   grafana_username:
     file: ./secrets/grafana/grafana-username
   grafana_password:
