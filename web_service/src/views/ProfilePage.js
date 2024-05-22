@@ -70,8 +70,6 @@ export default class ProfilePage extends AbstractView {
     }
 
 	addEventListners() {
-		console.log("Friendship:", this._friendship);
-
 		const addFriendIcon = document.getElementById(`add-friend-${this._userId ? this._userId : ""}`);
 		if (addFriendIcon && this._userId) {
 			addFriendIcon.addEventListener("click", () => this.addFriend(this._userId));

@@ -10,7 +10,6 @@ export default class SettingsPage extends AbstractView {
         this._loading = true;
         this._parentNode = null;
         this._avatarCallback = false;
-        this._modalCallback = false;
         this._linkCallback = false;
         this._deleteCallback = false;
         this._clickCallback = false;
@@ -98,7 +97,6 @@ export default class SettingsPage extends AbstractView {
 			event.target.dispatchEvent(new CustomEvent("remove-avatar"));
 			this._clickCallback = false;
 		} else {
-			console.log("response:", response.body);
 			console.error("failed to remove avatar");
 		}
 	}

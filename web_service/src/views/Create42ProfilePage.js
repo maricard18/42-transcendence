@@ -4,7 +4,7 @@ import handleResponse from "../functions/authenticationErrors";
 import { navigateTo } from "../index";
 import { transitEncrypt } from "../functions/vaultAccess";
 import getUserInfo from "../functions/getUserInfo";
-import { getToken } from "../functions/tokens";
+import { decode, getToken } from "../functions/tokens";
 
 export default class Create42ProfilePage extends AbstractView {
     constructor() {
@@ -213,12 +213,13 @@ export default class Create42ProfilePage extends AbstractView {
             }
 
 			const accessToken = await getToken();
+			const decodeToken = decode(accessToken);
             const headers = {
                 Authorization: `Bearer ${accessToken}`,
             };
 
             const response = await fetchData(
-                "/api/users/" + AbstractView.userInfo.id,
+                "/api/users/" + decodeToken["user_id"],
                 "PUT",
                 headers,
                 formDataToSend

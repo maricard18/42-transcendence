@@ -38,14 +38,12 @@ export async function setToken(response) {
 
         Cookies.set("access_token", accessToken, {
             expires: time,
-            //!  https:// -> sameSite: "None",
-            secure: false,
-            //! https:// -> secure: true,
+            sameSite: "strict",
+            secure: true,
         });
         Cookies.set("refresh_token", refreshToken, {
-            //!  https:// -> sameSite: "None",
-            secure: false,
-            //! https:// -> secure: true,
+            sameSite: "strict",
+			secure: true,
         });
 
         AbstractView.authed = true;
@@ -98,7 +96,11 @@ export async function getToken() {
 }
 
 export function decode(accessToken) {
-    return JSON.parse(atob(accessToken.split(".")[1]));
+	if (accessToken) {
+		return JSON.parse(atob(accessToken.split(".")[1]));
+	}
+
+	return null;
 }
 
 export function logout() {

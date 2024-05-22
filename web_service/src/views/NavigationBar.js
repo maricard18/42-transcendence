@@ -2,6 +2,7 @@ import AbstractView from "./AbstractView";
 import getUserInfo from "../functions/getUserInfo";
 import { getPageTitle } from "../functions/fetchData";
 import { logout } from "../functions/tokens";
+import { navigateTo } from "..";
 
 export default class NavigationBar extends AbstractView {
     constructor(view) {
@@ -25,7 +26,7 @@ export default class NavigationBar extends AbstractView {
 			this._avatarContainerCallback = true;
             avatarContainer.addEventListener(
 				"avatar-container",
-                this.loadNavigationBarMenuChanges
+                this.loadNavigationBarMenuChanges.bind(this)
             );
         }
 		
@@ -67,13 +68,22 @@ export default class NavigationBar extends AbstractView {
         }
     }
 
+	addEventListeners() {
+		const avatarContainer = document.getElementById("avatar-container");
+		if (avatarContainer && AbstractView.userInfo.id) {
+			avatarContainer.addEventListener("click", async () => {
+				await navigateTo(`/home/profile/${AbstractView.userInfo.id}`)
+			});
+		}
+	}
+
     async loadDOMChanges() {
         const parentNode = document.getElementById("navigation-bar");
         parentNode.innerHTML = await this.loadNavigationBarContent();
+		this.addEventListeners();
     }
 
 	loadNavigationBarMenuChanges() {
-		console.log("HERE");
 		const div = document.createElement("div");
 		const avatarContainer = document.getElementById("avatar-container");
         const img = avatarContainer.querySelector("img");
@@ -92,7 +102,9 @@ export default class NavigationBar extends AbstractView {
 				if (avatarContainer) {
 					avatarContainer.innerHTML = div.innerHTML;
 				}
-			}			
+			}
+			
+			this.addEventListeners();
 			return ;
 		}
 
@@ -113,6 +125,8 @@ export default class NavigationBar extends AbstractView {
 			if (avatarContainer) {
 				avatarContainer.innerHTML = div.innerHTML;
 			}
+			
+			this.addEventListeners();
         }
     }
 
@@ -142,7 +156,7 @@ export default class NavigationBar extends AbstractView {
 							role="group"
 							aria-label="Vertical button group"
 						>
-							<div class="d-flex flex-row align-items-center mb-3 ms-2" id="avatar-container">
+							<div class="d-flex flex-row align-items-center pointer mb-3 ms-2" id="avatar-container">
 							${
 								AbstractView.userInfo.avatar
 									? `<img
