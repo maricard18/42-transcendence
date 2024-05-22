@@ -195,8 +195,10 @@ export default class FriendsPage extends AbstractView {
 
 	async loadDOMChanges() {
 		const parentNode = document.getElementById("friend-list");
-		parentNode.innerHTML = await this.loadFriendList();
-		await this.addEventListeners();
+		if (parentNode) {
+			parentNode.innerHTML = await this.loadFriendList();
+			await this.addEventListeners();
+		}
 	}
 
     async getHtml() {

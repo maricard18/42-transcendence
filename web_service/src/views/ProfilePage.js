@@ -79,13 +79,13 @@ export default class ProfilePage extends AbstractView {
 
 	addEventListners() {
 		const addFriendIcon = document.getElementById(`add-friend-${this._userId}`);
-		if (addFriendIcon) {
-			addFriendIcon.addEventListener("click", () => { this.addFriend(this._userId) });
+		if (addFriendIcon && this._userId) {
+			addFriendIcon.addEventListener("click", () => this.addFriend(this._userId));
 		}
 
 		const removeFriendIcon = document.getElementById(`remove-friend-${this._friendship ? this._friendship.id : ""}`);
-		if (removeFriendIcon) {
-			removeFriendIcon.addEventListener("click", () => { this.removeFriend(this._friendship.id) });
+		if (removeFriendIcon && this._friendship) {
+			removeFriendIcon.addEventListener("click", () => this.removeFriend(this._friendship.id));
 		}
 
 		for (let [index, match] of this._matchHistory.entries()) {
@@ -449,9 +449,12 @@ export default class ProfilePage extends AbstractView {
 		this._winRecord = 0;
 		this._lossRecord = 0;
 		this._friendship = null;
+		
 		const parentNode = document.getElementById("profile-page");
-		parentNode.innerHTML = await this.loadProfilePage();
-		this.addEventListners();
+		if (parentNode) {
+			parentNode.innerHTML = await this.loadProfilePage();
+			this.addEventListners();
+		}
 	}
 
     async getHtml() {

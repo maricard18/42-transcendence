@@ -58,7 +58,7 @@ export default class SearchFriends extends AbstractView {
 		const input = this._parentNode.querySelector("input");
         if (input && !this._inputCallback) {
             this._inputCallback = true;
-                input.addEventListener("input", this.inputCallback);
+            input.addEventListener("input", this.inputCallback);
         }
 
         const submitButton = document.getElementById("search-button");
@@ -72,7 +72,7 @@ export default class SearchFriends extends AbstractView {
             window.addEventListener("keydown", this.keydownCallback);
         }
 
-		if (!this._loadDOM) {
+		if (!this._loadDOM && AbstractView.userInfo.id) {
 			this._loadDOM = true;
 			this.loadDOMChanges();
 		}
@@ -132,6 +132,7 @@ export default class SearchFriends extends AbstractView {
 
 		if (!this._searchBar) {
 			this._insideRequest = false;
+			this._userList = null;
 			await this.loadDOMChanges();
 			return ;
 		}
@@ -170,7 +171,6 @@ export default class SearchFriends extends AbstractView {
 				console.error("Error: failed to get user data list ", response.status);
 			}
 		}
-
 
         this._insideRequest = false;
     }
@@ -247,8 +247,10 @@ export default class SearchFriends extends AbstractView {
 
 	async loadDOMChanges() {
 		const parentNode = document.getElementById("user-list");
-		parentNode.innerHTML = await this.loadSearchBarResult();
-		await this.addEventListeners();
+		if (parentNode) {
+			parentNode.innerHTML = await this.loadSearchBarResult();
+			await this.addEventListeners();
+		}
 	}
 
 	async loadSearchBarResult() {
@@ -281,7 +283,7 @@ export default class SearchFriends extends AbstractView {
 		div.style.overflowY = "auto";
 		
 		for (let [index, user] of this._userList.entries()) {
-			if (user.id === AbstractView.userInfo.id) {
+			if (user.id == AbstractView.userInfo.id) {
 				continue ;
 			}
 
