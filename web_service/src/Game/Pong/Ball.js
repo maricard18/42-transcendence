@@ -8,14 +8,23 @@ import {
 } from "./variables";
 
 export class Ball {
-    constructor({ x, y, color }) {
+    constructor({ x, y, color, lobbySize }) {
         this.x = x;
         this.y = y;
         this.color = color;
+		this.lobbySize = lobbySize
         this.radius = ballRadius;
-        this.speed_x = BallSpeedX;
-        this.speed_y = getRandomDirection();
-        this.acceleration = 1.1;
+
+		if (this.lobbySize != 4) {
+			this.angle = Math.random() * Math.PI / 4 - Math.PI / 8;
+		} else {
+			this.angle = Math.random() * 2 * Math.PI;
+		}
+
+		this.speed_x = BallSpeedX * Math.cos(this.angle) * (Math.random() < 0.5 ? -1 : 1);
+		this.speed_y = BallSpeedY * Math.sin(this.angle);
+        
+		this.acceleration = 1.1;
         this.last_time = Date.now();
     }
 
@@ -85,20 +94,17 @@ export class Ball {
 				game.player4.y = game.player4.initial_y;
 			}
 			
-			if (game.player1.score > game.player2.score) {
-				this.speed_y = getRandomDirection();
-				this.speed_x = BallSpeedX;
+			if (this.lobbySize != 4) {
+				this.angle = Math.random() * Math.PI / 4 - Math.PI / 8;
 			} else {
-				this.speed_y = getRandomDirection();
-				this.speed_x = BallSpeedX * -1;
+				this.angle = Math.random() * 2 * Math.PI;
 			}
-			
+
+			this.speed_x = BallSpeedX * Math.cos(this.angle) * (Math.random() < 0.5 ? -1 : 1);
+			this.speed_y = BallSpeedY * Math.sin(this.angle);
+						
 			pauseGame(game, 2);
 		}
 
     }
-}
-
-function getRandomDirection() {
-    return Math.floor(Math.random() * 2 * BallSpeedY - BallSpeedY);
 }

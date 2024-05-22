@@ -2,6 +2,7 @@ import os
 import secrets
 
 import pyotp
+from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.http import HttpRequest
@@ -14,7 +15,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from common.Vault import Vault
 from common.exceptions import ServerError
-from common.utils import get_secret_from_file, remove_sensitive_information, generate_host
+from common.utils import remove_sensitive_information, generate_host
 from .models import OTP_Token, Avatar, SSO_User
 from .permissions import UserPermission, OTPPermission, TokenPermission, SSOPermission
 from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer, CreateOTPSerializer, \
@@ -27,12 +28,17 @@ from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSeriali
 ######################
 
 class UserViewSet(viewsets.ViewSet):
-    queryset = User.objects.all()
     permission_classes = [UserPermission]
 
     # GET /api/users
     def list(self, request):
-        serializer = UserSerializer(self.queryset, many=True)
+        username_filter = request.GET.get('filter[username]', None)
+        if username_filter:
+            queryset = User.objects.filter(username__icontains=username_filter)
+        else:
+            queryset = User.objects.all()
+
+        serializer = UserSerializer(queryset, many=True)
 
         return Response(Vault.cipherSensitiveFields(
             remove_sensitive_information(request.user.id, serializer.data),
@@ -74,7 +80,7 @@ class UserViewSet(viewsets.ViewSet):
     # GET /api/users/:id
     def retrieve(self, request, pk=None):
         try:
-            user = self.queryset.get(pk=pk)
+            user = User.objects.get(pk=pk)
         except User.DoesNotExist:
             raise NotFound
 
@@ -89,7 +95,7 @@ class UserViewSet(viewsets.ViewSet):
     # PUT /api/users/:id
     def update(self, request, pk=None):
         self.check_object_permissions(request, pk)
-        user = self.queryset.get(pk=pk)
+        user = User.objects.get(pk=pk)
         data = Vault.cipherSensitiveFields(request.data, request, Vault.transitDecrypt)
         avatar = data.get("avatar", None)
         if avatar:
@@ -121,7 +127,7 @@ class UserViewSet(viewsets.ViewSet):
     # DELETE /api/users/:id
     def destroy(self, request, pk=None):
         self.check_object_permissions(request, pk)
-        user = self.queryset.get(pk=pk)
+        user = User.objects.get(pk=pk)
 
         # Delete Avatar
         Avatar.objects.filter(auth_user=user).delete()
@@ -133,7 +139,7 @@ class UserViewSet(viewsets.ViewSet):
         OTP_Token.objects.filter(auth_user=user).delete()
 
         # GDPR Anonymize User
-        user.username = secrets.token_hex()
+        user.username = secrets.token_hex(8)
         user.email = ""
         user.is_active = False
         user.save()
@@ -146,7 +152,6 @@ class UserViewSet(viewsets.ViewSet):
 ##############################
 
 class OTPViewSet(viewsets.ViewSet):
-    queryset = OTP_Token.objects.all()
     permission_classes = [OTPPermission]
 
     # POST /api/users/:id/otp
@@ -158,7 +163,7 @@ class OTPViewSet(viewsets.ViewSet):
             "auth_user": user.id
         })
         if serializer.is_valid(raise_exception=True):
-            otp = self.queryset.create(
+            otp = OTP_Token.objects.create(
                 auth_user=user,
                 token=pyotp.random_base32()
             )
@@ -184,7 +189,7 @@ class OTPViewSet(viewsets.ViewSet):
         user = User.objects.get(pk=pk)
 
         try:
-            otp = self.queryset.get(auth_user=user)
+            otp = OTP_Token.objects.get(auth_user=user)
             if request.GET.get("code") is None:
                 serializer = OTPSerializer(otp)
                 return Response(Vault.cipherSensitiveFields(
@@ -216,7 +221,7 @@ class OTPViewSet(viewsets.ViewSet):
         user = User.objects.get(pk=pk)
 
         try:
-            self.queryset.get(auth_user=user).delete()
+            OTP_Token.objects.get(auth_user=user).delete()
             return Response(None, status=status.HTTP_204_NO_CONTENT)
         except OTP_Token.DoesNotExist:
             raise NotFound
@@ -325,7 +330,7 @@ class SSOViewSet(viewsets.ViewSet):
             response = requests.post("https://api.intra.42.fr/oauth/token", data={
                 "grant_type": "authorization_code",
                 "client_id": os.environ.get("SSO_42_CLIENT_ID"),
-                "client_secret": get_secret_from_file(os.environ.get("SSO_42_CLIENT_SECRET_FILE")),
+                "client_secret": Vault.getVaultSecret("sso-42-client-secret", settings.PROJECT_NAME),
                 "code": code,
                 "redirect_uri": os.environ.get("SSO_42_REDIRECT_URI")
             })

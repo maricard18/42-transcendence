@@ -22,7 +22,7 @@ export function createSinglePlayerGameObjects(ctx, lobbySize) {
                 color: "red",
                 keyUp: "w",
                 keyDown: "s",
-                info: { username: localStorage.getItem("player1") }
+                info: { id: -2, username: localStorage.getItem("player1") }
             });
 
     const player2 =
@@ -31,7 +31,7 @@ export function createSinglePlayerGameObjects(ctx, lobbySize) {
                 x: ScreenWidth - PaddleStartX - PaddleWidth,
                 y: ScreenHeight / 2 - PaddleHeight / 2,
                 color: "blue",
-				info: { username: localStorage.getItem("player2") }
+				info: { id: -1, username: localStorage.getItem("player2") }
             })
             : new Player({
                 x: ScreenWidth - PaddleStartX - PaddleWidth,
@@ -48,7 +48,8 @@ export function createSinglePlayerGameObjects(ctx, lobbySize) {
             x: ScreenWidth / 2,
             y: ScreenHeight / 2,
             color: "white",
-        }),
+			lobbySize: lobbySize
+		}),
         player1: player1,
         player2: player2,
         mode: "single-player",
@@ -61,7 +62,7 @@ export function createMultiPlayer2GameObjects(ctx, lobbySize) {
     const host_id = AbstractView.userData[0].id;
     let player1, player2;
 
-    if (host_id === AbstractView.userInfo.id) {
+    if (host_id == AbstractView.userInfo.id) {
         player1 = new Player({
             x: PaddleStartX,
             y: ScreenHeight / 2 - PaddleHeight / 2,
@@ -103,7 +104,8 @@ export function createMultiPlayer2GameObjects(ctx, lobbySize) {
             x: ScreenWidth / 2,
             y: ScreenHeight / 2,
             color: "white",
-        }),
+			lobbySize: lobbySize
+		}),
         player1: player1,
         player2: player2,
         mode: "multiplayer",
@@ -116,7 +118,9 @@ export function createMultiPlayer4GameObjects(ctx, lobbySize) {
     const host_id = AbstractView.userData[0].id;
     let player1, player2, player3, player4;
 
-    if (host_id === AbstractView.userInfo.id) {
+	console.log("Id:", AbstractView.userInfo.id);
+
+    if (host_id == AbstractView.userInfo.id) {
         player1 = new Player({
             x: PaddleStartX,
             y: ScreenHeight / 2 - PaddleHeight / 2,
@@ -149,7 +153,7 @@ export function createMultiPlayer4GameObjects(ctx, lobbySize) {
             keyLeft: "ArrowLeft",
             info: AbstractView.userData[3],
         });
-    } else if (AbstractView.userInfo.id === AbstractView.userData[1].id) {
+    } else if (AbstractView.userInfo.id == AbstractView.userData[1].id) {
         player1 = new Opponent({
             x: PaddleStartX,
             y: ScreenHeight / 2 - PaddleHeight / 2,
@@ -182,7 +186,7 @@ export function createMultiPlayer4GameObjects(ctx, lobbySize) {
             keyLeft: "ArrowLeft",
             info: AbstractView.userData[3],
         });
-    } else if (AbstractView.userInfo.id === AbstractView.userData[2].id) {
+    } else if (AbstractView.userInfo.id == AbstractView.userData[2].id) {
         player1 = new Opponent({
             x: PaddleStartX,
             y: ScreenHeight / 2 - PaddleHeight / 2,
@@ -215,7 +219,7 @@ export function createMultiPlayer4GameObjects(ctx, lobbySize) {
             keyLeft: "ArrowLeft",
             info: AbstractView.userData[3],
         });
-    } else if (AbstractView.userInfo.id === AbstractView.userData[3].id) {
+    } else if (AbstractView.userInfo.id == AbstractView.userData[3].id) {
         player1 = new Opponent({
             x: PaddleStartX,
             y: ScreenHeight / 2 - PaddleHeight / 2,
@@ -250,9 +254,9 @@ export function createMultiPlayer4GameObjects(ctx, lobbySize) {
         });
     }
 
-	console.error("UserInfo:", AbstractView.userInfo);
-	console.error("UserData:", AbstractView.userData);
-	console.error("Players:", player1, player2, player3, player4);
+	console.warn("UserInfo:", AbstractView.userInfo);
+	console.warn("UserData:", AbstractView.userData);
+	console.warn("Players:", player1, player2, player3, player4);
 
     return new Game({
         ctx: ctx,
@@ -260,7 +264,8 @@ export function createMultiPlayer4GameObjects(ctx, lobbySize) {
             x: ScreenWidth / 2,
             y: ScreenHeight / 2,
             color: "white",
-        }),
+			lobbySize: lobbySize
+		}),
         player1: player1,
         player2: player2,
         player3: player3,
@@ -298,7 +303,8 @@ export function createTournamentGameObjects(ctx) {
             x: ScreenWidth / 2,
             y: ScreenHeight / 2,
             color: "white",
-        }),
+			lobbySize: lobbySize
+		}),
         player1: player1,
         player2: player2,
         mode: "tournament",

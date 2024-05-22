@@ -1,13 +1,62 @@
 import AbstractView from "../views/AbstractView";
+import logGameResult from "./logGameResult";
 import { ScreenHeight, ScreenWidth } from "../Game/Pong/variables";
-import { getPlayerIndex, sendNonHostMessage, updateScore } from "../Game/Pong/pongGame";
+import { getPlayerIndex, sendHostMessage, sendNonHostMessage, updateScore } from "../Game/Pong/pongGame";
 import { getToken } from "./tokens";
 import { Cpu, InvertedCpu } from "../Game/Pong/Player";
 import { ScreenSize } from "../Game/TicTacToe/variables";
+import { updateFriendsListOnlineStatus } from "../views/FriendsPage";
+import { getMyFriendships } from "../views/FriendsPage";
 
-export var MyWebSocket = {};
+export var StatusWebsocket = {};
+export var GameWebsocket = {};
 
-export async function connectWebsocket() {
+export async function connectOnlineStatusWebsocket() {
+    const accessToken = await getToken();
+    const host = window.location.host;
+	const protocol = window.location.protocol === "http:" ? "ws:" : "wss:";
+    
+	StatusWebsocket.ws = new WebSocket(`${protocol}//${host}/ws/friendships`, [
+        "Authorization",
+        accessToken,
+    ]);
+
+    StatusWebsocket.ws.onopen = async () => {
+		AbstractView.statusWsCreated = true;
+		AbstractView.friendships = await getMyFriendships();
+
+		if (!AbstractView.friendships) {
+			updateFriendsListOnlineStatus();
+		}
+    };
+
+	StatusWebsocket.ws.onerror = (error) => {
+        console.error("Error while connecting to the Status WS:", error);
+    };
+
+    StatusWebsocket.ws.onmessage = (event) => {
+        // console.log("STATUS:", JSON.parse(event.data));
+
+        try {
+            const jsonData = JSON.parse(event.data);
+
+			if (jsonData["type"] === "system.message") {
+				const info = jsonData["data"];
+				
+				if (info.message === "user.connected") {
+					updateFriendsListOnlineStatus(info.user_id, "connected");
+				}
+				if (info.message === "user.disconnected") {
+					updateFriendsListOnlineStatus(info.user_id, "disconnected");
+				}
+			}
+        } catch (error) {
+            console.log(error);
+        }
+    };
+}
+
+export async function connectGameWebsocket() {
     const accessToken = await getToken();
     const host = window.location.host;
 	const protocol = window.location.protocol === "http:" ? "ws:" : "wss:";
@@ -21,24 +70,24 @@ export async function connectWebsocket() {
 		game = "2";
 	}
     
-	MyWebSocket.ws = new WebSocket(`${protocol}//${host}/ws/games/${game}/queue/${lobyySize}`, [
+	GameWebsocket.ws = new WebSocket(`${protocol}//${host}/ws/games/${game}/queue/${lobyySize}`, [
         "Authorization",
         accessToken,
     ]);
 
-    MyWebSocket.ws.onopen = () => {
+    GameWebsocket.ws.onopen = () => {
 		console.log("Created websocket!")
-        AbstractView.wsCreated = true;
+        AbstractView.gameWsCreated = true;
 		AbstractView.wsConnectionStarted = false;
 		waitingRoomNode.dispatchEvent( new CustomEvent ("waiting-room-callback") );
     };
 
-	MyWebSocket.ws.onerror = (error) => {
+	GameWebsocket.ws.onerror = (error) => {
 		AbstractView.wsConnectionStarted = false;
         console.error("Error while connecting to the WS:", error);
     };
 
-    MyWebSocket.ws.onmessage = (event) => {
+    GameWebsocket.ws.onmessage = (event) => {
         //console.log("SYSTEM", JSON.parse(event.data));
 
         try {
@@ -81,9 +130,9 @@ export async function connectWebsocket() {
     };
 }
 
-export function multiplayerTicTacToeMessageHandler(MyWebSocket, game) {
-	if (MyWebSocket.ws) {
-        MyWebSocket.ws.onmessage = (event) => {
+export function multiplayerTicTacToeMessageHandler(GameWebsocket, game) {
+	if (GameWebsocket.ws) {
+        GameWebsocket.ws.onmessage = (event) => {
             //console.log("GAME", JSON.parse(event.data));
 
             try {
@@ -151,7 +200,7 @@ export function multiplayerTicTacToeMessageHandler(MyWebSocket, game) {
 						if (Object.keys(AbstractView.userData).length) {
 							AbstractView.userData.forEach((user, index) => {
 								if (data["user_id"] == user.id && game.lobbySize == 2) {
-									user.id = -1;
+									user.id *= -1;
 								}
 							});
 						}
@@ -166,12 +215,19 @@ export function multiplayerTicTacToeMessageHandler(MyWebSocket, game) {
 						AbstractView.userQueue = newState;
 						
 						if (Object.keys(AbstractView.userQueue).length < 2) {
-							console.log("UserData:", AbstractView.userData);
-							for (let data of AbstractView.userData) {
-								if (data.id !== -1) {
-									localStorage.setItem("game_winner", data.username);
+							if (!game.winner) {
+								for (let [index, data] of AbstractView.userData.entries()) {
+									if (data.id > 0) {
+										game.winner = data.username;
+										game[`player${index + 1}`].score = 1;
+									} else {
+										data.id *= -1;
+										game[`player${index + 1}`].score = 0;
+									}
 								}
+								logGameResult("ttt", "multi", [game.player1, game.player2]);
 							}
+
 							game.over = true;
                         	closeWebsocket();
 							AbstractView.userData = {};
@@ -186,9 +242,9 @@ export function multiplayerTicTacToeMessageHandler(MyWebSocket, game) {
     }
 }
 
-export function multiplayerPongMessageHandler(MyWebSocket, game) {
-	if (MyWebSocket.ws) {
-        MyWebSocket.ws.onmessage = (event) => {
+export function multiplayerPongMessageHandler(GameWebsocket, game) {
+	if (GameWebsocket.ws) {
+        GameWebsocket.ws.onmessage = (event) => {
             //console.log("GAME", JSON.parse(event.data));
 
             try {
@@ -241,11 +297,10 @@ export function multiplayerPongMessageHandler(MyWebSocket, game) {
 						if (Object.keys(AbstractView.userData).length) {
 							AbstractView.userData.forEach((user, index) => {
 								if (data["user_id"] == user.id && game.lobbySize == 4) {
-									addCpuPlayer(index, game);
+									addCpuPlayer(index, game, user.id);
 								} else if (data["user_id"] == user.id && game.lobbySize == 2) {
-									user.id = -1;
+									user.id *= -1;
 								}
-								 
 							});
 						}
 
@@ -259,12 +314,27 @@ export function multiplayerPongMessageHandler(MyWebSocket, game) {
 						AbstractView.userQueue = newState;
 						
 						if (Object.keys(AbstractView.userQueue).length < 2) {
-							console.log("UserData:", AbstractView.userData);
-							for (let data of AbstractView.userData) {
-								if (data.id !== -1) {
-									localStorage.setItem("game_winner", data.username);
+							let players;
+
+							if (!game.winner) {
+								for (let [index, data] of AbstractView.userData.entries()) {
+									if (data.id > 0) {
+										game.winner = data.username;
+										game[`player${index + 1}`].score = 5;
+									} else {
+										data.id *= -1;
+										game[`player${index + 1}`].score = 0;
+									}
 								}
+
+								if (game.lobbySize == 4) {
+									players = [game.player1, game.player2, game.player3, game.player4];
+								} else {
+									players = [game.player1, game.player2];
+								}
+								logGameResult("pong", "multi", players);
 							}
+
 							game.over = true;
                         	closeWebsocket();
 							AbstractView.userData = {};
@@ -312,13 +382,22 @@ export function sendMessage(ws, message) {
 }
 
 export function closeWebsocket() {
-    if (MyWebSocket.ws) {
-		console.error("CLOSING WEBSOCKET");
+    if (GameWebsocket.ws) {
+		console.warn("CLOSING WEBSOCKET");
 		localStorage.removeItem("game_status");
-        MyWebSocket.ws.close();
-        delete MyWebSocket.ws;
+        GameWebsocket.ws.close();
+        delete GameWebsocket.ws;
 		AbstractView.cleanGameData();
 		AbstractView.gameOver = true;
+    }
+}
+
+export function closeStatusWebsocket() {
+    if (StatusWebsocket.ws) {
+		console.warn("CLOSING STATUS WEBSOCKET");
+        StatusWebsocket.ws.close();
+        delete StatusWebsocket.ws;
+		AbstractView.statusWsCreated = false;
     }
 }
 
@@ -336,8 +415,8 @@ function customPlayerQueueCallback() {
 	}
 }
 
-function addCpuPlayer(index, game) {
-	console.error(`USER ${index + 1} WAS DISCONNECTED`);
+function addCpuPlayer(index, game, id) {
+	console.warn(`USER ${index + 1} WAS DISCONNECTED`);
 	const player1 = document.getElementById("player1-info");
 	const player2 = document.getElementById("player2-info");
 	const player3 = document.getElementById("player3-info");
@@ -346,7 +425,7 @@ function addCpuPlayer(index, game) {
 	switch (index) {
 		case 0:
 			localStorage.setItem("player1", "CPU");
-			AbstractView.userData[0].id = -1;
+			AbstractView.userData[0].id = id * -1;
 			AbstractView.userData[0].avatar = "/static/images/cpu.png";
 			AbstractView.userData[0].username = "CPU";
 			const img1 = player1.querySelector("img");
@@ -367,7 +446,7 @@ function addCpuPlayer(index, game) {
 			break;
 		case 1:
 			localStorage.setItem("player2", "CPU");
-			AbstractView.userData[1].id = -1;
+			AbstractView.userData[1].id = id * -1;
 			AbstractView.userData[1].avatar = "/static/images/cpu_intel_corei3.png";
 			AbstractView.userData[1].username = "CPU";
 			const img2 = player2.querySelector("img");
@@ -388,7 +467,7 @@ function addCpuPlayer(index, game) {
 			break;
 		case 2:
 			localStorage.setItem("player3", "CPU");
-			AbstractView.userData[2].id = -1;
+			AbstractView.userData[2].id = id * -1;
 			AbstractView.userData[2].avatar = "/static/images/cpu_intel_corei5.png";
 			AbstractView.userData[2].username = "CPU";
 			const img3 = player3.querySelector("img");
@@ -409,7 +488,7 @@ function addCpuPlayer(index, game) {
 			break;
 		case 3:
 			localStorage.setItem("player4", "CPU");
-			AbstractView.userData[3].id = -1;
+			AbstractView.userData[3].id = id * -1;
 			AbstractView.userData[3].avatar = "/static/images/cpu_intel_xeon.png";
 			AbstractView.userData[3].username = "CPU";
 			const img4 = player4.querySelector("img");
@@ -431,9 +510,14 @@ function addCpuPlayer(index, game) {
 	}
 
 	for (let user of AbstractView.userData) {
-		if (user.id !== -1) {
+		if (user.id > 0) {
 			game.host_id = user.id;
-			console.log("New Host -> ", user.id);
+			
+			setTimeout(() => {
+				game.paused = false;
+				sendHostMessage(game);
+            }, 800);
+
 			return ;
 		}
 	}

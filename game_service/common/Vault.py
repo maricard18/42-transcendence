@@ -12,16 +12,13 @@ class Vault:
 
     @classmethod
     def overwrite(cls, request: HttpRequest) -> bool:
-        return settings.DEBUG and str(request.META["HTTP_USER_AGENT"]).startswith("PostmanRuntime/")
+        return settings.DEBUG and request.META["HTTP_USER_AGENT"].startswith("PostmanRuntime/")
 
     @classmethod
     def vaultClient(cls) -> hvac.Client:
-        cert_path = str(os.environ.get("SSL_CERT_PATH")) + str(os.environ.get("SSL_CERT_FILE"))
-        key_path = str(os.environ.get("SSL_CERT_KEY_PATH")) + str(os.environ.get("SSL_CERT_KEY_FILE"))
         client = hvac.Client(
             url=os.environ.get("VAULT_ADDR"),
-            verify=False,
-            cert=(cert_path, key_path)
+            verify=os.environ.get("SSL_CERT_PATH")
         )
         if not client.is_authenticated():
             client.auth.approle.login(role_id=settings.VAULT_ROLE_ID, secret_id=settings.VAULT_SECRET_ID)
@@ -77,9 +74,9 @@ class Vault:
         return data
 
     @classmethod
-    def getVaultSecret(cls, path: str) -> str:
+    def getVaultSecret(cls, path: str, mount_point: str) -> str:
         client = cls.vaultClient()
 
-        response = client.secrets.kv.v2.read_secret(path=path, mount_point="transcendence")
+        response = client.secrets.kv.v2.read_secret(path=path, mount_point=mount_point)
         secret = response["data"]["data"]
         return secret["key"]

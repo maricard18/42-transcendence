@@ -2,7 +2,7 @@ import AbstractView from "./AbstractView";
 import fetchData from "../functions/fetchData";
 import { getToken } from "../functions/tokens";
 import { navigateTo } from "..";
-import { closeWebsocket, connectWebsocket, MyWebSocket, sendMessage } from "../functions/websocket";
+import { closeWebsocket, connectGameWebsocket, GameWebsocket, sendMessage } from "../functions/websocket";
 import { transitDecrypt } from "../functions/vaultAccess";
 
 export default class WaitingRoom extends AbstractView {
@@ -15,7 +15,7 @@ export default class WaitingRoom extends AbstractView {
         this._loading = true;
         this._creatingConnection = false;
         this._callback = false;
-        this._wsCreatedRender = false;
+        this._gameWsCreatedRender = false;
         this._lobbyFull = false;
 
 		const currentLocation = location.pathname;
@@ -50,7 +50,7 @@ export default class WaitingRoom extends AbstractView {
         this.startConnectingProcess = async () => {
             AbstractView.wsConnectionStarted = true;
             try {
-                await connectWebsocket();
+                await connectGameWebsocket();
                 AbstractView.previousLocation = this._location;
             } catch (error) {
                 console.log(error);
@@ -59,7 +59,7 @@ export default class WaitingRoom extends AbstractView {
             this.loadDOMChanges();
         };
 
-        if (!AbstractView.wsCreated && !AbstractView.wsConnectionStarted) {
+        if (!AbstractView.gameWsCreated && !AbstractView.wsConnectionStarted) {
             await this.startConnectingProcess();
         }
     }
@@ -79,8 +79,8 @@ export default class WaitingRoom extends AbstractView {
     }
 
     waitingRoomCallback() {
-        if (AbstractView.wsCreated && !this._wsCreatedRender) {
-            this._wsCreatedRender = true;
+        if (AbstractView.gameWsCreated && !this._gameWsCreatedRender) {
+            this._gameWsCreatedRender = true;
             this.loadDOMChanges();
         }
 
@@ -317,7 +317,7 @@ class ReadyButton extends AbstractView {
                         [AbstractView.userInfo.id]: this._readyState,
                     },
                 };
-                sendMessage(MyWebSocket.ws, message);
+                sendMessage(GameWebsocket.ws, message);
             }
         } else {
             return;
@@ -344,7 +344,7 @@ class ReadyButton extends AbstractView {
                 },
             };
 
-            sendMessage(MyWebSocket.ws, message);
+            sendMessage(GameWebsocket.ws, message);
             const waitingRoomNode = document.getElementById("waiting-room");
             waitingRoomNode.dispatchEvent(new CustomEvent("waiting-room-callback"));
             const playerQueueNode = document.getElementById("player-queue");
@@ -423,6 +423,7 @@ async function getUserData(value) {
 
     if (!response.ok) {
         console.log("Error: failed to fetch user data.");
+		closeWebsocket();
         return null;
     }
 
@@ -430,6 +431,7 @@ async function getUserData(value) {
         jsonData = await response.json();
     } catch (error) {
         console.log("Error: failed to parse response.");
+		closeWebsocket();
         return null;
     }
 

@@ -1,11 +1,12 @@
 import AbstractView from "../../views/AbstractView";
 import { createSinglePlayerGameObjects, createMultiPlayer2GameObjects, createTournamentGameObjects } from "./createPlayers";
-import { MyWebSocket, closeWebsocket, sendMessage } from "../../functions/websocket";
+import { GameWebsocket, closeWebsocket, sendMessage } from "../../functions/websocket";
 import { multiplayerTicTacToeMessageHandler } from "../../functions/websocket";
 import { gameConfettiAnimation, gameStartAnimation } from "./animations";
 import { updateVariables } from "./variables";
 import { ScreenSize } from "./variables";
 import { findTournamentWinner } from "../../views/Tournament";
+import logGameResult from "../../functions/logGameResult";
 
 export function createTicTacToeGameObject(canvas, gameMode, lobbySize) {
     const ctx = canvas.getContext("2d");
@@ -31,13 +32,14 @@ export async function startTicTacToe(game) {
 		await gameConfettiAnimation(game);
 		localStorage.removeItem("game_status");
 	} else if (game.mode === "multiplayer" && game.lobbySize == 2) {
-		multiplayerTicTacToeMessageHandler(MyWebSocket, game);
+		multiplayerTicTacToeMessageHandler(GameWebsocket, game);
 		await gameStartAnimation(game);
 		game.last_time = Date.now();
 		await multiplayer2GameLoop(game);
-		closeWebsocket();
-		await gameConfettiAnimation(game);
+		if (localStorage.getItem("game_status"))
+			closeWebsocket();
 		localStorage.removeItem("game_status");
+		await gameConfettiAnimation(game);
 	} else {
 		await gameStartAnimation(game);
 		game.last_time = Date.now();
@@ -64,6 +66,8 @@ function singleplayerGameLoop(game) {
 
 				if (game.mode === "tournament") {
 					findTournamentWinner(game, [game.player1, game.player2]);
+				} else {
+					logGameResult("ttt", "single", [game.player1, game.player2]);
 				}
 
                 resolve();
@@ -81,10 +85,7 @@ function multiplayer2GameLoop(game) {
 
 	return new Promise((resolve) => {
         const clickHandler = (event) => {
-			if (game.over || !MyWebSocket.ws || !localStorage.getItem("game_status")) {
-				if (!game.winner) {
-					game.winner = localStorage.getItem("game_winner");
-				}
+			if (game.over || !GameWebsocket.ws || !localStorage.getItem("game_status")) {
 				game.over = true;
 				game.last_time = Date.now();
 				game.canvas.removeEventListener("click", clickHandler);
@@ -95,19 +96,26 @@ function multiplayer2GameLoop(game) {
 				game.hit(event.offsetX, event.offsetY);
 				game.checkWinner();
 				
-				if ((game.over || !MyWebSocket.ws || !localStorage.getItem("game_status"))) {
+				if ((game.over || !GameWebsocket.ws || !localStorage.getItem("game_status"))) {
 					const id = AbstractView.userInfo.id === game.host_id ? 1 : 2;
 					game.winner = game.winner === 1 ? game.player1.info.username : game.player2.info.username;
+
+					for (let data of AbstractView.userData.values()) {
+						if (data.id < 0) {
+							data.id *= -1;
+						}
+					}
+					
 					game.last_time = Date.now();
 					game.canvas.removeEventListener("click", clickHandler);
 					sendTicTacToeMessage(game, id);
+					logGameResult("ttt", "multi", [game.player1, game.player2]);
 					resolve();
 				}
 			}
         };
 
-		if (game.over || !MyWebSocket.ws || !localStorage.getItem("game_status")) {
-			game.winner = localStorage.getItem("game_winner");
+		if (game.over || !GameWebsocket.ws || !localStorage.getItem("game_status")) {
 			resolve() ;
 		} else {
 			game.clear();
@@ -135,7 +143,7 @@ export function sendTicTacToeMessage(game, index) {
         }
     }
 
-    sendMessage(MyWebSocket.ws, message);
+    sendMessage(GameWebsocket.ws, message);
 }
 
 export function updateScore(game) {

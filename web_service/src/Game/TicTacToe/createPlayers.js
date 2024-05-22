@@ -11,8 +11,8 @@ export function createSinglePlayerGameObjects(canvas, lobbySize) {
 
     const player2 =
         lobbySize == 1
-            ? new Cpu({ symbol: "O", info: { username: localStorage.getItem("player2") }})
-            : new Player({ symbol: "O", info: { username: localStorage.getItem("player2") }});
+            ? new Cpu({ symbol: "O", info: { id: -1, username: localStorage.getItem("player2") }})
+            : new Player({ symbol: "O", info: { id: -2, username: localStorage.getItem("player2") }});
 
     return new Game({
 		canvas: canvas,
@@ -28,7 +28,7 @@ export function createMultiPlayer2GameObjects(canvas, lobbySize) {
     const host_id = AbstractView.userData[0].id;
     let player1, player2;
 
-    if (host_id === AbstractView.userInfo.id) {
+    if (host_id == AbstractView.userInfo.id) {
         player1 = new Player({ symbol: "X", info: AbstractView.userData[0] });
         player2 = new Opponent({ symbol: "O", info: AbstractView.userData[1] });
     } else {

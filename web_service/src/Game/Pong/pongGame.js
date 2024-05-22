@@ -1,12 +1,13 @@
 import AbstractView from "../../views/AbstractView";
 import { checkPlayer1Collision, checkPlayer2Collision, checkInvertedPlayer3Collision, checkInvertedPlayer4Collision } from "./collision";
 import { createSinglePlayerGameObjects, createMultiPlayer2GameObjects, createMultiPlayer4GameObjects, createTournamentGameObjects } from "./createPlayers";
-import { MyWebSocket, closeWebsocket, sendMessage } from "../../functions/websocket";
+import { GameWebsocket, closeWebsocket, sendMessage } from "../../functions/websocket";
 import { multiplayerPongMessageHandler } from "../../functions/websocket";
 import { gameConfettiAnimation, gameStartAnimation } from "./animations";
 import { updateVariables } from "./variables";
 import { ScreenWidth, ScreenHeight, keys } from "./variables";
 import { findTournamentWinner } from "../../views/Tournament";
+import logGameResult from "../../functions/logGameResult";
 
 export function createPongGameObject(canvas, gameMode, lobbySize) {
     const ctx = canvas.getContext("2d");
@@ -45,21 +46,23 @@ export async function startPong(game) {
 		await gameConfettiAnimation(game);
 		localStorage.removeItem("game_status");
 	} else if (game.mode === "multiplayer" && game.lobbySize == 2) {
-		multiplayerPongMessageHandler(MyWebSocket, game);
+		multiplayerPongMessageHandler(GameWebsocket, game);
 		await gameStartAnimation(game);
 		game.last_time = Date.now();
 		await multiplayer2GameLoop(game);
-		closeWebsocket();
-		await gameConfettiAnimation(game);
+		if (localStorage.getItem("game_status"))
+			closeWebsocket();
 		localStorage.removeItem("game_status");
+		await gameConfettiAnimation(game);
 	} else if (game.mode === "multiplayer" && game.lobbySize == 4) {
-		multiplayerPongMessageHandler(MyWebSocket, game);
+		multiplayerPongMessageHandler(GameWebsocket, game);
 		await gameStartAnimation(game);
 		game.last_time = Date.now();
 		await multiplayer4GameLoop(game);
-		closeWebsocket();
-		await gameConfettiAnimation(game);
+		if (localStorage.getItem("game_status"))
+			closeWebsocket();
 		localStorage.removeItem("game_status");
+		await gameConfettiAnimation(game);
 	} else {
 		await gameStartAnimation(game);
 		game.last_time = Date.now();
@@ -95,6 +98,8 @@ function singleplayerGameLoop(game) {
 
 					if (game.mode === "tournament") {
 						findTournamentWinner(game, players);
+					} else {
+						logGameResult("pong", "single", players);
 					}
 
                     resolve();
@@ -119,10 +124,8 @@ function singleplayerGameLoop(game) {
 function multiplayer2GameLoop(game) {
 	return new Promise((resolve) => {
         const playPong = () => {
-            if (game.over || !MyWebSocket.ws || !localStorage.getItem("game_status")) {
-				if (!game.winner) {
-					game.winner = localStorage.getItem("game_winner");
-				}
+            if (game.over || !GameWebsocket.ws || !localStorage.getItem("game_status")) {
+				console.debug("Left Outside of the game");
 				game.over = true;
 				updateScore(game);
 				resolve();
@@ -152,8 +155,17 @@ function multiplayer2GameLoop(game) {
 				   (game.player1.score === 5 || game.player2.score === 5)) {
 					const players = [game.player1, game.player2];
 					game.winner = getPlayerWithMostGoals(players).info.username;
+					
+					for (let data of AbstractView.userData.values()) {
+						if (data.id < 0) {
+							data.id *= -1;
+						}
+					}
+
 					game.over = true;
 					sendHostMessage(game);
+					logGameResult("pong", "multi", players);
+					console.debug("Left inside of the game");
 					resolve();
 				}
 				
@@ -177,10 +189,7 @@ function multiplayer2GameLoop(game) {
 function multiplayer4GameLoop(game) {
 	return new Promise((resolve) => {
         const playPong = () => {
-            if (game.over || !MyWebSocket.ws || !localStorage.getItem("game_status")) {
-				if (!game.winner) {
-					game.winner = localStorage.getItem("game_winner");
-				}
+            if (game.over || !GameWebsocket.ws || !localStorage.getItem("game_status")) {
 				game.over = true;
 				updateScore(game);
 				resolve();
@@ -228,8 +237,16 @@ function multiplayer4GameLoop(game) {
 					game.player3.score === 5 || game.player4.score === 5)) {
 					const players = [game.player1, game.player2, game.player3, game.player4];
 					game.winner = getPlayerWithMostGoals(players).info.username;
+
+					for (let data of AbstractView.userData.values()) {
+						if (data.id < 0) {
+							data.id *= -1;
+						}
+					}
+
 					game.over = true;
 					sendHostMessage(game);
+					logGameResult("pong", "multi", players);
 					resolve();
 				}
 		
@@ -281,7 +298,7 @@ export function sendHostMessage(game) {
         baseMessage.game.player4_score = game.player4.score;
     }
 
-    sendMessage(MyWebSocket.ws, baseMessage);
+    sendMessage(GameWebsocket.ws, baseMessage);
 }
 
 export function sendNonHostMessage(game, index) {
@@ -301,7 +318,7 @@ export function sendNonHostMessage(game, index) {
         },
     };
 
-    sendMessage(MyWebSocket.ws, message);
+    sendMessage(GameWebsocket.ws, message);
 }
 
 export function getPlayerIndex() {

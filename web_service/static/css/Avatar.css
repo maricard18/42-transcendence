@@ -40,6 +40,11 @@
     border-radius: 50%;
 }
 
+.gold-border-lg {
+    outline: 4px solid #ffd700;
+    border-radius: 50%;
+}
+
 .dark-purple-border-sm {
     outline: 2px solid #520dc2;
     border-radius: 50%;
@@ -48,4 +53,9 @@
 .light-purple-border-sm {
     outline: 2px solid #9461e6;
     border-radius: 50%;
+}
+
+.img-outline-sm {
+	outline: 2px solid white;
+    border-radius: 5px;
 }

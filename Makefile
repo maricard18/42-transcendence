@@ -6,7 +6,7 @@
 #    By: bsilva-c <bsilva-c@student.42porto.com>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/02/15 17:36:39 by bsilva-c          #+#    #+#              #
-#    Updated: 2024/05/13 18:35:29 by wcorrea-         ###   ########.fr        #
+#    Updated: 2024/05/22 17:32:44 by bsilva-c         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,7 +33,8 @@ endif
 #### Using Makefile to call specific service
 ##
 
-SERVICES = auth_service game_service web_service vault_service modsecurity nikto grafana prometheus telegraf alertmanager
+SERVICES = auth_service game_service friendship_service web_service vault_service \
+			modsecurity nikto grafana prometheus telegraf alertmanager
 _SERVICE = $(SERVICE)
 
 # Check if service is valid
@@ -49,46 +50,10 @@ endif
 
 endif
 
-all: build up
-build:
-	@$(COMMAND) build --no-cache $(_SERVICE)
-up: build
-	@$(COMMAND) up -d --no-recreate $(_SERVICE)
-down:
-	@$(COMMAND) down $(_SERVICE)
-start:
-	@$(COMMAND) start $(_SERVICE)
-stop:
-	@$(COMMAND) stop $(_SERVICE)
-ps:
-	@$(COMMAND) ps $(_SERVICE)
-rm:
-	@$(COMMAND) rm $(_SERVICE)
-re: fclean all
-clean: stop rm
-fclean:
-	$(call confirm)
-	@$(COMMAND) down $(_SERVICE) --volumes
-	@images=$$(docker image ls -q "$(PROJECT_NAME)-*"); \
-	if [ -n "$$images" ]; then \
-		docker image rm $$images -f; \
-	fi
-help:
-	@echo "Usage: make [options] [target]"
-	@echo "Options:"
-	@echo "  SERVICE=SERVICE \t Perform TARGET on SERVICE"
-	@echo "  PROFILE=PROFILE \t Perform TARGET on PROFILE"
-	@echo ""
-	@echo "Available services:"
-	@echo "  $(SERVICES)"
-	@echo ""
-	@echo "Available profiles:"
-	@echo "  $(PROFILES)"
-.PHONY: all build up down start stop ps rm re clean fclean help
-
+# Macro function for confirmation message
 define confirm
 	@printf "\033[1;33m"  # Yellow color for the warning message
-	@printf "WARNING: This action will permanently remove images and associated volumes. Are you sure you want to proceed? "
+	@printf "%s " "$(1)"
 	@printf "\033[0m[y/N] "  # Reset color
 	@read response; \
 	if [ "$$response" != "y" ]; then \
@@ -96,3 +61,62 @@ define confirm
 		exit 1; \
 	fi
 endef
+
+all: build up
+build:
+	@$(COMMAND) build --no-cache $(_SERVICE)
+up: build
+	@$(COMMAND) up -d --no-recreate $(_SERVICE)
+	@$(MAKE) --no-print-directory ps
+down:
+	@$(COMMAND) down $(_SERVICE)
+start:
+	@$(COMMAND) start $(_SERVICE)
+stop:
+	@$(COMMAND) stop $(_SERVICE)
+logs:
+	@$(COMMAND) logs $(_SERVICE)
+ps:
+	@$(COMMAND) ps $(_SERVICE)
+rm:
+	@$(COMMAND) rm $(_SERVICE)
+re: fclean all
+clean: stop rm
+fclean:
+	$(call confirm, "WARNING: This action will permanently remove images and associated volumes. Are you sure you want to proceed?")
+	@$(COMMAND) down $(_SERVICE) --rmi all --volumes;
+	@docker system df;
+ifndef SERVICE
+ifneq ($(shell docker system df | grep 'Build Cache' | awk '{print $$6}'), 0B)
+	@echo ""
+	$(call confirm, "WARNING: Dangling build cache found. Do you want to remove all dangling build cache?")
+	@docker builder prune -f;
+	@docker system df;
+endif
+endif
+help:
+	@echo "Usage: make [OPTIONS] [COMMAND]"
+	@echo "Options:"
+	@echo "  SERVICE=service   Perform command on service"
+	@echo "  PROFILE=profile   Perform command using specified profile"
+	@echo ""
+	@echo "Commands:"
+	@echo "  build      Build or rebuild services"
+	@echo "  down       Stop and remove containers, networks"
+	@echo "  logs       View output from containers"
+	@echo "  ps         List containers"
+	@echo "  rm         Removes stopped service containers"
+	@echo "  start      Start services"
+	@echo "  stop       Stop services"
+	@echo "  up         Create and start containers"
+	@echo "  re         Stop and remove containers, networks, images, and volumes, then build, create and start containers."
+	@echo "  clean      Stops and removes service containers"
+	@echo "  fclean     Stop and remove containers, networks, images, and volumes"
+	@echo "  help       Display this message"
+	@echo ""
+	@echo "Available services:"
+	@echo "  $(SERVICES)"
+	@echo ""
+	@echo "Available profiles:"
+	@echo "  $(PROFILES)"
+.PHONY: all build up down start stop logs ps rm re clean fclean help

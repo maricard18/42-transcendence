@@ -1,3 +1,6 @@
+import AbstractView from "../views/AbstractView";
+import { getToken } from "./tokens";
+
 export default async function fetchData(endpoint, method, headers = {}, body = null) {
     const fetchOptions = {
         method: method,
@@ -60,5 +63,15 @@ export function getPageTitle(path) {
             return "Account";
         case "/home/settings/security":
             return "Security";
+		case "/home/friends":
+			return "Friends";
+		case "/home/settings/security":
+			return "Security";
+		default:
+			if (path.startsWith("/home/profile/")) {
+				return "Profile";
+			} else {
+				return "Transcendence"
+			}
     }
 }

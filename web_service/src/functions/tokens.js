@@ -2,7 +2,7 @@ import AbstractView from "../views/AbstractView";
 import Cookies from "js-cookie";
 import fetchData from "./fetchData";
 import { transitEncrypt } from "../functions/vaultAccess";
-import { closeWebsocket } from "./websocket";
+import { closeStatusWebsocket, closeWebsocket } from "./websocket";
 import { cleanTournamentStorage } from "..";
 
 export async function createToken(formData) {
@@ -38,14 +38,12 @@ export async function setToken(response) {
 
         Cookies.set("access_token", accessToken, {
             expires: time,
-            //!  https:// -> sameSite: "None",
-            secure: false,
-            //! https:// -> secure: true,
+            sameSite: "strict",
+            secure: true,
         });
         Cookies.set("refresh_token", refreshToken, {
-            //!  https:// -> sameSite: "None",
-            secure: false,
-            //! https:// -> secure: true,
+            sameSite: "strict",
+			secure: true,
         });
 
         AbstractView.authed = true;
@@ -57,7 +55,7 @@ export async function setToken(response) {
 
 export async function refreshToken() {
     const refreshToken = Cookies.get("refresh_token");
-    if (!refreshToken) {
+    if (!refreshToken || (refreshToken && refreshToken === "undefined")) {
         if (location.pathname.startsWith("/home")) {
             console.error("Error: refresh_token doesn't exist");
             logout();
@@ -88,7 +86,7 @@ export async function refreshToken() {
 export async function getToken() {
     const accessToken = Cookies.get("access_token");
 
-    if (accessToken) {
+    if (accessToken && accessToken !== "undefined") {
         return accessToken;
     } else {
         await refreshToken();
@@ -98,12 +96,17 @@ export async function getToken() {
 }
 
 export function decode(accessToken) {
-    return JSON.parse(atob(accessToken.split(".")[1]));
+	if (accessToken) {
+		return JSON.parse(atob(accessToken.split(".")[1]));
+	}
+
+	return null;
 }
 
 export function logout() {
     console.log("Logged out, cleaning data")
 	closeWebsocket();
+	closeStatusWebsocket();
 	cleanTournamentStorage(); 	
     Cookies.remove("access_token");
     Cookies.remove("refresh_token");
