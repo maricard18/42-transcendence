@@ -69,16 +69,10 @@ export default class ProfilePage extends AbstractView {
 		}
     }
 
-    removeCallbacks() {
-        if (!this._parentNode) {
-            return;
-        }
-
-        this._observer.disconnect();
-    }
-
 	addEventListners() {
-		const addFriendIcon = document.getElementById(`add-friend-${this._userId}`);
+		console.log("Friendship:", this._friendship);
+
+		const addFriendIcon = document.getElementById(`add-friend-${this._userId ? this._userId : ""}`);
 		if (addFriendIcon && this._userId) {
 			addFriendIcon.addEventListener("click", () => this.addFriend(this._userId));
 		}
@@ -94,7 +88,10 @@ export default class ProfilePage extends AbstractView {
 				for (let id of Object.values(match.players)) {
 					const avataraAndUsernameDiv = gameLog.querySelector(`#player-id-${id}`);
 					if (avataraAndUsernameDiv) {
-						avataraAndUsernameDiv.addEventListener("click", async () => await navigateTo(`/home/profile/${id}`));
+						avataraAndUsernameDiv.addEventListener("click", async () => {
+							this._observer.disconnect();
+							await navigateTo(`/home/profile/${id}`)
+						});
 					}
 				}
 			}
@@ -128,7 +125,9 @@ export default class ProfilePage extends AbstractView {
 			};
 			sendMessage(StatusWebsocket.ws, message);
 			
-			this.loadDOMChanges();
+			const parentNode = document.getElementById("profile-page-user-info");
+			parentNode.innerHTML = this.loadProfilePageInfo();
+			this.addEventListners();
 		} else {
 			console.error("Error: failed to send friend request ", response.status);
 		}
@@ -163,13 +162,18 @@ export default class ProfilePage extends AbstractView {
 			};
 			sendMessage(StatusWebsocket.ws, message);
 
-			this.loadDOMChanges();
+			const parentNode = document.getElementById("profile-page-user-info");
+			parentNode.innerHTML = this.loadProfilePageInfo();
+			this.addEventListners();
 		} else {
 			console.error("Error: failed to delete friend ", response.status);
 		}
 	}
 
 	getPlayerRecord() {
+		this._winRecord = 0;
+		this._lossRecord = 0;
+
 		for (let [index, match] of this._matchHistory.entries()) {
 			for (let [index, player] of Object.entries(match.players)) {
 				if (player == this._userId) {
@@ -335,8 +339,9 @@ export default class ProfilePage extends AbstractView {
 		return div.outerHTML;
 	}
 
-	async loadProfilePage() {
+	loadProfilePageInfo() {
 		this.getPlayerRecord();		
+		this._friendship = null;
 		let winPercentage = this._winRecord / this._matchHistory.length * 100;
 
 		if (!winPercentage) {
@@ -351,93 +356,97 @@ export default class ProfilePage extends AbstractView {
 				}
 			}
 		}
-		
+
+		return `
+			<div class="d-flex flex-column align-items-start mt-2 ms-3 me-5 mt-5">
+				<div id="avatar">
+					${
+						this._userInfo.avatar
+							? `<img
+									id="nav-bar-avatar"
+									class="white-border-lg"
+									src="${this._userInfo.avatar}"
+									alt="avatar"
+									width="150"
+									height="150"
+									style="border-radius: 50%"
+								/>`
+							: `<base-avatar-box size="150"></base-avatar-box>`
+					}
+				</div>
+			</div>
+			<div class="d-flex flex-column align-items-start w-100 mt-2">
+				<div id="username" class="d-flex flex-row w-100 mb-2">
+					<h1 style="font-size: 50px; color: white; border-bottom: 2px solid #ffd700;">
+						${this._userInfo.username}
+					</h1>
+					${
+						this._userId != AbstractView.userInfo.id
+							? !this._friendship
+								?	`<div class="d-flex justify-content-end w-100 me-5 mt-3 pointer" id="add-friend-${this._userId}">
+										<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-person-plus-fill" viewBox="0 0 16 16">
+											<path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+											<path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5"/>
+										</svg>
+									</div>`
+								:	`<div class="d-flex justify-content-end w-100 me-5 mt-3 pointer" id="remove-friend-${this._friendship.id}">
+										<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-person-dash-fill" viewBox="0 0 16 16">
+											<path fill-rule="evenodd" d="M11 7.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5"/>
+											<path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+										</svg>
+									</div>`
+							:	``
+					}
+				</div>
+				<div id="date-joined">
+					<h1 style="font-size: 18px">
+						<span style="color: #ffd700;">Date joined:</span> 
+						<span style="color: white;">${this._userInfo.date_joined}</span>
+					</h1>
+				</div>
+				<div id="matches-played">
+					<h1 style="font-size: 18px">
+						<span style="color: #ffd700;">Matches played:</span> 
+						<span style="color: white;"> ${this._matchHistory ? this._matchHistory.length : 0}</span>
+					</h1>
+				</div>
+				<div id="player-record">
+					<h1 style="font-size: 18px">
+						<span style="color: #ffd700;">Record:</span> 
+						<span style="color: white;"> ${this._winRecord}W-${this._lossRecord}L</span>
+					</h1>
+				</div>
+				<div id="player-record">
+					<h1 style="font-size: 18px">
+						<span style="color: #ffd700;">Win rate:</span> 
+						<span style="color: white;"> ${Math.trunc(winPercentage)}%</span>
+					</h1>
+				</div>
+				${
+					this._friendship
+						?	`<div id="online-status-info-${this._userId}" class="d-flex flex-row">
+								<span class="${this._friendship.online ? "online-lg mt-1" : "offline-lg mt-1"}"></span>
+								<h3 
+									class="ms-2" 
+									style="font-size: 18px; font-weight: bold">${this._friendship.online ? "online" : "offline"}
+								</h3>
+							</div>`
+						: 	``
+				}
+			</div>
+		`;
+	}
+
+	async loadProfilePageContent() {
 		return `
 			<div class="center">
 				<div class="d-flex flex-column justify-content-start profile-box">
 					<div id="profile-content" class="mt-2">
-						<div class="d-flex flex-row ms-4 mb-3">
-							<div class="d-flex flex-column align-items-start mt-2 ms-3 me-5 mt-5">
-								<div id="avatar">
-									${
-										this._userInfo.avatar
-											? `<img
-													id="nav-bar-avatar"
-													class="white-border-lg"
-													src="${this._userInfo.avatar}"
-													alt="avatar"
-													width="150"
-													height="150"
-													style="border-radius: 50%"
-												/>`
-											: `<base-avatar-box size="150"></base-avatar-box>`
-									}
-								</div>
-							</div>
-							<div class="d-flex flex-column align-items-start w-100 mt-2">
-								<div id="username" class="d-flex flex-row w-100 mb-2">
-									<h1 style="font-size: 50px; color: white; border-bottom: 2px solid #ffd700;">
-										${this._userInfo.username}
-									</h1>
-									${
-										this._userId != AbstractView.userInfo.id
-											? !this._friendship
-												?	`<div class="d-flex justify-content-end w-100 me-5 mt-3 pointer" id="add-friend-${this._userId}">
-														<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-person-plus-fill" viewBox="0 0 16 16">
-															<path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
-															<path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5"/>
-														</svg>
-													</div>`
-												:	`<div class="d-flex justify-content-end w-100 me-5 mt-3 pointer" id="remove-friend-${this._friendship.id}">
-														<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-person-dash-fill" viewBox="0 0 16 16">
-															<path fill-rule="evenodd" d="M11 7.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5"/>
-															<path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
-														</svg>
-													</div>`
-											:	``
-									}
-								</div>
-								<div id="date-joined">
-									<h1 style="font-size: 18px">
-										<span style="color: #ffd700;">Date joined:</span> 
-										<span style="color: white;">${this._userInfo.date_joined}</span>
-									</h1>
-								</div>
-								<div id="matches-played">
-									<h1 style="font-size: 18px">
-										<span style="color: #ffd700;">Matches played:</span> 
-										<span style="color: white;"> ${this._matchHistory ? this._matchHistory.length : 0}</span>
-									</h1>
-								</div>
-								<div id="player-record">
-									<h1 style="font-size: 18px">
-										<span style="color: #ffd700;">Record:</span> 
-										<span style="color: white;"> ${this._winRecord}W-${this._lossRecord}L</span>
-									</h1>
-								</div>
-								<div id="player-record">
-									<h1 style="font-size: 18px">
-										<span style="color: #ffd700;">Win rate:</span> 
-										<span style="color: white;"> ${Math.trunc(winPercentage)}%</span>
-									</h1>
-								</div>
-								${
-									this._friendship
-										?	`<div id="online-status-info-${this._userId}" class="d-flex flex-row">
-												<span class="${this._friendship.online ? "online-lg mt-1" : "offline-lg mt-1"}"></span>
-												<h3 
-													class="ms-2" 
-													style="font-size: 18px; font-weight: bold">${this._friendship.online ? "online" : "offline"}
-												</h3>
-											</div>`
-										: 	``
-								}
-							</div>
+						<div class="d-flex flex-row ms-4 mb-3" id="profile-page-user-info">
+							${this.loadProfilePageInfo()}
 						</div>
-						<div class="d-flex flex-column align-items-center mt-2">
-							<div id="match-history">
-								${await this.loadMatchHistory()}
-							</div>
+						<div class="d-flex flex-column align-items-center mt-2" id="match-history">
+							${await this.loadMatchHistory()}
 						</div
 					<div>
 				</div>
@@ -452,7 +461,7 @@ export default class ProfilePage extends AbstractView {
 		
 		const parentNode = document.getElementById("profile-page");
 		if (parentNode) {
-			parentNode.innerHTML = await this.loadProfilePage();
+			parentNode.innerHTML = await this.loadProfilePageContent();
 			this.addEventListners();
 		}
 	}
