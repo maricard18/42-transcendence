@@ -1,7 +1,7 @@
 import AbstractView from "../views/AbstractView";
 import logGameResult from "./logGameResult";
 import { ScreenHeight, ScreenWidth } from "../Game/Pong/variables";
-import { getPlayerIndex, sendNonHostMessage, updateScore } from "../Game/Pong/pongGame";
+import { getPlayerIndex, sendHostMessage, sendNonHostMessage, updateScore } from "../Game/Pong/pongGame";
 import { getToken } from "./tokens";
 import { Cpu, InvertedCpu } from "../Game/Pong/Player";
 import { ScreenSize } from "../Game/TicTacToe/variables";
@@ -510,9 +510,14 @@ function addCpuPlayer(index, game, id) {
 	}
 
 	for (let user of AbstractView.userData) {
-		if (user.id !== -1) {
+		if (user.id > 0) {
 			game.host_id = user.id;
-			console.warn("New Host -> ", user.id);
+			
+			setTimeout(() => {
+				game.paused = false;
+				sendHostMessage(game);
+            }, 800);
+
 			return ;
 		}
 	}
