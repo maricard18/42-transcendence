@@ -7,7 +7,7 @@ from common.exceptions import ServerError
 from common.utils import generate_host
 from .models import Friendship
 from .permissions import FriendshipPermission
-from .serializers import FriendshipSerializer, CreateFriendshipSerializer
+from .serializers import FriendshipSerializer, CreateFriendshipSerializer, FriendIdFilterSerializer
 
 
 ##########################
@@ -18,11 +18,13 @@ class FriendshipViewSet(viewsets.ViewSet):
     permission_classes = [FriendshipPermission]
 
     def list(self, request):
+        queryset = Friendship.objects.filter(user_id=request.user.id)
+
         friend_id_filter = request.GET.get("filter[friend_id]", None)
         if friend_id_filter:
-            queryset = Friendship.objects.filter(user_id=request.user.id, friend_id=friend_id_filter)
-        else:
-            queryset = Friendship.objects.filter(user_id=request.user.id)
+            serializer = FriendIdFilterSerializer(data={"friend_id": friend_id_filter})
+            if serializer.is_valid(raise_exception=True):
+                queryset = queryset.filter(friend_id=serializer.validated_data.get("friend_id"))
 
         serializer = FriendshipSerializer(queryset, many=True)
         return Response(Vault.cipherSensitiveFields(

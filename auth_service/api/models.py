@@ -185,7 +185,11 @@ class SSO_User(models.Model):
     )
     sso_id = models.IntegerField(
         _("sso_id"),
-        help_text=_("Required. An unique identifier at the SSO identity.")
+        unique=True,
+        help_text=_("Required. An unique identifier at the SSO identity."),
+        error_messages={
+            "unique": _("This account is already linked to an user."),
+        }
     )
     auth_user = models.OneToOneField(
         User,

@@ -148,12 +148,11 @@ for entity in $VAULT_APPROLE_ENTITIES; do
 
         if [ "${APP_NAME}" = "auth_service" ]; then
             echo "Adding sso-42-client-secret to ${APP_NAME}..."
-            vault kv put -mount="${APP_NAME}" sso-sso-sso-42-client-secret key="$(cat "$SSO_42_CLIENT_SECRET_FILE")"
+            vault kv put -mount="${APP_NAME}" sso-42-client-secret key="$(cat "$SSO_42_CLIENT_SECRET_FILE")"
             echo "sso-42-client-secret added to ${APP_NAME}..."
         fi
 
         touch "${APP_INIT_FILE}"
         echo "Entity ${APP_NAME} initialization complete."
-        echo ""
     fi
 done

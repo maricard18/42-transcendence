@@ -6,7 +6,8 @@ from common.Vault import Vault
 from common.utils import generate_host
 from .models import Game, GameResult, GamePlayer
 from .permissions import GamePermission
-from .serializers import CreateGameSerializer, CreateGamePlayerSerializer, CreateGameResultSerializer, GameSerializer
+from .serializers import CreateGameSerializer, CreateGamePlayerSerializer, CreateGameResultSerializer, GameSerializer, \
+    UserIdFilterSerializer
 
 
 ######################
@@ -17,13 +18,15 @@ class GameViewSet(viewsets.ViewSet):
     permission_classes = [GamePermission]
 
     def list(self, request):
-        id_filter = request.GET.get('filter[user_id]', None)
-        if id_filter:
-            game_players = GamePlayer.objects.filter(players__contains=[id_filter])
-            game_ids = [game_player.game.id for game_player in game_players]
-            queryset = Game.objects.filter(id__in=game_ids)
-        else:
-            queryset = Game.objects.all()
+        queryset = Game.objects.all()
+
+        user_id_filter = request.GET.get('filter[user_id]', None)
+        if user_id_filter:
+            serializer = UserIdFilterSerializer(data={"user_id": user_id_filter})
+            if serializer.is_valid(raise_exception=True):
+                game_players = GamePlayer.objects.filter(players__contains=[serializer.validated_data.get("user_id")])
+                game_ids = [game_player.game.id for game_player in game_players]
+                queryset = queryset.filter(id__in=game_ids)
 
         serializer = GameSerializer(queryset, many=True)
         return Response(Vault.cipherSensitiveFields(

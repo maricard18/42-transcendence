@@ -6,6 +6,12 @@ from rest_framework.response import Response
 from rest_framework.views import exception_handler
 
 
+class Conflict(APIException):
+    status_code = status.HTTP_409_CONFLICT
+    default_detail = _("Conflict")
+    default_code = "conflict"
+
+
 class ServerError(APIException):
     status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
     default_detail = _("Internal Server Error")
