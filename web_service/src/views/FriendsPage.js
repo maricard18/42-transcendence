@@ -293,7 +293,6 @@ export function updateFriendOnlineStatus(id, action = null) {
 
 export async function updateFriendsListOnlineStatus(id = null, action = null) {
 	for (let [index, friendship] of AbstractView.friendships.entries()) {
-		console.log(friendship);
 		if (id == friendship.friend_id) {
 			AbstractView.friendships[index]["online"] = action === "connected" ? true : false;
 		} else if (!friendship.online) {

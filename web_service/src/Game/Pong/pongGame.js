@@ -153,6 +153,13 @@ function multiplayer2GameLoop(game) {
 				   (game.player1.score === 5 || game.player2.score === 5)) {
 					const players = [game.player1, game.player2];
 					game.winner = getPlayerWithMostGoals(players).info.username;
+					
+					for (let data of AbstractView.userData.values()) {
+						if (data.id < 0) {
+							data.id *= -1;
+						}
+					}
+
 					game.over = true;
 					sendHostMessage(game);
 					logGameResult("pong", "multi", players);
@@ -228,6 +235,13 @@ function multiplayer4GameLoop(game) {
 					game.player3.score === 5 || game.player4.score === 5)) {
 					const players = [game.player1, game.player2, game.player3, game.player4];
 					game.winner = getPlayerWithMostGoals(players).info.username;
+
+					for (let data of AbstractView.userData.values()) {
+						if (data.id < 0) {
+							data.id *= -1;
+						}
+					}
+
 					game.over = true;
 					sendHostMessage(game);
 					logGameResult("pong", "multi", players);

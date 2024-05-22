@@ -48,7 +48,8 @@ export function createSinglePlayerGameObjects(ctx, lobbySize) {
             x: ScreenWidth / 2,
             y: ScreenHeight / 2,
             color: "white",
-        }),
+			lobbySize: lobbySize
+		}),
         player1: player1,
         player2: player2,
         mode: "single-player",
@@ -103,7 +104,8 @@ export function createMultiPlayer2GameObjects(ctx, lobbySize) {
             x: ScreenWidth / 2,
             y: ScreenHeight / 2,
             color: "white",
-        }),
+			lobbySize: lobbySize
+		}),
         player1: player1,
         player2: player2,
         mode: "multiplayer",
@@ -262,7 +264,8 @@ export function createMultiPlayer4GameObjects(ctx, lobbySize) {
             x: ScreenWidth / 2,
             y: ScreenHeight / 2,
             color: "white",
-        }),
+			lobbySize: lobbySize
+		}),
         player1: player1,
         player2: player2,
         player3: player3,
@@ -300,7 +303,8 @@ export function createTournamentGameObjects(ctx) {
             x: ScreenWidth / 2,
             y: ScreenHeight / 2,
             color: "white",
-        }),
+			lobbySize: lobbySize
+		}),
         player1: player1,
         player2: player2,
         mode: "tournament",

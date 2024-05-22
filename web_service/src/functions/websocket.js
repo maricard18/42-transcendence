@@ -35,7 +35,7 @@ export async function connectOnlineStatusWebsocket() {
     };
 
     StatusWebsocket.ws.onmessage = (event) => {
-        console.log("STATUS:", JSON.parse(event.data));
+        // console.log("STATUS:", JSON.parse(event.data));
 
         try {
             const jsonData = JSON.parse(event.data);

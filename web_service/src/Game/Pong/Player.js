@@ -66,26 +66,34 @@ export class Cpu extends Player {
         this.last_time = Date.now();
         this.direction = 0;
         this.speed = this.max_speed / 8;
+		this.paddleMiddle = this.y + this.height / 2;
     }
 
     update(game) {
+		let distanceToImpact, timeToReachPaddle, predictedBallY, distanceToPredictedBallY;
+		this.paddleMiddle = this.y + this.height / 2;
         const current_time = Date.now();
         const elapsedTime = (current_time - this.last_time) / 1000;
 
 		if ((this.x > ScreenWidth / 2 && game.ball.speed_x > 0) || (this.x < ScreenWidth / 2 && game.ball.speed_x < 0)) {
 			if (elapsedTime > 1) {
-				let distanceToImpact = Math.abs(game.ball.x - this.x);
-				let timeToReachPaddle = distanceToImpact / Math.abs(game.ball.speed_x);
-				let predictedBallY = game.ball.y + game.ball.speed_y * timeToReachPaddle;
-				let paddleMiddle = this.y + this.height / 2;
-				let distanceToPredictedBallY = predictedBallY - paddleMiddle;
+				distanceToImpact = Math.abs(game.ball.x - this.x);
+				timeToReachPaddle = distanceToImpact / Math.abs(game.ball.speed_x);
+				predictedBallY = game.ball.y + game.ball.speed_y * timeToReachPaddle;
+				distanceToPredictedBallY = predictedBallY - this.paddleMiddle;
                 this.speed = Math.min(Math.abs(distanceToPredictedBallY) / timeToReachPaddle, this.max_speed);
+
+				if (predictedBallY < 0) {
+					predictedBallY *= -1;
+				} else if (predictedBallY > ScreenHeight) {
+					predictedBallY = ScreenHeight - (predictedBallY - ScreenHeight);
+				}
 	
-				if (paddleMiddle > predictedBallY && this.y >= 0) {
+				if (this.paddleMiddle > predictedBallY && this.y >= 0) {
 					this.y -= this.speed * game.dt;
 					this.direction = -1;
 				}
-				if (paddleMiddle < predictedBallY && this.y + this.height <= ScreenHeight) {
+				if (this.paddleMiddle < predictedBallY && this.y + this.height <= ScreenHeight) {
 					this.y += this.speed * game.dt;
 					this.direction = 1;
 				}
@@ -167,42 +175,50 @@ export class InvertedCpu extends InvertedPlayer {
         this.last_time = Date.now();
         this.direction = 0;
         this.speed = this.max_speed / 8;
+		this.paddleMiddle = this.x + this.width / 2;
     }
 
     update(game) {
+		let distanceToImpact, timeToReachPaddle, predictedBallX, distanceToPredictedBallX;
+		this.paddleMiddle = this.x + this.width / 2;
         const current_time = Date.now();
         const elapsedTime = (current_time - this.last_time) / 1000;
 
-        if ((this.y > ScreenHeight / 2 && game.ball.speed_y > 0) || 
-            (this.y < ScreenHeight / 2 && game.ball.speed_y < 0)) {
-            if (elapsedTime > 1) {
-                let distanceToImpact = Math.abs(game.ball.y - this.y);
-                let timeToReachPaddle = distanceToImpact / Math.abs(game.ball.speed_y);
-                let predictedBallX = game.ball.x + game.ball.speed_x * timeToReachPaddle;
-                let paddleMiddle = this.x + this.width / 2;
-                let distanceToPredictedBallX = predictedBallX - paddleMiddle;
+		if ((this.y > ScreenHeight / 2 && game.ball.speed_y > 0) || (this.y < ScreenHeight / 2 && game.ball.speed_y < 0)) {
+			if (elapsedTime > 1) {
+				distanceToImpact = Math.abs(game.ball.y - this.y);
+				timeToReachPaddle = distanceToImpact / Math.abs(game.ball.speed_y);
+				predictedBallX = game.ball.x + game.ball.speed_x * timeToReachPaddle;
+				distanceToPredictedBallX = predictedBallX - this.paddleMiddle;
                 this.speed = Math.min(Math.abs(distanceToPredictedBallX) / timeToReachPaddle, this.max_speed);
 
-                if (paddleMiddle > predictedBallX && this.x >= 0) {
-                    this.x -= this.speed * game.dt;
-                    this.direction = -1;
-                }
-                if (paddleMiddle < predictedBallX && this.x + this.width <= ScreenWidth) {
-                    this.x += this.speed * game.dt;
-                    this.direction = 1;
-                }
-
-                this.last_time = Date.now();
-            } else {
-                if (this.direction > 0 && this.x + this.width <= ScreenWidth) {
-                    this.x += this.speed * game.dt;
-                } else if (this.direction < 0 && this.x >= 0) {
-                    this.x -= this.speed * game.dt;
-                }
-            }
-        }
+				if (predictedBallX < 0) {
+					predictedBallX *= -1;
+				} else if (predictedBallX > ScreenWidth) {
+					predictedBallX = ScreenWidth - (predictedBallX - ScreenWidth);
+				}
+	
+				if (this.paddleMiddle > predictedBallX && this.x >= 0) {
+					this.x -= this.speed * game.dt;
+					this.direction = -1;
+				}
+				if (this.paddleMiddle < predictedBallX && this.x + this.width <= ScreenWidth) {
+					this.x += this.speed * game.dt;
+					this.direction = 1;
+				}
+	
+				this.last_time = Date.now();
+			} else {
+				if (this.direction > 0 && this.x + this.width <= ScreenWidth) {
+					this.x += this.speed * game.dt;
+				} else if (this.direction < 0 && this.x >= 0) {
+					this.x -= this.speed * game.dt;
+				}
+			}
+		}
     }
 }
+
 
 export class InvertedOpponent extends InvertedPlayer {
 	constructor({x, y, color, keyRight, keyLeft, info}) {
