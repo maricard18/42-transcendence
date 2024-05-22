@@ -36,8 +36,9 @@ export async function startTicTacToe(game) {
 		await gameStartAnimation(game);
 		game.last_time = Date.now();
 		await multiplayer2GameLoop(game);
+		if (localStorage.getItem("game_status"))
+			closeWebsocket();
 		localStorage.removeItem("game_status");
-		closeWebsocket();
 		await gameConfettiAnimation(game);
 	} else {
 		await gameStartAnimation(game);

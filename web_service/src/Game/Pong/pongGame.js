@@ -50,16 +50,18 @@ export async function startPong(game) {
 		await gameStartAnimation(game);
 		game.last_time = Date.now();
 		await multiplayer2GameLoop(game);
+		if (localStorage.getItem("game_status"))
+			closeWebsocket();
 		localStorage.removeItem("game_status");
-		closeWebsocket();
 		await gameConfettiAnimation(game);
 	} else if (game.mode === "multiplayer" && game.lobbySize == 4) {
 		multiplayerPongMessageHandler(GameWebsocket, game);
 		await gameStartAnimation(game);
 		game.last_time = Date.now();
 		await multiplayer4GameLoop(game);
+		if (localStorage.getItem("game_status"))
+			closeWebsocket();
 		localStorage.removeItem("game_status");
-		closeWebsocket();
 		await gameConfettiAnimation(game);
 	} else {
 		await gameStartAnimation(game);
