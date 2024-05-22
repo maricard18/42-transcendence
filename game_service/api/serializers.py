@@ -1,8 +1,20 @@
-from common.exceptions import ServerError
 from django.conf import settings
 from rest_framework import serializers
 
+from common.exceptions import ServerError
 from .models import Game, GameResult, GamePlayer
+
+
+######################
+####  /api/games  ####
+######################
+
+class UserIdFilterSerializer(serializers.ModelSerializer):
+    user_id = serializers.IntegerField()
+
+    class Meta:
+        model = Game
+        fields = ("user_id",)
 
 
 class CreateGamePlayerSerializer(serializers.ModelSerializer):

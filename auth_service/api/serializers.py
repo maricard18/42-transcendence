@@ -1,10 +1,11 @@
 from django.contrib.auth.models import User
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.exceptions import ParseError
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from .models import Avatar
+from .models import Avatar, SSO_User
 from .models import OTP_Token
 
 
@@ -12,11 +13,39 @@ class AvatarSerializer(serializers.ModelSerializer):
     class Meta:
         model = Avatar
         fields = ("avatar", "link")
+        extra_kwargs = {
+            "avatar": {
+                "required": False
+            }
+        }
+
+
+class CreateAvatarLinkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Avatar
+        fields = ("link", "auth_user")
 
 
 ######################
 ####  /api/users  ####
 ######################
+
+class UsernameFilterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("username",)
+        extra_kwargs = {
+            "username": {
+                "validators": [UnicodeUsernameValidator()]
+            }
+        }
+
+
+class IsActiveFilterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("is_active",)
+
 
 class UserSerializer(serializers.ModelSerializer):
     avatar = serializers.SerializerMethodField()
@@ -49,11 +78,9 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
 
 class UpdateUserSerializer(serializers.ModelSerializer):
-    avatar = serializers.ImageField(required=False)
-
     class Meta:
         model = User
-        fields = ("username", "email", "password", "avatar")
+        fields = ("username", "email", "password")
         extra_kwargs = {
             "username": {"required": False},
             "password": {"required": False}
@@ -83,6 +110,7 @@ class OTPSerializer(serializers.ModelSerializer):
     class Meta:
         model = OTP_Token
         fields = ("active", "created_at")
+
 
 #######################
 ##### /auth/tokens ####
@@ -145,6 +173,12 @@ class TokenSerializer(serializers.Serializer):
 #######################
 #####  /auth/sso   ####
 #######################
+
+class CreateSSOUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SSO_User
+        fields = ("sso_provider", "username", "email", "sso_id", "auth_user")
+
 
 class SSOSerializer(serializers.Serializer):
     action = serializers.CharField()

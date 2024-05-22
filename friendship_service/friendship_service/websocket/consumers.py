@@ -55,6 +55,7 @@ class FriendshipConsumer(JsonWebsocketConsumer):
 
         self.friendships = [friendship.get('friend_id') for friendship in self.get_friendship_list(self.scope["auth"])]
         for friend_id in self.friendships:
+            friend_id = int(friend_id)
             if friend_id in FriendshipMiddleware.connected:
                 self.send(text_data=json.dumps({
                     "type": "system.message",

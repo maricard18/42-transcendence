@@ -14,13 +14,14 @@ from rest_framework_simplejwt.exceptions import TokenError, AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from common.Vault import Vault
-from common.exceptions import ServerError
+from common.exceptions import ServerError, Conflict
 from common.utils import remove_sensitive_information, generate_host
 from .models import OTP_Token, Avatar, SSO_User
 from .permissions import UserPermission, OTPPermission, TokenPermission, SSOPermission
 from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer, CreateOTPSerializer, \
     AuthUserSerializer, APITokenObtainPairSerializer, TokenSerializer, SSOSerializer, OTPSerializer, \
-    UpdateAvatarSerializer
+    UpdateAvatarSerializer, IsActiveFilterSerializer, UsernameFilterSerializer, CreateSSOUserSerializer, \
+    CreateAvatarLinkSerializer
 
 
 ######################
@@ -32,14 +33,21 @@ class UserViewSet(viewsets.ViewSet):
 
     # GET /api/users
     def list(self, request):
+        queryset = User.objects.all()
+
         username_filter = request.GET.get('filter[username]', None)
         if username_filter:
-            queryset = User.objects.filter(username__icontains=username_filter)
-        else:
-            queryset = User.objects.all()
+            serializer = UsernameFilterSerializer(data={"username": username_filter})
+            if serializer.is_valid(raise_exception=True):
+                queryset = queryset.filter(username__icontains=serializer.validated_data.get("username"))
+
+        is_active_filter = request.GET.get("filter[is_active]", None)
+        if is_active_filter:
+            serializer = IsActiveFilterSerializer(data={"is_active": is_active_filter})
+            if serializer.is_valid(raise_exception=True):
+                queryset = queryset.filter(is_active=serializer.validated_data.get("value"))
 
         serializer = UserSerializer(queryset, many=True)
-
         return Response(Vault.cipherSensitiveFields(
             remove_sensitive_information(request.user.id, serializer.data),
             request,
@@ -95,11 +103,14 @@ class UserViewSet(viewsets.ViewSet):
     # PUT /api/users/:id
     def update(self, request, pk=None):
         self.check_object_permissions(request, pk)
-        user = User.objects.get(pk=pk)
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            raise NotFound
         data = Vault.cipherSensitiveFields(request.data, request, Vault.transitDecrypt)
-        avatar = data.get("avatar", None)
-        if avatar:
-            if avatar == "":
+        if "avatar" in data:
+            avatar = data.get("avatar", None)
+            if not avatar:
                 Avatar.objects.filter(auth_user=user).delete()
             else:
                 serializer = UpdateAvatarSerializer(data={"avatar": data.get("avatar")})
@@ -109,6 +120,7 @@ class UserViewSet(viewsets.ViewSet):
                         avatar=serializer.validated_data.get("avatar"),
                         request=request
                     )
+                raise ServerError
             data.pop("avatar")
 
         serializer = UpdateUserSerializer(data=data, partial=True)
@@ -127,7 +139,10 @@ class UserViewSet(viewsets.ViewSet):
     # DELETE /api/users/:id
     def destroy(self, request, pk=None):
         self.check_object_permissions(request, pk)
-        user = User.objects.get(pk=pk)
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            raise NotFound
 
         # Delete Avatar
         Avatar.objects.filter(auth_user=user).delete()
@@ -139,7 +154,7 @@ class UserViewSet(viewsets.ViewSet):
         OTP_Token.objects.filter(auth_user=user).delete()
 
         # GDPR Anonymize User
-        user.username = secrets.token_hex(8)
+        user.username = secrets.token_hex(4)
         user.email = ""
         user.is_active = False
         user.save()
@@ -157,7 +172,10 @@ class OTPViewSet(viewsets.ViewSet):
     # POST /api/users/:id/otp
     def create(self, request, pk=None):
         self.check_object_permissions(request, pk)
-        user = User.objects.get(pk=pk)
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            raise NotFound
 
         serializer = CreateOTPSerializer(data={
             "auth_user": user.id
@@ -186,7 +204,10 @@ class OTPViewSet(viewsets.ViewSet):
     # GET /api/users/:id/otp
     def retrieve(self, request, pk=None):
         self.check_object_permissions(request, pk)
-        user = User.objects.get(pk=pk)
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            raise NotFound
 
         try:
             otp = OTP_Token.objects.get(auth_user=user)
@@ -218,7 +239,10 @@ class OTPViewSet(viewsets.ViewSet):
     # DELETE /api/users/:id/otp
     def destroy(self, request, pk=None):
         self.check_object_permissions(request, pk)
-        user = User.objects.get(pk=pk)
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            raise NotFound
 
         try:
             OTP_Token.objects.get(auth_user=user).delete()
@@ -348,6 +372,8 @@ class SSOViewSet(viewsets.ViewSet):
                         sso_id=user_info.get("id")
                     )
                     auth_user = user.auth_user
+                    if action == "link":
+                        raise Conflict
                 except SSO_User.DoesNotExist:
                     if action == "register":
                         username = user_info.get("login")
@@ -363,20 +389,35 @@ class SSOViewSet(viewsets.ViewSet):
                             username=username,
                             email=user_info.get("email")
                         )
-
-                    SSO_User.objects.create(
-                        sso_provider="101010",
-                        username=user_info.get("login"),
-                        email=user_info.get("email"),
-                        sso_id=user_info.get("id"),
-                        auth_user=auth_user
-                    )
-
-                    if user_info.get("image").get("link"):
-                        Avatar.objects.create(
-                            auth_user=auth_user,
-                            link=user_info.get("image").get("versions").get("medium")
+                    serializer = CreateSSOUserSerializer(data={
+                        "sso_provider": "101010",
+                        "username": user_info.get("login"),
+                        "email": user_info.get("email"),
+                        "sso_id": user_info.get("id"),
+                        "auth_user": auth_user.id
+                    })
+                    if serializer.is_valid(raise_exception=True):
+                        SSO_User.objects.create(
+                            sso_provider=serializer.validated_data.get("sso_provider"),
+                            username=serializer.validated_data.get("username"),
+                            email=serializer.validated_data.get("email"),
+                            sso_id=serializer.validated_data.get("sso_id"),
+                            auth_user=auth_user
                         )
+
+                    image = user_info.get("image", None)
+                    versions = image.get("versions", None)
+                    link = versions.get("medium", None)
+                    if link:
+                        serializer = CreateAvatarLinkSerializer(data={
+                            "link": link,
+                            "auth_user": auth_user.id
+                        })
+                        if serializer.is_valid(raise_exception=True):
+                            Avatar.objects.create(
+                                auth_user=auth_user,
+                                link=serializer.validated_data.get("link")
+                            )
 
                 if action == "link":
                     return Response(None, status=status.HTTP_204_NO_CONTENT)
