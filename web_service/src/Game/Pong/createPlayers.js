@@ -61,7 +61,7 @@ export function createMultiPlayer2GameObjects(ctx, lobbySize) {
     const host_id = AbstractView.userData[0].id;
     let player1, player2;
 
-    if (host_id === AbstractView.userInfo.id) {
+    if (host_id == AbstractView.userInfo.id) {
         player1 = new Player({
             x: PaddleStartX,
             y: ScreenHeight / 2 - PaddleHeight / 2,
@@ -116,7 +116,9 @@ export function createMultiPlayer4GameObjects(ctx, lobbySize) {
     const host_id = AbstractView.userData[0].id;
     let player1, player2, player3, player4;
 
-    if (host_id === AbstractView.userInfo.id) {
+	console.log("Id:", AbstractView.userInfo.id);
+
+    if (host_id == AbstractView.userInfo.id) {
         player1 = new Player({
             x: PaddleStartX,
             y: ScreenHeight / 2 - PaddleHeight / 2,
@@ -149,7 +151,7 @@ export function createMultiPlayer4GameObjects(ctx, lobbySize) {
             keyLeft: "ArrowLeft",
             info: AbstractView.userData[3],
         });
-    } else if (AbstractView.userInfo.id === AbstractView.userData[1].id) {
+    } else if (AbstractView.userInfo.id == AbstractView.userData[1].id) {
         player1 = new Opponent({
             x: PaddleStartX,
             y: ScreenHeight / 2 - PaddleHeight / 2,
@@ -182,7 +184,7 @@ export function createMultiPlayer4GameObjects(ctx, lobbySize) {
             keyLeft: "ArrowLeft",
             info: AbstractView.userData[3],
         });
-    } else if (AbstractView.userInfo.id === AbstractView.userData[2].id) {
+    } else if (AbstractView.userInfo.id == AbstractView.userData[2].id) {
         player1 = new Opponent({
             x: PaddleStartX,
             y: ScreenHeight / 2 - PaddleHeight / 2,
@@ -215,7 +217,7 @@ export function createMultiPlayer4GameObjects(ctx, lobbySize) {
             keyLeft: "ArrowLeft",
             info: AbstractView.userData[3],
         });
-    } else if (AbstractView.userInfo.id === AbstractView.userData[3].id) {
+    } else if (AbstractView.userInfo.id == AbstractView.userData[3].id) {
         player1 = new Opponent({
             x: PaddleStartX,
             y: ScreenHeight / 2 - PaddleHeight / 2,

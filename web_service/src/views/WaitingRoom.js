@@ -423,6 +423,7 @@ async function getUserData(value) {
 
     if (!response.ok) {
         console.log("Error: failed to fetch user data.");
+		closeWebsocket();
         return null;
     }
 
@@ -430,6 +431,7 @@ async function getUserData(value) {
         jsonData = await response.json();
     } catch (error) {
         console.log("Error: failed to parse response.");
+		closeWebsocket();
         return null;
     }
 
