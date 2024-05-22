@@ -73,35 +73,46 @@ export default class NavigationBar extends AbstractView {
     }
 
 	loadNavigationBarMenuChanges() {
-        const avatarElement = document.querySelector("img");
-        const baseAvatar = document.querySelector("base-avatar-box");
-        const h6 = document.querySelector("h6");
+		console.log("HERE");
+		const div = document.createElement("div");
+		const avatarContainer = document.getElementById("avatar-container");
+        const img = avatarContainer.querySelector("img");
+        const baseAvatar = avatarContainer.querySelector("base-avatar-box");
+        const h6 = avatarContainer.querySelector("h6");
         h6.innerText = AbstractView.userInfo.username ? AbstractView.userInfo.username : "loading ...";
 
 		if (!AbstractView.userInfo.avatar) {
-			if (avatarElement) {
-				avatarElement.remove();
+			if (img) {
 				const noAvatar = document.createElement("base-avatar-box");
 				noAvatar.setAttribute("size", "40");
 				h6.parentNode.insertBefore(noAvatar, h6);
-			}
-			
+				div.appendChild(noAvatar);
+				div.appendChild(h6);
+
+				if (avatarContainer) {
+					avatarContainer.innerHTML = div.innerHTML;
+				}
+			}			
 			return ;
 		}
 
-        if (avatarElement) {
-            avatarElement.setAttribute("src", AbstractView.userInfo.avatar);
-        } else {
-            baseAvatar.remove();
-            const avatarElement = document.createElement("img");
-			avatarElement.setAttribute("id", "nav-bar-avatar");
-            avatarElement.setAttribute("class", "white-border-sm");
-            avatarElement.setAttribute("alt", "Avatar preview");
-            avatarElement.setAttribute("width", "40");
-            avatarElement.setAttribute("height", "40");
-            avatarElement.setAttribute("style", "border-radius: 50%");
-            avatarElement.setAttribute("src", AbstractView.userInfo.avatar);
-            h6.parentNode.insertBefore(avatarElement, h6);
+        if (img) {
+            img.setAttribute("src", AbstractView.userInfo.avatar);
+        } else if (baseAvatar) {
+            const img = document.createElement("img");
+			img.setAttribute("id", "nav-bar-avatar");
+            img.setAttribute("class", "white-border-sm");
+            img.setAttribute("alt", "Avatar preview");
+            img.setAttribute("width", "40");
+            img.setAttribute("height", "40");
+            img.setAttribute("style", "border-radius: 50%");
+            img.setAttribute("src", AbstractView.userInfo.avatar);
+            div.appendChild(img);
+			div.appendChild(h6);
+
+			if (avatarContainer) {
+				avatarContainer.innerHTML = div.innerHTML;
+			}
         }
     }
 

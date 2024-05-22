@@ -199,14 +199,10 @@ export default class SettingsPage extends AbstractView {
             );
 
             if (response.ok) {
-                AbstractView.userInfo.avatar = URL.createObjectURL(
-                    this._avatar
-                );
+                AbstractView.userInfo.avatar = URL.createObjectURL(this._avatar);
                 
 				const avatarContainer = document.getElementById("avatar-container");
-                avatarContainer.dispatchEvent(
-                    new CustomEvent("avatar-container")
-                );
+                avatarContainer.dispatchEvent(new CustomEvent("avatar-container"));
                 
 				const p = this._parentNode.querySelector("p");
                 if (p.classList.contains("form-error")) {
