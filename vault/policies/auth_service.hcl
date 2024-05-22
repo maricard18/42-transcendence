@@ -16,3 +16,11 @@ path "transit/encrypt/transcendence" {
 path "transit/decrypt/transcendence" {
    capabilities = [ "update" ]
 }
+
+path "transcendence/*" {
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+path "auth_service/*" {
+  capabilities = ["create", "read", "update", "delete", "list"]
+}

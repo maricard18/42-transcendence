@@ -21,7 +21,7 @@ class BearerAuth(requests.auth.AuthBase):
 
 class FriendshipConsumer(JsonWebsocketConsumer):
     def get_friendship_list(self, auth: str) -> Union[list, None]:
-        cert_path = os.environ.get("SSL_CERT_PATH") + os.environ.get("SSL_CERT_FILE")
+        cert_path = os.environ.get("SSL_CERT_PATH")
         response = requests.get(
             "https://modsecurity-dev:8443/api/friendships",
             auth=BearerAuth(auth),

@@ -3,8 +3,8 @@ const webpack = require("webpack");
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 const fs = require('fs');
 
-const role_id = fs.readFileSync('/vault/transcendence/transcendence-role-id', 'utf8');
-const secret_id = fs.readFileSync('/vault/transcendence/transcendence-secret-id', 'utf8');
+const role_id = fs.readFileSync('/vault/transcendence/role-id', 'utf8');
+const secret_id = fs.readFileSync('/vault/transcendence/secret-id', 'utf8');
 
 module.exports = {
   entry: "./src/index.js",

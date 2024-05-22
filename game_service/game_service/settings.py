@@ -17,6 +17,8 @@ from pathlib import Path
 from common.Vault import Vault
 from common.utils import get_secret_from_file
 
+PROJECT_NAME = os.path.basename(Path(__file__).resolve().parent)
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -28,7 +30,7 @@ VAULT_SECRET_ID = get_secret_from_file(os.environ.get("VAULT_SECRET_ID_FILE"))
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = Vault.getVaultSecret("django-secret")
+SECRET_KEY = Vault.getVaultSecret("django-secret", PROJECT_NAME)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False if str(os.environ.get("DJANGO_DEBUG")).lower() == "false" else True
@@ -80,7 +82,7 @@ MIDDLEWARE = [
 # User-defined middleware
 MIDDLEWARE += []
 
-ROOT_URLCONF = "game_service.urls"
+ROOT_URLCONF = f"{PROJECT_NAME}.urls"
 
 TEMPLATES = [
     {
@@ -98,7 +100,7 @@ TEMPLATES = [
     },
 ]
 
-ASGI_APPLICATION = "game_service.asgi.application"
+ASGI_APPLICATION = f"{PROJECT_NAME}.asgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -106,9 +108,9 @@ ASGI_APPLICATION = "game_service.asgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": get_secret_from_file(os.environ.get("POSTGRES_DB_FILE")),
-        "USER": get_secret_from_file(os.environ.get("POSTGRES_USER_FILE")),
-        "PASSWORD": get_secret_from_file(os.environ.get("POSTGRES_PASSWORD_FILE")),
+        "NAME": Vault.getVaultSecret("postgres-db", PROJECT_NAME),
+        "USER": Vault.getVaultSecret("postgres-user", PROJECT_NAME),
+        "PASSWORD": Vault.getVaultSecret("postgres-password", PROJECT_NAME),
         "HOST": get_secret_from_file(os.environ.get("POSTGRES_HOST_FILE")),
     }
 }
@@ -193,7 +195,7 @@ SIMPLE_JWT = {
     "UPDATE_LAST_LOGIN": False,
 
     "ALGORITHM": "HS256",
-    "SIGNING_KEY": Vault.getVaultSecret("jwt-signing-key"),
+    "SIGNING_KEY": Vault.getVaultSecret("jwt-signing-key", "transcendence"),
     "VERIFYING_KEY": "",
     "AUDIENCE": None,
     "ISSUER": None,

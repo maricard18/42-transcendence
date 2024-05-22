@@ -2,6 +2,7 @@ import os
 import secrets
 
 import pyotp
+from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.http import HttpRequest
@@ -14,7 +15,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from common.Vault import Vault
 from common.exceptions import ServerError
-from common.utils import get_secret_from_file, remove_sensitive_information, generate_host
+from common.utils import remove_sensitive_information, generate_host
 from .models import OTP_Token, Avatar, SSO_User
 from .permissions import UserPermission, OTPPermission, TokenPermission, SSOPermission
 from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer, CreateOTPSerializer, \
@@ -329,7 +330,7 @@ class SSOViewSet(viewsets.ViewSet):
             response = requests.post("https://api.intra.42.fr/oauth/token", data={
                 "grant_type": "authorization_code",
                 "client_id": os.environ.get("SSO_42_CLIENT_ID"),
-                "client_secret": get_secret_from_file(os.environ.get("SSO_42_CLIENT_SECRET_FILE")),
+                "client_secret": Vault.getVaultSecret("sso-42-client-secret", settings.PROJECT_NAME),
                 "code": code,
                 "redirect_uri": os.environ.get("SSO_42_REDIRECT_URI")
             })

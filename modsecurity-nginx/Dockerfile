@@ -12,17 +12,18 @@ ARG SSL_CERT_KEY_PATH
 ARG SSL_CERT_KEY_FILE
 ARG SSL_CERT_KEY=${SSL_CERT_KEY_PATH}${SSL_CERT_KEY_FILE}
 
+ARG SSL_CONFIG=/etc/ssl/req.cnf
+
 RUN apk update && apk add --no-cache openssl
-    
 
 # Generate TLS Certificate
 RUN mkdir -p /etc/ssl/
 RUN mkdir -p $SSL_CERT_PATH
 RUN mkdir -p $SSL_CERT_KEY_PATH
 
-COPY modsecurity-nginx/req.cnf /etc/ssl/req.cnf
+COPY modsecurity-nginx/req.cnf "${SSL_CONFIG}"
 RUN openssl req -x509 -nodes -sha256 -newkey rsa:4096 -days 730 \
-    -config /etc/ssl/req.cnf -keyout "${SSL_CERT_KEY}" -out "${SSL_CERT}"
+    -config "${SSL_CONFIG}" -keyout "${SSL_CERT_KEY}" -out "${SSL_CERT}"
 
 RUN chmod o+r ${SSL_CERT}
 RUN chmod o+r ${SSL_CERT_KEY}
@@ -41,7 +42,7 @@ FROM owasp/modsecurity-crs:4.1-nginx-alpine-202404070904 as dev
 LABEL authors="bsilva-c"
 
 USER root
-EXPOSE 8080 8200 8443 8081
+EXPOSE 8080 8081 8200 8443
 
 ARG SSL_CERT_PATH
 ARG SSL_CERT_KEY_PATH
@@ -65,7 +66,7 @@ FROM owasp/modsecurity-crs:4.1-nginx-alpine-202404070904 as prod
 LABEL authors="bsilva-c"
 
 USER root
-EXPOSE 8080 8200 8443 8081
+EXPOSE 8080 8081 8200 8443
 
 ARG SSL_CERT_PATH
 ARG SSL_CERT_KEY_PATH
