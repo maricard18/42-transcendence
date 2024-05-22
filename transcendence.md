@@ -26,7 +26,6 @@ users play Pong with others. Must have a nice user interface and real-time multi
 |Gameplay / Ux	|Remote players								|Major	|1			|10     |Yes		|
 |Gameplay / Ux	|Multiplayers in the same game				|Major	|1			|10     |Yes		|
 |Gameplay / Ux	|Another Game with History and Matchmaking	|Major	|1			|10     |Yes		|
-|Gameplay / Ux	|Game Customization Options					|minor	| -			| -     |To Confirm **⚠ ALERT POINT!**	|
 |AI-Algo		|Introduce an AI Opponent					|Major	|1			|10     |Yes		|
 |Cybersecurity	|WAF/ModSecurity and HashiCorp Vault		|Major	|1			|10     |Yes		|
 |Cybersecurity	|Two-Factor Authentication and JWT			|Major	|1			|10     |Yes		|
@@ -57,7 +56,6 @@ users play Pong with others. Must have a nice user interface and real-time multi
 - [ ] `Major Module` Has an **AI Opponent** available to play against the user? [Go →](#ai-algo)                            
 - [ ] `Major Module` Can the user play against a **remote player** on the same game? [Go →](#remote-multiplayer)
 - [ ] `Major Module` Can the user play against **multiple players** in the same game remotely? [Go →](#remote-multiplayer)
-- [ ] `Major Module` Is possible to customize the **game options**? [Go →](#game-customization)
 - [ ] `Major Module` Can the user play a **second game** with history and matchmaking? [Go →](#second-game)
 
 ### User Management
@@ -163,15 +161,6 @@ users play Pong with others. Must have a nice user interface and real-time multi
 - [ ] All avatars are correct during the match?
 - [ ] Is all running in real-time and the game is smooth?
 - [ ] When the match is over, the winner is showed correctly?
-      
-[Top ↑](#game)
-
-### Game Customization
-- [ ] Is the user able to customize the game options?
-- [ ] Is the customization options user-friendly?
-- [ ] Can the user use different power-ups, attack or diferent maps?
-- [ ] Is still possible to play the simple pong game?
-- [ ] Is the customization options available to all games?
       
 [Top ↑](#game)
 
