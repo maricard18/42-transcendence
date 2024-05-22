@@ -1,7 +1,7 @@
 import AbstractView from "./AbstractView";
 import fetchData from "../functions/fetchData";
 import { navigateTo } from "../index";
-import { setToken } from "../functions/tokens";
+import { decode, getToken, logout, setToken } from "../functions/tokens";
 
 export default class Login42Page extends AbstractView {
     constructor() {
@@ -9,7 +9,7 @@ export default class Login42Page extends AbstractView {
         this.setTitle("Login 42");
         this._loading = true;
 		this._callbackDefined = false;
-		this._previousLocation = localStorage.getItem("previousLocation");
+		this._previousLocation = localStorage.getItem("previous_location");
 
 		this._observer = new MutationObserver(this.defineCallback.bind(this));
         this._observer.observe(document.body, {
@@ -23,22 +23,28 @@ export default class Login42Page extends AbstractView {
 			return ;
 		}
 
+		let access_token, decodedToken;
+		if (this._previousLocation) {
+			access_token = await getToken();
+			decodedToken = decode(access_token);
+		}
+
 		this._callbackDefined = true;
-        const query = window.location.search;
+		const query = window.location.search;
 		const response = await fetchData(
-			"/auth/sso/101010/callback" + query + "&action=register",
+			"/auth/sso/101010/callback" + query + 
+			`&action=${this._previousLocation ? `link&user_id=${decodedToken["user_id"]}` : "register"}`,
 			"GET",
 			null
 		);
 
 		if (response.ok) {
-			await setToken(response);
 			this._observer.disconnect();
-			if (this._previousLocation && 
-				this._previousLocation.startsWith("/home/profile")) {
-				localStorage.removeItem("previousLocation");
+			if (this._previousLocation && this._previousLocation.startsWith("/home/settings")) {
+				localStorage.removeItem("previous_location");
 				navigateTo(this._previousLocation);
 			} else {
+				await setToken(response);
 				navigateTo("/home");
 			}
 		} else {

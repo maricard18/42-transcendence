@@ -195,8 +195,10 @@ export default class FriendsPage extends AbstractView {
 
 	async loadDOMChanges() {
 		const parentNode = document.getElementById("friend-list");
-		parentNode.innerHTML = await this.loadFriendList();
-		await this.addEventListeners();
+		if (parentNode) {
+			parentNode.innerHTML = await this.loadFriendList();
+			await this.addEventListeners();
+		}
 	}
 
     async getHtml() {
@@ -252,7 +254,7 @@ export async function getMyFriendships() {
 	);
 
 	if (response.ok) {
-		AbstractView.friendships = await response.json();
+		return await response.json();
 	} else {
 		console.error("Error: failed to fetch my friends list ", response.status);
 	}
@@ -290,12 +292,10 @@ export function updateFriendOnlineStatus(id, action = null) {
 }
 
 export async function updateFriendsListOnlineStatus(id = null, action = null) {
-	await getMyFriendships();
-
 	for (let [index, friendship] of AbstractView.friendships.entries()) {
 		if (id == friendship.friend_id) {
 			AbstractView.friendships[index]["online"] = action === "connected" ? true : false;
-		} else {
+		} else if (!friendship.online) {
 			AbstractView.friendships[index]["online"] = false;
 		}
 

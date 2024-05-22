@@ -1,12 +1,12 @@
 import AbstractView from "../views/AbstractView";
+import logGameResult from "./logGameResult";
 import { ScreenHeight, ScreenWidth } from "../Game/Pong/variables";
-import { getPlayerIndex, sendNonHostMessage, updateScore } from "../Game/Pong/pongGame";
+import { getPlayerIndex, sendHostMessage, sendNonHostMessage, updateScore } from "../Game/Pong/pongGame";
 import { getToken } from "./tokens";
 import { Cpu, InvertedCpu } from "../Game/Pong/Player";
 import { ScreenSize } from "../Game/TicTacToe/variables";
 import { updateFriendsListOnlineStatus } from "../views/FriendsPage";
 import { getMyFriendships } from "../views/FriendsPage";
-import logGameResult from "./logGameResult";
 
 export var StatusWebsocket = {};
 export var GameWebsocket = {};
@@ -23,9 +23,9 @@ export async function connectOnlineStatusWebsocket() {
 
     StatusWebsocket.ws.onopen = async () => {
 		AbstractView.statusWsCreated = true;
-		await getMyFriendships();
+		AbstractView.friendships = await getMyFriendships();
 
-		if (!AbstractView.friendList) {
+		if (!AbstractView.friendships) {
 			updateFriendsListOnlineStatus();
 		}
     };
@@ -35,7 +35,7 @@ export async function connectOnlineStatusWebsocket() {
     };
 
     StatusWebsocket.ws.onmessage = (event) => {
-        //console.log("STATUS:", JSON.parse(event.data));
+        // console.log("STATUS:", JSON.parse(event.data));
 
         try {
             const jsonData = JSON.parse(event.data);
@@ -510,9 +510,14 @@ function addCpuPlayer(index, game, id) {
 	}
 
 	for (let user of AbstractView.userData) {
-		if (user.id !== -1) {
+		if (user.id > 0) {
 			game.host_id = user.id;
-			console.warn("New Host -> ", user.id);
+			
+			setTimeout(() => {
+				game.paused = false;
+				sendHostMessage(game);
+            }, 800);
+
 			return ;
 		}
 	}

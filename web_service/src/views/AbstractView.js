@@ -3,8 +3,7 @@ export default class AbstractView {
     static userQueue = {};
     static userData = {};
     static userReadyList = {};
-	static onlineStatus = {};
-	static friendList = [];
+	static friendships = [];
 	static statusWsCreated = false;
     static gameWsCreated = false;
     static wsConnectionStarted = false;

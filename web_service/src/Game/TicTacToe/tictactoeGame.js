@@ -36,8 +36,9 @@ export async function startTicTacToe(game) {
 		await gameStartAnimation(game);
 		game.last_time = Date.now();
 		await multiplayer2GameLoop(game);
+		if (localStorage.getItem("game_status"))
+			closeWebsocket();
 		localStorage.removeItem("game_status");
-		closeWebsocket();
 		await gameConfettiAnimation(game);
 	} else {
 		await gameStartAnimation(game);
@@ -98,6 +99,13 @@ function multiplayer2GameLoop(game) {
 				if ((game.over || !GameWebsocket.ws || !localStorage.getItem("game_status"))) {
 					const id = AbstractView.userInfo.id === game.host_id ? 1 : 2;
 					game.winner = game.winner === 1 ? game.player1.info.username : game.player2.info.username;
+
+					for (let data of AbstractView.userData.values()) {
+						if (data.id < 0) {
+							data.id *= -1;
+						}
+					}
+					
 					game.last_time = Date.now();
 					game.canvas.removeEventListener("click", clickHandler);
 					sendTicTacToeMessage(game, id);

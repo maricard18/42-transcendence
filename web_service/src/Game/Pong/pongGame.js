@@ -50,16 +50,18 @@ export async function startPong(game) {
 		await gameStartAnimation(game);
 		game.last_time = Date.now();
 		await multiplayer2GameLoop(game);
+		if (localStorage.getItem("game_status"))
+			closeWebsocket();
 		localStorage.removeItem("game_status");
-		closeWebsocket();
 		await gameConfettiAnimation(game);
 	} else if (game.mode === "multiplayer" && game.lobbySize == 4) {
 		multiplayerPongMessageHandler(GameWebsocket, game);
 		await gameStartAnimation(game);
 		game.last_time = Date.now();
 		await multiplayer4GameLoop(game);
+		if (localStorage.getItem("game_status"))
+			closeWebsocket();
 		localStorage.removeItem("game_status");
-		closeWebsocket();
 		await gameConfettiAnimation(game);
 	} else {
 		await gameStartAnimation(game);
@@ -153,6 +155,13 @@ function multiplayer2GameLoop(game) {
 				   (game.player1.score === 5 || game.player2.score === 5)) {
 					const players = [game.player1, game.player2];
 					game.winner = getPlayerWithMostGoals(players).info.username;
+					
+					for (let data of AbstractView.userData.values()) {
+						if (data.id < 0) {
+							data.id *= -1;
+						}
+					}
+
 					game.over = true;
 					sendHostMessage(game);
 					logGameResult("pong", "multi", players);
@@ -228,6 +237,13 @@ function multiplayer4GameLoop(game) {
 					game.player3.score === 5 || game.player4.score === 5)) {
 					const players = [game.player1, game.player2, game.player3, game.player4];
 					game.winner = getPlayerWithMostGoals(players).info.username;
+
+					for (let data of AbstractView.userData.values()) {
+						if (data.id < 0) {
+							data.id *= -1;
+						}
+					}
+
 					game.over = true;
 					sendHostMessage(game);
 					logGameResult("pong", "multi", players);

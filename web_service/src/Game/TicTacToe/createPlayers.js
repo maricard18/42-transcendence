@@ -28,7 +28,7 @@ export function createMultiPlayer2GameObjects(canvas, lobbySize) {
     const host_id = AbstractView.userData[0].id;
     let player1, player2;
 
-    if (host_id === AbstractView.userInfo.id) {
+    if (host_id == AbstractView.userInfo.id) {
         player1 = new Player({ symbol: "X", info: AbstractView.userData[0] });
         player2 = new Opponent({ symbol: "O", info: AbstractView.userData[1] });
     } else {

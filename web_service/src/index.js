@@ -174,6 +174,12 @@ function cleanData(location) {
 		location !== "/home/tic-tac-toe/tournament/matchmaking") {
 		cleanTournamentStorage();
 	}
+
+	if (location !== "/home/settings" && 
+		location !== "/create-profile-42" &&
+		location !== "/login-42") {
+		localStorage.removeItem("previous_location");
+	}
 }
 
 export function cleanTournamentStorage() {
