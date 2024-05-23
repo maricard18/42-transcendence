@@ -61,16 +61,16 @@ services:
       - ssl_cert_data:${SSL_CERT_PATH}:ro
       - vault_services-auth_service-data:/vault/auth_service/:ro
     depends_on:
-      auth_service-postgres:
-        condition: service_healthy
-      auth_service-db_migrations:
-        condition: service_completed_successfully
       modsecurity:
         condition: service_started
       vault_service-init:
         condition: service_started
       vault_service:
         condition: service_healthy
+      auth_service-postgres:
+        condition: service_healthy
+      auth_service-db_migrations:
+        condition: service_completed_successfully
     profiles: [ "", "auth_service" ]
     restart: always
 
@@ -139,17 +139,17 @@ services:
       - ssl_cert_data:${SSL_CERT_PATH}:ro
       - vault_services-game_service-data:/vault/game_service/:ro
     depends_on:
-      game_service-postgres:
-        condition: service_healthy
-      game_service-db_migrations:
-        condition: service_completed_successfully
-      game_service-redis:
-        condition: service_healthy
       modsecurity:
         condition: service_started
       vault_service-init:
         condition: service_started
       vault_service:
+        condition: service_healthy
+      game_service-postgres:
+        condition: service_healthy
+      game_service-db_migrations:
+        condition: service_completed_successfully
+      game_service-redis:
         condition: service_healthy
     profiles: [ "", "game_service" ]
     restart: always
@@ -219,17 +219,17 @@ services:
       - ssl_cert_data:${SSL_CERT_PATH}:ro
       - vault_services-friendship_service-data:/vault/friendship_service/:ro
     depends_on:
-      friendship_service-postgres:
-        condition: service_healthy
-      friendship_service-db_migrations:
-        condition: service_completed_successfully
-      friendship_service-redis:
-        condition: service_healthy
       modsecurity:
         condition: service_started
       vault_service-init:
         condition: service_started
       vault_service:
+        condition: service_healthy
+      friendship_service-postgres:
+        condition: service_healthy
+      friendship_service-db_migrations:
+        condition: service_completed_successfully
+      friendship_service-redis:
         condition: service_healthy
     profiles: [ "", "friendship_service" ]
     restart: always
@@ -457,11 +457,11 @@ services:
       - ssl_cert_data:${SSL_CERT_PATH}:ro
       - vault_services-auth_service-data:/vault/auth_service/:ro
     depends_on:
-      auth_service-postgres:
-        condition: service_healthy
       vault_service-init:
         condition: service_started
       vault_service:
+        condition: service_healthy
+      auth_service-postgres:
         condition: service_healthy
     profiles: [ "", "auth_service", "tools" ]
     restart: on-failure
@@ -510,11 +510,11 @@ services:
       - ssl_cert_data:${SSL_CERT_PATH}:ro
       - vault_services-game_service-data:/vault/game_service/:ro
     depends_on:
-      game_service-postgres:
-        condition: service_healthy
       vault_service-init:
         condition: service_started
       vault_service:
+        condition: service_healthy
+      game_service-postgres:
         condition: service_healthy
     profiles: [ "", "game_service", "tools" ]
     restart: on-failure
@@ -563,11 +563,11 @@ services:
       - ssl_cert_data:${SSL_CERT_PATH}:ro
       - vault_services-friendship_service-data:/vault/friendship_service/:ro
     depends_on:
-      friendship_service-postgres:
-        condition: service_healthy
       vault_service-init:
         condition: service_started
       vault_service:
+        condition: service_healthy
+      friendship_service-postgres:
         condition: service_healthy
     profiles: [ "", "friendship_service", "tools" ]
     restart: on-failure

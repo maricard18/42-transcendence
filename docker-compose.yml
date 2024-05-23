@@ -61,16 +61,16 @@ services:
       - ssl_cert_data-dev:${SSL_CERT_PATH}:ro
       - vault_services-auth_service-data-dev:/vault/auth_service/:ro
     depends_on:
-      auth_service-postgres-dev:
-        condition: service_healthy
-      auth_service-db_migrations-dev:
-        condition: service_completed_successfully
       modsecurity-dev:
         condition: service_started
       vault_service-init-dev:
         condition: service_started
       vault_service-dev:
         condition: service_healthy
+      auth_service-postgres-dev:
+        condition: service_healthy
+      auth_service-db_migrations-dev:
+        condition: service_completed_successfully
     profiles: [ "", "auth_service" ]
     restart: on-failure
 
@@ -150,17 +150,17 @@ services:
       - ssl_cert_data-dev:${SSL_CERT_PATH}:ro
       - vault_services-game_service-data-dev:/vault/game_service/:ro
     depends_on:
-      game_service-postgres-dev:
-        condition: service_healthy
-      game_service-db_migrations-dev:
-        condition: service_completed_successfully
-      game_service-redis-dev:
-        condition: service_healthy
       modsecurity-dev:
         condition: service_started
       vault_service-init-dev:
         condition: service_started
       vault_service-dev:
+        condition: service_healthy
+      game_service-postgres-dev:
+        condition: service_healthy
+      game_service-db_migrations-dev:
+        condition: service_completed_successfully
+      game_service-redis-dev:
         condition: service_healthy
     profiles: [ "", "game_service" ]
     restart: on-failure
@@ -241,17 +241,17 @@ services:
       - ssl_cert_data-dev:${SSL_CERT_PATH}:ro
       - vault_services-friendship_service-data-dev:/vault/friendship_service/:ro
     depends_on:
-      friendship_service-postgres-dev:
-        condition: service_healthy
-      friendship_service-db_migrations-dev:
-        condition: service_completed_successfully
-      friendship_service-redis-dev:
-        condition: service_healthy
       modsecurity-dev:
         condition: service_started
       vault_service-init-dev:
         condition: service_started
       vault_service-dev:
+        condition: service_healthy
+      friendship_service-postgres-dev:
+        condition: service_healthy
+      friendship_service-db_migrations-dev:
+        condition: service_completed_successfully
+      friendship_service-redis-dev:
         condition: service_healthy
     profiles: [ "", "friendship_service" ]
     restart: on-failure
@@ -427,6 +427,8 @@ services:
       - vault_services-game_service-data-dev:/vault/game_service/:rw
       - vault_services-friendship_service-data-dev:/vault/friendship_service/:rw
       - vault_services-web_service-data-dev:/vault/web_service/:rw
+    cap_add:
+      - IPC_LOCK
     depends_on:
       vault_service-dev:
         condition: service_started
@@ -452,11 +454,11 @@ services:
       - ssl_cert_data-dev:${SSL_CERT_PATH}:ro
       - vault_services-auth_service-data-dev:/vault/auth_service/:ro
     depends_on:
-      auth_service-postgres-dev:
-        condition: service_healthy
       vault_service-init-dev:
         condition: service_started
       vault_service-dev:
+        condition: service_healthy
+      auth_service-postgres-dev:
         condition: service_healthy
     profiles: [ "", "auth_service", "tools" ]
     restart: no
@@ -505,11 +507,11 @@ services:
       - ssl_cert_data-dev:${SSL_CERT_PATH}:ro
       - vault_services-game_service-data-dev:/vault/game_service/:ro
     depends_on:
-      game_service-postgres-dev:
-        condition: service_healthy
       vault_service-init-dev:
         condition: service_started
       vault_service-dev:
+        condition: service_healthy
+      game_service-postgres-dev:
         condition: service_healthy
     profiles: [ "", "game_service", "tools" ]
     restart: no
@@ -558,11 +560,11 @@ services:
       - ssl_cert_data-dev:${SSL_CERT_PATH}:ro
       - vault_services-friendship_service-data-dev:/vault/friendship_service/:ro
     depends_on:
-      friendship_service-postgres-dev:
-        condition: service_healthy
       vault_service-init-dev:
         condition: service_started
       vault_service-dev:
+        condition: service_healthy
+      friendship_service-postgres-dev:
         condition: service_healthy
     profiles: [ "", "friendship_service", "tools" ]
     restart: no

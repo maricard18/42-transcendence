@@ -1,8 +1,6 @@
 FROM hashicorp/vault:1.13.3 as build
 LABEL authors="bsilva-c"
 
-USER root
-
 RUN apk update && apk add --no-cache gettext
 
 RUN mkdir -p /vault/config/template/
@@ -16,8 +14,6 @@ RUN envsubst '$SSL_CERT_PATH $SSL_CERT_KEY_PATH' < /vault/config/template/vault-
 
 FROM hashicorp/vault:1.13.3 as service
 LABEL authors="bsilva-c"
-
-USER vault
 
 COPY --from=build /vault/config/vault-config.json /vault/config/vault-config.json
 
