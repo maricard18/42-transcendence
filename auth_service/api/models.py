@@ -2,10 +2,8 @@ import os
 import secrets
 import unicodedata
 
-from django.apps.registry import apps
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -70,38 +68,6 @@ class AvatarManager(models.Manager):
 
 class SSO_UserManager(models.Manager):
 
-    @staticmethod
-    def normalize_email(email):
-        """
-        Normalize the email address by lowercasing the domain part of it.
-        """
-        email = email or ""
-        try:
-            email_name, domain_part = email.strip().rsplit("@", 1)
-        except ValueError:
-            pass
-        else:
-            email = email_name + "@" + domain_part.lower()
-        return email
-
-    def create_user(self, sso_provider, sso_id, username, email, auth_user):
-        """
-        Create and save a user with the given username, email, and password.
-        """
-        if not username:
-            raise ValueError(_("The given username must be set."))
-        email = self.normalize_email(email)
-        # Lookup the real model class from the global app registry so this
-        # manager method can be used in migrations. This is fine because
-        # managers are by definition working on the real model.
-        GlobalUserModel = apps.get_model(
-            self.model._meta.app_label, self.model._meta.object_name
-        )
-        username = GlobalUserModel.normalize_username(username)
-        user = self.model(sso_provider=sso_provider, sso_id=sso_id, username=username, email=email, auth_user=auth_user)
-        user.save(using=self._db)
-        return user
-
     def get_or_create(self, defaults=None, **kwargs):
         created = False
         try:
@@ -113,8 +79,6 @@ class SSO_UserManager(models.Manager):
             user = SSO_User.objects.create_user(
                 sso_provider=kwargs["sso_provider"],
                 sso_id=kwargs["sso_id"],
-                username=kwargs["username"],
-                email=kwargs["email"],
                 auth_user=kwargs["auth_user"]
             )
             created = True
@@ -167,29 +131,9 @@ class SSO_User(models.Model):
         max_length=8,
         help_text=_("Required. The SSO used to signup/login.")
     )
-
-    username_validator = UnicodeUsernameValidator()
-    username = models.CharField(
-        _("username"),
-        max_length=150,
-        unique=True,
-        help_text=_("Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."),
-        validators=[username_validator],
-        error_messages={
-            "unique": _("A user with that username already exists."),
-        }
-    )
-    email = models.EmailField(
-        _("email address"),
-        blank=True,
-    )
     sso_id = models.IntegerField(
         _("sso_id"),
-        unique=True,
-        help_text=_("Required. An unique identifier at the SSO identity."),
-        error_messages={
-            "unique": _("This account is already linked to an user."),
-        }
+        help_text=_("Required. An unique identifier at the SSO identity.")
     )
     auth_user = models.OneToOneField(
         User,

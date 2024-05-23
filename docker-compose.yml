@@ -327,7 +327,7 @@ services:
         condition: service_started
     cap_add:
       - IPC_LOCK
-    profiles: [ "", "auth_service", "web_service" ]
+    profiles: [ "", "vault_service" ]
     restart: on-failure
 
   telegraf-dev:
@@ -430,6 +430,7 @@ services:
     depends_on:
       vault_service-dev:
         condition: service_started
+    profiles: [ "", "vault_service", "tools" ]
     restart: no
 
   auth_service-db_migrations-dev:

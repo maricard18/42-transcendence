@@ -2,8 +2,6 @@
 
 set -euo pipefail
 
-apk add --no-cache jq openssl
-
 create_approle() {
   echo "Creating $1 Approle..."
   vault write auth/approle/role/"$1" token_policies="$1" token_ttl=2h token_max_ttl=6h

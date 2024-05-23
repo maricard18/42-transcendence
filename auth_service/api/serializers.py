@@ -14,16 +14,18 @@ class AvatarSerializer(serializers.ModelSerializer):
         model = Avatar
         fields = ("avatar", "link")
         extra_kwargs = {
-            "avatar": {
-                "required": False
-            }
+            "avatar": {"required": False}
         }
 
 
-class CreateAvatarLinkSerializer(serializers.ModelSerializer):
+class CreateAvatarSerializer(serializers.ModelSerializer):
     class Meta:
         model = Avatar
-        fields = ("link", "auth_user")
+        fields = ("avatar", "link", "auth_user")
+        extra_kwargs = {
+            "avatar": {"required": False},
+            "link": {"required": False}
+        }
 
 
 ######################
@@ -70,11 +72,9 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
-    avatar = serializers.ImageField(required=False)
-
     class Meta:
         model = User
-        fields = ("username", "email", "password", "avatar")
+        fields = ("username", "email", "password")
 
 
 class UpdateUserSerializer(serializers.ModelSerializer):
@@ -103,7 +103,7 @@ class UpdateAvatarSerializer(serializers.ModelSerializer):
 class CreateOTPSerializer(serializers.ModelSerializer):
     class Meta:
         model = OTP_Token
-        fields = ("auth_user",)
+        fields = ("auth_user", "token")
 
 
 class OTPSerializer(serializers.ModelSerializer):
@@ -177,7 +177,7 @@ class TokenSerializer(serializers.Serializer):
 class CreateSSOUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = SSO_User
-        fields = ("sso_provider", "username", "email", "sso_id", "auth_user")
+        fields = ("sso_provider", "sso_id", "auth_user")
 
 
 class SSOSerializer(serializers.Serializer):
