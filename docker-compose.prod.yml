@@ -436,7 +436,7 @@ services:
     depends_on:
       vault_service:
         condition: service_started
-    restart: on-failure
+    restart: on-failure:3
 
   auth_service-db_migrations:
     build:
@@ -464,7 +464,7 @@ services:
       auth_service-postgres:
         condition: service_healthy
     profiles: [ "", "auth_service", "tools" ]
-    restart: on-failure
+    restart: on-failure:3
 
   auth_service-collectstatic:
     build:
@@ -489,7 +489,7 @@ services:
       vault_service:
         condition: service_healthy
     profiles: [ "", "auth_service", "tools" ]
-    restart: on-failure
+    restart: on-failure:3
 
   game_service-db_migrations:
     build:
@@ -517,7 +517,7 @@ services:
       game_service-postgres:
         condition: service_healthy
     profiles: [ "", "game_service", "tools" ]
-    restart: on-failure
+    restart: on-failure:3
 
   game_service-collectstatic:
     build:
@@ -542,7 +542,7 @@ services:
       vault_service:
         condition: service_healthy
     profiles: [ "", "game_service", "tools" ]
-    restart: on-failure
+    restart: on-failure:3
 
   friendship_service-db_migrations:
     build:
@@ -570,7 +570,7 @@ services:
       friendship_service-postgres:
         condition: service_healthy
     profiles: [ "", "friendship_service", "tools" ]
-    restart: on-failure
+    restart: on-failure:3
 
   friendship_service-collectstatic:
     build:
@@ -595,7 +595,7 @@ services:
       vault_service:
         condition: service_healthy
     profiles: [ "", "friendship_service", "tools" ]
-    restart: on-failure
+    restart: on-failure:3
 
   web_service:
     build:
@@ -613,7 +613,7 @@ services:
       vault_service:
         condition: service_healthy
     profiles: [ "", "web_service", "tools" ]
-    restart: on-failure
+    restart: on-failure:3
 
   nikto:
     build:
@@ -628,7 +628,7 @@ services:
       modsecurity:
         condition: service_started
     profiles: [ "web_service", "tools" ]
-    restart: on-failure
+    restart: on-failure:3
 
 networks:
   transcendence:
