@@ -1,5 +1,5 @@
 import fetchData from "./fetchData";
-import { getToken } from "./tokens";
+import {getToken} from "./tokens";
 
 export default async function logGameResult(game, mode, players) {
 	const playersInfoMessage = {};
@@ -32,8 +32,8 @@ export default async function logGameResult(game, mode, players) {
 
 	if (response.ok) {
 		const jsonData = await response.json();
-		console.log("Game Creation Response:", jsonData);
+		console.debug("Game Creation Response:", jsonData);
 	} else {
-		console.error("Error: failed to create game ", response.status);
+		console.debug("Error: failed to create game ", response.status);
 	}
 }

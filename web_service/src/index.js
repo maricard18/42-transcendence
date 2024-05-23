@@ -1,7 +1,7 @@
 import AbstractView from "./views/AbstractView";
-import { routes } from "./router";
-import { getToken } from "./functions/tokens";
-import { closeWebsocket, connectOnlineStatusWebsocket } from "./functions/websocket";
+import {routes} from "./router";
+import {getToken} from "./functions/tokens";
+import {closeWebsocket, connectOnlineStatusWebsocket} from "./functions/websocket";
 import "./functions/defineComponents";
 import "../static/css/index.css";
 
@@ -84,7 +84,7 @@ function findMatch(url, routes, previousMatches = []) {
 			}
 
 			if (newUrl.length > 0) {
-				console.error(`Error: Location ${location.pathname} not found`);
+				console.debug(`Error: Location ${location.pathname} not found`);
 				navigateTo("/home");
 				return -1;
 			}
@@ -93,7 +93,7 @@ function findMatch(url, routes, previousMatches = []) {
         }
     } else {
 		if (url.length > 0) {
-			console.error(`Error: Location ${location.pathname} not found`);
+			console.debug(`Error: Location ${location.pathname} not found`);
 			navigateTo("/home");
 			return -1;
 		}
@@ -150,7 +150,7 @@ function hasWebSocket(matches) {
 		AbstractView.previousLocation === "/home/pong/play/multiplayer/2" ||
 		AbstractView.previousLocation === "/home/pong/play/multiplayer/4" ||
 		AbstractView.previousLocation === "/home/tic-tac-toe/play/multiplayer/2")) {
-        console.log("User has a websocket open!")
+		console.debug("User has a websocket open!")
         return true;
     } else {
         return false;
@@ -198,6 +198,9 @@ export function cleanTournamentStorage() {
 }
 
 export async function navigateTo(url) {
+	const event = new CustomEvent(location.pathname);
+    window.dispatchEvent(event);
+
     history.pushState(null, "", url);
     await router();
 }

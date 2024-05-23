@@ -8,8 +8,11 @@ export default async function handleResponse(response) {
         errors.message = "Incorrect password";
         errors.password = 1;
     } else if (response.status === 404) {
-        errors.message = "Username doesn't exist";
-        errors.username = 1;
+		const content_type = response.headers.get("content-type");
+        errors.message = content_type === "application/json" 
+			? "User does not exist"
+			: "Server error please try again later";
+		errors.username = 1;
     } else {
         errors.message = "Internal Server Error";
         errors.username = 1;

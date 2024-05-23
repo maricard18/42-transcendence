@@ -1,5 +1,5 @@
-import {decode, getToken, logout} from "./tokens";
 import fetchData from "./fetchData";
+import {decode, getToken} from "./tokens";
 import {transitDecrypt} from "./vaultAccess";
 
 export default async function getUserInfo(token = null, id = null) {
@@ -12,7 +12,7 @@ export default async function getUserInfo(token = null, id = null) {
 			accessToken = token;
 		}
     } catch (error) {
-        console.log("Error: failed to get access token");
+		console.debug("Error: failed to get access token");
         return;
     }
 
@@ -24,7 +24,7 @@ export default async function getUserInfo(token = null, id = null) {
 			user_id = id;
 		}
     } catch (error) {
-        console.log("Error: failed to decode token.");
+		console.debug("Error: failed to decode token.");
         return;
     }
 
@@ -39,14 +39,13 @@ export default async function getUserInfo(token = null, id = null) {
     );
 
     if (!response.ok) {
-        console.log("Error: failed to fetch user data.");
         return;
     }
 
     try {
         jsonData = await response.json();
     } catch (error) {
-        console.log("Error: failed to parse response");
+		console.debug("Error: failed to parse response");
         return;
     }
 

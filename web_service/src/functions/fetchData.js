@@ -1,6 +1,3 @@
-import AbstractView from "../views/AbstractView";
-import { getToken } from "./tokens";
-
 export default async function fetchData(endpoint, method, headers = {}, body = null) {
     const fetchOptions = {
         method: method,
@@ -15,7 +12,7 @@ export default async function fetchData(endpoint, method, headers = {}, body = n
 
     const protocol = window.location.protocol;
     const host = window.location.host;
-    const response = await fetch(protocol + "//" + host + endpoint, fetchOptions);
+	const response = await fetch(protocol + "//" + host + endpoint, fetchOptions);
 
     return response;
 }
@@ -46,27 +43,51 @@ export function getPageTitle(path) {
         case "/home/pong/multiplayer":
             return "Pong Multiplayer";
         case "/home/pong/multiplayer/waiting-room/2":
-            return "Pong Multiplayer Waiting Room";
+            return "Pong Waiting Room";
         case "/home/pong/multiplayer/waiting-room/4":
-            return "Pong Multiplayer Waiting Room";
-        case "/home/pong/single-player/tournament":
-            return "Pong Single Player Tournament";
-        case "/home/pong/play/single-player/1":
-            return "Pong Single Player 1 player";
-        case "/home/pong/play/single-player/2":
-            return "Pong Single Player 2 players";
-        case "/home/pong/play/multiplayer/2":
-            return "Pong Multiplayer 2 players";
-        case "/home/pong/play/multiplayer/4":
-            return "Pong Multiplayer 4 players";
+            return "Pong Waiting Room";
+		case "/home/pong/tournament":
+			return "Pong Tournament";
+		case "/home/tic-tac-toe":
+			return "Tic Tac Toe Menu";
+		case "/home/tic-tac-toe/single-player":
+			return "Tic Tac Toe Single Player";
+		case "/home/tic-tac-toe/multiplayer":
+			return "Tic Tac Toe Multiplayer";
+		case "/home/tic-tac-toe/multiplayer/waiting-room/2":
+			return "Tic Tac Toe Waiting Room";
+		case "/home/tic-tac-toe/tournament":
+			return "Tic Tac Toe Tournament";
         case "/home/settings/account":
             return "Account";
         case "/home/settings/security":
             return "Security";
 		case "/home/friends":
 			return "Friends";
-		case "/home/settings/security":
-			return "Security";
+		case "/home/pong/tournament/creation":
+			return "Tournament Creation";
+		case "/home/pong/tournament/matchmaking":
+			return "Tournament Matchmaking";
+		case "/home/pong/play/single-player/1":
+			return "Pong";
+		case "/home/pong/play/single-player/2":
+			return "Pong";
+		case "/home/pong/play/multiplayer/2":
+			return "Pong";
+		case "/home/pong/play/multiplayer/4":
+			return "Pong";
+		case "/home/pong/play/tournament/2":
+			return "Pong";
+		case "/home/tic-tac-toe/tournament/creation":
+			return "Tournament Creation";
+		case "/home/tic-tac-toe/tournament/matchmaking":
+			return "Tournament Matchmaking";
+		case "/home/tic-tac-toe/play/single-player/2":
+			return "Tic Tac Toe";
+		case "/home/tic-tac-toe/play/multiplayer/2":
+			return "Tic Tac Toe";
+		case "/home/tic-tac-toe/play/tournament/2":
+			return "Tic Tac Toe";
 		default:
 			if (path.startsWith("/home/profile/")) {
 				return "Profile";

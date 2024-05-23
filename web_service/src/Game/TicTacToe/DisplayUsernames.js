@@ -1,5 +1,5 @@
 import AbstractView from "../../views/AbstractView";
-import { findTournamentMatch } from "../../views/Tournament";
+import {findTournamentMatch} from "../../views/Tournament";
 
 export class Display2Usernames extends AbstractView {
     constructor(view) {
@@ -138,7 +138,7 @@ export class Display2Usernames extends AbstractView {
         	`;
         } else if (this._gameMode === "tournament" && this._lobbySize == 2) {
 			const match = findTournamentMatch();
-			console.log("match:", match);
+			console.debug("match:", match);
 
             return `
 				<div class="d-flex flex-row justify-content-between" id="display-usernames">

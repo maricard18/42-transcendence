@@ -1,12 +1,11 @@
 import AbstractView from "../views/AbstractView";
 import logGameResult from "./logGameResult";
-import { ScreenHeight, ScreenWidth } from "../Game/Pong/variables";
-import { getPlayerIndex, sendHostMessage, sendNonHostMessage, updateScore } from "../Game/Pong/pongGame";
-import { getToken } from "./tokens";
-import { Cpu, InvertedCpu } from "../Game/Pong/Player";
-import { ScreenSize } from "../Game/TicTacToe/variables";
-import { updateFriendsListOnlineStatus } from "../views/FriendsPage";
-import { getMyFriendships } from "../views/FriendsPage";
+import {ScreenHeight, ScreenWidth} from "../Game/Pong/variables";
+import {getPlayerIndex, sendHostMessage, sendNonHostMessage, updateScore} from "../Game/Pong/pongGame";
+import {getToken} from "./tokens";
+import {Cpu, InvertedCpu} from "../Game/Pong/Player";
+import {ScreenSize} from "../Game/TicTacToe/variables";
+import {getMyFriendships, updateFriendsListOnlineStatus} from "../views/FriendsPage";
 
 export var StatusWebsocket = {};
 export var GameWebsocket = {};
@@ -31,11 +30,11 @@ export async function connectOnlineStatusWebsocket() {
     };
 
 	StatusWebsocket.ws.onerror = (error) => {
-        console.error("Error while connecting to the Status WS:", error);
+		console.debug("Error while connecting to the Status WS:", error);
     };
 
     StatusWebsocket.ws.onmessage = (event) => {
-        // console.log("STATUS:", JSON.parse(event.data));
+		// console.debug("STATUS:", JSON.parse(event.data));
 
         try {
             const jsonData = JSON.parse(event.data);
@@ -51,7 +50,7 @@ export async function connectOnlineStatusWebsocket() {
 				}
 			}
         } catch (error) {
-            console.log(error);
+			console.debug(error);
         }
     };
 }
@@ -76,7 +75,7 @@ export async function connectGameWebsocket() {
     ]);
 
     GameWebsocket.ws.onopen = () => {
-		console.log("Created websocket!")
+		console.debug("Created websocket!")
         AbstractView.gameWsCreated = true;
 		AbstractView.wsConnectionStarted = false;
 		waitingRoomNode.dispatchEvent( new CustomEvent ("waiting-room-callback") );
@@ -84,11 +83,11 @@ export async function connectGameWebsocket() {
 
 	GameWebsocket.ws.onerror = (error) => {
 		AbstractView.wsConnectionStarted = false;
-        console.error("Error while connecting to the WS:", error);
+		console.debug("Error while connecting to the WS:", error);
     };
 
     GameWebsocket.ws.onmessage = (event) => {
-        //console.log("SYSTEM", JSON.parse(event.data));
+		//console.debug("SYSTEM", JSON.parse(event.data));
 
         try {
             const jsonData = JSON.parse(event.data);
@@ -125,7 +124,7 @@ export async function connectGameWebsocket() {
                 }
             }
         } catch (error) {
-            console.log(error);
+			console.debug(error);
         }
     };
 }
@@ -133,7 +132,7 @@ export async function connectGameWebsocket() {
 export function multiplayerTicTacToeMessageHandler(GameWebsocket, game) {
 	if (GameWebsocket.ws) {
         GameWebsocket.ws.onmessage = (event) => {
-            //console.log("GAME", JSON.parse(event.data));
+			//console.debug("GAME", JSON.parse(event.data));
 
             try {
                 const jsonData = JSON.parse(event.data);
@@ -236,7 +235,7 @@ export function multiplayerTicTacToeMessageHandler(GameWebsocket, game) {
 					}
                 }
             } catch (error) {
-                console.log(error);
+				console.debug(error);
             }
         };
     }
@@ -245,7 +244,7 @@ export function multiplayerTicTacToeMessageHandler(GameWebsocket, game) {
 export function multiplayerPongMessageHandler(GameWebsocket, game) {
 	if (GameWebsocket.ws) {
         GameWebsocket.ws.onmessage = (event) => {
-            //console.log("GAME", JSON.parse(event.data));
+			//console.debug("GAME", JSON.parse(event.data));
 
             try {
                 const jsonData = JSON.parse(event.data);
@@ -342,7 +341,7 @@ export function multiplayerPongMessageHandler(GameWebsocket, game) {
 					}
                 }
             } catch (error) {
-                console.log(error);
+				console.debug(error);
             }
         };
     }
