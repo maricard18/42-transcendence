@@ -1,9 +1,9 @@
 import AbstractView from "../views/AbstractView";
 import Cookies from "js-cookie";
 import fetchData from "./fetchData";
-import {transitEncrypt} from "../functions/vaultAccess";
-import {closeStatusWebsocket, closeWebsocket} from "./websocket";
-import {cleanTournamentStorage} from "..";
+import { transitEncrypt } from "../functions/vaultAccess";
+import { closeStatusWebsocket, closeWebsocket } from "./websocket";
+import { cleanTournamentStorage } from "..";
 
 export async function createToken(formData) {
     const formDataToSend = new FormData();

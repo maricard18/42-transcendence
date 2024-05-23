@@ -1,4 +1,4 @@
-import {BallSpeedX, BallSpeedY, BallTopSpeedX, BallTopSpeedY} from "./variables";
+import { BallSpeedX, BallSpeedY, BallTopSpeedX, BallTopSpeedY } from "./variables";
 
 export function checkPlayer1Collision(game) {
     if (game.ball.speed_x < 0 &&

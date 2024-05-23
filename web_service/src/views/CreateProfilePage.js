@@ -26,14 +26,13 @@ export default class CreateProfilePage extends AbstractView {
             return;
         }
 
-        this._observer = new MutationObserver(this.defineCallback.bind(this));
+        this._observer = new MutationObserver(this.defineCallback);
         this._observer.observe(document.body, {
             childList: true,
             subtree: true,
         });
 
-		this.removeCallbacksBound = this.removeCallbacks.bind(this);
-		window.addEventListener("popstate", this.removeCallbacksBound);
+		window.addEventListener(location.pathname, this.removeCallbacks);
     }
 
 	inputCallback = (event, input) => {
@@ -64,7 +63,7 @@ export default class CreateProfilePage extends AbstractView {
 		}
 	};
 
-    defineCallback() {
+    defineCallback = () => {
         const parentNode = document.getElementById("create-profile-page");
         if (parentNode) {
             this._parentNode = parentNode;
@@ -103,10 +102,8 @@ export default class CreateProfilePage extends AbstractView {
         }
     }
 
-    removeCallbacks() {
-        if (!this._parentNode) {
-            return;
-        }
+    removeCallbacks = () => {
+		this._observer.disconnect();
 
         const inputList = this._parentNode.querySelectorAll("input");
         const input = inputList[inputList.length - 1];
@@ -131,9 +128,7 @@ export default class CreateProfilePage extends AbstractView {
         }
 
         window.removeEventListener("keydown", this.keydownCallback);
-		window.removeEventListener("popstate", this.removeCallbacksBound);
-
-        this._observer.disconnect();
+		window.removeEventListener(location.pathname, this.removeCallbacks);
     }
 
     get errors() {

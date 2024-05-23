@@ -4,7 +4,7 @@ import getUserInfo from "../functions/getUserInfo";
 import { getToken } from "../functions/tokens";
 import { navigateTo } from "..";
 import { getFriendship } from "./FriendsPage";
-import { StatusWebsocket, sendMessage } from "../functions/websocket";
+import { sendMessage, StatusWebsocket } from "../functions/websocket";
 
 export default class ProfilePage extends AbstractView {
     constructor() {
@@ -21,7 +21,7 @@ export default class ProfilePage extends AbstractView {
 		this._userInfo = null;
 		this._matchHistory = null;
 
-        this._observer = new MutationObserver(this.defineCallback.bind(this));
+        this._observer = new MutationObserver(this.defineCallback);
         this._observer.observe(document.body, {
             childList: true,
             subtree: true,
@@ -35,7 +35,7 @@ export default class ProfilePage extends AbstractView {
 		};
 
 		const response = await fetchData(
-			`/api/games?filter[user_id]=${this._userInfo.id}`,
+			`/api/games?filter[user_id]=${this._userInfo ? this._userInfo.id : null}`,
 			"GET",
 			headers,
 			null
@@ -44,11 +44,11 @@ export default class ProfilePage extends AbstractView {
 		if (response.ok) {
 			return await response.json();
 		} else {
-			console.error("Error: failed to get user match history ", response.status);
+			console.debug("Error: failed to get user match history ", response.status);
 		}
 	}
 
-    async defineCallback() {
+    defineCallback = async () => {
         const parentNode = document.getElementById("profile-page");
         if (parentNode) {
             this._parentNode = parentNode;
@@ -62,7 +62,7 @@ export default class ProfilePage extends AbstractView {
 			this._userInfo = await getUserInfo(null, this._userId);
 			this._matchHistory = await this.getUserMatches();
 			if (!this._userInfo) {
-				navigateTo("/home/friends");
+				navigateTo("/home");
 			} else {
 				await this.loadDOMChanges();
 			}
@@ -127,7 +127,7 @@ export default class ProfilePage extends AbstractView {
 			parentNode.innerHTML = this.loadProfilePageInfo();
 			this.addEventListners();
 		} else {
-			console.error("Error: failed to send friend request ", response.status);
+			console.debug("Error: failed to send friend request ", response.status);
 		}
 	}
 
@@ -164,7 +164,7 @@ export default class ProfilePage extends AbstractView {
 			parentNode.innerHTML = this.loadProfilePageInfo();
 			this.addEventListners();
 		} else {
-			console.error("Error: failed to delete friend ", response.status);
+			console.debug("Error: failed to delete friend ", response.status);
 		}
 	}
 
@@ -224,9 +224,9 @@ export default class ProfilePage extends AbstractView {
 		const accessToken = await getToken();
 		
 		const div = document.createElement("div");
-		div.setAttribute("class", "mt-2");
+		div.setAttribute("class", "mt-1");
 		div.id = "match-history-list";
-		div.style.maxHeight = "340px";
+		div.style.maxHeight = "360px";
 		div.style.overflowY = "auto";
 		
 		const reversedMatchHistory = this._matchHistory.reverse();
@@ -440,7 +440,7 @@ export default class ProfilePage extends AbstractView {
 			<div class="center">
 				<div class="d-flex flex-column justify-content-start profile-box">
 					<div id="profile-content" class="mt-2">
-						<div class="d-flex flex-row ms-4 mb-3" id="profile-page-user-info">
+						<div class="d-flex flex-row ms-4 mb-2" id="profile-page-user-info">
 							${this.loadProfilePageInfo()}
 						</div>
 						<div class="d-flex flex-column align-items-center mt-2" id="match-history">

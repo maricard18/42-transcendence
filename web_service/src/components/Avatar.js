@@ -9,16 +9,15 @@ export class Avatar extends HTMLElement {
             const input = this.querySelector("input");
             if (input && !this._inputCallback) {
                 this._inputCallback = true;
-                input.addEventListener("input", this.handleChange.bind(this));
+                input.addEventListener("input", this.handleChange);
             }
 
             const button = this.querySelector("button");
             if (button && !this._clickCallback) {
                 this._clickCallback = true;
-                button.addEventListener("remove-avatar", this.removeAvatar.bind(this));
+                button.addEventListener("remove-avatar", this.removeAvatar);
             }
         });
-
         this._observer.observe(this, {
             attributes: true,
             childList: true,
@@ -57,18 +56,22 @@ export class Avatar extends HTMLElement {
         this._observer.disconnect();
     }
 
-    removeAvatar(event) {
-        const label = this.querySelector("label");
-        const avatar = document.createElement("base-avatar-box");
-        const img = this.querySelector("img");
-        img.remove();
+    removeAvatar = (event) => {
         event.target.remove();
-        this._clickCallback = false;
-        avatar.setAttribute("size", "200");
+        
+		const img = this.querySelector("img");
+        img.remove();
+        
+		const label = this.querySelector("label");
+        const avatar = document.createElement("base-avatar-box");
+        
+		avatar.setAttribute("size", "200");
         label.appendChild(avatar);
+        
+		this._clickCallback = false;
     }
 
-    handleChange(event) {
+    handleChange = (event) => {
         const file = event.target.files[0];
 		event.target.value = null;
 

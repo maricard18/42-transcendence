@@ -252,9 +252,9 @@ export function createMultiPlayer4GameObjects(ctx, lobbySize) {
         });
     }
 
-	console.warn("UserInfo:", AbstractView.userInfo);
-	console.warn("UserData:", AbstractView.userData);
-	console.warn("Players:", player1, player2, player3, player4);
+	console.debug("UserInfo:", AbstractView.userInfo);
+	console.debug("UserData:", AbstractView.userData);
+	console.debug("Players:", player1, player2, player3, player4);
 
     return new Game({
         ctx: ctx,
@@ -274,7 +274,7 @@ export function createMultiPlayer4GameObjects(ctx, lobbySize) {
     });
 }
 
-export function createTournamentGameObjects(ctx) {
+export function createTournamentGameObjects(ctx, lobbySize) {
 	const match = findTournamentMatch();
     
 	const player1 = new Player({

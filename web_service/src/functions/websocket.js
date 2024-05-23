@@ -1,11 +1,11 @@
 import AbstractView from "../views/AbstractView";
 import logGameResult from "./logGameResult";
-import {ScreenHeight, ScreenWidth} from "../Game/Pong/variables";
-import {getPlayerIndex, sendHostMessage, sendNonHostMessage, updateScore} from "../Game/Pong/pongGame";
-import {getToken} from "./tokens";
-import {Cpu, InvertedCpu} from "../Game/Pong/Player";
-import {ScreenSize} from "../Game/TicTacToe/variables";
-import {getMyFriendships, updateFriendsListOnlineStatus} from "../views/FriendsPage";
+import { ScreenHeight, ScreenWidth } from "../Game/Pong/variables";
+import { getPlayerIndex, sendHostMessage, sendNonHostMessage, updateScore } from "../Game/Pong/pongGame";
+import { getToken } from "./tokens";
+import { Cpu, InvertedCpu } from "../Game/Pong/Player";
+import { ScreenSize } from "../Game/TicTacToe/variables";
+import { getMyFriendships, updateFriendsListOnlineStatus } from "../views/FriendsPage";
 
 export var StatusWebsocket = {};
 export var GameWebsocket = {};
@@ -382,7 +382,7 @@ export function sendMessage(ws, message) {
 
 export function closeWebsocket() {
     if (GameWebsocket.ws) {
-		console.warn("CLOSING WEBSOCKET");
+		console.debug("CLOSING WEBSOCKET");
 		localStorage.removeItem("game_status");
         GameWebsocket.ws.close();
         delete GameWebsocket.ws;
@@ -393,7 +393,7 @@ export function closeWebsocket() {
 
 export function closeStatusWebsocket() {
     if (StatusWebsocket.ws) {
-		console.warn("CLOSING STATUS WEBSOCKET");
+		console.debug("CLOSING STATUS WEBSOCKET");
         StatusWebsocket.ws.close();
         delete StatusWebsocket.ws;
 		AbstractView.statusWsCreated = false;
@@ -415,7 +415,7 @@ function customPlayerQueueCallback() {
 }
 
 function addCpuPlayer(index, game, id) {
-	console.warn(`USER ${index + 1} WAS DISCONNECTED`);
+	console.debug(`USER ${index + 1} WAS DISCONNECTED`);
 	const player1 = document.getElementById("player1-info");
 	const player2 = document.getElementById("player2-info");
 	const player3 = document.getElementById("player3-info");

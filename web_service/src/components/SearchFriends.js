@@ -2,9 +2,9 @@ import AbstractView from "../views/AbstractView";
 import fetchData from "../functions/fetchData";
 import { navigateTo } from "..";
 import { getToken } from "../functions/tokens";
-import { transitDecrypt } from "../functions/vaultAccess";
-import { StatusWebsocket, sendMessage } from "../functions/websocket";
 import { getFriendship } from "../views/FriendsPage";
+import { transitDecrypt } from "../functions/vaultAccess";
+import { sendMessage, StatusWebsocket } from "../functions/websocket";
 
 export default class SearchFriends extends AbstractView {
     constructor() {
@@ -23,11 +23,13 @@ export default class SearchFriends extends AbstractView {
         this._errors = {};
         this._success = {};
 
-        this._observer = new MutationObserver(this.defineCallback.bind(this));
+        this._observer = new MutationObserver(this.defineCallback);
         this._observer.observe(document.body, {
             childList: true,
             subtree: true,
         });
+
+		window.addEventListener(location.pathname, this.removeCallbacks);
     }
 
 	inputCallback = (event) => {
@@ -47,7 +49,7 @@ export default class SearchFriends extends AbstractView {
 		}
 	};
 
-    async defineCallback() {
+    defineCallback = async () => {
         const parentNode = document.getElementById("search-friends");
         if (parentNode) {
             this._parentNode = parentNode;
@@ -72,29 +74,27 @@ export default class SearchFriends extends AbstractView {
             window.addEventListener("keydown", this.keydownCallback);
         }
 
-		if (!this._loadDOM && AbstractView.userInfo.id) {
+		if (!this._loadDOM) {
 			this._loadDOM = true;
 			this.loadDOMChanges();
 		}
-    }
+	}
 
-    removeCallbacks() {
-        if (!this._parentNode) {
-            return;
-        }
-
+    removeCallbacks = () => {
+		this._observer.disconnect();
+		
 		const input = this._parentNode.querySelector("input");
 		if (input) {
 			input.removeEventListener("input", this.inputCallback);
 		}
 
-        const submitButton = document.getElementById("search-button");
+        const submitButton = this._parentNode.querySelector("#search-button");
         if (submitButton) {
             submitButton.removeEventListener("click", this.buttonClickedCallback);
         }
 
 		window.removeEventListener("keydown", this.keydownCallback);
-        this._observer.disconnect();
+		window.removeEventListener(location.pathname, this.removeCallbacks);
     }
 
 	get errors() {
@@ -168,7 +168,7 @@ export default class SearchFriends extends AbstractView {
 				this._userList = await response.json();
 				await this.loadDOMChanges();
 			} else {
-				console.error("Error: failed to get user data list ", response.status);
+				console.debug("Error: failed to get user data list ", response.status);
 			}
 		}
 
@@ -176,6 +176,10 @@ export default class SearchFriends extends AbstractView {
     }
 
 	async addEventListeners() {
+		if (!this._userList) {
+			return ;
+		}
+
         for (let [index, user] of this._userList.entries()) {
             const avataraAndUsernameDiv = document.getElementById(`user-${user.id}`);
 			if (avataraAndUsernameDiv) {
@@ -196,7 +200,7 @@ export default class SearchFriends extends AbstractView {
 		};
 
 		const response = await fetchData(
-			"/api/users",
+			"/api/users?filter[is_active]=true",
 			"GET",
 			headers,
 			null
@@ -205,7 +209,7 @@ export default class SearchFriends extends AbstractView {
 		if (response.ok) {
 			return await response.json();
 		} else {
-			console.error("Error: failed to load all users ", response.status);
+			console.debug("Error: failed to load all users ", response.status);
 		}
 	}
 
@@ -241,7 +245,7 @@ export default class SearchFriends extends AbstractView {
 				myFriendList.dispatchEvent( new CustomEvent("reload-friend-list") );
 			}
 		} else {
-			console.error("Error: failed to send friend request ", response.status);
+			console.debug("Error: failed to send friend request ", response.status);
 		}
 	}
 

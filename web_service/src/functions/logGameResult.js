@@ -1,5 +1,5 @@
 import fetchData from "./fetchData";
-import {getToken} from "./tokens";
+import { getToken } from "./tokens";
 
 export default async function logGameResult(game, mode, players) {
 	const playersInfoMessage = {};
