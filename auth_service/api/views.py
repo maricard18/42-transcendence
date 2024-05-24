@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from django.http import HttpRequest
 from django.utils.translation import gettext_lazy as _
 from rest_framework import status, viewsets
-from rest_framework.exceptions import NotFound, ParseError
+from rest_framework.exceptions import NotFound, ParseError, ValidationError
 from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import TokenError, AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -21,7 +21,7 @@ from .permissions import UserPermission, OTPPermission, TokenPermission, SSOPerm
 from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer, CreateOTPSerializer, \
     AuthUserSerializer, APITokenObtainPairSerializer, TokenSerializer, SSOSerializer, OTPSerializer, \
     UpdateAvatarSerializer, IsActiveFilterSerializer, UsernameFilterSerializer, CreateSSOUserSerializer, \
-    CreateAvatarLinkSerializer
+    CreateAvatarSerializer
 
 
 ######################
@@ -45,7 +45,7 @@ class UserViewSet(viewsets.ViewSet):
         if is_active_filter:
             serializer = IsActiveFilterSerializer(data={"is_active": is_active_filter})
             if serializer.is_valid(raise_exception=True):
-                queryset = queryset.filter(is_active=serializer.validated_data.get("value"))
+                queryset = queryset.filter(is_active=serializer.validated_data.get("is_active"))
 
         serializer = UserSerializer(queryset, many=True)
         return Response(Vault.cipherSensitiveFields(
@@ -65,13 +65,18 @@ class UserViewSet(viewsets.ViewSet):
                 serializer.validated_data.get("password")
             )
 
-            avatar = serializer.validated_data.get("avatar")
+            avatar = data.get("avatar")
             if avatar:
-                Avatar.objects.create(
-                    auth_user=user,
-                    avatar=avatar,
-                    request=request
-                )
+                serializer = CreateAvatarSerializer(data={
+                    "avatar": data.get("avatar"),
+                    "auth_user": user.id
+                })
+                if serializer.is_valid():
+                    Avatar.objects.create(
+                        auth_user=user,
+                        avatar=serializer.validated_data.get("avatar"),
+                        request=request
+                    )
 
             return Response(Vault.cipherSensitiveFields(
                 {
@@ -120,7 +125,6 @@ class UserViewSet(viewsets.ViewSet):
                         avatar=serializer.validated_data.get("avatar"),
                         request=request
                     )
-                raise ServerError
             data.pop("avatar")
 
         serializer = UpdateUserSerializer(data=data, partial=True)
@@ -177,18 +181,20 @@ class OTPViewSet(viewsets.ViewSet):
         except User.DoesNotExist:
             raise NotFound
 
+        token = pyotp.random_base32()
         serializer = CreateOTPSerializer(data={
-            "auth_user": user.id
+            "auth_user": user.id,
+            "token": token
         })
         if serializer.is_valid(raise_exception=True):
             otp = OTP_Token.objects.create(
                 auth_user=user,
-                token=pyotp.random_base32()
+                token=serializer.validated_data.get("token")
             )
 
             url = pyotp.totp.TOTP(otp.token).provisioning_uri(
                 name=otp.auth_user.username,
-                issuer_name="ft_transcendence"
+                issuer_name="transcendence"
             )
 
             return Response(Vault.cipherSensitiveFields(
@@ -385,35 +391,41 @@ class SSOViewSet(viewsets.ViewSet):
                             except User.DoesNotExist:
                                 break
 
-                        auth_user = User.objects.create_user(
-                            username=username,
-                            email=user_info.get("email")
-                        )
+                        serializer = CreateUserSerializer(data={
+                            "username": username,
+                            "email": user_info.get("email"),
+                            "password": "Hitchhikers to the Galaxy"
+                        })
+                        if serializer.is_valid(raise_exception=True):
+                            auth_user = User.objects.create_user(
+                                username=serializer.validated_data.get("username"),
+                                email=serializer.validated_data.get("email")
+                            )
                     serializer = CreateSSOUserSerializer(data={
                         "sso_provider": "101010",
-                        "username": user_info.get("login"),
-                        "email": user_info.get("email"),
                         "sso_id": user_info.get("id"),
                         "auth_user": auth_user.id
                     })
-                    if serializer.is_valid(raise_exception=True):
-                        SSO_User.objects.create(
-                            sso_provider=serializer.validated_data.get("sso_provider"),
-                            username=serializer.validated_data.get("username"),
-                            email=serializer.validated_data.get("email"),
-                            sso_id=serializer.validated_data.get("sso_id"),
-                            auth_user=auth_user
-                        )
+                    try:
+                        if serializer.is_valid(raise_exception=True):
+                            SSO_User.objects.create(
+                                sso_provider=serializer.validated_data.get("sso_provider"),
+                                sso_id=serializer.validated_data.get("sso_id"),
+                                auth_user=auth_user
+                            )
+                    except ValidationError as exc:
+                        User.objects.get(pk=auth_user.pk).delete()
+                        raise exc
 
                     image = user_info.get("image", None)
                     versions = image.get("versions", None)
                     link = versions.get("medium", None)
                     if link:
-                        serializer = CreateAvatarLinkSerializer(data={
+                        serializer = CreateAvatarSerializer(data={
                             "link": link,
                             "auth_user": auth_user.id
                         })
-                        if serializer.is_valid(raise_exception=True):
+                        if serializer.is_valid():
                             Avatar.objects.create(
                                 auth_user=auth_user,
                                 link=serializer.validated_data.get("link")

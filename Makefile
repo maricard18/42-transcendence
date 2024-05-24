@@ -6,7 +6,7 @@
 #    By: bsilva-c <bsilva-c@student.42porto.com>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/02/15 17:36:39 by bsilva-c          #+#    #+#              #
-#    Updated: 2024/05/22 17:32:44 by bsilva-c         ###   ########.fr        #
+#    Updated: 2024/05/23 20:59:48 by bsilva-c         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -57,7 +57,6 @@ define confirm
 	@printf "\033[0m[y/N] "  # Reset color
 	@read response; \
 	if [ "$$response" != "y" ]; then \
-		printf "\033[0mAborted.\n"; \
 		exit 1; \
 	fi
 endef
@@ -86,14 +85,18 @@ fclean:
 	$(call confirm, "WARNING: This action will permanently remove images and associated volumes. Are you sure you want to proceed?")
 	@$(COMMAND) down $(_SERVICE) --rmi all --volumes;
 	@docker system df;
-ifndef SERVICE
-ifneq ($(shell docker system df | grep 'Build Cache' | awk '{print $$6}'), 0B)
-	@echo ""
-	$(call confirm, "WARNING: Dangling build cache found. Do you want to remove all dangling build cache?")
-	@docker builder prune -f;
-	@docker system df;
-endif
-endif
+	@if [ -z "$(SERVICE)" ]; then \
+		if [ $$(docker system df | grep 'Build Cache' | awk '{print $$6}') != 0B ]; then \
+			echo ""; \
+			echo -n "\033[1;33mWARNING: Dangling build cache found. Do you want to remove all dangling build cache? "; \
+			printf "\033[0m[y/N] "; \
+			read response; \
+			if [ "$$response" = "y" ]; then \
+				docker builder prune -f; \
+				docker system df; \
+			fi \
+		fi \
+	fi
 help:
 	@echo "Usage: make [OPTIONS] [COMMAND]"
 	@echo "Options:"
