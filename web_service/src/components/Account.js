@@ -82,6 +82,10 @@ export default class Account extends AbstractView {
     removeCallbacks = () => {
 		this._observer.disconnect();
 
+		if (!this._parentNode) {
+            return;
+        }
+
         this._parentNode.querySelectorAll("input").forEach((input) => {
             input.removeEventListener("input", this.inputCallback);
         });
@@ -221,7 +225,7 @@ export default class Account extends AbstractView {
                 formDataToSend
             );
 
-            if (response.ok) {
+            if (response && response.ok) {
                 AbstractView.userInfo.username = this._formData.username;
                 AbstractView.userInfo.email = this._formData.email;
                 const avatarContainer = document.getElementById("avatar-container");

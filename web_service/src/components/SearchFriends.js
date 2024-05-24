@@ -82,6 +82,12 @@ export default class SearchFriends extends AbstractView {
 
     removeCallbacks = () => {
 		this._observer.disconnect();
+		window.removeEventListener("keydown", this.keydownCallback);
+		window.removeEventListener(location.pathname, this.removeCallbacks);
+
+		if (!this._parentNode) {
+            return;
+        }
 		
 		const input = this._parentNode.querySelector("input");
 		if (input) {
@@ -92,9 +98,6 @@ export default class SearchFriends extends AbstractView {
         if (submitButton) {
             submitButton.removeEventListener("click", this.buttonClickedCallback);
         }
-
-		window.removeEventListener("keydown", this.keydownCallback);
-		window.removeEventListener(location.pathname, this.removeCallbacks);
     }
 
 	get errors() {
@@ -164,11 +167,9 @@ export default class SearchFriends extends AbstractView {
 				null
 			);
 	
-			if (response.ok) {
+			if (response && response.ok) {
 				this._userList = await response.json();
 				await this.loadDOMChanges();
-			} else {
-				console.debug("Error: failed to get user data list ", response.status);
 			}
 		}
 
@@ -181,14 +182,14 @@ export default class SearchFriends extends AbstractView {
 		}
 
         for (let [index, user] of this._userList.entries()) {
-            const avataraAndUsernameDiv = document.getElementById(`user-${user.id}`);
+            const avataraAndUsernameDiv = document.getElementById(`user-${user ? user.id : 0}`);
 			if (avataraAndUsernameDiv) {
-				avataraAndUsernameDiv.addEventListener("click", async () => await navigateTo(`/home/profile/${user.id}`));
+				avataraAndUsernameDiv.addEventListener("click", async () => await navigateTo(`/home/profile/${user ? user.id : 0}`));
 			}
 
-            const button = document.getElementById(`friend-btn-${user.id}`);
+            const button = document.getElementById(`friend-btn-${user ? user.id : 0}`);
 			if (button) {
-				button.addEventListener("click", async () => await this.addFriend(user.id));
+				button.addEventListener("click", async () => await this.addFriend(user ? user.id : 0));
 			}
         }
     };
@@ -206,10 +207,8 @@ export default class SearchFriends extends AbstractView {
 			null
 		);
 
-		if (response.ok) {
+		if (response && response.ok) {
 			return await response.json();
-		} else {
-			console.debug("Error: failed to load all users ", response.status);
 		}
 	}
 
@@ -230,7 +229,7 @@ export default class SearchFriends extends AbstractView {
 			formDataToSend
 		);
 
-		if (response.ok) {
+		if (response && response.ok) {
 			const data = await response.json();
 			await getFriendship(data.id);
 
@@ -244,8 +243,6 @@ export default class SearchFriends extends AbstractView {
 			if (myFriendList) {
 				myFriendList.dispatchEvent( new CustomEvent("reload-friend-list") );
 			}
-		} else {
-			console.debug("Error: failed to send friend request ", response.status);
 		}
 	}
 
@@ -285,6 +282,10 @@ export default class SearchFriends extends AbstractView {
 		div.id = "user-info-list";
 		div.style.maxHeight = "320px";
 		div.style.overflowY = "auto";
+
+		if (!this._userList) {
+			return "";
+		}
 		
 		for (let [index, user] of this._userList.entries()) {
 			if (user.id == AbstractView.userInfo.id) {

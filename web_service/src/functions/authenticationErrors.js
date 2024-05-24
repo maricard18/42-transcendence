@@ -1,5 +1,15 @@
 export default async function handleResponse(response) {
     const errors = {};
+	
+	if (!response) {
+		errors.message = "Error please try again later";
+        errors.username = 1;
+        errors.email = 1;
+        errors.password = 1;
+        errors.confirmPassword = 1;
+		
+		return errors;
+	}
 
     if (response.status === 409) {
         errors.message = "This username already exists";
@@ -14,7 +24,7 @@ export default async function handleResponse(response) {
 			: "Server error please try again later";
 		errors.username = 1;
     } else {
-        errors.message = "Internal Server Error";
+        errors.message = "Server Error";
         errors.username = 1;
         errors.email = 1;
         errors.password = 1;

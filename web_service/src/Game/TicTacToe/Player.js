@@ -52,16 +52,6 @@ export class Player {
     }
 }
 
-export class Cpu extends Player {
-    constructor({symbol, info}) {
-        super({symbol, info});
-    }
-
-    draw(ctx) {
-		// create AI algorithm
-	}
-}
-
 export class Opponent extends Player {
     constructor({symbol, info}) {
         super({symbol, info});

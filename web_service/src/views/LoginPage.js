@@ -81,6 +81,12 @@ export default class LoginPage extends AbstractView {
 
     removeCallbacks = () => {
 		this._observer.disconnect();
+		window.removeEventListener("keydown", this.keydownCallback);
+		window.removeEventListener(location.pathname, this.removeCallbacks);
+
+		if (!this._parentNode) {
+            return;
+        }
         
 		const inputList = this._parentNode.querySelectorAll("input");
         if (inputList) {
@@ -94,8 +100,6 @@ export default class LoginPage extends AbstractView {
             submitButton.removeEventListener("buttonClicked", this.buttonClickedCallback);
         }
 
-        window.removeEventListener("keydown", this.keydownCallback);
-		window.removeEventListener(location.pathname, this.removeCallbacks);
     }
 
     get errors() {
@@ -153,7 +157,7 @@ export default class LoginPage extends AbstractView {
                 formDataToSend
             );
 
-            if (response.ok) {
+            if (response && response.ok) {
 				await checkFor2FA(response.clone());
 				this.removeCallbacks();
 				if (AbstractView.has2FA === 2) {
@@ -234,19 +238,16 @@ async function checkFor2FA(clone) {
 		null
 	);
 
-	if (response.ok) {
+	if (response && response.ok) {
 		const jsonData = await response.json();
 		if (jsonData["active"] === true) {
-			console.debug("User has 2FA active");
 			AbstractView.has2FA = 2;
 		} else if (jsonData["active"] === false) {
-			console.debug("User has 2FA active but is not valid");
 			AbstractView.has2FA = 1;
 		}
 
 		return ;
 	}
 
-	console.debug("User does not have 2FA active");
 	AbstractView.has2FA = 0;
 }

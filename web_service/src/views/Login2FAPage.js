@@ -74,6 +74,12 @@ export default class Login2FAPage extends AbstractView {
 
     removeCallbacks = () => {
 		this._observer.disconnect();
+		window.removeEventListener("keydown", this.keydownCallback);
+		window.removeEventListener(location.pathname, this.removeCallbacks);
+
+		if (!this._parentNode) {
+			return ;
+		}
 
         const input = this._parentNode.querySelector("input");
         if (input) {
@@ -87,9 +93,6 @@ export default class Login2FAPage extends AbstractView {
                 this.buttonClickedCallback
             );
         }
-
-        window.removeEventListener("keydown", this.keydownCallback);
-		window.removeEventListener(location.pathname, this.removeCallbacks);
     }
 
     get errors() {
@@ -136,19 +139,19 @@ export default class Login2FAPage extends AbstractView {
 			const blob = new Blob([jsonResponse], {type : 'application/json'});
 			const newResponse = new Response(blob);
 			const jsonData = await newResponse.clone().json();
-            const accessToken = jsonData["access_token"];
-			const decodeToken = decode(accessToken);
-
-			if (!accessToken) {
-				console.debug("Error: failed to retrieve access token");
+			
+			if (!jsonData) {
 				navigateTo("/");
 				return ;
 			}
 
+			const accessToken = jsonData["access_token"];
+			const decodeToken = decode(accessToken);
+			
 			const headers = {
 				Authorization: `Bearer ${accessToken}`,
 			};
-
+			
 			const response = await fetchData(
 				"/api/users/" + decodeToken["user_id"] + "/otp?code=" + this._2FACode,
 				"GET",
@@ -157,7 +160,7 @@ export default class Login2FAPage extends AbstractView {
 			);
 
 			const responseJSON = await response.json()
-			if (response.ok && responseJSON['valid']) {
+			if (response && response.ok && responseJSON['valid']) {
 				this.removeCallbacks();
 				await setToken(newResponse);
 				AbstractView.has2FA = 2;

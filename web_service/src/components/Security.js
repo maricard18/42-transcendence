@@ -78,8 +78,7 @@ export default class Security extends AbstractView {
 					null
 				);
 	
-				if (!response.ok) {
-					console.debug("Error: DELETE request to otp failed");
+				if (response && !response.ok) {
 					return ;
 				}
 			}
@@ -91,13 +90,12 @@ export default class Security extends AbstractView {
 				null
 			);
 
-			if (response.ok) {
+			if (response && response.ok) {
 				const jsonData = await response.json();
 				this._qrcode = jsonData["url"];
 				this.updateModalBodyContent();
 				AbstractView.has2FA = 1;
 			} else {
-				console.debug("Error: POST request to otp failed");
 				AbstractView.has2FA = 0;
 			}
 		}
@@ -128,7 +126,7 @@ export default class Security extends AbstractView {
 				null
 			);
 
-			if (response.ok) {
+			if (response && response.ok) {
 				const p = document.getElementById("p-2FA");
 				const jsonData = await response.json();
 				if (jsonData["valid"] === true) {
@@ -150,10 +148,8 @@ export default class Security extends AbstractView {
 					p.style.justifyContent = "center";
 					p.innerText = "2FA code is invalid";
 					setTimeout(() => { p.innerText = ""; }, 3000);
-					console.debug("otp code is incorrect");
 				}
 			} else {
-				console.debug("Error: POST request to otp failed");
 				AbstractView.has2FA = 0;
 			}
 		}
@@ -171,13 +167,11 @@ export default class Security extends AbstractView {
 				null
 			);
 
-			if (response.ok) {
-				console.debug("otp was deleted!")
+			if (response && response.ok) {
 				AbstractView.has2FA = 0;
 				this._qrcode = null;
 				this.loadDOMChanges();
 			} else {
-				console.debug("Error: DELETE request to otp failed");
 				AbstractView.has2FA = 1;
 			}
 		}
@@ -239,7 +233,7 @@ export default class Security extends AbstractView {
 					null
 				);
 	
-				if (response.ok) {
+				if (response && response.ok) {
 					const jsonData = await response.json();
 					if (jsonData["active"] === true) {
 						AbstractView.has2FA = 2;
@@ -256,9 +250,11 @@ export default class Security extends AbstractView {
     }
 
     removeCallbacks = () => {
-		console.debug("Hello");
-
 		this._observer.disconnect();
+
+		if (!this._parentNode) {
+            return;
+        }
 
 		const inputList = this._parentNode.querySelectorAll("input");
 		if (inputList) {
@@ -345,7 +341,7 @@ export default class Security extends AbstractView {
         }
 
         this._insideRequest = true;
-        const newErrors = validateProfilePasswordForm(this._formData);
+        let newErrors = validateProfilePasswordForm(this._formData);
         if (Object.values(newErrors).length) {
             this.errors = newErrors;
         }
@@ -366,7 +362,7 @@ export default class Security extends AbstractView {
                 formDataToSend
             );
 
-            if (response.ok) {
+            if (response && response.ok) {
                 this.success = {message: "Changes saved"};
             } else {
                 newErrors = await handleResponse(response, this._formData);

@@ -45,8 +45,6 @@ export default class NavigationBar extends AbstractView {
                     id: userData.id,
                 };
                 this._loading = false;
-            } else {
-				console.debug("Error: failed to fetch user data");
             }
 			
 			await this.loadDOMChanges();

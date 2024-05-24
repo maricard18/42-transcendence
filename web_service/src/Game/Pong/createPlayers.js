@@ -252,10 +252,6 @@ export function createMultiPlayer4GameObjects(ctx, lobbySize) {
         });
     }
 
-	console.debug("UserInfo:", AbstractView.userInfo);
-	console.debug("UserData:", AbstractView.userData);
-	console.debug("Players:", player1, player2, player3, player4);
-
     return new Game({
         ctx: ctx,
         ball: new Ball({

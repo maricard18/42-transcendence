@@ -53,8 +53,8 @@ export default class WaitingRoom extends AbstractView {
                 await connectGameWebsocket();
                 AbstractView.previousLocation = this._location;
             } catch (error) {
-                console.debug(error);
-            }
+
+			}
             this._loading = false;
             this.loadDOMChanges();
         };
@@ -369,6 +369,10 @@ class ReadyButton extends AbstractView {
     removeCallbacks = () => {
 		this._observer.disconnect();
 
+		if (!this._parentNode) {
+            return;
+        }
+
         const button = this._parentNode.querySelector("button");
         if (button) {
             button.removeEventListener(
@@ -426,15 +430,13 @@ async function getUserData(value) {
 
     const response = await fetchData("/api/users/" + value, "GET", headers);
 
-    if (!response.ok) {
-        console.debug("Error: failed to fetch user data.");
+    if (response && !response.ok) {
         return data;
     }
 
     try {
         jsonData = await response.json();
     } catch (error) {
-        console.debug("Error: failed to parse response.");
         return data;
     }
 

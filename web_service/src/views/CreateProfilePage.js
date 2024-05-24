@@ -104,6 +104,12 @@ export default class CreateProfilePage extends AbstractView {
 
     removeCallbacks = () => {
 		this._observer.disconnect();
+		window.removeEventListener("keydown", this.keydownCallback);
+		window.removeEventListener(location.pathname, this.removeCallbacks);
+
+		if (!this._parentNode) {
+            return;
+        }
 
         const inputList = this._parentNode.querySelectorAll("input");
         const input = inputList[inputList.length - 1];
@@ -126,9 +132,6 @@ export default class CreateProfilePage extends AbstractView {
             this._removeCallback = true;
             removeButton.removeEventListener("click", this.removeAvatarCallback);
         }
-
-        window.removeEventListener("keydown", this.keydownCallback);
-		window.removeEventListener(location.pathname, this.removeCallbacks);
     }
 
     get errors() {
@@ -211,7 +214,7 @@ export default class CreateProfilePage extends AbstractView {
                 formDataToSend
             );
 
-            if (response.ok) {
+            if (response && response.ok) {
                 await createToken(AbstractView.formData);
                 const data = await response.json();
                 AbstractView.userInfo = {

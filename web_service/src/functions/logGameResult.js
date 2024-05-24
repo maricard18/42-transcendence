@@ -30,10 +30,7 @@ export default async function logGameResult(game, mode, players) {
 		JSON.stringify(gameMessage)
 	);
 
-	if (response.ok) {
+	if (response && response.ok) {
 		const jsonData = await response.json();
-		console.debug("Game Creation Response:", jsonData);
-	} else {
-		console.debug("Error: failed to create game ", response.status);
 	}
 }

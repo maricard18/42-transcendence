@@ -38,7 +38,7 @@ export default class Login42Page extends AbstractView {
 			null
 		);
 
-		if (response.ok) {
+		if (response && response.ok) {
 			this._observer.disconnect();
 			if (this._previousLocation && this._previousLocation.startsWith("/home/settings")) {
 				localStorage.removeItem("previous_location");
@@ -51,7 +51,7 @@ export default class Login42Page extends AbstractView {
 			this._observer.disconnect();
 			if (this._previousLocation) {
 				navigateTo("/home/settings/account");			
-			} else if (response.status === 409) {
+			} else if (response && response.status === 409) {
 				await setToken(response);
 				navigateTo("/create-profile-42");
 			} else {

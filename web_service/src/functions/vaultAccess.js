@@ -30,13 +30,31 @@ export function decodeData(data) {
 }
 
 export async function transitEncrypt(data) {
-    await vaultConnect();
-    const response = await vaultClient.write('transit/encrypt/transcendence', {plaintext: encodeData(data)});
-    return response.data.ciphertext;
+	try {
+		await vaultConnect();
+		
+		const response = await vaultClient.write(
+			'transit/encrypt/transcendence', 
+			{plaintext: encodeData(data)}
+		);
+		
+		return response.data.ciphertext;
+	} catch (error) {
+		return null;
+	}
 }
 
 export async function transitDecrypt(data) {
-    await vaultConnect();
-    const response = await vaultClient.write('transit/decrypt/transcendence', {ciphertext: data});
-    return decodeData(response.data.plaintext);
+	try {
+		await vaultConnect();
+		
+		const response = await vaultClient.write(
+			'transit/decrypt/transcendence', 
+			{ciphertext: data}
+		);
+		
+		return decodeData(response.data.plaintext);
+	} catch (error) {
+		return null;
+	}
 }

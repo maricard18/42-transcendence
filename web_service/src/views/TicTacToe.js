@@ -54,11 +54,6 @@ export default class TicTacToe extends AbstractView {
             }
             this._height = this._width / this._aspectRatio;
         }
-
-		//TODO handle user offline (do not forget to remove this event later)
-		window.addEventListener("offline", (event) => {
-			console.debug("LOST CONNECTION");
-		});
     }
 
     defineCallback = async () => {
@@ -141,7 +136,6 @@ export default class TicTacToe extends AbstractView {
     async getHtml() {
         if (this._gameMode === "multiplayer" && 
 		   (!localStorage.getItem("game_status") || !AbstractView.userData.length)) {
-			console.debug("User refreshed the page");
 			localStorage.removeItem("game_status");
 			localStorage.removeItem("game_winner");
 			AbstractView.cleanGameData();

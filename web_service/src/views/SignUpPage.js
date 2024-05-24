@@ -73,6 +73,12 @@ export default class SignUpPage extends AbstractView {
 
     removeCallbacks = () => {
 		this._observer.disconnect();
+		window.removeEventListener("keydown", this.keydownCallback);
+		window.removeEventListener(location.pathname, this.removeCallbacks);
+
+		if (!this._parentNode) {
+			return ;
+		}
 
         const inputList = this._parentNode.querySelectorAll("input");
 		if (inputList) {
@@ -85,9 +91,6 @@ export default class SignUpPage extends AbstractView {
         if (submitButton) {
             submitButton.removeEventListener("buttonClicked", this.buttonClickedCallback);
         }
-
-        window.removeEventListener("keydown", this.keydownCallback);
-		window.removeEventListener(location.pathname, this.removeCallbacks);
     }
 
     get errors() {

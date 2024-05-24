@@ -78,7 +78,7 @@ export function gameStartAnimation(game) {
 				);
 			}
 
-            if (elapsedTime < 5 && !game.over) {
+            if (elapsedTime < 5 && !game.over && location.pathname.startsWith("/home/pong/play")) {
                 window.requestAnimationFrame(animate);
             } else {
                 game.paused = false;
@@ -86,7 +86,9 @@ export function gameStartAnimation(game) {
             }
         };
 
-        window.requestAnimationFrame(animate);
+		if (location.pathname.startsWith("/home/pong/play")) {
+			window.requestAnimationFrame(animate);
+		}
     });
 }
 
@@ -151,7 +153,7 @@ export function gameConfettiAnimation(game) {
                 particle.speedY += 0.05;
             });
 
-            if (elapsedTime < 5) {
+            if (elapsedTime < 5 && location.pathname.startsWith("/home/pong/play")) {
                 window.requestAnimationFrame(animate);
                 if (elapsedTime > 0.5) {
                     drawWinnerName(game.ctx);
@@ -164,8 +166,10 @@ export function gameConfettiAnimation(game) {
             }
         };
 
-        addConfetti();
-        window.requestAnimationFrame(animate);
+		if (location.pathname.startsWith("/home/pong/play")) {
+			addConfetti();
+			window.requestAnimationFrame(animate);
+		}
     });
 }
 

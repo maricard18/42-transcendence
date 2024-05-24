@@ -12,9 +12,14 @@ export default async function fetchData(endpoint, method, headers = {}, body = n
 
     const protocol = window.location.protocol;
     const host = window.location.host;
-	const response = await fetch(protocol + "//" + host + endpoint, fetchOptions);
 
-    return response;
+	try {
+		const response = await fetch(protocol + "//" + host + endpoint, fetchOptions);
+
+		return response;
+	} catch (error) {
+		return null;
+	}
 }
 
 export function checkEnterButton(functionToBeRun) {
@@ -32,7 +37,6 @@ export function checkEnterButton(functionToBeRun) {
 }
 
 export function getPageTitle(path) {
-	//TODO update all routes titles
     switch (path) {
         case "/home":
             return "Home";

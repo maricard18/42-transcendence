@@ -30,12 +30,9 @@ export async function connectOnlineStatusWebsocket() {
     };
 
 	StatusWebsocket.ws.onerror = (error) => {
-		console.debug("Error while connecting to the Status WS:", error);
     };
 
     StatusWebsocket.ws.onmessage = (event) => {
-		// console.debug("STATUS:", JSON.parse(event.data));
-
         try {
             const jsonData = JSON.parse(event.data);
 
@@ -50,7 +47,7 @@ export async function connectOnlineStatusWebsocket() {
 				}
 			}
         } catch (error) {
-			console.debug(error);
+			
         }
     };
 }
@@ -75,7 +72,6 @@ export async function connectGameWebsocket() {
     ]);
 
     GameWebsocket.ws.onopen = () => {
-		console.debug("Created websocket!")
         AbstractView.gameWsCreated = true;
 		AbstractView.wsConnectionStarted = false;
 		waitingRoomNode.dispatchEvent( new CustomEvent ("waiting-room-callback") );
@@ -83,12 +79,9 @@ export async function connectGameWebsocket() {
 
 	GameWebsocket.ws.onerror = (error) => {
 		AbstractView.wsConnectionStarted = false;
-		console.debug("Error while connecting to the WS:", error);
     };
 
     GameWebsocket.ws.onmessage = (event) => {
-		//console.debug("SYSTEM", JSON.parse(event.data));
-
         try {
             const jsonData = JSON.parse(event.data);
 
@@ -124,7 +117,7 @@ export async function connectGameWebsocket() {
                 }
             }
         } catch (error) {
-			console.debug(error);
+
         }
     };
 }
@@ -132,8 +125,6 @@ export async function connectGameWebsocket() {
 export function multiplayerTicTacToeMessageHandler(GameWebsocket, game) {
 	if (GameWebsocket.ws) {
         GameWebsocket.ws.onmessage = (event) => {
-			//console.debug("GAME", JSON.parse(event.data));
-
             try {
                 const jsonData = JSON.parse(event.data);
 
@@ -235,7 +226,7 @@ export function multiplayerTicTacToeMessageHandler(GameWebsocket, game) {
 					}
                 }
             } catch (error) {
-				console.debug(error);
+
             }
         };
     }
@@ -244,8 +235,6 @@ export function multiplayerTicTacToeMessageHandler(GameWebsocket, game) {
 export function multiplayerPongMessageHandler(GameWebsocket, game) {
 	if (GameWebsocket.ws) {
         GameWebsocket.ws.onmessage = (event) => {
-			//console.debug("GAME", JSON.parse(event.data));
-
             try {
                 const jsonData = JSON.parse(event.data);
 
@@ -341,7 +330,7 @@ export function multiplayerPongMessageHandler(GameWebsocket, game) {
 					}
                 }
             } catch (error) {
-				console.debug(error);
+
             }
         };
     }
@@ -382,7 +371,6 @@ export function sendMessage(ws, message) {
 
 export function closeWebsocket() {
     if (GameWebsocket.ws) {
-		console.debug("CLOSING WEBSOCKET");
 		localStorage.removeItem("game_status");
         GameWebsocket.ws.close();
         delete GameWebsocket.ws;
@@ -393,7 +381,6 @@ export function closeWebsocket() {
 
 export function closeStatusWebsocket() {
     if (StatusWebsocket.ws) {
-		console.debug("CLOSING STATUS WEBSOCKET");
         StatusWebsocket.ws.close();
         delete StatusWebsocket.ws;
 		AbstractView.statusWsCreated = false;
@@ -415,7 +402,6 @@ function customPlayerQueueCallback() {
 }
 
 function addCpuPlayer(index, game, id) {
-	console.debug(`USER ${index + 1} WAS DISCONNECTED`);
 	const player1 = document.getElementById("player1-info");
 	const player2 = document.getElementById("player2-info");
 	const player3 = document.getElementById("player3-info");

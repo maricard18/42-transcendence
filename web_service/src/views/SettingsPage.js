@@ -51,7 +51,6 @@ export default class SettingsPage extends AbstractView {
 	}
 
 	deleteAccountCallback = async () => {
-		console.debug("Delete account");
 		const accessToken = await getToken();
 		const headers = {
 			Authorization: `Bearer ${accessToken}`,
@@ -64,7 +63,7 @@ export default class SettingsPage extends AbstractView {
 			null
 		);
 
-		if (response.ok) {
+		if (response && response.ok) {
 			const modalElement = document.getElementById("DeleteUserModal");
 			bootstrap.Modal.getInstance(modalElement).hide();
 			document.querySelector('.modal-backdrop').remove();
@@ -90,7 +89,7 @@ export default class SettingsPage extends AbstractView {
 			formDataToSend
 		);
 
-		if (response.ok) {
+		if (response && response.ok) {
 			AbstractView.userInfo.avatar = null;
 			event.target.dispatchEvent(new CustomEvent("remove-avatar"));
 			const avatarContainer = document.getElementById("avatar-container");
@@ -138,6 +137,11 @@ export default class SettingsPage extends AbstractView {
 
     removeCallbacks = () => {
 		this._observer.disconnect();
+		window.removeEventListener(location.pathname, this.removeCallbacks);
+
+		if (!this._parentNode) {
+			return ;
+		}
 
         const avatarBox = this._parentNode.querySelector("avatar-box");
         if (avatarBox) {
@@ -159,8 +163,6 @@ export default class SettingsPage extends AbstractView {
         if (deleteAvatarButton) {
             deleteAvatarButton.removeEventListener("click", this.removeAvatarCallback);
         }
-
-		window.removeEventListener(location.pathname, this.removeCallbacks);
     }
 
     async changeAvatar() {
@@ -185,7 +187,7 @@ export default class SettingsPage extends AbstractView {
                 formDataToSend
             );
 
-            if (response.ok) {
+            if (response && response.ok) {
                 AbstractView.userInfo.avatar = URL.createObjectURL(this._avatar);
                 
 				const avatarContainer = document.getElementById("avatar-container");
@@ -201,8 +203,6 @@ export default class SettingsPage extends AbstractView {
 				setTimeout(() => {
                     p.innerText = "";
                 }, 3000);
-            } else {
-				console.debug("Error: failed to change avatar.");
             }
         }
 

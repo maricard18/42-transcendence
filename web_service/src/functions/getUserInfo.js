@@ -12,8 +12,7 @@ export default async function getUserInfo(token = null, id = null) {
 			accessToken = token;
 		}
     } catch (error) {
-		console.debug("Error: failed to get access token");
-        return;
+        return ;
     }
 
     try {
@@ -24,8 +23,7 @@ export default async function getUserInfo(token = null, id = null) {
 			user_id = id;
 		}
     } catch (error) {
-		console.debug("Error: failed to decode token.");
-        return;
+        return ;
     }
 
     const headers = {
@@ -38,15 +36,14 @@ export default async function getUserInfo(token = null, id = null) {
         headers
     );
 
-    if (!response.ok) {
-        return;
+    if (response && !response.ok) {
+        return ;
     }
 
     try {
         jsonData = await response.json();
     } catch (error) {
-		console.debug("Error: failed to parse response");
-        return;
+        return ;
     }
 
     const data = {

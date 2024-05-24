@@ -41,10 +41,8 @@ export default class ProfilePage extends AbstractView {
 			null
 		);
 
-		if (response.ok) {
+		if (response && response.ok) {
 			return await response.json();
-		} else {
-			console.debug("Error: failed to get user match history ", response.status);
 		}
 	}
 
@@ -113,7 +111,7 @@ export default class ProfilePage extends AbstractView {
 			formDataToSend
 		);
 
-		if (response.ok) {
+		if (response && response.ok) {
 			const data = await response.json();
 			await getFriendship(data.id);
 
@@ -126,8 +124,6 @@ export default class ProfilePage extends AbstractView {
 			const parentNode = document.getElementById("profile-page-user-info");
 			parentNode.innerHTML = this.loadProfilePageInfo();
 			this.addEventListners();
-		} else {
-			console.debug("Error: failed to send friend request ", response.status);
 		}
 	}
 
@@ -144,7 +140,7 @@ export default class ProfilePage extends AbstractView {
 			null
 		);
 
-		if (response.ok) {
+		if (response && response.ok) {
 			let friend_id;
 			for (let [index, friendship] of AbstractView.friendships.entries()) {
 				if (id === friendship.id) {
@@ -163,8 +159,6 @@ export default class ProfilePage extends AbstractView {
 			const parentNode = document.getElementById("profile-page-user-info");
 			parentNode.innerHTML = this.loadProfilePageInfo();
 			this.addEventListners();
-		} else {
-			console.debug("Error: failed to delete friend ", response.status);
 		}
 	}
 

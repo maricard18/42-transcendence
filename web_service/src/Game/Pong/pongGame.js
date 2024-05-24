@@ -87,7 +87,7 @@ export async function startPong(game) {
 function singleplayerGameLoop(game) {
 	return new Promise((resolve) => {
         const playPong = () => {
-			if (!localStorage.getItem("game_status")) {
+			if (!localStorage.getItem("game_status") || !location.pathname.startsWith("/home/pong/play")) {
 				game.over = true;
 				resolve();	
 			} else if (!game.paused && !game.over) {
@@ -136,7 +136,8 @@ function singleplayerGameLoop(game) {
 function multiplayer2GameLoop(game) {
 	return new Promise((resolve) => {
         const playPong = () => {
-            if (game.over || !GameWebsocket.ws || !localStorage.getItem("game_status")) {
+            if (game.over || !GameWebsocket.ws || !localStorage.getItem("game_status") ||
+				!location.pathname.startsWith("/home/pong/play")) {
 				game.over = true;
 				updateScore(game);
 				resolve();
@@ -146,7 +147,7 @@ function multiplayer2GameLoop(game) {
 		
 				game.clear();
 		
-				if (AbstractView.userInfo.id === game.host_id) {
+				if (AbstractView.userInfo.id == game.host_id) {
 					game.ball.update(game);
 					game.player1.update(game);
 					sendHostMessage(game);
@@ -157,12 +158,12 @@ function multiplayer2GameLoop(game) {
 
 				updateScore(game);
 						
-				if (game.player1.info.id === game.host_id) {
+				if (game.player1.info.id == game.host_id) {
 					checkPlayer1Collision(game);
 					checkPlayer2Collision(game);
 				}
 		
-				if (AbstractView.userInfo.id === game.host_id && 
+				if (AbstractView.userInfo.id == game.host_id && 
 				   (game.player1.score === 5 || game.player2.score === 5)) {
 					const players = [game.player1, game.player2];
 					game.winner = getPlayerWithMostGoals(players).info.username;
@@ -199,7 +200,8 @@ function multiplayer2GameLoop(game) {
 function multiplayer4GameLoop(game) {
 	return new Promise((resolve) => {
         const playPong = () => {
-            if (game.over || !GameWebsocket.ws || !localStorage.getItem("game_status")) {
+            if (game.over || !GameWebsocket.ws || !localStorage.getItem("game_status") ||
+				!location.pathname.startsWith("/home/pong/play")) {
 				game.over = true;
 				updateScore(game);
 				resolve();
@@ -209,40 +211,40 @@ function multiplayer4GameLoop(game) {
 		
 				game.clear();
 		
-				if (AbstractView.userInfo.id === game.host_id) {
+				if (AbstractView.userInfo.id == game.host_id) {
 					game.ball.update(game);
 				}
-				if ((game.player1Left && AbstractView.userInfo.id === game.host_id) ||
-					AbstractView.userInfo.id === AbstractView.userData[0].id) {
+				if ((game.player1Left && AbstractView.userInfo.id == game.host_id) ||
+					AbstractView.userInfo.id == AbstractView.userData[0].id) {
 					game.player1.update(game);
 					sendHostMessage(game);
 				}
-				if ((game.player2Left && AbstractView.userInfo.id === game.host_id) ||
-					AbstractView.userInfo.id === AbstractView.userData[1].id) {
+				if ((game.player2Left && AbstractView.userInfo.id == game.host_id) ||
+					AbstractView.userInfo.id == AbstractView.userData[1].id) {
 					game.player2.update(game);
 					sendNonHostMessage(game, 2);
 				}
-				if ((game.player3Left && AbstractView.userInfo.id === game.host_id) ||
-					AbstractView.userInfo.id === AbstractView.userData[2].id) {
+				if ((game.player3Left && AbstractView.userInfo.id == game.host_id) ||
+					AbstractView.userInfo.id == AbstractView.userData[2].id) {
 					game.player3.update(game);
 					sendNonHostMessage(game, 3);
 				}
-				if ((game.player4Left && AbstractView.userInfo.id === game.host_id) ||
-					AbstractView.userInfo.id === AbstractView.userData[3].id) {
+				if ((game.player4Left && AbstractView.userInfo.id == game.host_id) ||
+					AbstractView.userInfo.id == AbstractView.userData[3].id) {
 					game.player4.update(game);
 					sendNonHostMessage(game, 4);
 				}
 
 				updateScore(game);
 		
-				if (AbstractView.userInfo.id === game.host_id) {
+				if (AbstractView.userInfo.id == game.host_id) {
 					checkPlayer1Collision(game);
 					checkPlayer2Collision(game);
 					checkInvertedPlayer3Collision(game);
 					checkInvertedPlayer4Collision(game);
 				}
 		
-				if (AbstractView.userInfo.id === game.host_id &&
+				if (AbstractView.userInfo.id == game.host_id &&
 				   (game.player1.score === 5 || game.player2.score === 5 ||
 					game.player3.score === 5 || game.player4.score === 5)) {
 					const players = [game.player1, game.player2, game.player3, game.player4];

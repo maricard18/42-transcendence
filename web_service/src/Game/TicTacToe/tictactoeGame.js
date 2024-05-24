@@ -59,7 +59,8 @@ function singleplayerGameLoop(game) {
 			game.hit(event.offsetX, event.offsetY);
 			game.checkWinner();
             
-            if (game.over || !localStorage.getItem("game_status")) {
+            if (game.over || !localStorage.getItem("game_status") ||
+				!location.pathname.startsWith("/home/tic-tac-toe/play")) {
                 game.canvas.removeEventListener("click", clickHandler);
 				game.winner = game.winner === 1 ? game.player1.info.username : game.player2.info.username;
 				game.last_time = Date.now();
@@ -85,7 +86,8 @@ function multiplayer2GameLoop(game) {
 
 	return new Promise((resolve) => {
         const clickHandler = (event) => {
-			if (game.over || !GameWebsocket.ws || !localStorage.getItem("game_status")) {
+			if (game.over || !GameWebsocket.ws || !localStorage.getItem("game_status") ||
+				!location.pathname.startsWith("/home/tic-tac-toe/play")) {
 				game.over = true;
 				game.last_time = Date.now();
 				game.canvas.removeEventListener("click", clickHandler);
@@ -96,7 +98,8 @@ function multiplayer2GameLoop(game) {
 				game.hit(event.offsetX, event.offsetY);
 				game.checkWinner();
 				
-				if ((game.over || !GameWebsocket.ws || !localStorage.getItem("game_status"))) {
+				if ((game.over || !GameWebsocket.ws || !localStorage.getItem("game_status")) ||
+					!location.pathname.startsWith("/home/tic-tac-toe/play")) {
 					const id = AbstractView.userInfo.id === game.host_id ? 1 : 2;
 					game.winner = game.winner === 1 ? game.player1.info.username : game.player2.info.username;
 
@@ -115,7 +118,8 @@ function multiplayer2GameLoop(game) {
 			}
         };
 
-		if (game.over || !GameWebsocket.ws || !localStorage.getItem("game_status")) {
+		if (game.over || !GameWebsocket.ws || !localStorage.getItem("game_status") ||
+			!location.pathname.startsWith("/home/tic-tac-toe/play")) {
 			resolve() ;
 		} else {
 			game.clear();

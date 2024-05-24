@@ -56,7 +56,7 @@ export default class FriendsPage extends AbstractView {
 			null
 		);
 
-		if (response.ok) {
+		if (response && response.ok) {
 			let friend_id;
 			for (let [index, friendship] of AbstractView.friendships.entries()) {
 				if (id === friendship.id) {
@@ -73,8 +73,6 @@ export default class FriendsPage extends AbstractView {
 			sendMessage(StatusWebsocket.ws, message);
 
 			this.loadDOMChanges();
-		} else {
-			console.debug("Error: failed to delete friend ", response.status);
 		}
 	}
 
@@ -118,6 +116,10 @@ export default class FriendsPage extends AbstractView {
 		
 		for (let [index, friendship] of AbstractView.friendships.entries()) {
 			const friendInfo = await getUserInfo(accessToken, friendship.friend_id);
+
+			if (!friendInfo) {
+				continue ;
+			}
 
 			const userDiv = document.createElement("div");
 			userDiv.setAttribute("class", "d-flex flex-row friend-block mt-2");
@@ -227,10 +229,8 @@ export async function getFriendship(id) {
 		null
 	);
 
-	if (response.ok) {
+	if (response && response.ok) {
 		AbstractView.friendships.push(await response.json());
-	} else {
-		console.debug("Error: failed to get specific friendship ", response.status);
 	}
 }
 
@@ -247,10 +247,8 @@ export async function getMyFriendships() {
 		null
 	);
 
-	if (response.ok) {
+	if (response && response.ok) {
 		return await response.json();
-	} else {
-		console.debug("Error: failed to fetch my friends list ", response.status);
 	}
 }
 
