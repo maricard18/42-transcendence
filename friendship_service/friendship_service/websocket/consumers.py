@@ -23,7 +23,7 @@ class FriendshipConsumer(JsonWebsocketConsumer):
     def get_friendship_list(self, auth: str) -> Union[list, None]:
         cert_path = os.environ.get("SSL_CERT_PATH")
         response = requests.get(
-            "https://modsecurity-dev:8443/api/friendships",
+            os.environ.get("MODSECURITY_ADDR") + "/api/friendships",
             auth=BearerAuth(auth),
             verify=cert_path
         )

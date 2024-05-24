@@ -6,23 +6,19 @@ VAULT_TOKEN_FILE="/vault/root/token"
 VAULT_KEYS_DIR="/vault/keys"
 PROJECT_NAME="transcendence"
 
-# Function to check if Vault is initialized
 is_initialized() {
     vault status -format=json | jq -r .initialized
 }
 
-# Function to check if Vault is sealed
 is_sealed() {
     vault status -format=json | jq -r .sealed
 }
 
-# Function to check if a policy exists
 policy_exists() {
     policy_name=$1
     vault policy read "${policy_name}" > /dev/null 2>&1
 }
 
-# Function to check if a secret exists
 kv_exists() {
     path=$1
     vault kv get "${path}" > /dev/null 2>&1
@@ -43,7 +39,6 @@ if [ ! -s ${VAULT_TOKEN_FILE} ] || [ ! -s ${VAULT_KEYS_DIR}/key-1 ] || [ ! -s ${
     exit 1
 fi
 
-# Export the Vault token
 export VAULT_TOKEN="$(cat ${VAULT_TOKEN_FILE})"
 
 if ! kv_exists ${PROJECT_NAME}; then
@@ -51,9 +46,13 @@ if ! kv_exists ${PROJECT_NAME}; then
     exit 1
 fi
 
-# Check if the project policy exists
 if ! policy_exists ${PROJECT_NAME}; then
     echo "Project ${PROJECT_NAME} policy does not exist"
+    exit 1
+fi
+
+if ! kv_exists sys/config/cors; then
+    echo "CORS policy does not exist"
     exit 1
 fi
 
@@ -62,7 +61,6 @@ if ! kv_exists ${PROJECT_NAME}/jwt-signing-key; then
     exit 1
 fi
 
-# Check if each entity is initialized
 for entity in ${VAULT_APPROLE_ENTITIES}; do
     if ! kv_exists "${entity}"; then
         echo "Project ${entity} is not initialized"
