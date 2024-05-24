@@ -23,6 +23,8 @@ export default async function handleResponse(response) {
 			? "User does not exist"
 			: "Server error please try again later";
 		errors.username = 1;
+    } else if (response.status === 413) {
+		errors.message = "Image too large";
     } else {
         errors.message = "Server Error";
         errors.username = 1;

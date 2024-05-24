@@ -14,9 +14,7 @@ export default class Security extends AbstractView {
 
         this._inputCallback = false;
         this._clickCallback = false;
-        this._enterCallback = false;
 		this._2FACallback = false;
-		this._2FAInputCallback = false;
 		this._setup2FAButton = false;
 		this._remove2FAButton = false;
 
@@ -58,6 +56,7 @@ export default class Security extends AbstractView {
             const value = event.target.value;
             event.target.setAttribute("value", value);
             this._2FACode = value;
+			console.log("updated value:", this._2FACode);
         };
 
         this.buttonClickedCallback = (event) => {
@@ -94,6 +93,17 @@ export default class Security extends AbstractView {
 				const jsonData = await response.json();
 				this._qrcode = jsonData["url"];
 				this.updateModalBodyContent();
+
+				const validate2FAButton = document.getElementById("validate-2FA");
+				if (validate2FAButton) {
+					validate2FAButton.addEventListener("click", this.validate2FACallback);
+				}
+				
+				const twofaInput = document.querySelector("input-2FA");
+				if (twofaInput) {
+					twofaInput.addEventListener("input", this.twofaInputCallback);
+				}
+
 				AbstractView.has2FA = 1;
 			} else {
 				AbstractView.has2FA = 0;
@@ -101,6 +111,7 @@ export default class Security extends AbstractView {
 		}
 
 		this.validate2FACallback = async () => {
+			console.log(this._2FACode);
 			const newErrors = validate2FAForm(this._2FACode);
 			if (newErrors.message) {
 				const p = document.getElementById("p-2FA");
@@ -111,6 +122,7 @@ export default class Security extends AbstractView {
 				p.style.justifyContent = "center";
 				p.innerText = newErrors.message;
 				setTimeout(() => { p.innerText = ""; }, 3000);
+				
 				return ;
 			}
 
@@ -184,12 +196,6 @@ export default class Security extends AbstractView {
             });
         }
 
-		const twofaInput = this._parentNode.querySelector("#input-2FA");
-        if (twofaInput && !this._2FAInputCallback) {
-            this._2FAInputCallback = true;
-            twofaInput.addEventListener("input", this.twofaInputCallback);
-        }
-
         const submitButton = this._parentNode.querySelector("submit-button");
         if (submitButton && !this._clickCallback) {
             this._clickCallback = true;
@@ -203,12 +209,6 @@ export default class Security extends AbstractView {
 		if (setup2FAButton && !this._setup2FAButton) {
 			this._setup2FAButton = true;
 			setup2FAButton.addEventListener("click", this.setup2FACallback);
-		}
-
-		const validate2FAButton = this._parentNode.querySelector("#validate-2FA");
-		if (validate2FAButton && !this._validate2FAButton) {
-			this._validate2FAButton = true;
-			validate2FAButton.addEventListener("click", this.validate2FACallback);
 		}
 
 		const remove2FAButton = this._parentNode.querySelector("#remove-2FA");

@@ -194,16 +194,33 @@ export default class SettingsPage extends AbstractView {
                 avatarContainer.dispatchEvent(new CustomEvent("avatar-container"));
                 
 				const p = this._parentNode.querySelector("p");
-                if (p.classList.contains("form-error")) {
+                
+				if (p.classList.contains("form-error")) {
                     p.classList.remove("form-error");
                 }
-                p.classList.add("form-success");
+                
+				p.classList.add("form-success");
                 p.innerText = "Changes saved";
                 
 				setTimeout(() => {
                     p.innerText = "";
                 }, 3000);
-            }
+            } else {
+				if (response && response.status === 413) {
+					const p = this._parentNode.querySelector("p");
+					
+					if (p.classList.contains("form-success")) {
+						p.classList.remove("form-success");
+					}
+					
+					p.classList.add("form-error");
+					p.innerText = "Image too large";
+					
+					setTimeout(() => {
+						p.innerText = "";
+					}, 3000);
+				}
+			}
         }
 
         this._insideRequest = false;
