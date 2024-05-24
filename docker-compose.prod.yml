@@ -23,7 +23,7 @@ services:
       - vault_services-auth_service-data:/vault/auth_service/:ro
     healthcheck:
       test: [ "CMD-SHELL", "docker-healthcheck.sh" ]
-      interval: 5s
+      interval: 30s
       start_period: 10s
       retries: 5
     depends_on:
@@ -61,16 +61,16 @@ services:
       - ssl_cert_data:${SSL_CERT_PATH}:ro
       - vault_services-auth_service-data:/vault/auth_service/:ro
     depends_on:
-      auth_service-postgres:
-        condition: service_healthy
-      auth_service-db_migrations:
-        condition: service_completed_successfully
       modsecurity:
         condition: service_started
       vault_service-init:
         condition: service_started
       vault_service:
         condition: service_healthy
+      auth_service-postgres:
+        condition: service_healthy
+      auth_service-db_migrations:
+        condition: service_completed_successfully
     profiles: [ "", "auth_service" ]
     restart: always
 
@@ -98,7 +98,7 @@ services:
       - vault_services-game_service-data:/vault/game_service/:ro
     healthcheck:
       test: [ "CMD-SHELL", "docker-healthcheck.sh" ]
-      interval: 5s
+      interval: 30s
       start_period: 10s
       retries: 5
     depends_on:
@@ -139,17 +139,17 @@ services:
       - ssl_cert_data:${SSL_CERT_PATH}:ro
       - vault_services-game_service-data:/vault/game_service/:ro
     depends_on:
-      game_service-postgres:
-        condition: service_healthy
-      game_service-db_migrations:
-        condition: service_completed_successfully
-      game_service-redis:
-        condition: service_healthy
       modsecurity:
         condition: service_started
       vault_service-init:
         condition: service_started
       vault_service:
+        condition: service_healthy
+      game_service-postgres:
+        condition: service_healthy
+      game_service-db_migrations:
+        condition: service_completed_successfully
+      game_service-redis:
         condition: service_healthy
     profiles: [ "", "game_service" ]
     restart: always
@@ -178,7 +178,7 @@ services:
       - vault_services-friendship_service-data:/vault/friendship_service/:ro
     healthcheck:
       test: [ "CMD-SHELL", "docker-healthcheck.sh" ]
-      interval: 5s
+      interval: 30s
       start_period: 10s
       retries: 5
     depends_on:
@@ -219,17 +219,17 @@ services:
       - ssl_cert_data:${SSL_CERT_PATH}:ro
       - vault_services-friendship_service-data:/vault/friendship_service/:ro
     depends_on:
-      friendship_service-postgres:
-        condition: service_healthy
-      friendship_service-db_migrations:
-        condition: service_completed_successfully
-      friendship_service-redis:
-        condition: service_healthy
       modsecurity:
         condition: service_started
       vault_service-init:
         condition: service_started
       vault_service:
+        condition: service_healthy
+      friendship_service-postgres:
+        condition: service_healthy
+      friendship_service-db_migrations:
+        condition: service_completed_successfully
+      friendship_service-redis:
         condition: service_healthy
     profiles: [ "", "friendship_service" ]
     restart: always
@@ -289,7 +289,7 @@ services:
       - transcendence
     healthcheck:
       test: [ "CMD-SHELL", 'redis-cli ping || exit 1' ]
-      interval: 5s
+      interval: 30s
       start_period: 10s
       retries: 5
     profiles: [ "", "game_service" ]
@@ -303,7 +303,7 @@ services:
       - transcendence
     healthcheck:
       test: [ "CMD-SHELL", 'redis-cli ping || exit 1' ]
-      interval: 5s
+      interval: 30s
       start_period: 10s
       retries: 5
     profiles: [ "", "friendship_service" ]
@@ -318,16 +318,19 @@ services:
         SSL_CERT_KEY_PATH: ${SSL_CERT_KEY_PATH}${SSL_CERT_KEY_FILE}
     environment:
       VAULT_SKIP_VERIFY: true
+      VAULT_APPROLE_ENTITIES: auth_service game_service friendship_service
     expose:
       - "8200"
     networks:
       - transcendence
     volumes:
+      - vault_keys_data:/vault/keys/:ro
+      - vault_root_data:/vault/root/:ro
       - ssl_cert_data:${SSL_CERT_PATH}:ro
       - ssl_cert_key_data:${SSL_CERT_KEY_PATH}:ro
     healthcheck:
-      test: [ "CMD-SHELL", 'vault status' ]
-      interval: 5s
+      test: [ "CMD-SHELL", "/bin/sh", "docker-healthcheck.sh" ]
+      interval: 30s
       start_period: 10s
       retries: 5
     depends_on:
@@ -436,7 +439,7 @@ services:
     depends_on:
       vault_service:
         condition: service_started
-    restart: on-failure
+    restart: on-failure:3
 
   auth_service-db_migrations:
     build:
@@ -457,14 +460,14 @@ services:
       - ssl_cert_data:${SSL_CERT_PATH}:ro
       - vault_services-auth_service-data:/vault/auth_service/:ro
     depends_on:
-      auth_service-postgres:
-        condition: service_healthy
       vault_service-init:
         condition: service_started
       vault_service:
         condition: service_healthy
+      auth_service-postgres:
+        condition: service_healthy
     profiles: [ "", "auth_service", "tools" ]
-    restart: on-failure
+    restart: on-failure:3
 
   auth_service-collectstatic:
     build:
@@ -489,7 +492,7 @@ services:
       vault_service:
         condition: service_healthy
     profiles: [ "", "auth_service", "tools" ]
-    restart: on-failure
+    restart: on-failure:3
 
   game_service-db_migrations:
     build:
@@ -510,14 +513,14 @@ services:
       - ssl_cert_data:${SSL_CERT_PATH}:ro
       - vault_services-game_service-data:/vault/game_service/:ro
     depends_on:
-      game_service-postgres:
-        condition: service_healthy
       vault_service-init:
         condition: service_started
       vault_service:
         condition: service_healthy
+      game_service-postgres:
+        condition: service_healthy
     profiles: [ "", "game_service", "tools" ]
-    restart: on-failure
+    restart: on-failure:3
 
   game_service-collectstatic:
     build:
@@ -542,7 +545,7 @@ services:
       vault_service:
         condition: service_healthy
     profiles: [ "", "game_service", "tools" ]
-    restart: on-failure
+    restart: on-failure:3
 
   friendship_service-db_migrations:
     build:
@@ -563,14 +566,14 @@ services:
       - ssl_cert_data:${SSL_CERT_PATH}:ro
       - vault_services-friendship_service-data:/vault/friendship_service/:ro
     depends_on:
-      friendship_service-postgres:
-        condition: service_healthy
       vault_service-init:
         condition: service_started
       vault_service:
         condition: service_healthy
+      friendship_service-postgres:
+        condition: service_healthy
     profiles: [ "", "friendship_service", "tools" ]
-    restart: on-failure
+    restart: on-failure:3
 
   friendship_service-collectstatic:
     build:
@@ -595,7 +598,7 @@ services:
       vault_service:
         condition: service_healthy
     profiles: [ "", "friendship_service", "tools" ]
-    restart: on-failure
+    restart: on-failure:3
 
   web_service:
     build:
@@ -613,7 +616,7 @@ services:
       vault_service:
         condition: service_healthy
     profiles: [ "", "web_service", "tools" ]
-    restart: on-failure
+    restart: on-failure:3
 
   nikto:
     build:
@@ -628,7 +631,7 @@ services:
       modsecurity:
         condition: service_started
     profiles: [ "web_service", "tools" ]
-    restart: on-failure
+    restart: on-failure:3
 
 networks:
   transcendence:
