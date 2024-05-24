@@ -55,7 +55,7 @@ COPY --from=build /etc/nginx/templates/ /etc/nginx/templates/
 WORKDIR /usr/share/nginx/html/
 RUN rm -rf *
 
-COPY ./web_service/index.html ./index.html
+COPY ./web_service/index.html .
 
 RUN mkdir -p /var/log/telegraf
 RUN touch /var/log/telegraf/transcendence-access.log /var/log/telegraf/transcendence-error.log

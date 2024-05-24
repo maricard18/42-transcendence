@@ -23,7 +23,7 @@ services:
       - vault_services-auth_service-data:/vault/auth_service/:ro
     healthcheck:
       test: [ "CMD-SHELL", "docker-healthcheck.sh" ]
-      interval: 5s
+      interval: 30s
       start_period: 10s
       retries: 5
     depends_on:
@@ -98,7 +98,7 @@ services:
       - vault_services-game_service-data:/vault/game_service/:ro
     healthcheck:
       test: [ "CMD-SHELL", "docker-healthcheck.sh" ]
-      interval: 5s
+      interval: 30s
       start_period: 10s
       retries: 5
     depends_on:
@@ -178,7 +178,7 @@ services:
       - vault_services-friendship_service-data:/vault/friendship_service/:ro
     healthcheck:
       test: [ "CMD-SHELL", "docker-healthcheck.sh" ]
-      interval: 5s
+      interval: 30s
       start_period: 10s
       retries: 5
     depends_on:
@@ -289,7 +289,7 @@ services:
       - transcendence
     healthcheck:
       test: [ "CMD-SHELL", 'redis-cli ping || exit 1' ]
-      interval: 5s
+      interval: 30s
       start_period: 10s
       retries: 5
     profiles: [ "", "game_service" ]
@@ -303,7 +303,7 @@ services:
       - transcendence
     healthcheck:
       test: [ "CMD-SHELL", 'redis-cli ping || exit 1' ]
-      interval: 5s
+      interval: 30s
       start_period: 10s
       retries: 5
     profiles: [ "", "friendship_service" ]
@@ -318,16 +318,19 @@ services:
         SSL_CERT_KEY_PATH: ${SSL_CERT_KEY_PATH}${SSL_CERT_KEY_FILE}
     environment:
       VAULT_SKIP_VERIFY: true
+      VAULT_APPROLE_ENTITIES: auth_service game_service friendship_service
     expose:
       - "8200"
     networks:
       - transcendence
     volumes:
+      - vault_keys_data:/vault/keys/:ro
+      - vault_root_data:/vault/root/:ro
       - ssl_cert_data:${SSL_CERT_PATH}:ro
       - ssl_cert_key_data:${SSL_CERT_KEY_PATH}:ro
     healthcheck:
-      test: [ "CMD-SHELL", 'vault status' ]
-      interval: 5s
+      test: [ "CMD-SHELL", "/bin/sh", "docker-healthcheck.sh" ]
+      interval: 30s
       start_period: 10s
       retries: 5
     depends_on:

@@ -15,7 +15,10 @@ RUN envsubst '$SSL_CERT_PATH $SSL_CERT_KEY_PATH' < /vault/config/template/vault-
 FROM hashicorp/vault:1.13.3 as service
 LABEL authors="bsilva-c"
 
-COPY --from=build /vault/config/vault-config.json /vault/config/vault-config.json
+RUN apk update && apk add --no-cache jq
+
+COPY --from=build /vault/config/vault-config.json /vault/config/
+COPY ./tools/docker-healthcheck.sh .
 
 ENTRYPOINT [ "vault", "server", "-config=/vault/config/vault-config.json" ]
 

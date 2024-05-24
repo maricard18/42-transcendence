@@ -2,6 +2,10 @@
 
 set -euo pipefail
 
+is_sealed() {
+    vault status -format=json | jq -r .sealed
+}
+
 create_approle() {
   echo "Creating $1 Approle..."
   vault write auth/approle/role/"$1" token_policies="$1" token_ttl=2h token_max_ttl=6h
@@ -21,7 +25,7 @@ create_approle() {
   echo "$1 Approle creation complete."
 }
 
-VAULT_INIT_FILE="/vault/keys/vault.init"
+VAULT_INIT_FILE="/vault/keys/.init"
 
 echo "Initializing Vault..."
 if [ -f "${VAULT_INIT_FILE}" ]; then
@@ -39,7 +43,7 @@ else
 
         # Store Root Token to file
         grep '^Initial Root Token' "${TEMP_INIT_FILE}" | awk '{print $4}' > /vault/root/token
-        touch ${VAULT_INIT_FILE}
+        touch "${VAULT_INIT_FILE}"
 
         # Clean up temporary file
         rm "${TEMP_INIT_FILE}"
@@ -59,21 +63,15 @@ fi
 
 # Check Vault seal status
 echo "Unsealing Vault..."
-export VAULT_TOKEN=$(cat /vault/root/token)
-echo "${VAULT_TOKEN}"
-if vault_status=$(vault status -format=json); then
+export VAULT_TOKEN="$(cat /vault/root/token)"
+if [ "$(is_sealed)" != "true" ]; then
     echo "Vault already unsealed."
     echo ""
 else
-    if echo "${vault_status}" | jq -e '.sealed' | grep -q 'true'; then
-        vault operator unseal "$(cat /vault/keys/key-1)"
-        vault operator unseal "$(cat /vault/keys/key-2)"
-        echo "Vault unsealing complete."
-        echo ""
-    else
-        echo "${vault_status}"
-        exit 1
-    fi
+    vault operator unseal "$(cat /vault/keys/key-1)"
+    vault operator unseal "$(cat /vault/keys/key-2)"
+    echo "Vault unsealing complete."
+    echo ""
 fi
 
 PROJECT_NAME="transcendence"
