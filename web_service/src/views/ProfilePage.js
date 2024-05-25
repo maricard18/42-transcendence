@@ -78,6 +78,10 @@ export default class ProfilePage extends AbstractView {
             removeFriendIcon.addEventListener("click", () => this.removeFriend(this._friendship.id));
         }
 
+		if (!this._matchHistory) {
+			return ;
+		}
+
         for (let [index, match] of this._matchHistory.entries()) {
             const gameLog = document.getElementById(`game-log-${index}`);
             if (gameLog) {
@@ -140,6 +144,10 @@ export default class ProfilePage extends AbstractView {
             null
         );
 
+		if (!AbstractView.friendships) {
+			return ;
+		}
+
         if (response && response.ok) {
             let friend_id;
             for (let [index, friendship] of AbstractView.friendships.entries()) {
@@ -166,6 +174,10 @@ export default class ProfilePage extends AbstractView {
         this._winRecord = 0;
         this._lossRecord = 0;
 
+		if (!this._matchHistory) {
+			return ;
+		}
+
         for (let [index, match] of this._matchHistory.entries()) {
             for (let [index, player] of Object.entries(match.players)) {
                 if (player == this._userId) {
@@ -184,6 +196,10 @@ export default class ProfilePage extends AbstractView {
     async loadUserInfo(accessToken, users) {
         const playersInfo = [];
         let info;
+
+		if (!users) {
+			return ;
+		}
 
         for (let [index, id] of Object.entries(users)) {
             if (id === -1) {
@@ -274,6 +290,10 @@ export default class ProfilePage extends AbstractView {
             playersDiv.setAttribute("class", "d-flex flex-column align-items-start w-100 ms-3 mt-4");
             playersDiv.id = `game-log-${index}`;
 
+			if (!playersInfo) {
+				continue ;
+			}
+
             for (let [index, player] of playersInfo.entries()) {
                 const avataraAndUsernameDiv = document.createElement("div");
                 avataraAndUsernameDiv.setAttribute("class", `d-flex flex-row align-items-center pointer mt-1 mb-3`);
@@ -308,6 +328,10 @@ export default class ProfilePage extends AbstractView {
             const playerScoresDiv = document.createElement("div");
             playerScoresDiv.setAttribute("class", "d-flex flex-column align-items-end w-100 mt-4 me-5");
 
+			if (!playersInfo) {
+				continue ;
+			}
+
             for (let [index, player] of playersInfo.entries()) {
                 const scoreDiv = document.createElement("div");
                 scoreDiv.setAttribute("class", "d-flex flex-row align-items-center justify-content-center");
@@ -334,12 +358,15 @@ export default class ProfilePage extends AbstractView {
 
     loadProfilePageInfo() {
         this.getPlayerRecord();
-        this._friendship = null;
-        let winPercentage = this._winRecord / this._matchHistory.length * 100;
+		this._friendship = null;
 
-        if (!winPercentage) {
-            winPercentage = 0;
-        }
+		if (this._matchHistory) {
+			let winPercentage = this._winRecord / this._matchHistory.length * 100;
+	
+			if (!winPercentage) {
+				winPercentage = 0;
+			}
+		}
 
         if (AbstractView.friendships) {
             for (let friendship of AbstractView.friendships.values()) {
@@ -354,18 +381,18 @@ export default class ProfilePage extends AbstractView {
 			<div class="d-flex flex-column align-items-start mt-2 ms-3 me-5 mt-5">
 				<div id="avatar">
 					${
-            this._userInfo.avatar
-                ? `<img
-									id="nav-bar-avatar"
-									class="white-border-lg"
-									src="${this._userInfo.avatar}"
-									alt="avatar"
-									width="150"
-									height="150"
-									style="border-radius: 50%"
-								/>`
-                : `<base-avatar-box size="150"></base-avatar-box>`
-        }
+						this._userInfo.avatar
+							? `<img
+												id="nav-bar-avatar"
+												class="white-border-lg"
+												src="${this._userInfo.avatar}"
+												alt="avatar"
+												width="150"
+												height="150"
+												style="border-radius: 50%"
+											/>`
+							: `<base-avatar-box size="150"></base-avatar-box>`
+					}
 				</div>
 			</div>
 			<div class="d-flex flex-column align-items-start w-100 mt-2">
@@ -374,22 +401,22 @@ export default class ProfilePage extends AbstractView {
 						${this._userInfo.username}
 					</h1>
 					${
-            this._userId != AbstractView.userInfo.id
-                ? !this._friendship
-                    ? `<div class="d-flex justify-content-end w-100 me-5 mt-3 pointer" id="add-friend-${this._userId}">
-										<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-person-plus-fill" viewBox="0 0 16 16">
-											<path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
-											<path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5"/>
-										</svg>
-									</div>`
-                    : `<div class="d-flex justify-content-end w-100 me-5 mt-3 pointer" id="remove-friend-${this._friendship.id}">
-										<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-person-dash-fill" viewBox="0 0 16 16">
-											<path fill-rule="evenodd" d="M11 7.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5"/>
-											<path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
-										</svg>
-									</div>`
-                : ``
-        }
+						this._userId != AbstractView.userInfo.id
+							? !this._friendship
+								? `<div class="d-flex justify-content-end w-100 me-5 mt-3 pointer" id="add-friend-${this._userId}">
+													<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-person-plus-fill" viewBox="0 0 16 16">
+														<path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+														<path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5"/>
+													</svg>
+												</div>`
+								: `<div class="d-flex justify-content-end w-100 me-5 mt-3 pointer" id="remove-friend-${this._friendship.id}">
+													<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-person-dash-fill" viewBox="0 0 16 16">
+														<path fill-rule="evenodd" d="M11 7.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5"/>
+														<path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+													</svg>
+												</div>`
+							: ``
+					}
 				</div>
 				<div id="date-joined">
 					<h1 style="font-size: 18px">
@@ -416,16 +443,16 @@ export default class ProfilePage extends AbstractView {
 					</h1>
 				</div>
 				${
-            this._friendship
-                ? `<div id="online-status-info-${this._userId}" class="d-flex flex-row">
-								<span class="${this._friendship.online ? "online-lg mt-1" : "offline-lg mt-1"}"></span>
-								<h3 
-									class="ms-2" 
-									style="font-size: 18px; font-weight: bold">${this._friendship.online ? "online" : "offline"}
-								</h3>
-							</div>`
-                : ``
-        }
+					this._friendship
+						? `<div id="online-status-info-${this._userId}" class="d-flex flex-row">
+										<span class="${this._friendship.online ? "online-lg mt-1" : "offline-lg mt-1"}"></span>
+										<h3 
+											class="ms-2" 
+											style="font-size: 18px; font-weight: bold">${this._friendship.online ? "online" : "offline"}
+										</h3>
+									</div>`
+						: ``
+				}
 			</div>
 		`;
     }

@@ -161,7 +161,7 @@ export default class SearchFriends extends AbstractView {
             };
 
             const response = await fetchData(
-                `/api/users?filter[username]=${this._searchBar}`,
+                `/api/users?filter[is_active]=true&filter[username]=${this._searchBar}`,
                 "GET",
                 headers,
                 null

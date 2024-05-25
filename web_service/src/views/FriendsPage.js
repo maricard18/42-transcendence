@@ -56,6 +56,10 @@ export default class FriendsPage extends AbstractView {
             null
         );
 
+		if (!AbstractView.friendships) {
+			return ;
+		}
+
         if (response && response.ok) {
             let friend_id;
             for (let [index, friendship] of AbstractView.friendships.entries()) {
@@ -284,6 +288,10 @@ export function updateFriendOnlineStatus(id, action = null) {
 }
 
 export async function updateFriendsListOnlineStatus(id = null, action = null) {
+	if (!AbstractView.friendships) {
+		return ;
+	}
+
     for (let [index, friendship] of AbstractView.friendships.entries()) {
         if (id == friendship.friend_id) {
             AbstractView.friendships[index]["online"] = action === "connected" ? true : false;

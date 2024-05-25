@@ -31,9 +31,15 @@ export default class Login42Page extends AbstractView {
 
         this._callbackDefined = true;
         const query = window.location.search;
+
+		if (query && query.startsWith("?error")) {
+			navigateTo("/");
+			return ;
+		}
+
         const response = await fetchData(
             "/auth/sso/101010/callback" + query +
-            `&action=${this._previousLocation ? `link&user_id=${decodedToken["user_id"]}` : "register"}`,
+            `&action=${this._previousLocation ? `link&user_id=${decodedToken ? decodedToken["user_id"] : 0}` : "register"}`,
             "GET",
             null
         );
@@ -57,8 +63,6 @@ export default class Login42Page extends AbstractView {
             } else {
                 navigateTo("/");
             }
-
-
         }
     }
 

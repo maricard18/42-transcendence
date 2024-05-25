@@ -143,11 +143,11 @@ function hasWebSocket(matches) {
         fullUrl !== "/home/pong/play/multiplayer/4" &&
         fullUrl !== "/home/tic-tac-toe/play/multiplayer/2" &&
         (AbstractView.previousLocation === "/home/pong/multiplayer/waiting-room/2" ||
-            AbstractView.previousLocation === "/home/pong/multiplayer/waiting-room/4" ||
-            AbstractView.previousLocation === "/home/tic-tac-toe/multiplayer/waiting-room/2" ||
-            AbstractView.previousLocation === "/home/pong/play/multiplayer/2" ||
-            AbstractView.previousLocation === "/home/pong/play/multiplayer/4" ||
-            AbstractView.previousLocation === "/home/tic-tac-toe/play/multiplayer/2")) {
+		AbstractView.previousLocation === "/home/pong/multiplayer/waiting-room/4" ||
+		AbstractView.previousLocation === "/home/tic-tac-toe/multiplayer/waiting-room/2" ||
+		AbstractView.previousLocation === "/home/pong/play/multiplayer/2" ||
+		AbstractView.previousLocation === "/home/pong/play/multiplayer/4" ||
+		AbstractView.previousLocation === "/home/tic-tac-toe/play/multiplayer/2")) {
         return true;
     } else {
         return false;

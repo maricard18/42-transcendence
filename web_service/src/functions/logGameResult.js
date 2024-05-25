@@ -5,6 +5,10 @@ export default async function logGameResult(game, mode, players) {
 	const playersInfoMessage = {};
 	const playersResultMessage = {};
 
+	if (!players) {
+		return ;
+	}
+
 	for (let [index, player] of players.entries()) {
 		playersInfoMessage[`player_${index + 1}`] = player.info.id;
 		playersResultMessage[`player_${index + 1}`] = player.score;
