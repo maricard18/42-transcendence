@@ -1,9 +1,8 @@
 import AbstractView from "./AbstractView";
-import { createPongGameObject } from "../Game/Pong/pongGame";
-import { startPong } from "../Game/Pong/pongGame";
-import { Display2Usernames, DisplayUsername } from "../Game/Pong/DisplayUsernames";
 import { navigateTo } from "..";
 import { closeWebsocket } from "../functions/websocket";
+import { createPongGameObject, startPong } from "../Game/Pong/pongGame";
+import { Display2Usernames, DisplayUsername } from "../Game/Pong/DisplayUsernames";
 
 export default class Pong extends AbstractView {
     constructor(view) {
@@ -34,7 +33,7 @@ export default class Pong extends AbstractView {
 			localStorage.setItem("game_status", "loading");
 		}
 
-        this._observer = new MutationObserver(this.defineCallback.bind(this));
+        this._observer = new MutationObserver(this.defineCallback);
         this._observer.observe(document.body, {
             childList: true,
             subtree: true,
@@ -64,11 +63,9 @@ export default class Pong extends AbstractView {
             }
             this._height = this._width / this._aspectRatio;
         }
-
-		//TODO addEventListener("offline", (event) => {console.error("LOST CONNECTION")});
     }
 
-    async defineCallback() {
+    defineCallback = async () => {
         const parentNode = document.getElementById("pong");
         if (parentNode) {
             this._parentNode = parentNode;
@@ -89,7 +86,6 @@ export default class Pong extends AbstractView {
                 this._gameMode,
                 this._lobbySize
             );
-			console.warn("GAME:", this._game);
             await startPong(this._game);
         }
     }
@@ -171,7 +167,6 @@ export default class Pong extends AbstractView {
     async getHtml() {
         if (this._gameMode === "multiplayer" && 
 		   (!localStorage.getItem("game_status") || !AbstractView.userData.length)) {
-			console.log("User refreshed the page");
 			localStorage.removeItem("game_status");
 			localStorage.removeItem("game_winner");
 			AbstractView.cleanGameData();

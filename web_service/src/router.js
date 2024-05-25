@@ -13,12 +13,12 @@ import WaitingRoom from "./views/WaitingRoom.js";
 import Pong from "./views/Pong.js";
 import SettingsPage from "./views/SettingsPage.js";
 import Tournament, { TournamentMatchmaking } from "./views/Tournament.js";
-import { Game1, Game2 } from "./components/Games.js";
-import { GameMenuOptions, MultiplayerOptions, SinglePlayerOptions, TournamentOptions } from "./components/GameOptions.js";
 import FriendsPage from "./views/FriendsPage.js";
 import SearchFriends from "./components/SearchFriends.js";
 import TicTacToe from "./views/TicTacToe.js";
 import ProfilePage from "./views/ProfilePage.js";
+import { Game1, Game2 } from "./components/Games.js";
+import { GameMenuOptions, MultiplayerOptions, SinglePlayerOptions, TournamentOptions } from "./components/GameOptions.js";
 
 export const routes = [
     {

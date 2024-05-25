@@ -24,14 +24,13 @@ export default class Tournament extends AbstractView {
 		};
         this._errors = {};
 
-        this._observer = new MutationObserver(this.defineCallback.bind(this));
+        this._observer = new MutationObserver(this.defineCallback);
         this._observer.observe(document.body, {
             childList: true,
             subtree: true,
         });
 
-		this.removeCallbacksBound = this.removeCallbacks.bind(this);
-		window.addEventListener("popstate", this.removeCallbacksBound);
+		window.addEventListener(location.pathname, this.removeCallbacks);
     }
 
 	inputCallback = (event) => {
@@ -52,7 +51,7 @@ export default class Tournament extends AbstractView {
 		}
 	};
 
-    defineCallback() {
+    defineCallback = () => {
         const parentNode = document.getElementById("tournament-page");
         if (parentNode) {
             this._parentNode = parentNode;
@@ -80,8 +79,12 @@ export default class Tournament extends AbstractView {
         }
     }
 
-    removeCallbacks() {
-        if (!this._parentNode) {
+    removeCallbacks = () => {
+		this._observer.disconnect();
+		window.removeEventListener("keydown", this.keydownCallback);
+		window.removeEventListener(location.pathname, this.removeCallbacks);
+
+		if (!this._parentNode) {
             return;
         }
 
@@ -96,11 +99,6 @@ export default class Tournament extends AbstractView {
         if (submitButton) {
             submitButton.removeEventListener("buttonClicked", this.buttonClickedCallback);
         }
-
-        window.removeEventListener("keydown", this.keydownCallback);
-		window.removeEventListener("popstate", this.removeCallbacksBound);
-
-        this._observer.disconnect();
     }
 
     get errors() {
@@ -313,14 +311,13 @@ export class TournamentMatchmaking extends AbstractView {
 			}
 		}
 
-		this._observer = new MutationObserver(this.defineCallback.bind(this));
+		this._observer = new MutationObserver(this.defineCallback);
         this._observer.observe(document.body, {
             childList: true,
             subtree: true,
         });
 
-		this.removeCallbacksBound = this.removeCallbacks.bind(this);
-		window.addEventListener("popstate", this.removeCallbacksBound);
+		window.addEventListener(location.pathname, this.removeCallbacks);
     }
 
 	shuffleArray(array) {
@@ -402,7 +399,7 @@ export class TournamentMatchmaking extends AbstractView {
 		}
 	};
 
-	defineCallback() {
+	defineCallback = () => {
         const parentNode = document.getElementById("tournament-matchmaking");
         if (parentNode) {
             this._parentNode = parentNode;
@@ -422,10 +419,8 @@ export class TournamentMatchmaking extends AbstractView {
         }
     }
 
-    removeCallbacks() {
-        if (!this._parentNode) {
-            return;
-        }
+    removeCallbacks = () => {
+		this._observer.disconnect();
 
         const submitButton = this._parentNode.querySelector("submit-button");
         if (submitButton) {
@@ -433,14 +428,14 @@ export class TournamentMatchmaking extends AbstractView {
         }
 
 		window.removeEventListener("keydown", this.keydownCallback);
-		window.removeEventListener("popstate", this.removeCallbacksBound);
-
-        this._observer.disconnect();
+		window.removeEventListener(location.pathname, this.removeCallbacks);
     }
 
 	loadDOMChanges() {
         const parentNode = document.getElementById("tournament-matchmaking");
-		parentNode.innerHTML = this.loadMatchmakingContent();
+		if (parentNode) {
+			parentNode.innerHTML = this.loadMatchmakingContent();
+		}
     }
 
 	loadMatchmakingContent() {
@@ -649,7 +644,6 @@ export function findTournamentMatch() {
 		return match3;
 	}
 
-	console.error("Error: findTorunamentMatch()");
 	return null;
 }
 

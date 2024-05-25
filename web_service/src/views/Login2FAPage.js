@@ -20,14 +20,13 @@ export default class Login2FAPage extends AbstractView {
         this._errors = {};
         this._2FACode = null;
 
-        this._observer = new MutationObserver(this.defineCallback.bind(this));
+        this._observer = new MutationObserver(this.defineCallback);
         this._observer.observe(document.body, {
             childList: true,
             subtree: true,
         });
 
-		this.removeCallbacksBound = this.removeCallbacks.bind(this);
-		window.addEventListener("popstate", this.removeCallbacksBound);
+		window.addEventListener(location.pathname, this.removeCallbacks);
     }
 
 	inputCallback = (event) => {
@@ -47,7 +46,7 @@ export default class Login2FAPage extends AbstractView {
 		}
 	};
 
-    defineCallback() {
+    defineCallback = () => {
         const parentNode = document.getElementById("login-2FA-page");
         if (parentNode) {
             this._parentNode = parentNode;
@@ -64,10 +63,7 @@ export default class Login2FAPage extends AbstractView {
         const submitButton = this._parentNode.querySelector("submit-button");
         if (submitButton && !this._clickCallback) {
             this._clickCallback = true;
-            submitButton.addEventListener(
-                "buttonClicked",
-                this.buttonClickedCallback
-            );
+            submitButton.addEventListener("buttonClicked",  this.buttonClickedCallback);
         }
 
         if (!this._enterCallback) {
@@ -76,10 +72,14 @@ export default class Login2FAPage extends AbstractView {
         }
     }
 
-    removeCallbacks() {
-        if (!this._parentNode) {
-            return;
-        }
+    removeCallbacks = () => {
+		this._observer.disconnect();
+		window.removeEventListener("keydown", this.keydownCallback);
+		window.removeEventListener(location.pathname, this.removeCallbacks);
+
+		if (!this._parentNode) {
+			return ;
+		}
 
         const input = this._parentNode.querySelector("input");
         if (input) {
@@ -93,11 +93,6 @@ export default class Login2FAPage extends AbstractView {
                 this.buttonClickedCallback
             );
         }
-
-        window.removeEventListener("keydown", this.keydownCallback);
-		window.removeEventListener("popstate", this.removeCallbacksBound);
-
-        this._observer.disconnect();
     }
 
     get errors() {
@@ -144,19 +139,19 @@ export default class Login2FAPage extends AbstractView {
 			const blob = new Blob([jsonResponse], {type : 'application/json'});
 			const newResponse = new Response(blob);
 			const jsonData = await newResponse.clone().json();
-            const accessToken = jsonData["access_token"];
-			const decodeToken = decode(accessToken);
-
-			if (!accessToken) {
-				console.error("Error: failed to retrieve access token");
+			
+			if (!jsonData) {
 				navigateTo("/");
 				return ;
 			}
 
+			const accessToken = jsonData["access_token"];
+			const decodeToken = decode(accessToken);
+			
 			const headers = {
 				Authorization: `Bearer ${accessToken}`,
 			};
-
+			
 			const response = await fetchData(
 				"/api/users/" + decodeToken["user_id"] + "/otp?code=" + this._2FACode,
 				"GET",
@@ -165,7 +160,7 @@ export default class Login2FAPage extends AbstractView {
 			);
 
 			const responseJSON = await response.json()
-			if (response.ok && responseJSON['valid']) {
+			if (response && response.ok && responseJSON['valid']) {
 				this.removeCallbacks();
 				await setToken(newResponse);
 				AbstractView.has2FA = 2;

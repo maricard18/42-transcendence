@@ -26,14 +26,13 @@ export default class CreateProfilePage extends AbstractView {
             return;
         }
 
-        this._observer = new MutationObserver(this.defineCallback.bind(this));
+        this._observer = new MutationObserver(this.defineCallback);
         this._observer.observe(document.body, {
             childList: true,
             subtree: true,
         });
 
-		this.removeCallbacksBound = this.removeCallbacks.bind(this);
-		window.addEventListener("popstate", this.removeCallbacksBound);
+		window.addEventListener(location.pathname, this.removeCallbacks);
     }
 
 	inputCallback = (event, input) => {
@@ -64,7 +63,7 @@ export default class CreateProfilePage extends AbstractView {
 		}
 	};
 
-    defineCallback() {
+    defineCallback = () => {
         const parentNode = document.getElementById("create-profile-page");
         if (parentNode) {
             this._parentNode = parentNode;
@@ -103,8 +102,12 @@ export default class CreateProfilePage extends AbstractView {
         }
     }
 
-    removeCallbacks() {
-        if (!this._parentNode) {
+    removeCallbacks = () => {
+		this._observer.disconnect();
+		window.removeEventListener("keydown", this.keydownCallback);
+		window.removeEventListener(location.pathname, this.removeCallbacks);
+
+		if (!this._parentNode) {
             return;
         }
 
@@ -129,11 +132,6 @@ export default class CreateProfilePage extends AbstractView {
             this._removeCallback = true;
             removeButton.removeEventListener("click", this.removeAvatarCallback);
         }
-
-        window.removeEventListener("keydown", this.keydownCallback);
-		window.removeEventListener("popstate", this.removeCallbacksBound);
-
-        this._observer.disconnect();
     }
 
     get errors() {
@@ -216,7 +214,7 @@ export default class CreateProfilePage extends AbstractView {
                 formDataToSend
             );
 
-            if (response.ok) {
+            if (response && response.ok) {
                 await createToken(AbstractView.formData);
                 const data = await response.json();
                 AbstractView.userInfo = {

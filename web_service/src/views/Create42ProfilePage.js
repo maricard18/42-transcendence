@@ -1,9 +1,8 @@
 import AbstractView from "./AbstractView";
 import fetchData from "../functions/fetchData";
-import handleResponse from "../functions/authenticationErrors";
+import getUserInfo from "../functions/getUserInfo";
 import { navigateTo } from "../index";
 import { transitEncrypt } from "../functions/vaultAccess";
-import getUserInfo from "../functions/getUserInfo";
 import { decode, getToken } from "../functions/tokens";
 
 export default class Create42ProfilePage extends AbstractView {
@@ -22,14 +21,13 @@ export default class Create42ProfilePage extends AbstractView {
 		this._avatar = null;
         this._errors = {};
 
-        this._observer = new MutationObserver(this.defineCallback.bind(this));
+        this._observer = new MutationObserver(this.defineCallback);
         this._observer.observe(document.body, {
             childList: true,
             subtree: true,
         });
 
-		this.removeCallbacksBound = this.removeCallbacks.bind(this);
-		window.addEventListener("popstate", this.removeCallbacksBound);
+		window.addEventListener(location.pathname, this.removeCallbacks);;
     }
 
 	inputCallback = (event, input) => {
@@ -59,7 +57,7 @@ export default class Create42ProfilePage extends AbstractView {
 		}
 	};
 
-    async defineCallback() {
+    defineCallback = async () => {
         const parentNode = document.getElementById("create-42profile-page");
         if (parentNode) {
             this._parentNode = parentNode;
@@ -78,8 +76,6 @@ export default class Create42ProfilePage extends AbstractView {
                     avatar: userData.avatar,
                     id: userData.id,
                 };
-            } else {
-				console.error("Error: failed to fetch user data");
             }
 
 			this.loadDOMChanges();
@@ -116,8 +112,12 @@ export default class Create42ProfilePage extends AbstractView {
         }
     }
 
-    removeCallbacks() {
-        if (!this._parentNode) {
+    removeCallbacks = () => {
+		this._observer.disconnect();
+		window.removeEventListener("keydown", this.keydownCallback);
+		window.removeEventListener(location.pathname, this.removeCallbacks);
+
+		if (!this._parentNode) {
             return;
         }
 
@@ -142,11 +142,6 @@ export default class Create42ProfilePage extends AbstractView {
             this._removeCallback = true;
             removeButton.removeEventListener("click", this.removeAvatarCallback);
         }
-
-        window.removeEventListener("keydown", this.keydownCallback);
-		window.removeEventListener("popstate", this.removeCallbacksBound);
-
-        this._observer.disconnect();
     }
 
     get errors() {
@@ -225,7 +220,7 @@ export default class Create42ProfilePage extends AbstractView {
                 formDataToSend
             );
 
-            if (response.ok) {
+            if (response && response.ok) {
                 AbstractView.userInfo.username = this._username;
 				if (this._avatar) {
 					AbstractView.userInfo.avatar = this._avatar;
@@ -235,10 +230,10 @@ export default class Create42ProfilePage extends AbstractView {
 				localStorage.setItem("previous_location", location.pathname);
 				navigateTo("/home");
             } else {
-				if (response.status === 409) {
+				if (response && response.status === 409) {
 					newErrors.message = "This username already exists";
 				} else {
-					newErrors.message = "Internal Server Error"
+					newErrors.message = "Error please try again later"
 				}
                 
 				this.errors = newErrors;

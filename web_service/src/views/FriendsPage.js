@@ -3,7 +3,7 @@ import fetchData from "../functions/fetchData";
 import getUserInfo from "../functions/getUserInfo";
 import { navigateTo } from "..";
 import { getToken } from "../functions/tokens";
-import { StatusWebsocket, sendMessage } from "../functions/websocket";
+import { sendMessage, StatusWebsocket } from "../functions/websocket";
 
 export default class FriendsPage extends AbstractView {
     constructor(view) {
@@ -16,14 +16,13 @@ export default class FriendsPage extends AbstractView {
         this._clickCallback = false;
         this._insideRequest = false;
 
-        this._observer = new MutationObserver(this.defineCallback.bind(this));
+        this._observer = new MutationObserver(this.defineCallback);
         this._observer.observe(document.body, {
             childList: true,
             subtree: true,
         });
-
-		this.removeCallbacksBound = this.removeCallbacks.bind(this);
-		window.addEventListener("popstate", this.removeCallbacksBound);
+		
+		window.addEventListener(location.pathname, this.removeCallbacks);
     }
 
 	async addEventListeners() {
@@ -57,7 +56,7 @@ export default class FriendsPage extends AbstractView {
 			null
 		);
 
-		if (response.ok) {
+		if (response && response.ok) {
 			let friend_id;
 			for (let [index, friendship] of AbstractView.friendships.entries()) {
 				if (id === friendship.id) {
@@ -74,12 +73,10 @@ export default class FriendsPage extends AbstractView {
 			sendMessage(StatusWebsocket.ws, message);
 
 			this.loadDOMChanges();
-		} else {
-			console.error("Error: failed to delete friend ", response.status);
 		}
 	}
 
-    async defineCallback() {
+    defineCallback = async () => {
         const parentNode = document.getElementById("friends-page");
         if (parentNode) {
             this._parentNode = parentNode;
@@ -99,14 +96,9 @@ export default class FriendsPage extends AbstractView {
 		}
     }
 
-    removeCallbacks() {
-        if (!this._parentNode) {
-            return;
-        }
-
-		window.removeEventListener("popstate", this.removeCallbacksBound);
-
+    removeCallbacks = () => {
         this._observer.disconnect();
+		window.removeEventListener(location.pathname, this.removeCallbacks);
     }
 
 	async loadFriendList() {
@@ -124,6 +116,10 @@ export default class FriendsPage extends AbstractView {
 		
 		for (let [index, friendship] of AbstractView.friendships.entries()) {
 			const friendInfo = await getUserInfo(accessToken, friendship.friend_id);
+
+			if (!friendInfo) {
+				continue ;
+			}
 
 			const userDiv = document.createElement("div");
 			userDiv.setAttribute("class", "d-flex flex-row friend-block mt-2");
@@ -233,10 +229,8 @@ export async function getFriendship(id) {
 		null
 	);
 
-	if (response.ok) {
+	if (response && response.ok) {
 		AbstractView.friendships.push(await response.json());
-	} else {
-		console.error("Error: failed to get specific friendship ", response.status);
 	}
 }
 
@@ -253,10 +247,8 @@ export async function getMyFriendships() {
 		null
 	);
 
-	if (response.ok) {
+	if (response && response.ok) {
 		return await response.json();
-	} else {
-		console.error("Error: failed to fetch my friends list ", response.status);
 	}
 }
 

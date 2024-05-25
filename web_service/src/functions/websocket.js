@@ -5,8 +5,7 @@ import { getPlayerIndex, sendHostMessage, sendNonHostMessage, updateScore } from
 import { getToken } from "./tokens";
 import { Cpu, InvertedCpu } from "../Game/Pong/Player";
 import { ScreenSize } from "../Game/TicTacToe/variables";
-import { updateFriendsListOnlineStatus } from "../views/FriendsPage";
-import { getMyFriendships } from "../views/FriendsPage";
+import { getMyFriendships, updateFriendsListOnlineStatus } from "../views/FriendsPage";
 
 export var StatusWebsocket = {};
 export var GameWebsocket = {};
@@ -31,12 +30,9 @@ export async function connectOnlineStatusWebsocket() {
     };
 
 	StatusWebsocket.ws.onerror = (error) => {
-        console.error("Error while connecting to the Status WS:", error);
     };
 
     StatusWebsocket.ws.onmessage = (event) => {
-        // console.log("STATUS:", JSON.parse(event.data));
-
         try {
             const jsonData = JSON.parse(event.data);
 
@@ -51,7 +47,7 @@ export async function connectOnlineStatusWebsocket() {
 				}
 			}
         } catch (error) {
-            console.log(error);
+			
         }
     };
 }
@@ -76,7 +72,6 @@ export async function connectGameWebsocket() {
     ]);
 
     GameWebsocket.ws.onopen = () => {
-		console.log("Created websocket!")
         AbstractView.gameWsCreated = true;
 		AbstractView.wsConnectionStarted = false;
 		waitingRoomNode.dispatchEvent( new CustomEvent ("waiting-room-callback") );
@@ -84,12 +79,9 @@ export async function connectGameWebsocket() {
 
 	GameWebsocket.ws.onerror = (error) => {
 		AbstractView.wsConnectionStarted = false;
-        console.error("Error while connecting to the WS:", error);
     };
 
     GameWebsocket.ws.onmessage = (event) => {
-        //console.log("SYSTEM", JSON.parse(event.data));
-
         try {
             const jsonData = JSON.parse(event.data);
 
@@ -125,7 +117,7 @@ export async function connectGameWebsocket() {
                 }
             }
         } catch (error) {
-            console.log(error);
+
         }
     };
 }
@@ -133,8 +125,6 @@ export async function connectGameWebsocket() {
 export function multiplayerTicTacToeMessageHandler(GameWebsocket, game) {
 	if (GameWebsocket.ws) {
         GameWebsocket.ws.onmessage = (event) => {
-            //console.log("GAME", JSON.parse(event.data));
-
             try {
                 const jsonData = JSON.parse(event.data);
 
@@ -236,7 +226,7 @@ export function multiplayerTicTacToeMessageHandler(GameWebsocket, game) {
 					}
                 }
             } catch (error) {
-                console.log(error);
+
             }
         };
     }
@@ -245,8 +235,6 @@ export function multiplayerTicTacToeMessageHandler(GameWebsocket, game) {
 export function multiplayerPongMessageHandler(GameWebsocket, game) {
 	if (GameWebsocket.ws) {
         GameWebsocket.ws.onmessage = (event) => {
-            //console.log("GAME", JSON.parse(event.data));
-
             try {
                 const jsonData = JSON.parse(event.data);
 
@@ -342,7 +330,7 @@ export function multiplayerPongMessageHandler(GameWebsocket, game) {
 					}
                 }
             } catch (error) {
-                console.log(error);
+
             }
         };
     }
@@ -383,7 +371,6 @@ export function sendMessage(ws, message) {
 
 export function closeWebsocket() {
     if (GameWebsocket.ws) {
-		console.warn("CLOSING WEBSOCKET");
 		localStorage.removeItem("game_status");
         GameWebsocket.ws.close();
         delete GameWebsocket.ws;
@@ -394,7 +381,6 @@ export function closeWebsocket() {
 
 export function closeStatusWebsocket() {
     if (StatusWebsocket.ws) {
-		console.warn("CLOSING STATUS WEBSOCKET");
         StatusWebsocket.ws.close();
         delete StatusWebsocket.ws;
 		AbstractView.statusWsCreated = false;
@@ -416,7 +402,6 @@ function customPlayerQueueCallback() {
 }
 
 function addCpuPlayer(index, game, id) {
-	console.warn(`USER ${index + 1} WAS DISCONNECTED`);
 	const player1 = document.getElementById("player1-info");
 	const player2 = document.getElementById("player2-info");
 	const player3 = document.getElementById("player3-info");

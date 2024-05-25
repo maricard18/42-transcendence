@@ -1,5 +1,5 @@
 import AbstractView from "../views/AbstractView";
-import {navigateTo} from "..";
+import { navigateTo } from "..";
 
 export class Game1 extends AbstractView {
     static gameSelected = false;
@@ -13,7 +13,7 @@ export class Game1 extends AbstractView {
         }
 
         if (location.pathname === "/home" || location.pathname === "/home/") {
-            this._observer = new MutationObserver(this.loadCallbacks.bind(this));
+            this._observer = new MutationObserver(this.loadCallbacks);
             this._observer.observe(document.body, {
                 childList: true,
                 subtree: true,
@@ -21,7 +21,7 @@ export class Game1 extends AbstractView {
         }
     }
 
-    loadCallbacks() {
+    loadCallbacks = () => {
         if (this._callbackRunned || Game1.gameSelected) {
             return;
         }
@@ -43,12 +43,12 @@ export class Game1 extends AbstractView {
     }
 
     removeCallbacks() {
-        const img = document.getElementById("pong-img");
+		this._observer.disconnect();
+        
+		const img = document.getElementById("pong-img");
         if (img) {
             img.removeEventListener("click", this.handleGameClick);
         }
-
-        this._observer.disconnect();
     }
 
     async getHtml() {
@@ -103,7 +103,7 @@ export class Game2 extends AbstractView {
         }
 
         if (location.pathname === "/home" || location.pathname === "/home/") {
-            this._observer = new MutationObserver(this.loadCallbacks.bind(this));
+            this._observer = new MutationObserver(this.loadCallbacks);
             this._observer.observe(document.body, {
                 childList: true,
                 subtree: true,
@@ -111,7 +111,7 @@ export class Game2 extends AbstractView {
         }
     }
 
-    loadCallbacks() {
+    loadCallbacks = () => {
         if (this._callbackRunned || Game2.gameSelected) {
             return;
         }
@@ -133,12 +133,12 @@ export class Game2 extends AbstractView {
     }
 
     removeCallbacks() {
-        const img = document.getElementById("tic-tac-toe-img");
+		this._observer.disconnect();
+        
+		const img = document.getElementById("tic-tac-toe-img");
         if (img) {
             img.removeEventListener("click", this.handleGameClick);
         }
-
-        this._observer.disconnect();
     }
 
     async getHtml() {

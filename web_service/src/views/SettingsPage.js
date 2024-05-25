@@ -18,14 +18,13 @@ export default class SettingsPage extends AbstractView {
         this._errors = {};
         this._avatar = AbstractView.userInfo.avatar;
 
-        this._observer = new MutationObserver(this.defineCallback.bind(this));
+        this._observer = new MutationObserver(this.defineCallback);
         this._observer.observe(document.body, {
             childList: true,
             subtree: true,
         });
 
-		this.removeCallbacksBound = this.removeCallbacks.bind(this);
-		window.addEventListener("popstate", this.removeCallbacksBound);
+		window.addEventListener(location.pathname, this.removeCallbacks);
     }
 
 	avatarCallback = (event) => {
@@ -52,7 +51,6 @@ export default class SettingsPage extends AbstractView {
 	}
 
 	deleteAccountCallback = async () => {
-		console.log("Delete account");
 		const accessToken = await getToken();
 		const headers = {
 			Authorization: `Bearer ${accessToken}`,
@@ -65,15 +63,13 @@ export default class SettingsPage extends AbstractView {
 			null
 		);
 
-		if (response.ok) {
+		if (response && response.ok) {
 			const modalElement = document.getElementById("DeleteUserModal");
 			bootstrap.Modal.getInstance(modalElement).hide();
 			document.querySelector('.modal-backdrop').remove();
 			this._observer.disconnect();
 			logout();
 			navigateTo("/");
-		} else {
-			console.error("Failed to delete user");
 		}
 	};
 
@@ -93,15 +89,19 @@ export default class SettingsPage extends AbstractView {
 			formDataToSend
 		);
 
-		if (response.ok) {
+		if (response && response.ok) {
+			AbstractView.userInfo.avatar = null;
 			event.target.dispatchEvent(new CustomEvent("remove-avatar"));
+			const avatarContainer = document.getElementById("avatar-container");
+            if (avatarContainer) {
+				avatarContainer.dispatchEvent(new CustomEvent("avatar-container"));
+			}
+
 			this._clickCallback = false;
-		} else {
-			console.error("failed to remove avatar");
 		}
 	}
 
-    defineCallback() {
+    defineCallback = () => {
         const parentNode = document.getElementById("profile-page");
         if (parentNode) {
             this._parentNode = parentNode;
@@ -122,23 +122,26 @@ export default class SettingsPage extends AbstractView {
             linkButton.addEventListener("click", this.linkButtonCallback);
         }
 
-		const deleteAccountButton = document.getElementById("delete-account-button");
+		const deleteAccountButton = this._parentNode.querySelector("#delete-account-button");
 		if (deleteAccountButton && !this._deleteCallback) {
 			this._deleteCallback = true;
 			deleteAccountButton.addEventListener("click", this.deleteAccountCallback);
 		}
 
-		const deleteAvatarButton = document.getElementById("remove-avatar");
+		const deleteAvatarButton = this._parentNode.querySelector("#remove-avatar");
 		if (deleteAvatarButton && !this._clickCallback) {
 			this._clickCallback = true;
 			deleteAvatarButton.addEventListener("click", this.removeAvatarCallback);
 		}
     }
 
-    removeCallbacks() {
-        if (!this._parentNode) {
-            return;
-        }
+    removeCallbacks = () => {
+		this._observer.disconnect();
+		window.removeEventListener(location.pathname, this.removeCallbacks);
+
+		if (!this._parentNode) {
+			return ;
+		}
 
         const avatarBox = this._parentNode.querySelector("avatar-box");
         if (avatarBox) {
@@ -160,18 +163,6 @@ export default class SettingsPage extends AbstractView {
         if (deleteAvatarButton) {
             deleteAvatarButton.removeEventListener("click", this.removeAvatarCallback);
         }
-
-		window.removeEventListener("popstate", this.removeCallbacksBound);
-
-        this._observer.disconnect();
-    }
-
-	get avatar() {
-        return this._avatar;
-    }
-
-    set avatar(value) {
-        this._avatar = value;
     }
 
     async changeAvatar() {
@@ -182,7 +173,7 @@ export default class SettingsPage extends AbstractView {
         this._insideRequest = true;
         if (this._avatar) {
             const formDataToSend = new FormData();
-            formDataToSend.append("avatar", this.avatar);
+            formDataToSend.append("avatar", this._avatar);
 
             const accessToken = await getToken();
             const headers = {
@@ -196,25 +187,40 @@ export default class SettingsPage extends AbstractView {
                 formDataToSend
             );
 
-            if (response.ok) {
+            if (response && response.ok) {
                 AbstractView.userInfo.avatar = URL.createObjectURL(this._avatar);
                 
 				const avatarContainer = document.getElementById("avatar-container");
                 avatarContainer.dispatchEvent(new CustomEvent("avatar-container"));
                 
 				const p = this._parentNode.querySelector("p");
-                if (p.classList.contains("form-error")) {
+                
+				if (p.classList.contains("form-error")) {
                     p.classList.remove("form-error");
                 }
-                p.classList.add("form-success");
+                
+				p.classList.add("form-success");
                 p.innerText = "Changes saved";
                 
 				setTimeout(() => {
                     p.innerText = "";
                 }, 3000);
             } else {
-                console.log("Error: failed to change avatar.");
-            }
+				if (response && response.status === 413) {
+					const p = this._parentNode.querySelector("p");
+					
+					if (p.classList.contains("form-success")) {
+						p.classList.remove("form-success");
+					}
+					
+					p.classList.add("form-error");
+					p.innerText = "Image too large";
+					
+					setTimeout(() => {
+						p.innerText = "";
+					}, 3000);
+				}
+			}
         }
 
         this._insideRequest = false;

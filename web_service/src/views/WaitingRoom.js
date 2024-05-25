@@ -2,8 +2,8 @@ import AbstractView from "./AbstractView";
 import fetchData from "../functions/fetchData";
 import { getToken } from "../functions/tokens";
 import { navigateTo } from "..";
-import { closeWebsocket, connectGameWebsocket, GameWebsocket, sendMessage } from "../functions/websocket";
 import { transitDecrypt } from "../functions/vaultAccess";
+import { closeWebsocket, connectGameWebsocket, GameWebsocket, sendMessage } from "../functions/websocket";
 
 export default class WaitingRoom extends AbstractView {
     constructor() {
@@ -25,14 +25,14 @@ export default class WaitingRoom extends AbstractView {
             this._game = "tic-tac-toe";
         }
 
-        this._observer = new MutationObserver(this.defineCallback.bind(this));
+        this._observer = new MutationObserver(this.defineCallback);
         this._observer.observe(document.body, {
             childList: true,
             subtree: true,
         });
     }
 
-    async defineCallback() {
+    defineCallback = async () => {
         const parentNode = document.getElementById("waiting-room");
         if (parentNode) {
             this._parentNode = parentNode;
@@ -40,7 +40,7 @@ export default class WaitingRoom extends AbstractView {
                 this._callback = true;
                 this._parentNode.addEventListener(
                     "waiting-room-callback",
-                    this.waitingRoomCallback.bind(this)
+                    this.waitingRoomCallback
                 );
             }
         } else {
@@ -53,8 +53,8 @@ export default class WaitingRoom extends AbstractView {
                 await connectGameWebsocket();
                 AbstractView.previousLocation = this._location;
             } catch (error) {
-                console.log(error);
-            }
+
+			}
             this._loading = false;
             this.loadDOMChanges();
         };
@@ -78,7 +78,7 @@ export default class WaitingRoom extends AbstractView {
         this._observer.disconnect();
     }
 
-    waitingRoomCallback() {
+    waitingRoomCallback = () => {
         if (AbstractView.gameWsCreated && !this._gameWsCreatedRender) {
             this._gameWsCreatedRender = true;
             this.loadDOMChanges();
@@ -99,9 +99,7 @@ export default class WaitingRoom extends AbstractView {
 
         if (Object.keys(AbstractView.userQueue).length == this._lobbySize &&
             Object.keys(AbstractView.userReadyList).length == this._lobbySize) {
-            const allUsersReady = Object.values(AbstractView.userReadyList).every(
-                (ready) => ready
-            );
+            const allUsersReady = Object.values(AbstractView.userReadyList).every((ready) => ready);
 
             if (allUsersReady) {
                 localStorage.setItem("game_status", "loading");
@@ -120,7 +118,9 @@ export default class WaitingRoom extends AbstractView {
 
     async loadDOMChanges() {
 		const parentNode = document.getElementById("waiting-room");
-        parentNode.innerHTML = this.loadWaitingRoomContent();
+        if (parentNode) {
+            parentNode.innerHTML = this.loadWaitingRoomContent();
+        }
     }
 
     loadWaitingRoomContent() {
@@ -151,7 +151,6 @@ export default class WaitingRoom extends AbstractView {
 }
 
 class PlayerQueue extends AbstractView {
-	//! bug here ... probably
     constructor(view) {
         super();
         this._view = view;
@@ -161,14 +160,14 @@ class PlayerQueue extends AbstractView {
         this._loading = true;
         this._callback = false;
 
-        this._observer = new MutationObserver(this.defineCallback.bind(this));
+        this._observer = new MutationObserver(this.defineCallback);
         this._observer.observe(document.body, {
             childList: true,
             subtree: true,
         });
     }
 
-    async defineCallback() {
+    defineCallback = async () => {
         const parentNode = document.getElementById("player-queue");
         if (parentNode) {
             this._parentNode = parentNode;
@@ -186,10 +185,8 @@ class PlayerQueue extends AbstractView {
         }
     }
 
-    removeCallbacks() {
-        if (!this._parentNode) {
-            return;
-        }
+    removeCallbacks = () => {
+		this._observer.disconnect();
 
         this._parentNode.removeEventListener(
             "player-queue-callback",
@@ -199,9 +196,6 @@ class PlayerQueue extends AbstractView {
             "player-queue-refresh",
             this.loadDOMChanges
         );
-
-        this._callback = false;
-        this._observer.disconnect();
     }
 
     playerQueueCallback() {
@@ -228,54 +222,56 @@ class PlayerQueue extends AbstractView {
 
     loadDOMChanges() {
         const parentNode = document.getElementById("player-queue");
-        parentNode.innerHTML = this.loadPlayerQueue();
+        if (parentNode) {
+            parentNode.innerHTML = this.loadPlayerQueue();
+        }
     }
 
     loadPlayerQueue() {
         return `
 			<div class="justify-content-start align-items-start mb-3" id="player-queue">
-			${	!this._loading && AbstractView.userData
+				${!this._loading && AbstractView.userData
 					? AbstractView.userData.map((data, index) =>
-						data.avatar ? (
-							`<div class="d-flex flex-row justify-content-center align-items-center mb-2">
-									<img
-										src=${data.avatar}
-										alt="Avatar preview"
-										width="40"
-										height="40"
-										class="white-border-sm"
-										style="border-radius: 50%"
-									/>
-									<div class="username-text ms-3 mt-2">
-										<h5>${data.username}</h5>
-									</div>
-									<div class="ms-2">
-										${Object.keys(AbstractView.userQueue).length == this._lobbySize
-								? (AbstractView.userReadyList[data.id]
-									? `<check-icon></check-icon>`
-									: `<close-icon></close-icon>`)
-								: ``
-							}
-									</div>
-								</div>`
-						) : (
-							`<div class="d-flex flex-row justify-content-center align-items-center mb-2">
-									<base-avatar-box size="40px"></base-avatar-box>
-									<div class="username-text ms-3 mt-2">
-										<h5>${data.username}</h5>
-									</div>
-									<div class="ms-2">
-										${Object.keys(AbstractView.userQueue).length == this._lobbySize
-								? (AbstractView.userReadyList[data.id]
-									? `<check-icon></check-icon>`
-									: `<close-icon></close-icon>`)
-								: ``
-							}
-									</div>
-								</div>`
-						))
+						data
+							? data.avatar
+								? (`<div class="d-flex flex-row justify-content-center align-items-center mb-2">
+										<img
+											src=${data.avatar}
+											alt="Avatar preview"
+											width="40"
+											height="40"
+											class="white-border-sm"
+											style="border-radius: 50%"
+										/>
+										<div class="username-text ms-3 mt-2">
+											<h5>${data.username}</h5>
+										</div>
+										<div class="ms-2">
+											${Object.keys(AbstractView.userQueue).length == this._lobbySize
+												? (AbstractView.userReadyList[data.id]
+													? `<check-icon></check-icon>`
+													: `<close-icon></close-icon>`)
+												: ``
+											}
+										</div>
+									</div>`)
+								: (`<div class="d-flex flex-row justify-content-center align-items-center mb-2">
+										<base-avatar-box size="40px"></base-avatar-box>
+										<div class="username-text ms-3 mt-2">
+											<h5>${data.username}</h5>
+										</div>
+										<div class="ms-2">
+											${Object.keys(AbstractView.userQueue).length == this._lobbySize
+												? (AbstractView.userReadyList[data.id]
+													? `<check-icon></check-icon>`
+													: `<close-icon></close-icon>`)
+												: ``
+											}
+										</div>
+									</div>`)
+							: ``)
 					: `<loading-icon size="3rem"></loading-icon>`
-			}
+				}
 			</div>
 		`;
     }
@@ -294,14 +290,14 @@ class ReadyButton extends AbstractView {
         this._clickCallback = false;
         this._readyState = false;
 
-        this._observer = new MutationObserver(this.defineCallback.bind(this));
+        this._observer = new MutationObserver(this.defineCallback);
         this._observer.observe(document.body, {
             childList: true,
             subtree: true,
         });
     }
 
-    async defineCallback() {
+    defineCallback = async () => {
         const parentNode = document.getElementById("ready-button");
         if (parentNode) {
             this._parentNode = parentNode;
@@ -317,7 +313,8 @@ class ReadyButton extends AbstractView {
                         [AbstractView.userInfo.id]: this._readyState,
                     },
                 };
-                sendMessage(GameWebsocket.ws, message);
+                
+				sendMessage(GameWebsocket.ws, message);
             }
         } else {
             return;
@@ -345,11 +342,18 @@ class ReadyButton extends AbstractView {
             };
 
             sendMessage(GameWebsocket.ws, message);
-            const waitingRoomNode = document.getElementById("waiting-room");
-            waitingRoomNode.dispatchEvent(new CustomEvent("waiting-room-callback"));
+            
+			const waitingRoomNode = document.getElementById("waiting-room");
+			if (waitingRoomNode) {
+				waitingRoomNode.dispatchEvent(new CustomEvent("waiting-room-callback"));
+			}
+
             const playerQueueNode = document.getElementById("player-queue");
-            playerQueueNode.dispatchEvent(new CustomEvent("player-queue-refresh"));
-            this.loadDOMChanges();
+            if (playerQueueNode) {
+				playerQueueNode.dispatchEvent(new CustomEvent("player-queue-refresh"));
+			}
+            
+			this.loadDOMChanges();
         };
 
         const button = this._parentNode.querySelector("button");
@@ -362,8 +366,10 @@ class ReadyButton extends AbstractView {
         }
     }
 
-    removeCallbacks() {
-        if (!this._parentNode) {
+    removeCallbacks = () => {
+		this._observer.disconnect();
+
+		if (!this._parentNode) {
             return;
         }
 
@@ -374,16 +380,14 @@ class ReadyButton extends AbstractView {
                 this.buttonClickedCallback
             );
         }
-
-        this._callback = false;
-        this._clickCallback = false;
-        this._observer.disconnect();
     }
 
     loadDOMChanges() {
         const parentNode = document.getElementById("ready-button");
-        parentNode.innerHTML = this.loadReadyButton();
-        this._clickCallback = false;
+		if (parentNode) {
+			parentNode.innerHTML = this.loadReadyButton();
+			this._clickCallback = false;
+		}
     }
 
     loadReadyButton(disabled = false) {
@@ -414,6 +418,11 @@ class ReadyButton extends AbstractView {
 
 async function getUserData(value) {
     let jsonData;
+	let data = {
+        username: "loading",
+        email: "loading",
+        id: value,
+    };
 
     const headers = {
         Authorization: `Bearer ${await getToken()}`,
@@ -421,21 +430,17 @@ async function getUserData(value) {
 
     const response = await fetchData("/api/users/" + value, "GET", headers);
 
-    if (!response.ok) {
-        console.log("Error: failed to fetch user data.");
-		closeWebsocket();
-        return null;
+    if (response && !response.ok) {
+        return data;
     }
 
     try {
         jsonData = await response.json();
     } catch (error) {
-        console.log("Error: failed to parse response.");
-		closeWebsocket();
-        return null;
+        return data;
     }
 
-    const data = {
+    data = {
         username: await transitDecrypt(jsonData["username"]),
         email: await transitDecrypt(jsonData["email"]),
         id: value,

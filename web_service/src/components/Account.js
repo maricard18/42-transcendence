@@ -1,9 +1,9 @@
 import AbstractView from "../views/AbstractView";
 import fetchData from "../functions/fetchData";
 import handleResponse from "../functions/authenticationErrors";
-import { validateProfileUserForm } from "../functions/validateForms";
 import { getToken } from "../functions/tokens";
 import { transitEncrypt } from "../functions/vaultAccess";
+import { validateProfileUserForm } from "../functions/validateForms";
 
 export default class Account extends AbstractView {
     constructor() {
@@ -23,14 +23,14 @@ export default class Account extends AbstractView {
             email: AbstractView.userInfo.email,
         };
 
-        this._observer = new MutationObserver(this.defineCallback.bind(this));
+        this._observer = new MutationObserver(this.defineCallback);
         this._observer.observe(document.body, {
             childList: true,
             subtree: true,
         });
     }
 
-    async defineCallback() {
+    defineCallback = async () => {
         const parentNode = document.getElementById("change-user-info");
         if (parentNode) {
             this._parentNode = parentNode;
@@ -57,13 +57,13 @@ export default class Account extends AbstractView {
             });
         }
 
-        const usernameButton = document.getElementById("username-btn");
+        const usernameButton = this._parentNode.querySelector("#username-btn");
         if (usernameButton && !this._usernameButton) {
             this._usernameButton = true;
             usernameButton.addEventListener("click", this.buttonClickedCallback);
         }
 
-		const emailButton = document.getElementById("email-btn");
+		const emailButton = this._parentNode.querySelector("#email-btn");
         if (emailButton && !this._emailButton) {
             this._emailButton = true;
             emailButton.addEventListener("click", this.buttonClickedCallback);
@@ -79,8 +79,10 @@ export default class Account extends AbstractView {
         }
     }
 
-    removeCallbacks() {
-        if (!this._parentNode) {
+    removeCallbacks = () => {
+		this._observer.disconnect();
+
+		if (!this._parentNode) {
             return;
         }
 
@@ -88,21 +90,15 @@ export default class Account extends AbstractView {
             input.removeEventListener("input", this.inputCallback);
         });
 
-		const usernameButton = document.getElementById("username-btn");
+		const usernameButton = this._parentNode.querySelector("#username-btn");
         if (usernameButton) {
             usernameButton.removeEventListener("click", this.buttonClickedCallback);
         }
 
-		const emailButton = document.getElementById("email-btn");
+		const emailButton = this._parentNode.querySelector("#email-btn");
         if (emailButton) {
             emailButton.removeEventListener("click", this.buttonClickedCallback);
         }
-
-        this._inputCallback = false;
-        this._clickCallback = false;
-        this._usernameButton = false;
-		this._emailButton = false;
-        this._observer.disconnect();
     }
 
     get errors() {
@@ -229,7 +225,7 @@ export default class Account extends AbstractView {
                 formDataToSend
             );
 
-            if (response.ok) {
+            if (response && response.ok) {
                 AbstractView.userInfo.username = this._formData.username;
                 AbstractView.userInfo.email = this._formData.email;
                 const avatarContainer = document.getElementById("avatar-container");
@@ -248,56 +244,60 @@ export default class Account extends AbstractView {
 
     loadDOMChanges() {
         const parentNode = document.getElementById("change-user-info");
-        parentNode.innerHTML = this.loadChangeUserInfoContent();
+		if (parentNode) {
+			parentNode.outerHTML = this.loadChangeUserInfoContent();
+		}
     }
 
     loadChangeUserInfoContent() {
 		return `
-			<div class="d-flex flex-row justify-content-center">
-				<div class="d-flex flex-column align-items-center w-100">
-					<h4 class="sub-text mb-5 mt-4">
-						<b>Edit your account information here</b>
-					</h4>
-					<div class="position-relative">
-						<p class="form-error"></p>
-					</div>
-					<div class="input-group mb-3 input-btn" style="width: 70%" id="username-div">
-						<input
-							id="username"
-							type="text" 
-							class="form-control primary-form extra-form-class"
-							placeholder="username" 
-							aria-label="Recipient's username" 
-							aria-describedby="button-addon2"
-							value="${AbstractView.userInfo.username}"
-						/>
-						<button 
-							class="btn btn-outline-secondary primary-button extra-btn-class"
-							style="width: 90px"
-							type="button" 
-							id="username-btn"
-						>
-							Save
-						</button>
-					</div>
-					<div class="input-group mb-3 input-btn"  style="width: 70%" id="email-div">
-						<input
-							id="email"
-							type="text" 
-							class="form-control primary-form extra-form-class"
-							placeholder="username" 
-							aria-label="Recipient's username" 
-							aria-describedby="button-addon2"
-							value="${AbstractView.userInfo.email}"
-						/>
-						<button 
-							class="btn btn-outline-secondary primary-button extra-btn-class"
-							style="width: 90px"
-							type="button" 
-							id="email-btn"
-						>
-							Save
-						</button>
+			<div class="d-flex flex-column justify-content-start h-100" id="change-user-info">
+				<div class="d-flex flex-row justify-content-center">
+					<div class="d-flex flex-column align-items-center w-100">
+						<h4 class="sub-text mb-5 mt-5">
+							<b>Edit your account information here</b>
+						</h4>
+						<div class="position-relative">
+							<p class="form-error"></p>
+						</div>
+						<div class="input-group mb-3 input-btn" style="width: 70%" id="username-div">
+							<input
+								id="username"
+								type="text" 
+								class="form-control primary-form extra-form-class"
+								placeholder="username" 
+								aria-label="Recipient's username" 
+								aria-describedby="button-addon2"
+								value="${AbstractView.userInfo.username}"
+							/>
+							<button 
+								class="btn btn-outline-secondary primary-button extra-btn-class"
+								style="width: 90px"
+								type="button" 
+								id="username-btn"
+							>
+								Save
+							</button>
+						</div>
+						<div class="input-group mb-3 input-btn"  style="width: 70%" id="email-div">
+							<input
+								id="email"
+								type="text" 
+								class="form-control primary-form extra-form-class"
+								placeholder="username" 
+								aria-label="Recipient's username" 
+								aria-describedby="button-addon2"
+								value="${AbstractView.userInfo.email}"
+							/>
+							<button 
+								class="btn btn-outline-secondary primary-button extra-btn-class"
+								style="width: 90px"
+								type="button" 
+								id="email-btn"
+							>
+								Save
+							</button>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -306,7 +306,7 @@ export default class Account extends AbstractView {
 
     getHtml() {
 		return `
-			<div class="d-flex flex-column justify-content-center" id="change-user-info">
+			<div class="d-flex flex-column justify-content-center h-100" id="change-user-info">
 				<loading-icon size="5rem"></loading-icon>
 			</div>
 		`;

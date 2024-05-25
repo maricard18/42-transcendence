@@ -18,8 +18,7 @@ export async function createToken(formData) {
         formDataToSend
     );
 
-    if (!response.ok) {
-        console.error("Error: failed to create authentication token");
+    if (response && !response.ok) {
         logout();
         return;
     }
@@ -48,7 +47,6 @@ export async function setToken(response) {
 
         AbstractView.authed = true;
     } catch (error) {
-        console.error("Error: failed to set Cookies", error);
         logout();
     }
 }
@@ -57,7 +55,6 @@ export async function refreshToken() {
     const refreshToken = Cookies.get("refresh_token");
     if (!refreshToken || (refreshToken && refreshToken === "undefined")) {
         if (location.pathname.startsWith("/home")) {
-            console.error("Error: refresh_token doesn't exist");
             logout();
         }
         return;
@@ -74,8 +71,7 @@ export async function refreshToken() {
         formDataToSend
     );
 
-    if (!response.ok) {
-        console.error("Error: failed to refresh access_token");
+    if (response && !response.ok) {
         logout();
         return;
     }
@@ -104,7 +100,6 @@ export function decode(accessToken) {
 }
 
 export function logout() {
-    console.log("Logged out, cleaning data")
 	closeWebsocket();
 	closeStatusWebsocket();
 	cleanTournamentStorage(); 	

@@ -1,9 +1,9 @@
 import AbstractView from "../../views/AbstractView";
-import { Cpu, InvertedOpponent, InvertedPlayer, Opponent, Player } from "./Player";
-import { Ball } from "./Ball";
-import { Game } from "./Game";
-import { PaddleHeight, PaddleStartX, PaddleWidth, ScreenHeight, ScreenWidth } from "./variables";
-import { findTournamentMatch } from "../../views/Tournament";
+import {Cpu, InvertedOpponent, InvertedPlayer, Opponent, Player} from "./Player";
+import {Ball} from "./Ball";
+import {Game} from "./Game";
+import {PaddleHeight, PaddleStartX, PaddleWidth, ScreenHeight, ScreenWidth} from "./variables";
+import {findTournamentMatch} from "../../views/Tournament";
 
 export function createSinglePlayerGameObjects(ctx, lobbySize) {
     const player1 =
@@ -117,8 +117,6 @@ export function createMultiPlayer2GameObjects(ctx, lobbySize) {
 export function createMultiPlayer4GameObjects(ctx, lobbySize) {
     const host_id = AbstractView.userData[0].id;
     let player1, player2, player3, player4;
-
-	console.log("Id:", AbstractView.userInfo.id);
 
     if (host_id == AbstractView.userInfo.id) {
         player1 = new Player({
@@ -254,10 +252,6 @@ export function createMultiPlayer4GameObjects(ctx, lobbySize) {
         });
     }
 
-	console.warn("UserInfo:", AbstractView.userInfo);
-	console.warn("UserData:", AbstractView.userData);
-	console.warn("Players:", player1, player2, player3, player4);
-
     return new Game({
         ctx: ctx,
         ball: new Ball({
@@ -276,7 +270,7 @@ export function createMultiPlayer4GameObjects(ctx, lobbySize) {
     });
 }
 
-export function createTournamentGameObjects(ctx) {
+export function createTournamentGameObjects(ctx, lobbySize) {
 	const match = findTournamentMatch();
     
 	const player1 = new Player({

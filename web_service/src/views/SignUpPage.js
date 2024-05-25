@@ -1,6 +1,6 @@
 import AbstractView from "./AbstractView";
-import { validateSignUpForm } from "../functions/validateForms";
 import { navigateTo } from "../index";
+import { validateSignUpForm } from "../functions/validateForms";
 
 export default class SignUpPage extends AbstractView {
     constructor() {
@@ -16,14 +16,13 @@ export default class SignUpPage extends AbstractView {
 
         this._errors = {};
 
-        this._observer = new MutationObserver(this.defineCallback.bind(this));
+        this._observer = new MutationObserver(this.defineCallback);
         this._observer.observe(document.body, {
             childList: true,
             subtree: true,
         });
 
-		this.removeCallbacksBound = this.removeCallbacks.bind(this);
-		window.addEventListener("popstate", this.removeCallbacksBound);
+		window.addEventListener(location.pathname, this.removeCallbacks);
     }
 
 	inputCallback = (event) => {
@@ -44,7 +43,7 @@ export default class SignUpPage extends AbstractView {
 		}
 	};
 
-    defineCallback() {
+    defineCallback = () => {
         const parentNode = document.getElementById("sign-up-page");
         if (parentNode) {
             this._parentNode = parentNode;
@@ -63,10 +62,7 @@ export default class SignUpPage extends AbstractView {
         const submitButton = this._parentNode.querySelector("submit-button");
         if (submitButton && !this._clickCallback) {
             this._clickCallback = true;
-            submitButton.addEventListener(
-                "buttonClicked",
-                this.buttonClickedCallback
-            );
+            submitButton.addEventListener("buttonClicked", this.buttonClickedCallback );
         }
 
         if (!this._enterCallback) {
@@ -75,10 +71,14 @@ export default class SignUpPage extends AbstractView {
         }
     }
 
-    removeCallbacks() {
-        if (!this._parentNode) {
-            return;
-        }
+    removeCallbacks = () => {
+		this._observer.disconnect();
+		window.removeEventListener("keydown", this.keydownCallback);
+		window.removeEventListener(location.pathname, this.removeCallbacks);
+
+		if (!this._parentNode) {
+			return ;
+		}
 
         const inputList = this._parentNode.querySelectorAll("input");
 		if (inputList) {
@@ -89,16 +89,8 @@ export default class SignUpPage extends AbstractView {
 
         const submitButton = this._parentNode.querySelector("submit-button");
         if (submitButton) {
-            submitButton.removeEventListener(
-                "buttonClicked",
-                this.buttonClickedCallback
-            );
+            submitButton.removeEventListener("buttonClicked", this.buttonClickedCallback);
         }
-
-        window.removeEventListener("keydown", this.keydownCallback);
-		window.removeEventListener("popstate", this.removeCallbacksBound);
-
-        this._observer.disconnect();
     }
 
     get errors() {

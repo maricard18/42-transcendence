@@ -1,8 +1,7 @@
 import AbstractView from "./AbstractView";
 import getUserInfo from "../functions/getUserInfo";
-import { getPageTitle } from "../functions/fetchData";
-import { logout } from "../functions/tokens";
 import { navigateTo } from "..";
+import { getPageTitle } from "../functions/fetchData";
 
 export default class NavigationBar extends AbstractView {
     constructor(view) {
@@ -13,20 +12,20 @@ export default class NavigationBar extends AbstractView {
         this._callbackRunned = false;
         this._avatarContainerCallback = false;
 
-        this.observer = new MutationObserver(this.defineCallback.bind(this));
+        this.observer = new MutationObserver(this.defineCallback);
         this.observer.observe(document.body, {
             childList: true,
             subtree: true,
         });
     }
 
-    async defineCallback() {
+    defineCallback = async () => {
 		const avatarContainer = document.getElementById("avatar-container");
         if (avatarContainer && !this._avatarContainerCallback) {
 			this._avatarContainerCallback = true;
             avatarContainer.addEventListener(
 				"avatar-container",
-                this.loadNavigationBarMenuChanges.bind(this)
+                this.loadNavigationBarMenuChanges
             );
         }
 		
@@ -46,8 +45,6 @@ export default class NavigationBar extends AbstractView {
                     id: userData.id,
                 };
                 this._loading = false;
-            } else {
-				console.error("Error: failed to fetch user data");
             }
 			
 			await this.loadDOMChanges();
@@ -79,11 +76,13 @@ export default class NavigationBar extends AbstractView {
 
     async loadDOMChanges() {
         const parentNode = document.getElementById("navigation-bar");
-        parentNode.innerHTML = await this.loadNavigationBarContent();
-		this.addEventListeners();
+		if (parentNode) {
+			parentNode.innerHTML = await this.loadNavigationBarContent();
+			this.addEventListeners();
+		}
     }
 
-	loadNavigationBarMenuChanges() {
+	loadNavigationBarMenuChanges = () => {
 		const div = document.createElement("div");
 		const avatarContainer = document.getElementById("avatar-container");
         const img = avatarContainer.querySelector("img");

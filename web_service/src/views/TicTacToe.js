@@ -1,7 +1,7 @@
 import AbstractView from "./AbstractView";
-import { Display2Usernames } from "../Game/TicTacToe/DisplayUsernames";
 import { navigateTo } from "..";
 import { closeWebsocket } from "../functions/websocket";
+import { Display2Usernames } from "../Game/TicTacToe/DisplayUsernames";
 import { createTicTacToeGameObject, startTicTacToe } from "../Game/TicTacToe/tictactoeGame";
 
 export default class TicTacToe extends AbstractView {
@@ -31,7 +31,7 @@ export default class TicTacToe extends AbstractView {
 			localStorage.setItem("game_status", "loading");
 		}
 
-        this._observer = new MutationObserver(this.defineCallback.bind(this));
+        this._observer = new MutationObserver(this.defineCallback);
         this._observer.observe(document.body, {
             childList: true,
             subtree: true,
@@ -54,11 +54,9 @@ export default class TicTacToe extends AbstractView {
             }
             this._height = this._width / this._aspectRatio;
         }
-
-		//TODO addEventListener("offline", (event) => {console.error("LOST CONNECTION")});
     }
 
-    async defineCallback() {
+    defineCallback = async () => {
         const parentNode = document.getElementById("tic-tac-toe");
         if (parentNode) {
             this._parentNode = parentNode;
@@ -138,7 +136,6 @@ export default class TicTacToe extends AbstractView {
     async getHtml() {
         if (this._gameMode === "multiplayer" && 
 		   (!localStorage.getItem("game_status") || !AbstractView.userData.length)) {
-			console.log("User refreshed the page");
 			localStorage.removeItem("game_status");
 			localStorage.removeItem("game_winner");
 			AbstractView.cleanGameData();

@@ -1,13 +1,13 @@
 import AbstractView from "../../views/AbstractView";
+import logGameResult from "../../functions/logGameResult";
+import { updateVariables } from "./variables";
+import { findTournamentWinner } from "../../views/Tournament";
+import { ScreenWidth, ScreenHeight, keys } from "./variables";
+import { gameConfettiAnimation, gameStartAnimation } from "./animations";
+import { multiplayerPongMessageHandler } from "../../functions/websocket";
+import { GameWebsocket, closeWebsocket, sendMessage } from "../../functions/websocket";
 import { checkPlayer1Collision, checkPlayer2Collision, checkInvertedPlayer3Collision, checkInvertedPlayer4Collision } from "./collision";
 import { createSinglePlayerGameObjects, createMultiPlayer2GameObjects, createMultiPlayer4GameObjects, createTournamentGameObjects } from "./createPlayers";
-import { GameWebsocket, closeWebsocket, sendMessage } from "../../functions/websocket";
-import { multiplayerPongMessageHandler } from "../../functions/websocket";
-import { gameConfettiAnimation, gameStartAnimation } from "./animations";
-import { updateVariables } from "./variables";
-import { ScreenWidth, ScreenHeight, keys } from "./variables";
-import { findTournamentWinner } from "../../views/Tournament";
-import logGameResult from "../../functions/logGameResult";
 
 export function createPongGameObject(canvas, gameMode, lobbySize) {
     const ctx = canvas.getContext("2d");
@@ -15,27 +15,39 @@ export function createPongGameObject(canvas, gameMode, lobbySize) {
     clearBackground(ctx);
     updateVariables(canvas);
 
-    window.addEventListener("keydown", (event) => {
-        if (keys.hasOwnProperty(event.key)) {
-            keys[event.key] = true;
-        }
-    });
-    window.addEventListener("keyup", (event) => {
-        if (keys.hasOwnProperty(event.key)) {
-            keys[event.key] = false;
-        }
-    });
+	function keyDownFunction(event) {
+		if (keys.hasOwnProperty(event.key)) {
+			keys[event.key] = true;
+		}
+	}
+	
+	function keyUpFunction(event) {
+		if (keys.hasOwnProperty(event.key)) {
+			keys[event.key] = false;
+		}
+	}
 
-    if (gameMode === "single-player") {
-        return createSinglePlayerGameObjects(ctx, lobbySize);
-    } else if ( gameMode === "multiplayer" && lobbySize == 2) {
-        return createMultiPlayer2GameObjects(ctx, lobbySize);
-    } else if ( gameMode === "multiplayer" && lobbySize == 4) {
-        return createMultiPlayer4GameObjects(ctx, lobbySize);
-    } else {
-		return createTournamentGameObjects(ctx);
+	function removeEventListners() {
+		window.removeEventListener("keydown", keyDownFunction);
+		window.removeEventListener("keyup", keyUpFunction);
+		window.removeEventListener(location.pathname, removeEventListners);
+	}
+	
+	window.addEventListener("keydown", keyDownFunction);
+	window.addEventListener("keyup", keyUpFunction);
+	window.addEventListener(location.pathname, removeEventListners);
+
+	if (gameMode === "single-player") {
+		return createSinglePlayerGameObjects(ctx, lobbySize);
+	} else if ( gameMode === "multiplayer" && lobbySize == 2) {
+		return createMultiPlayer2GameObjects(ctx, lobbySize);
+	} else if ( gameMode === "multiplayer" && lobbySize == 4) {
+		return createMultiPlayer4GameObjects(ctx, lobbySize);
+	} else {
+		return createTournamentGameObjects(ctx, lobbySize);
 	}
 }
+	
 
 export async function startPong(game) {
 	localStorage.removeItem("game_winner");
@@ -75,7 +87,7 @@ export async function startPong(game) {
 function singleplayerGameLoop(game) {
 	return new Promise((resolve) => {
         const playPong = () => {
-			if (!localStorage.getItem("game_status")) {
+			if (!localStorage.getItem("game_status") || !location.pathname.startsWith("/home/pong/play")) {
 				game.over = true;
 				resolve();	
 			} else if (!game.paused && !game.over) {
@@ -124,8 +136,8 @@ function singleplayerGameLoop(game) {
 function multiplayer2GameLoop(game) {
 	return new Promise((resolve) => {
         const playPong = () => {
-            if (game.over || !GameWebsocket.ws || !localStorage.getItem("game_status")) {
-				console.debug("Left Outside of the game");
+            if (game.over || !GameWebsocket.ws || !localStorage.getItem("game_status") ||
+				!location.pathname.startsWith("/home/pong/play")) {
 				game.over = true;
 				updateScore(game);
 				resolve();
@@ -135,7 +147,7 @@ function multiplayer2GameLoop(game) {
 		
 				game.clear();
 		
-				if (AbstractView.userInfo.id === game.host_id) {
+				if (AbstractView.userInfo.id == game.host_id) {
 					game.ball.update(game);
 					game.player1.update(game);
 					sendHostMessage(game);
@@ -146,12 +158,12 @@ function multiplayer2GameLoop(game) {
 
 				updateScore(game);
 						
-				if (game.player1.info.id === game.host_id) {
+				if (game.player1.info.id == game.host_id) {
 					checkPlayer1Collision(game);
 					checkPlayer2Collision(game);
 				}
 		
-				if (AbstractView.userInfo.id === game.host_id && 
+				if (AbstractView.userInfo.id == game.host_id && 
 				   (game.player1.score === 5 || game.player2.score === 5)) {
 					const players = [game.player1, game.player2];
 					game.winner = getPlayerWithMostGoals(players).info.username;
@@ -165,7 +177,6 @@ function multiplayer2GameLoop(game) {
 					game.over = true;
 					sendHostMessage(game);
 					logGameResult("pong", "multi", players);
-					console.debug("Left inside of the game");
 					resolve();
 				}
 				
@@ -189,7 +200,8 @@ function multiplayer2GameLoop(game) {
 function multiplayer4GameLoop(game) {
 	return new Promise((resolve) => {
         const playPong = () => {
-            if (game.over || !GameWebsocket.ws || !localStorage.getItem("game_status")) {
+            if (game.over || !GameWebsocket.ws || !localStorage.getItem("game_status") ||
+				!location.pathname.startsWith("/home/pong/play")) {
 				game.over = true;
 				updateScore(game);
 				resolve();
@@ -199,40 +211,40 @@ function multiplayer4GameLoop(game) {
 		
 				game.clear();
 		
-				if (AbstractView.userInfo.id === game.host_id) {
+				if (AbstractView.userInfo.id == game.host_id) {
 					game.ball.update(game);
 				}
-				if ((game.player1Left && AbstractView.userInfo.id === game.host_id) ||
-					AbstractView.userInfo.id === AbstractView.userData[0].id) {
+				if ((game.player1Left && AbstractView.userInfo.id == game.host_id) ||
+					AbstractView.userInfo.id == AbstractView.userData[0].id) {
 					game.player1.update(game);
 					sendHostMessage(game);
 				}
-				if ((game.player2Left && AbstractView.userInfo.id === game.host_id) ||
-					AbstractView.userInfo.id === AbstractView.userData[1].id) {
+				if ((game.player2Left && AbstractView.userInfo.id == game.host_id) ||
+					AbstractView.userInfo.id == AbstractView.userData[1].id) {
 					game.player2.update(game);
 					sendNonHostMessage(game, 2);
 				}
-				if ((game.player3Left && AbstractView.userInfo.id === game.host_id) ||
-					AbstractView.userInfo.id === AbstractView.userData[2].id) {
+				if ((game.player3Left && AbstractView.userInfo.id == game.host_id) ||
+					AbstractView.userInfo.id == AbstractView.userData[2].id) {
 					game.player3.update(game);
 					sendNonHostMessage(game, 3);
 				}
-				if ((game.player4Left && AbstractView.userInfo.id === game.host_id) ||
-					AbstractView.userInfo.id === AbstractView.userData[3].id) {
+				if ((game.player4Left && AbstractView.userInfo.id == game.host_id) ||
+					AbstractView.userInfo.id == AbstractView.userData[3].id) {
 					game.player4.update(game);
 					sendNonHostMessage(game, 4);
 				}
 
 				updateScore(game);
 		
-				if (AbstractView.userInfo.id === game.host_id) {
+				if (AbstractView.userInfo.id == game.host_id) {
 					checkPlayer1Collision(game);
 					checkPlayer2Collision(game);
 					checkInvertedPlayer3Collision(game);
 					checkInvertedPlayer4Collision(game);
 				}
 		
-				if (AbstractView.userInfo.id === game.host_id &&
+				if (AbstractView.userInfo.id == game.host_id &&
 				   (game.player1.score === 5 || game.player2.score === 5 ||
 					game.player3.score === 5 || game.player4.score === 5)) {
 					const players = [game.player1, game.player2, game.player3, game.player4];
