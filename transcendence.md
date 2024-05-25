@@ -249,8 +249,8 @@ users play Pong with others. Must have a nice user interface and real-time multi
 - [ ] Using email without `@` show an error?
 - [ ] Using two `@` on email show an error?
 - [ ] Using email without `dot` show an error?
-- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
-- [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
+- [ ] Is SQL injection unsuccessful ? Try something like `OR '1' = '1'`
+- [ ] Is Script injection unsuccessful? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
 [Top ↑](#sign-up-page)
@@ -263,8 +263,8 @@ users play Pong with others. Must have a nice user interface and real-time multi
 - [ ] Only spaces show an error?
 - [ ] Are masked when typing?
 - [ ] Using different passwords show an error?
-- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
-- [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
+- [ ] Is SQL injection unsuccessful ? Try something like `OR '1' = '1'`
+- [ ] Is Script injection unsuccessful? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
 [Top ↑](#sign-up-page)
@@ -275,8 +275,8 @@ users play Pong with others. Must have a nice user interface and real-time multi
 - [ ] Many chars show an error? Try something like `this_is_a_very_long_username_with_many_chars_1234567890!@#$%^&*()_+`
 - [ ] Mixing valid chars and spaces show an error? Try something like `its the user`
 - [ ] Only spaces show an error?
-- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
-- [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
+- [ ] Is SQL injection unsuccessful ? Try something like `OR '1' = '1'`
+- [ ] Is Script injection unsuccessful? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
 [Top ↑](#sign-up-page)
@@ -287,8 +287,8 @@ users play Pong with others. Must have a nice user interface and real-time multi
 - [ ] Many chars show an error? Try something like `this_is_a_very_long_username_with_many_chars_1234567890!@#$%^&*()_+`
 - [ ] Mixing valid chars and spaces show an error? Try something like `its the user`
 - [ ] Only spaces show an error?
-- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
-- [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
+- [ ] Is SQL injection unsuccessful ? Try something like `OR '1' = '1'`
+- [ ] Is Script injection unsuccessful? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
 [Top ↑](#login-page)
@@ -300,8 +300,8 @@ users play Pong with others. Must have a nice user interface and real-time multi
 - [ ] Mixing valid chars and spaces show an error? Try something like `this is a password`
 - [ ] Only spaces show an error?
 - [ ] Are masked when typing?
-- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
-- [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
+- [ ] Is SQL injection unsuccessful ? Try something like `OR '1' = '1'`
+- [ ] Is Script injection unsuccessful? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
 [Top ↑](#login-page)
@@ -313,8 +313,8 @@ users play Pong with others. Must have a nice user interface and real-time multi
 - [ ] Mixing valid chars and spaces show an error? Try something like `123 56`
 - [ ] Only spaces show an error?
 - [ ] Wrong codes show an error?
-- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
-- [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
+- [ ] Is SQL injection unsuccessful ? Try something like `OR '1' = '1'`
+- [ ] Is Script injection unsuccessful? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
 [Top ↑](#login-page)
@@ -325,8 +325,8 @@ users play Pong with others. Must have a nice user interface and real-time multi
 - [ ] Many chars show an error? Try something like `this_is_a_very_long_username_with_many_chars_1234567890!@#$%^&*()_+`
 - [ ] Mixing valid chars and spaces show an error? Try something like `its the user`
 - [ ] Only spaces show an error?
-- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
-- [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
+- [ ] Is SQL injection unsuccessful ? Try something like `OR '1' = '1'`
+- [ ] Is Script injection unsuccessful? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
 [Top ↑](#settings-username-email-page)
@@ -341,8 +341,8 @@ users play Pong with others. Must have a nice user interface and real-time multi
 - [ ] Using two `@` on email show an error?
 - [ ] Using email without `dot` show an error?
 - [ ] Duplicate email show an error?
-- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
-- [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
+- [ ] Is SQL injection unsuccessful ? Try something like `OR '1' = '1'`
+- [ ] Is Script injection unsuccessful? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
 [Top ↑](#settings-username-email-page)
@@ -354,8 +354,8 @@ users play Pong with others. Must have a nice user interface and real-time multi
 - [ ] Only spaces show an error?
 - [ ] Are masked when typing?
 - [ ] Using different passwords show an error?
-- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
-- [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
+- [ ] Is SQL injection unsuccessful ? Try something like `OR '1' = '1'`
+- [ ] Is Script injection unsuccessful? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
 [Top ↑](#settings-password-2fa-page)
@@ -367,8 +367,8 @@ users play Pong with others. Must have a nice user interface and real-time multi
 - [ ] Mixing valid chars and spaces show an error? Try something like `123 56`
 - [ ] Only spaces show an error?
 - [ ] Wrong codes show an error?
-- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
-- [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
+- [ ] Is SQL injection unsuccessful ? Try something like `OR '1' = '1'`
+- [ ] Is Script injection unsuccessful? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
 [Top ↑](#settings-password-2fa-page)
@@ -379,8 +379,8 @@ users play Pong with others. Must have a nice user interface and real-time multi
 - [ ] Many chars show an error? Try something like `this_is_a_very_long_term_with_many_chars_to_search_a_friend`
 - [ ] Mixing valid chars and spaces show an error? Try something like `its my friend`
 - [ ] Only spaces show an message?
-- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
-- [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
+- [ ] Is SQL injection unsuccessful ? Try something like `OR '1' = '1'`
+- [ ] Is Script injection unsuccessful? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
 [Top ↑](#friends-page)
@@ -391,8 +391,8 @@ users play Pong with others. Must have a nice user interface and real-time multi
 - [ ] Many chars show an error? Try something like `this_is_a_very_long_alias_with_many_chars_1234567890!@#$%^&*()_+`
 - [ ] Mixing valid chars and spaces show an error? Try something like `its my alias`
 - [ ] Only spaces show an message?
-- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
-- [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
+- [ ] Is SQL injection unsuccessful ? Try something like `OR '1' = '1'`
+- [ ] Is Script injection unsuccessful? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
 [Top ↑](#pong-tournament-page)
@@ -403,8 +403,8 @@ users play Pong with others. Must have a nice user interface and real-time multi
 - [ ] Many chars show an error? Try something like `this_is_a_very_long_alias_with_many_chars_1234567890!@#$%^&*()_+`
 - [ ] Mixing valid chars and spaces show an error? Try something like `its my alias`
 - [ ] Only spaces show an message?
-- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
-- [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
+- [ ] Is SQL injection unsuccessful ? Try something like `OR '1' = '1'`
+- [ ] Is Script injection unsuccessful? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
 [Top ↑](#pong-tournament-page)
@@ -415,8 +415,8 @@ users play Pong with others. Must have a nice user interface and real-time multi
 - [ ] Many chars show an error? Try something like `this_is_a_very_long_alias_with_many_chars_1234567890!@#$%^&*()_+`
 - [ ] Mixing valid chars and spaces show an error? Try something like `its my alias`
 - [ ] Only spaces show an message?
-- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
-- [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
+- [ ] Is SQL injection unsuccessful ? Try something like `OR '1' = '1'`
+- [ ] Is Script injection unsuccessful? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
 [Top ↑](#pong-tournament-page)
@@ -427,8 +427,8 @@ users play Pong with others. Must have a nice user interface and real-time multi
 - [ ] Many chars show an error? Try something like `this_is_a_very_long_alias_with_many_chars_1234567890!@#$%^&*()_+`
 - [ ] Mixing valid chars and spaces show an error? Try something like `its my alias`
 - [ ] Only spaces show an message?
-- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
-- [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
+- [ ] Is SQL injection unsuccessful ? Try something like `OR '1' = '1'`
+- [ ] Is Script injection unsuccessful? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
 [Top ↑](#pong-tournament-page)
@@ -439,8 +439,8 @@ users play Pong with others. Must have a nice user interface and real-time multi
 - [ ] Many chars show an error? Try something like `this_is_a_very_long_alias_with_many_chars_1234567890!@#$%^&*()_+`
 - [ ] Mixing valid chars and spaces show an error? Try something like `its my alias`
 - [ ] Only spaces show an message?
-- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
-- [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
+- [ ] Is SQL injection unsuccessful ? Try something like `OR '1' = '1'`
+- [ ] Is Script injection unsuccessful? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
 [Top ↑](#tic-tac-toe-tournament-page)
@@ -451,8 +451,8 @@ users play Pong with others. Must have a nice user interface and real-time multi
 - [ ] Many chars show an error? Try something like `this_is_a_very_long_alias_with_many_chars_1234567890!@#$%^&*()_+`
 - [ ] Mixing valid chars and spaces show an error? Try something like `its my alias`
 - [ ] Only spaces show an message?
-- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
-- [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
+- [ ] Is SQL injection unsuccessful ? Try something like `OR '1' = '1'`
+- [ ] Is Script injection unsuccessful? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
 [Top ↑](#tic-tac-toe-tournament-page)
@@ -463,8 +463,8 @@ users play Pong with others. Must have a nice user interface and real-time multi
 - [ ] Many chars show an error? Try something like `this_is_a_very_long_alias_with_many_chars_1234567890!@#$%^&*()_+`
 - [ ] Mixing valid chars and spaces show an error? Try something like `its my alias`
 - [ ] Only spaces show an message?
-- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
-- [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
+- [ ] Is SQL injection unsuccessful ? Try something like `OR '1' = '1'`
+- [ ] Is Script injection unsuccessful? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
 [Top ↑](#tic-tac-toe-tournament-page)
@@ -475,8 +475,8 @@ users play Pong with others. Must have a nice user interface and real-time multi
 - [ ] Many chars show an error? Try something like `this_is_a_very_long_alias_with_many_chars_1234567890!@#$%^&*()_+`
 - [ ] Mixing valid chars and spaces show an error? Try something like `its my alias`
 - [ ] Only spaces show an message?
-- [ ] SQL injection show an error? Try something like `OR '1' = '1'`
-- [ ] Script injection show an error? Try something like `<script>alert('XSS')</script>`
+- [ ] Is SQL injection unsuccessful ? Try something like `OR '1' = '1'`
+- [ ] Is Script injection unsuccessful? Try something like `<script>alert('XSS')</script>`
 - [ ] Is this data encrypted in request and response?
 
 [Top ↑](#tic-tac-toe-tournament-page)
