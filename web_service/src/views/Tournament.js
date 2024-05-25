@@ -256,36 +256,37 @@ export class TournamentMatchmaking extends AbstractView {
         } else {
             this._tournament = JSON.parse(localStorage.getItem("tournament"));
         }
-
-        if (this._match3 && this._match3["status"] === "finished") {
-            let player;
-            for (let i = 0; i < this._tournament.length; i++) {
-                if (this._tournament[i][0] === this._match3["winner"]) {
-                    player = this._tournament[i];
-                }
-            }
-        }
-
+		
         if (this._match1 && this._match1["status"] === "finished") {
-            let player1;
+			let player1;
             for (let i = 0; i < this._tournament.length; i++) {
                 if (this._tournament[i][0] === this._match1["winner"]) {
                     player1 = this._tournament[i];
                 }
             }
-
+			
             this._finalMatch["1"] = ([player1[0], player1[1]]);
         }
-        if (this._match2 && this._match2["status"] === "finished") {
-            let player2;
+        
+		if (this._match2 && this._match2["status"] === "finished") {
+			let player2;
             for (let i = 0; i < this._tournament.length; i++) {
-                if (this._tournament[i][0] === this._match2["winner"]) {
-                    player2 = this._tournament[i];
+				if (this._tournament[i][0] === this._match2["winner"]) {
+					player2 = this._tournament[i];
                 }
             }
-
+			
             this._finalMatch["2"] = ([player2[0], player2[1]]);
         }
+		
+		if (this._match3 && this._match3["status"] === "finished") {
+			let player;
+			for (let i = 0; i < this._tournament.length; i++) {
+				if (this._tournament[i][0] === this._match3["winner"]) {
+					player = this._tournament[i];
+				}
+			}
+		}
 
         if (!this._tournament || !this._tournament["1"][0] || !this._tournament["1"][1][0]) {
             setTimeout(() => {
@@ -464,10 +465,10 @@ export class TournamentMatchmaking extends AbstractView {
 									width="50"
 									height="50"
 									class="${
-            this._match1 && this._match1["winner"] === this._match1["player1"]["index"]
-                ? `gold-border-sm`
-                : `white-border-sm`
-        }"
+												this._match1 && this._match1["winner"] === this._match1["player1"]["index"]
+													? `gold-border-sm`
+													: `white-border-sm`
+											}"
 									style="border-radius: 50%"
 								/>
 								<h1 class="mt-2" style="font-size: 20px">${this._tournament[0][1][0]}</h1>
@@ -484,10 +485,10 @@ export class TournamentMatchmaking extends AbstractView {
 									width="50"
 									height="50"
 									class="${
-            this._match1 && this._match1["winner"] === this._match1["player2"]["index"]
-                ? `gold-border-sm`
-                : `white-border-sm`
-        }"
+												this._match1 && this._match1["winner"] === this._match1["player2"]["index"]
+													? `gold-border-sm`
+													: `white-border-sm`
+											}"
 									style="border-radius: 50%"
 								/>
 								<h1 class="mt-2" style="font-size: 20px">${this._tournament[1][1][0]}</h1>
@@ -504,10 +505,10 @@ export class TournamentMatchmaking extends AbstractView {
 									width="50"
 									height="50"
 									class="${
-            this._match2 && this._match2["winner"] === this._match2["player1"]["index"]
-                ? `gold-border-sm`
-                : `white-border-sm`
-        }"
+												this._match2 && this._match2["winner"] === this._match2["player1"]["index"]
+													? `gold-border-sm`
+													: `white-border-sm`
+											}"
 									style="border-radius: 50%"
 								/>
 								<h1 class="mt-2" style="font-size: 20px">${this._tournament[2][1][0]}</h1>
@@ -524,10 +525,10 @@ export class TournamentMatchmaking extends AbstractView {
 									width="50"
 									height="50"
 									class="${
-            this._match2 && this._match2["winner"] === this._match2["player2"]["index"]
-                ? `gold-border-sm`
-                : `white-border-sm`
-        }"
+												this._match2 && this._match2["winner"] === this._match2["player2"]["index"]
+													? `gold-border-sm`
+													: `white-border-sm`
+											}"
 									style="border-radius: 50%"
 								/>
 								<h1 class="mt-2" style="font-size: 20px">${this._tournament[3][1][0]}</h1>
@@ -541,26 +542,26 @@ export class TournamentMatchmaking extends AbstractView {
 						<div class="d-flex flex-row justify-content-center mt-4">
 							<div class="d-flex flex-column align-items-center">
 							${
-            this._match1
-                ? `<img
+								this._match1
+									? `<img
 											src="${this._finalMatch["1"][1][1]}"
 											alt="Avatar preview"
 											width="50"
 											height="50"
 											class="${
-                    this._match3 && this._match3["winner"] === this._match3["player1"]["index"]
-                        ? `gold-border-sm`
-                        : `white-border-sm`
-                }"
+													this._match3 && this._match3["winner"] === this._match3["player1"]["index"]
+														? `gold-border-sm`
+														: `white-border-sm`
+												}"
 											style="border-radius: 50%"
 										/>
 										<h1 class="mt-2" style="font-size: 20px">${this._finalMatch["1"][1][0]}</h1>`
-                : `<base-avatar-box
+									: `<base-avatar-box
 											size="50px"
 											template="white-border-sm"
 										></base-avatar-box>
 										<h1 class="mt-2" style="font-size: 20px">Winner 1</h1>`
-        }
+							}
 							</div>
 							<div class="d-flex flex-column align-items-center justify-content-start">
 								<div class="ms-4 me-4">
@@ -569,26 +570,26 @@ export class TournamentMatchmaking extends AbstractView {
 							</div>
 							<div class="d-flex flex-column align-items-center">
 							${
-            this._match2
-                ? `<img
+								this._match2
+									? `<img
 											src="${this._finalMatch["2"][1][1]}"
 											alt="Avatar preview"
 											width="50"
 											height="50"
 											class="${
-                    this._match3 && this._match3["winner"] === this._match3["player2"]["index"]
-                        ? `gold-border-sm`
-                        : `white-border-sm`
-                }"
+														this._match3 && this._match3["winner"] === this._match3["player2"]["index"]
+															? `gold-border-sm`
+															: `white-border-sm`
+													}"
 											style="border-radius: 50%"
 										/>
 										<h1 class="mt-2" style="font-size: 20px">${this._finalMatch["2"][1][0]}</h1>`
-                : `<base-avatar-box
+									: `<base-avatar-box
 											size="50px"
 											template="white-border-sm"
 										></base-avatar-box>
 										<h1 class="mt-2" style="font-size: 20px">Winner 2</h1>`
-        }
+							}
 							</div>
 						</div>
 					</div>
