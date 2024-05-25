@@ -45,7 +45,7 @@ COPY --from=build --chown=nonroot:nonroot /run/daphne/ /run/daphne/
 WORKDIR /app/
 COPY --from=build --chown=nonroot:nonroot /app/ .
 
-CMD ["/site-packages/bin/daphne", "-u", "/run/daphne/daphne.sock", "game_service.asgi:application"]
+CMD ["/site-packages/bin/daphne", "-u", "/run/daphne/daphne.sock", "--ping-interval", "1", "--ping-timeout", "5", "game_service.asgi:application"]
 
 # SECOND STAGE -- TOOLS
 FROM python:3.11-slim as tools
