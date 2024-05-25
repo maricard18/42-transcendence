@@ -1,13 +1,13 @@
 export default async function handleResponse(response) {
     const errors = {};
-	
+
 	if (!response) {
 		errors.message = "Error please try again later";
         errors.username = 1;
         errors.email = 1;
         errors.password = 1;
         errors.confirmPassword = 1;
-		
+
 		return errors;
 	}
 
@@ -19,7 +19,7 @@ export default async function handleResponse(response) {
         errors.password = 1;
     } else if (response.status === 404) {
 		const content_type = response.headers.get("content-type");
-        errors.message = content_type === "application/json" 
+		errors.message = content_type === "application/json"
 			? "User does not exist"
 			: "Server error please try again later";
 		errors.username = 1;

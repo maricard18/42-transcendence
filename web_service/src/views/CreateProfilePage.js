@@ -32,36 +32,74 @@ export default class CreateProfilePage extends AbstractView {
             subtree: true,
         });
 
-		window.addEventListener(location.pathname, this.removeCallbacks);
+        window.addEventListener(location.pathname, this.removeCallbacks);
     }
 
-	inputCallback = (event, input) => {
-		const id = input.getAttribute("id");
-		const value = event.target.value;
-		input.setAttribute("value", value);
-		AbstractView.formData[id] = value;
-	};
+    get errors() {
+        return this._errors;
+    }
 
-	avatarCallback = (event) => {
-		this._avatar = event.detail;
-	};
+    set errors(value) {
+        this._errors = value;
 
-	buttonClickedCallback = () => {
-		this.handleValidation();
-	};
+        if (this._errors.message) {
+            const p = this._parentNode.querySelector("p");
+            p.innerText = this._errors.message;
 
-	removeAvatarCallback = (event) => {
-		event.target.dispatchEvent(new CustomEvent("remove-avatar"));
-		this.avatar = null;
-		this._removeCallback = false;
-	}
+            const inputList = this._parentNode.querySelectorAll("input");
+            const input = inputList[inputList.length - 1];
+            const id = input.getAttribute("id");
+            if (this._errors[id]) {
+                input.classList.add("input-error");
+                AbstractView.formData[id] = input.value;
+                setTimeout(() => {
+                    input.classList.remove("input-error");
+                }, 3000);
+            } else if (input.classList.contains("input-error")) {
+                input.classList.remove("input-error");
+            }
 
-	keydownCallback = (event) => {
-		if (event.key === "Enter") {
-			event.preventDefault();
-			this.handleValidation();
-		}
-	};
+            setTimeout(() => {
+                p.innerText = "";
+            }, 3000);
+        }
+    }
+
+    get avatar() {
+        return this._avatar;
+    }
+
+    set avatar(value) {
+        this._avatar = value;
+    }
+
+    inputCallback = (event, input) => {
+        const id = input.getAttribute("id");
+        const value = event.target.value;
+        input.setAttribute("value", value);
+        AbstractView.formData[id] = value;
+    };
+
+    avatarCallback = (event) => {
+        this._avatar = event.detail;
+    };
+
+    buttonClickedCallback = () => {
+        this.handleValidation();
+    };
+
+    removeAvatarCallback = (event) => {
+        event.target.dispatchEvent(new CustomEvent("remove-avatar"));
+        this.avatar = null;
+        this._removeCallback = false;
+    }
+
+    keydownCallback = (event) => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            this.handleValidation();
+        }
+    };
 
     defineCallback = () => {
         const parentNode = document.getElementById("create-profile-page");
@@ -103,11 +141,11 @@ export default class CreateProfilePage extends AbstractView {
     }
 
     removeCallbacks = () => {
-		this._observer.disconnect();
-		window.removeEventListener("keydown", this.keydownCallback);
-		window.removeEventListener(location.pathname, this.removeCallbacks);
+        this._observer.disconnect();
+        window.removeEventListener("keydown", this.keydownCallback);
+        window.removeEventListener(location.pathname, this.removeCallbacks);
 
-		if (!this._parentNode) {
+        if (!this._parentNode) {
             return;
         }
 
@@ -132,44 +170,6 @@ export default class CreateProfilePage extends AbstractView {
             this._removeCallback = true;
             removeButton.removeEventListener("click", this.removeAvatarCallback);
         }
-    }
-
-    get errors() {
-        return this._errors;
-    }
-
-    set errors(value) {
-        this._errors = value;
-
-        if (this._errors.message) {
-            const p = this._parentNode.querySelector("p");
-            p.innerText = this._errors.message;
-
-            const inputList = this._parentNode.querySelectorAll("input");
-            const input = inputList[inputList.length - 1];
-            const id = input.getAttribute("id");
-            if (this._errors[id]) {
-                input.classList.add("input-error");
-                AbstractView.formData[id] = input.value;
-				setTimeout(() => {
-					input.classList.remove("input-error");
-				}, 3000);
-            } else if (input.classList.contains("input-error")) {
-                input.classList.remove("input-error");
-            }
-
-			setTimeout(() => {
-				p.innerText = "";
-			}, 3000);
-        }
-    }
-
-    get avatar() {
-        return this._avatar;
-    }
-
-    set avatar(value) {
-        this._avatar = value;
     }
 
     async handleValidation() {

@@ -22,26 +22,57 @@ export default class SignUpPage extends AbstractView {
             subtree: true,
         });
 
-		window.addEventListener(location.pathname, this.removeCallbacks);
+        window.addEventListener(location.pathname, this.removeCallbacks);
     }
 
-	inputCallback = (event) => {
-		const id = event.target.getAttribute("id");
-		const value = event.target.value;
-		event.target.setAttribute("value", value);
-		AbstractView.formData[id] = value;
-	};
+    get errors() {
+        return this._errors;
+    }
 
-	buttonClickedCallback = (event) => {
-		this.handleValidation();
-	};
+    set errors(value) {
+        this._errors = value;
 
-	keydownCallback = (event) => {
-		if (event.key === "Enter") {
-			event.preventDefault();
-			this.handleValidation();
-		}
-	};
+        if (this._errors.message) {
+            const p = this._parentNode.querySelector("p");
+            p.innerText = this._errors.message;
+
+            const inputList = this._parentNode.querySelectorAll("input");
+            inputList.forEach((input) => {
+                const id = input.getAttribute("id");
+                if (this._errors[id]) {
+                    input.classList.add("input-error");
+                    AbstractView.formData[id] = input.value;
+                    setTimeout(() => {
+                        input.classList.remove("input-error");
+                    }, 3000);
+                } else if (input.classList.contains("input-error")) {
+                    input.classList.remove("input-error");
+                }
+            });
+
+            setTimeout(() => {
+                p.innerText = "";
+            }, 3000);
+        }
+    }
+
+    inputCallback = (event) => {
+        const id = event.target.getAttribute("id");
+        const value = event.target.value;
+        event.target.setAttribute("value", value);
+        AbstractView.formData[id] = value;
+    };
+
+    buttonClickedCallback = (event) => {
+        this.handleValidation();
+    };
+
+    keydownCallback = (event) => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            this.handleValidation();
+        }
+    };
 
     defineCallback = () => {
         const parentNode = document.getElementById("sign-up-page");
@@ -62,7 +93,7 @@ export default class SignUpPage extends AbstractView {
         const submitButton = this._parentNode.querySelector("submit-button");
         if (submitButton && !this._clickCallback) {
             this._clickCallback = true;
-            submitButton.addEventListener("buttonClicked", this.buttonClickedCallback );
+            submitButton.addEventListener("buttonClicked", this.buttonClickedCallback);
         }
 
         if (!this._enterCallback) {
@@ -72,55 +103,24 @@ export default class SignUpPage extends AbstractView {
     }
 
     removeCallbacks = () => {
-		this._observer.disconnect();
-		window.removeEventListener("keydown", this.keydownCallback);
-		window.removeEventListener(location.pathname, this.removeCallbacks);
+        this._observer.disconnect();
+        window.removeEventListener("keydown", this.keydownCallback);
+        window.removeEventListener(location.pathname, this.removeCallbacks);
 
-		if (!this._parentNode) {
-			return ;
-		}
+        if (!this._parentNode) {
+            return;
+        }
 
         const inputList = this._parentNode.querySelectorAll("input");
-		if (inputList) {
-			this._parentNode.querySelectorAll("input").forEach((input) => {
-				input.removeEventListener("input", this.inputCallback);
-			});
-		}
+        if (inputList) {
+            this._parentNode.querySelectorAll("input").forEach((input) => {
+                input.removeEventListener("input", this.inputCallback);
+            });
+        }
 
         const submitButton = this._parentNode.querySelector("submit-button");
         if (submitButton) {
             submitButton.removeEventListener("buttonClicked", this.buttonClickedCallback);
-        }
-    }
-
-    get errors() {
-        return this._errors;
-    }
-
-    set errors(value) {
-        this._errors = value;
-
-        if (this._errors.message) {
-            const p = this._parentNode.querySelector("p");
-            p.innerText = this._errors.message;
-
-            const inputList = this._parentNode.querySelectorAll("input");
-            inputList.forEach((input) => {
-                const id = input.getAttribute("id");
-                if (this._errors[id]) {
-                    input.classList.add("input-error");
-                    AbstractView.formData[id] = input.value;
-					setTimeout(() => {
-						input.classList.remove("input-error");
-					}, 3000);
-                } else if (input.classList.contains("input-error")) {
-                    input.classList.remove("input-error");
-                }
-            });
-
-			setTimeout(() => {
-				p.innerText = "";
-			}, 3000);
         }
     }
 

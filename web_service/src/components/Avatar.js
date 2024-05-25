@@ -58,22 +58,22 @@ export class Avatar extends HTMLElement {
 
     removeAvatar = (event) => {
         event.target.remove();
-        
-		const img = this.querySelector("img");
+
+        const img = this.querySelector("img");
         img.remove();
-        
-		const label = this.querySelector("label");
+
+        const label = this.querySelector("label");
         const avatar = document.createElement("base-avatar-box");
-        
-		avatar.setAttribute("size", "200");
+
+        avatar.setAttribute("size", "200");
         label.appendChild(avatar);
-        
-		this._clickCallback = false;
+
+        this._clickCallback = false;
     }
 
     handleChange = (event) => {
         const file = event.target.files[0];
-		event.target.value = null;
+        event.target.value = null;
 
         if (file) {
             const validFileTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];

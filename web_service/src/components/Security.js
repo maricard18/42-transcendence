@@ -14,12 +14,12 @@ export default class Security extends AbstractView {
 
         this._inputCallback = false;
         this._clickCallback = false;
-		this._2FACallback = false;
-		this._setup2FAButton = false;
-		this._remove2FAButton = false;
+        this._2FACallback = false;
+        this._setup2FAButton = false;
+        this._remove2FAButton = false;
 
-		this._2FACode = null;
-		this._qrcode = null;
+        this._2FACode = null;
+        this._qrcode = null;
         this._errors = {};
         this._success = {};
         this._formData = {
@@ -34,241 +34,7 @@ export default class Security extends AbstractView {
         });
     }
 
-    defineCallback = async () => {
-        const parentNode = document.getElementById("security");
-        if (parentNode) {
-            this._parentNode = parentNode;
-        } else {
-            return;
-        }
-
-        this.inputCallback = (event) => {
-            const id = event.target.getAttribute("id");
-            const value = event.target.value;
-            event.target.setAttribute("value", value);
-            this._formData = {
-                ...this._formData,
-                [id]: value,
-            };
-        };
-
-		this.twofaInputCallback = (event) => {
-            const value = event.target.value;
-            event.target.setAttribute("value", value);
-            this._2FACode = value;
-        };
-
-        this.buttonClickedCallback = (event) => {
-            this.handleValidation();
-        };
-
-		this.setup2FACallback = async () => {
-			const accessToken = await getToken();
-			const headers = {
-				Authorization: `Bearer ${accessToken}`,
-			};
-			
-			if (AbstractView.has2FA === 1) {
-				const response = await fetchData(
-					"/api/users/" + AbstractView.userInfo.id + "/otp",
-					"DELETE",
-					headers,
-					null
-				);
-	
-				if (response && !response.ok) {
-					return ;
-				}
-			}
-
-			const response = await fetchData(
-				"/api/users/" + AbstractView.userInfo.id + "/otp",
-				"POST",
-				headers,
-				null
-			);
-
-			if (response && response.ok) {
-				const jsonData = await response.json();
-				this._qrcode = jsonData["url"];
-				this.updateModalBodyContent();
-				AbstractView.has2FA = 1;
-
-				const validate2FAButton = document.getElementById("validate-2FA");
-				if (validate2FAButton) {
-					validate2FAButton.addEventListener("click", this.validate2FACallback);
-				}
-				
-				const twofaInput = document.getElementById("input-2FA");
-				if (twofaInput) {
-					twofaInput.addEventListener("input", this.twofaInputCallback);
-				}
-			} else {
-				AbstractView.has2FA = 0;
-			}
-		}
-
-		this.validate2FACallback = async () => {
-			const newErrors = validate2FAForm(this._2FACode);
-			if (newErrors.message) {
-				const p = document.getElementById("p-2FA");
-				p.innerText = this.errors.message;
-				p.classList.add("form-error");
-				p.style.whiteSpace = "nowrap";
-				p.style.display = "flex";
-				p.style.justifyContent = "center";
-				p.innerText = newErrors.message;
-				setTimeout(() => { p.innerText = ""; }, 3000);	
-				return ;
-			}
-
-			const accessToken = await getToken();
-			const headers = {
-				Authorization: `Bearer ${accessToken}`,
-			};
-
-			const response = await fetchData(
-				"/api/users/" + AbstractView.userInfo.id + "/otp?code=" + this._2FACode + "&activate",
-				"GET",
-				headers,
-				null
-			);
-
-			if (response && response.ok) {
-				const p = document.getElementById("p-2FA");
-				const jsonData = await response.json();
-				if (jsonData["valid"] === true) {
-					AbstractView.has2FA = 2;
-					const modalElement = document.getElementById("2FAModal");
-					const backdrop = document.querySelector(".modal-backdrop");
-					if (modalElement) {
-						bootstrap.Modal.getInstance(modalElement).hide();
-					}
-					if (backdrop) {
-						backdrop.remove();
-					}
-					this.loadDOMChanges();
-				} else {
-					AbstractView.has2FA = 1;
-					p.classList.add("form-error");
-					p.style.whiteSpace = "nowrap";
-					p.style.display = "flex";
-					p.style.justifyContent = "center";
-					p.innerText = "2FA code is invalid";
-					setTimeout(() => { p.innerText = ""; }, 3000);
-				}
-			} else {
-				AbstractView.has2FA = 0;
-			}
-		}
-
-		this.remove2FACallback = async () => {
-			const accessToken = await getToken();
-			const headers = {
-				Authorization: `Bearer ${accessToken}`,
-			};
-
-			const response = await fetchData(
-				"/api/users/" + AbstractView.userInfo.id + "/otp",
-				"DELETE",
-				headers,
-				null
-			);
-
-			if (response && response.ok) {
-				AbstractView.has2FA = 0;
-				this._qrcode = null;
-				this.loadDOMChanges();
-			} else {
-				AbstractView.has2FA = 1;
-			}
-		}
-
-        const inputList = this._parentNode.querySelectorAll("input");
-        if (inputList && inputList.length && !this._inputCallback) {
-            this._inputCallback = true;
-            inputList.forEach((input) => {
-                input.addEventListener("input", this.inputCallback);
-            });
-        }
-
-        const submitButton = this._parentNode.querySelector("submit-button");
-        if (submitButton && !this._clickCallback) {
-            this._clickCallback = true;
-            submitButton.addEventListener(
-                "buttonClicked",
-                this.buttonClickedCallback
-            );
-        }
-
-		const setup2FAButton = this._parentNode.querySelector("#setup-2FA");
-		if (setup2FAButton && !this._setup2FAButton) {
-			this._setup2FAButton = true;
-			setup2FAButton.addEventListener("click", this.setup2FACallback);
-		}
-
-		const remove2FAButton = this._parentNode.querySelector("#remove-2FA");
-		if (remove2FAButton && !this.remove2FAButton) {
-			this.remove2FAButton = true;
-			remove2FAButton.addEventListener("click", this.remove2FACallback);
-		}
-
-		if (!this._2FACallback) {
-			this._2FACallback = true;
-
-			if (AbstractView.has2FA === null) {
-				const accessToken = await getToken();
-				const headers = {
-					Authorization: `Bearer ${accessToken}`,
-				};
-	
-				const response = await fetchData(
-					"/api/users/" + AbstractView.userInfo.id + "/otp",
-					"GET",
-					headers,
-					null
-				);
-	
-				if (response && response.ok) {
-					const jsonData = await response.json();
-					if (jsonData["active"] === true) {
-						AbstractView.has2FA = 2;
-					} else {
-						AbstractView.has2FA = 1;
-					}
-				} else {
-					AbstractView.has2FA = 0;
-				}
-			}
-
-            this.loadDOMChanges();
-        }
-    }
-
-    removeCallbacks = () => {
-		this._observer.disconnect();
-
-		if (!this._parentNode) {
-            return;
-        }
-
-		const inputList = this._parentNode.querySelectorAll("input");
-		if (inputList) {
-			inputList.forEach((input) => {
-				input.removeEventListener("input", this.inputCallback);
-			});
-		}
-
-        const submitButton = this._parentNode.querySelector("submit-button");
-        if (submitButton) {
-            submitButton.removeEventListener(
-                "buttonClicked",
-                this.buttonClickedCallback
-            );
-        }
-	}
-
-	get errors() {
+    get errors() {
         return this._errors;
     }
 
@@ -289,15 +55,15 @@ export default class Security extends AbstractView {
                 if (this._errors[id]) {
                     input.classList.add("input-error");
                     this._formData[id] = input.value;
-					setTimeout(() => {
-						input.classList.remove("input-error");
-					}, 3000);
+                    setTimeout(() => {
+                        input.classList.remove("input-error");
+                    }, 3000);
                 } else if (input.classList.contains("input-error")) {
                     input.classList.remove("input-error");
                 }
             });
 
-			setTimeout(() => {
+            setTimeout(() => {
                 p.innerText = ""
             }, 3000);
         }
@@ -325,9 +91,247 @@ export default class Security extends AbstractView {
                 }
             });
 
-			setTimeout(() => {
+            setTimeout(() => {
                 p.innerText = ""
             }, 3000);
+        }
+    }
+
+    defineCallback = async () => {
+        const parentNode = document.getElementById("security");
+        if (parentNode) {
+            this._parentNode = parentNode;
+        } else {
+            return;
+        }
+
+        this.inputCallback = (event) => {
+            const id = event.target.getAttribute("id");
+            const value = event.target.value;
+            event.target.setAttribute("value", value);
+            this._formData = {
+                ...this._formData,
+                [id]: value,
+            };
+        };
+
+        this.twofaInputCallback = (event) => {
+            const value = event.target.value;
+            event.target.setAttribute("value", value);
+            this._2FACode = value;
+        };
+
+        this.buttonClickedCallback = (event) => {
+            this.handleValidation();
+        };
+
+        this.setup2FACallback = async () => {
+            const accessToken = await getToken();
+            const headers = {
+                Authorization: `Bearer ${accessToken}`,
+            };
+
+            if (AbstractView.has2FA === 1) {
+                const response = await fetchData(
+                    "/api/users/" + AbstractView.userInfo.id + "/otp",
+                    "DELETE",
+                    headers,
+                    null
+                );
+
+                if (response && !response.ok) {
+                    return;
+                }
+            }
+
+            const response = await fetchData(
+                "/api/users/" + AbstractView.userInfo.id + "/otp",
+                "POST",
+                headers,
+                null
+            );
+
+            if (response && response.ok) {
+                const jsonData = await response.json();
+                this._qrcode = jsonData["url"];
+                this.updateModalBodyContent();
+                AbstractView.has2FA = 1;
+
+                const validate2FAButton = document.getElementById("validate-2FA");
+                if (validate2FAButton) {
+                    validate2FAButton.addEventListener("click", this.validate2FACallback);
+                }
+
+                const twofaInput = document.getElementById("input-2FA");
+                if (twofaInput) {
+                    twofaInput.addEventListener("input", this.twofaInputCallback);
+                }
+            } else {
+                AbstractView.has2FA = 0;
+            }
+        }
+
+        this.validate2FACallback = async () => {
+            const newErrors = validate2FAForm(this._2FACode);
+            if (newErrors.message) {
+                const p = document.getElementById("p-2FA");
+                p.innerText = this.errors.message;
+                p.classList.add("form-error");
+                p.style.whiteSpace = "nowrap";
+                p.style.display = "flex";
+                p.style.justifyContent = "center";
+                p.innerText = newErrors.message;
+                setTimeout(() => {
+                    p.innerText = "";
+                }, 3000);
+                return;
+            }
+
+            const accessToken = await getToken();
+            const headers = {
+                Authorization: `Bearer ${accessToken}`,
+            };
+
+            const response = await fetchData(
+                "/api/users/" + AbstractView.userInfo.id + "/otp?code=" + this._2FACode + "&activate",
+                "GET",
+                headers,
+                null
+            );
+
+            if (response && response.ok) {
+                const p = document.getElementById("p-2FA");
+                const jsonData = await response.json();
+                if (jsonData["valid"] === true) {
+                    AbstractView.has2FA = 2;
+                    const modalElement = document.getElementById("2FAModal");
+                    const backdrop = document.querySelector(".modal-backdrop");
+                    if (modalElement) {
+                        bootstrap.Modal.getInstance(modalElement).hide();
+                    }
+                    if (backdrop) {
+                        backdrop.remove();
+                    }
+                    this.loadDOMChanges();
+                } else {
+                    AbstractView.has2FA = 1;
+                    p.classList.add("form-error");
+                    p.style.whiteSpace = "nowrap";
+                    p.style.display = "flex";
+                    p.style.justifyContent = "center";
+                    p.innerText = "2FA code is invalid";
+                    setTimeout(() => {
+                        p.innerText = "";
+                    }, 3000);
+                }
+            } else {
+                AbstractView.has2FA = 0;
+            }
+        }
+
+        this.remove2FACallback = async () => {
+            const accessToken = await getToken();
+            const headers = {
+                Authorization: `Bearer ${accessToken}`,
+            };
+
+            const response = await fetchData(
+                "/api/users/" + AbstractView.userInfo.id + "/otp",
+                "DELETE",
+                headers,
+                null
+            );
+
+            if (response && response.ok) {
+                AbstractView.has2FA = 0;
+                this._qrcode = null;
+                this.loadDOMChanges();
+            } else {
+                AbstractView.has2FA = 1;
+            }
+        }
+
+        const inputList = this._parentNode.querySelectorAll("input");
+        if (inputList && inputList.length && !this._inputCallback) {
+            this._inputCallback = true;
+            inputList.forEach((input) => {
+                input.addEventListener("input", this.inputCallback);
+            });
+        }
+
+        const submitButton = this._parentNode.querySelector("submit-button");
+        if (submitButton && !this._clickCallback) {
+            this._clickCallback = true;
+            submitButton.addEventListener(
+                "buttonClicked",
+                this.buttonClickedCallback
+            );
+        }
+
+        const setup2FAButton = this._parentNode.querySelector("#setup-2FA");
+        if (setup2FAButton && !this._setup2FAButton) {
+            this._setup2FAButton = true;
+            setup2FAButton.addEventListener("click", this.setup2FACallback);
+        }
+
+        const remove2FAButton = this._parentNode.querySelector("#remove-2FA");
+        if (remove2FAButton && !this.remove2FAButton) {
+            this.remove2FAButton = true;
+            remove2FAButton.addEventListener("click", this.remove2FACallback);
+        }
+
+        if (!this._2FACallback) {
+            this._2FACallback = true;
+
+            if (AbstractView.has2FA === null) {
+                const accessToken = await getToken();
+                const headers = {
+                    Authorization: `Bearer ${accessToken}`,
+                };
+
+                const response = await fetchData(
+                    "/api/users/" + AbstractView.userInfo.id + "/otp",
+                    "GET",
+                    headers,
+                    null
+                );
+
+                if (response && response.ok) {
+                    const jsonData = await response.json();
+                    if (jsonData["active"] === true) {
+                        AbstractView.has2FA = 2;
+                    } else {
+                        AbstractView.has2FA = 1;
+                    }
+                } else {
+                    AbstractView.has2FA = 0;
+                }
+            }
+
+            this.loadDOMChanges();
+        }
+    }
+
+    removeCallbacks = () => {
+        this._observer.disconnect();
+
+        if (!this._parentNode) {
+            return;
+        }
+
+        const inputList = this._parentNode.querySelectorAll("input");
+        if (inputList) {
+            inputList.forEach((input) => {
+                input.removeEventListener("input", this.inputCallback);
+            });
+        }
+
+        const submitButton = this._parentNode.querySelector("submit-button");
+        if (submitButton) {
+            submitButton.removeEventListener(
+                "buttonClicked",
+                this.buttonClickedCallback
+            );
         }
     }
 
@@ -369,17 +373,17 @@ export default class Security extends AbstractView {
         this._insideRequest = false;
     }
 
-	loadDOMChanges() {
-		const parentNode = document.getElementById("security");
-		if (parentNode) {
-			parentNode.outerHTML = this.loadSecurityContent();
-		}
-	}
+    loadDOMChanges() {
+        const parentNode = document.getElementById("security");
+        if (parentNode) {
+            parentNode.outerHTML = this.loadSecurityContent();
+        }
+    }
 
-	updateModalBodyContent() {
-		const modalBody = document.getElementById("modal-body");
-		if (modalBody) {
-			modalBody.innerHTML = `<qr-code
+    updateModalBodyContent() {
+        const modalBody = document.getElementById("modal-body");
+        if (modalBody) {
+            modalBody.innerHTML = `<qr-code
 										id="qr1"
 										contents="${this._qrcode}"
 										module-color="#8259c5"
@@ -410,8 +414,8 @@ export default class Security extends AbstractView {
 											Validate
 										</button>
 									</div>`;
-		}
-	}
+        }
+    }
 
     loadSecurityContent() {
         return `
@@ -460,8 +464,8 @@ export default class Security extends AbstractView {
 						</h4>
 						<div class="mt-3" id="2FA">
 						${
-							AbstractView.has2FA === 2
-								? `<button 
+            AbstractView.has2FA === 2
+                ? `<button 
 										type="button" 
 										id="remove-2FA"
 										class="btn btn-primary red-button extra-btn-class"
@@ -469,7 +473,7 @@ export default class Security extends AbstractView {
 									>
 										Remove 2FA
 									</button>`
-								: `	<button 
+                : `	<button 
 										type="button"
 										id="setup-2FA"
 										class="btn btn-primary primary-button extra-btn-class"
@@ -506,7 +510,7 @@ export default class Security extends AbstractView {
 											</div>
 										</div>
 									</div>`
-						}
+        }
 						</div>
 					</div>
 				</div>
@@ -514,11 +518,11 @@ export default class Security extends AbstractView {
         `;
     }
 
-	getHtml() {
-		return `
+    getHtml() {
+        return `
 			<div class="d-flex flex-column justify-content-center h-100" id="security">
 				<loading-icon size="5rem"></loading-icon>
 			</div>
 		`;
-	}
+    }
 }

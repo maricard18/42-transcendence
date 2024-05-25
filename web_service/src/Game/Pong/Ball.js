@@ -1,14 +1,7 @@
-import {
-    BallSpeedX,
-    BallSpeedY,
-    ScreenHeight,
-    ScreenWidth,
-    ballRadius,
-    pauseGame,
-} from "./variables";
+import { ballRadius, BallSpeedX, BallSpeedY, pauseGame, ScreenHeight, ScreenWidth, } from "./variables";
 
 export class Ball {
-    constructor({ x, y, color, lobbySize }) {
+	constructor({x, y, color, lobbySize}) {
         this.x = x;
         this.y = y;
         this.color = color;
@@ -23,7 +16,7 @@ export class Ball {
 
 		this.speed_x = BallSpeedX * Math.cos(this.angle) * (Math.random() < 0.5 ? -1 : 1);
 		this.speed_y = BallSpeedY * Math.sin(this.angle);
-        
+
 		this.acceleration = 1.1;
         this.last_time = Date.now();
     }
@@ -41,9 +34,9 @@ export class Ball {
 
 		if (game.mode === "single-player" || game.lobbySize == 2) {
 			if ((this.y - this.radius <= 0 && this.speed_y < 0) ||
-            	(this.y + this.radius >= ScreenHeight && this.speed_y > 0)) {
-            	this.speed_y *= -1;
-        	}
+				(this.y + this.radius >= ScreenHeight && this.speed_y > 0)) {
+				this.speed_y *= -1;
+			}
 
 			if (this.x + this.radius >= ScreenWidth && this.speed_x > 0) {
 				game.player1.score += 1;
@@ -93,7 +86,7 @@ export class Ball {
 				game.player4.x = game.player4.initial_x;
 				game.player4.y = game.player4.initial_y;
 			}
-			
+
 			if (this.lobbySize != 4) {
 				this.angle = Math.random() * Math.PI / 4 - Math.PI / 8;
 			} else {
@@ -102,7 +95,7 @@ export class Ball {
 
 			this.speed_x = BallSpeedX * Math.cos(this.angle) * (Math.random() < 0.5 ? -1 : 1);
 			this.speed_y = BallSpeedY * Math.sin(this.angle);
-						
+
 			pauseGame(game, 2);
 		}
 

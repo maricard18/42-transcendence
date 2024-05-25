@@ -6,16 +6,16 @@ import { findTournamentMatch } from "../../views/Tournament";
 export function createSinglePlayerGameObjects(canvas, lobbySize) {
     const player1 =
         lobbySize == 1
-            ? new Player({ symbol: "X", info: AbstractView.userInfo })
-            : new Player({ symbol: "X", info: AbstractView.userInfo });
+            ? new Player({symbol: "X", info: AbstractView.userInfo})
+            : new Player({symbol: "X", info: AbstractView.userInfo});
 
     const player2 =
         lobbySize == 1
-            ? new Cpu({ symbol: "O", info: { id: -1, username: localStorage.getItem("player2") }})
-            : new Player({ symbol: "O", info: { id: -2, username: localStorage.getItem("player2") }});
+            ? new Cpu({symbol: "O", info: {id: -1, username: localStorage.getItem("player2")}})
+            : new Player({symbol: "O", info: {id: -2, username: localStorage.getItem("player2")}});
 
     return new Game({
-		canvas: canvas,
+        canvas: canvas,
         player1: player1,
         player2: player2,
         mode: "single-player",
@@ -29,15 +29,15 @@ export function createMultiPlayer2GameObjects(canvas, lobbySize) {
     let player1, player2;
 
     if (host_id == AbstractView.userInfo.id) {
-        player1 = new Player({ symbol: "X", info: AbstractView.userData[0] });
-        player2 = new Opponent({ symbol: "O", info: AbstractView.userData[1] });
+        player1 = new Player({symbol: "X", info: AbstractView.userData[0]});
+        player2 = new Opponent({symbol: "O", info: AbstractView.userData[1]});
     } else {
-        player1 = new Opponent({ symbol: "X", info: AbstractView.userData[0] });
-        player2 = new Player({ symbol: "O", info: AbstractView.userData[1] });
+        player1 = new Opponent({symbol: "X", info: AbstractView.userData[0]});
+        player2 = new Player({symbol: "O", info: AbstractView.userData[1]});
     }
 
     return new Game({
-		canvas: canvas,
+        canvas: canvas,
         player1: player1,
         player2: player2,
         mode: "multiplayer",
@@ -47,12 +47,12 @@ export function createMultiPlayer2GameObjects(canvas, lobbySize) {
 }
 
 export function createTournamentGameObjects(canvas) {
-	const match = findTournamentMatch();
-	const player1 = new Player({ symbol: "X", info: match["player1"] });
-    const player2 = new Player({ symbol: "O", info: match["player2"] });
+    const match = findTournamentMatch();
+    const player1 = new Player({symbol: "X", info: match["player1"]});
+    const player2 = new Player({symbol: "O", info: match["player2"]});
 
     return new Game({
-		canvas: canvas,
+        canvas: canvas,
         player1: player1,
         player2: player2,
         mode: "tournament",

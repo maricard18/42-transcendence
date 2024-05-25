@@ -1,11 +1,4 @@
-import {
-    PaddleSpeed,
-    PaddleWidth,
-    PaddleHeight,
-    ScreenHeight,
-    keys,
-	ScreenWidth,
-} from "./variables";
+import { keys, PaddleHeight, PaddleSpeed, PaddleWidth, ScreenHeight, ScreenWidth, } from "./variables";
 
 export class Player {
     constructor({x, y, color, keyUp, keyDown, info}) {
@@ -15,7 +8,7 @@ export class Player {
         this.keyUp = keyUp;
         this.keyDown = keyDown;
         this.info = info;
-		this.initial_x = x;
+        this.initial_x = x;
         this.initial_y = y;
         this.width = PaddleWidth;
         this.height = PaddleHeight;
@@ -66,47 +59,47 @@ export class Cpu extends Player {
         this.last_time = Date.now();
         this.direction = 0;
         this.speed = this.max_speed / 8;
-		this.paddleMiddle = this.y + this.height / 2;
+        this.paddleMiddle = this.y + this.height / 2;
     }
 
     update(game) {
-		let distanceToImpact, timeToReachPaddle, predictedBallY, distanceToPredictedBallY;
-		this.paddleMiddle = this.y + this.height / 2;
+        let distanceToImpact, timeToReachPaddle, predictedBallY, distanceToPredictedBallY;
+        this.paddleMiddle = this.y + this.height / 2;
         const current_time = Date.now();
         const elapsedTime = (current_time - this.last_time) / 1000;
 
-		if ((this.x > ScreenWidth / 2 && game.ball.speed_x > 0) || (this.x < ScreenWidth / 2 && game.ball.speed_x < 0)) {
-			if (elapsedTime > 1) {
-				distanceToImpact = Math.abs(game.ball.x - this.x);
-				timeToReachPaddle = distanceToImpact / Math.abs(game.ball.speed_x);
-				predictedBallY = game.ball.y + game.ball.speed_y * timeToReachPaddle;
-				distanceToPredictedBallY = predictedBallY - this.paddleMiddle;
+        if ((this.x > ScreenWidth / 2 && game.ball.speed_x > 0) || (this.x < ScreenWidth / 2 && game.ball.speed_x < 0)) {
+            if (elapsedTime > 1) {
+                distanceToImpact = Math.abs(game.ball.x - this.x);
+                timeToReachPaddle = distanceToImpact / Math.abs(game.ball.speed_x);
+                predictedBallY = game.ball.y + game.ball.speed_y * timeToReachPaddle;
+                distanceToPredictedBallY = predictedBallY - this.paddleMiddle;
                 this.speed = Math.min(Math.abs(distanceToPredictedBallY) / timeToReachPaddle, this.max_speed);
 
-				if (predictedBallY < 0) {
-					predictedBallY *= -1;
-				} else if (predictedBallY > ScreenHeight) {
-					predictedBallY = ScreenHeight - (predictedBallY - ScreenHeight);
-				}
-	
-				if (this.paddleMiddle > predictedBallY && this.y >= 0) {
-					this.y -= this.speed * game.dt;
-					this.direction = -1;
-				}
-				if (this.paddleMiddle < predictedBallY && this.y + this.height <= ScreenHeight) {
-					this.y += this.speed * game.dt;
-					this.direction = 1;
-				}
-	
-				this.last_time = Date.now();
-			} else {
-				if (this.direction > 0 && this.y + this.height <= ScreenHeight) {
-					this.y += this.speed * game.dt;
-				} else if (this.direction < 0 && this.y >= 0) {
-					this.y -= this.speed * game.dt;
-				}
-			}
-		}
+                if (predictedBallY < 0) {
+                    predictedBallY *= -1;
+                } else if (predictedBallY > ScreenHeight) {
+                    predictedBallY = ScreenHeight - (predictedBallY - ScreenHeight);
+                }
+
+                if (this.paddleMiddle > predictedBallY && this.y >= 0) {
+                    this.y -= this.speed * game.dt;
+                    this.direction = -1;
+                }
+                if (this.paddleMiddle < predictedBallY && this.y + this.height <= ScreenHeight) {
+                    this.y += this.speed * game.dt;
+                    this.direction = 1;
+                }
+
+                this.last_time = Date.now();
+            } else {
+                if (this.direction > 0 && this.y + this.height <= ScreenHeight) {
+                    this.y += this.speed * game.dt;
+                } else if (this.direction < 0 && this.y >= 0) {
+                    this.y -= this.speed * game.dt;
+                }
+            }
+        }
     }
 }
 
@@ -154,7 +147,7 @@ export class InvertedPlayer {
         }
 
         if (keys[this.keyRight] && this.x + this.width <= ScreenWidth) {
-			if (this.speed < this.max_speed) {
+            if (this.speed < this.max_speed) {
                 this.speed *= this.acceleration;
             } else {
                 this.speed = this.max_speed;
@@ -175,53 +168,53 @@ export class InvertedCpu extends InvertedPlayer {
         this.last_time = Date.now();
         this.direction = 0;
         this.speed = this.max_speed / 8;
-		this.paddleMiddle = this.x + this.width / 2;
+        this.paddleMiddle = this.x + this.width / 2;
     }
 
     update(game) {
-		let distanceToImpact, timeToReachPaddle, predictedBallX, distanceToPredictedBallX;
-		this.paddleMiddle = this.x + this.width / 2;
+        let distanceToImpact, timeToReachPaddle, predictedBallX, distanceToPredictedBallX;
+        this.paddleMiddle = this.x + this.width / 2;
         const current_time = Date.now();
         const elapsedTime = (current_time - this.last_time) / 1000;
 
-		if ((this.y > ScreenHeight / 2 && game.ball.speed_y > 0) || (this.y < ScreenHeight / 2 && game.ball.speed_y < 0)) {
-			if (elapsedTime > 1) {
-				distanceToImpact = Math.abs(game.ball.y - this.y);
-				timeToReachPaddle = distanceToImpact / Math.abs(game.ball.speed_y);
-				predictedBallX = game.ball.x + game.ball.speed_x * timeToReachPaddle;
-				distanceToPredictedBallX = predictedBallX - this.paddleMiddle;
+        if ((this.y > ScreenHeight / 2 && game.ball.speed_y > 0) || (this.y < ScreenHeight / 2 && game.ball.speed_y < 0)) {
+            if (elapsedTime > 1) {
+                distanceToImpact = Math.abs(game.ball.y - this.y);
+                timeToReachPaddle = distanceToImpact / Math.abs(game.ball.speed_y);
+                predictedBallX = game.ball.x + game.ball.speed_x * timeToReachPaddle;
+                distanceToPredictedBallX = predictedBallX - this.paddleMiddle;
                 this.speed = Math.min(Math.abs(distanceToPredictedBallX) / timeToReachPaddle, this.max_speed);
 
-				if (predictedBallX < 0) {
-					predictedBallX *= -1;
-				} else if (predictedBallX > ScreenWidth) {
-					predictedBallX = ScreenWidth - (predictedBallX - ScreenWidth);
-				}
-	
-				if (this.paddleMiddle > predictedBallX && this.x >= 0) {
-					this.x -= this.speed * game.dt;
-					this.direction = -1;
-				}
-				if (this.paddleMiddle < predictedBallX && this.x + this.width <= ScreenWidth) {
-					this.x += this.speed * game.dt;
-					this.direction = 1;
-				}
-	
-				this.last_time = Date.now();
-			} else {
-				if (this.direction > 0 && this.x + this.width <= ScreenWidth) {
-					this.x += this.speed * game.dt;
-				} else if (this.direction < 0 && this.x >= 0) {
-					this.x -= this.speed * game.dt;
-				}
-			}
-		}
+                if (predictedBallX < 0) {
+                    predictedBallX *= -1;
+                } else if (predictedBallX > ScreenWidth) {
+                    predictedBallX = ScreenWidth - (predictedBallX - ScreenWidth);
+                }
+
+                if (this.paddleMiddle > predictedBallX && this.x >= 0) {
+                    this.x -= this.speed * game.dt;
+                    this.direction = -1;
+                }
+                if (this.paddleMiddle < predictedBallX && this.x + this.width <= ScreenWidth) {
+                    this.x += this.speed * game.dt;
+                    this.direction = 1;
+                }
+
+                this.last_time = Date.now();
+            } else {
+                if (this.direction > 0 && this.x + this.width <= ScreenWidth) {
+                    this.x += this.speed * game.dt;
+                } else if (this.direction < 0 && this.x >= 0) {
+                    this.x -= this.speed * game.dt;
+                }
+            }
+        }
     }
 }
 
 
 export class InvertedOpponent extends InvertedPlayer {
-	constructor({x, y, color, keyRight, keyLeft, info}) {
-		super({x, y, color, keyRight, keyLeft, info});
-	}
+    constructor({x, y, color, keyRight, keyLeft, info}) {
+        super({x, y, color, keyRight, keyLeft, info});
+    }
 }

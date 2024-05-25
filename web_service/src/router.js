@@ -29,7 +29,7 @@ export const routes = [
         path: "/login",
         view: LoginPage,
     },
-	{
+    {
         path: "/login-2FA",
         view: Login2FAPage,
     },
@@ -45,7 +45,7 @@ export const routes = [
         path: "/create-profile",
         view: CreateProfilePage
     },
-	{
+    {
         path: "/create-profile-42",
         view: Create42ProfilePage
     },
@@ -75,17 +75,17 @@ export const routes = [
                     },
                     {
                         path: "/pong/multiplayer/waiting-room/2",
-						view: [Game1, WaitingRoom]
+                        view: [Game1, WaitingRoom]
                     },
                     {
                         path: "/pong/multiplayer/waiting-room/4",
-						view: [Game1, WaitingRoom]
+                        view: [Game1, WaitingRoom]
                     },
                     {
                         path: "/pong/tournament",
                         view: [Game1, TournamentOptions]
                     },
-					{
+                    {
                         path: "/tic-tac-toe",
                         view: [GameMenuOptions, Game2]
                     },
@@ -99,7 +99,7 @@ export const routes = [
                     },
                     {
                         path: "/tic-tac-toe/multiplayer/waiting-room/2",
-						view: [WaitingRoom, Game2]
+                        view: [WaitingRoom, Game2]
                     },
                     {
                         path: "/tic-tac-toe/tournament",
@@ -121,7 +121,7 @@ export const routes = [
                     }
                 ]
             },
-			{
+            {
                 path: "/friends",
                 view: FriendsPage,
                 children: [
@@ -131,57 +131,57 @@ export const routes = [
                     },
                 ]
             },
-			{
+            {
                 path: "/profile/",
                 view: ProfilePage
             },
-			{
+            {
                 path: "/pong/tournament/creation",
-				view: Tournament
+                view: Tournament
             },
-			{
+            {
                 path: "/pong/tournament/matchmaking",
-				view: TournamentMatchmaking
+                view: TournamentMatchmaking
             },
             {
                 path: "/pong/play/single-player/1",
-				view: Pong
+                view: Pong
             },
             {
                 path: "/pong/play/single-player/2",
-				view: Pong
+                view: Pong
             },
             {
                 path: "/pong/play/multiplayer/2",
-				view: Pong
+                view: Pong
             },
             {
                 path: "/pong/play/multiplayer/4",
-				view: Pong
+                view: Pong
             },
-			{
+            {
                 path: "/pong/play/tournament/2",
-				view: Pong
+                view: Pong
             },
-			{
+            {
                 path: "/tic-tac-toe/tournament/creation",
-				view: Tournament
+                view: Tournament
             },
-			{
+            {
                 path: "/tic-tac-toe/tournament/matchmaking",
-				view: TournamentMatchmaking
+                view: TournamentMatchmaking
             },
             {
                 path: "/tic-tac-toe/play/single-player/2",
-				view: TicTacToe
+                view: TicTacToe
             },
             {
                 path: "/tic-tac-toe/play/multiplayer/2",
-				view: TicTacToe
+                view: TicTacToe
             },
-			{
+            {
                 path: "/tic-tac-toe/play/tournament/2",
-				view: TicTacToe
+                view: TicTacToe
             },
         ]
     }

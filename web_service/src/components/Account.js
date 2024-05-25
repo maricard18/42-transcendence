@@ -9,12 +9,12 @@ export default class Account extends AbstractView {
     constructor() {
         super();
         this._parentNode = null;
-		this._abstracttViewCallback = false;
+        this._abstracttViewCallback = false;
         this._insideRequest = false;
         this._inputCallback = false;
         this._clickCallback = false;
         this._usernameButton = false;
-		this._emailButton = false;
+        this._emailButton = false;
 
         this._errors = {};
         this._success = {};
@@ -28,6 +28,77 @@ export default class Account extends AbstractView {
             childList: true,
             subtree: true,
         });
+    }
+
+    get errors() {
+        return this._errors;
+    }
+
+    set errors(value) {
+        this._errors = value;
+
+        if (this._errors.message) {
+            const p = this._parentNode.querySelector("p");
+            if (p.classList.contains("form-success")) {
+                p.classList.remove("form-success");
+            }
+            p.classList.add("form-error");
+            p.innerText = this._errors.message;
+            p.style.whiteSpace = "nowrap";
+            p.style.display = "flex";
+            p.style.justifyContent = "center";
+
+            const usernameDiv = document.getElementById("username-div");
+            const usernameInput = document.getElementById("username");
+            if (this._errors["username"]) {
+                usernameDiv.classList.add("input-btn-error");
+                this._formData["username"] = usernameInput.value;
+            } else if (usernameDiv.classList.contains("input-btn-error")) {
+                usernameDiv.classList.remove("input-btn-error");
+            }
+
+            const emailDiv = document.getElementById("email-div");
+            const emailInput = document.getElementById("email");
+            if (this._errors["email"]) {
+                emailDiv.classList.add("input-btn-error");
+                this._formData["email"] = emailInput.value;
+            } else if (emailDiv.classList.contains("input-btn-error")) {
+                emailDiv.classList.remove("input-btn-error");
+            }
+        }
+    }
+
+    get success() {
+        return this._success;
+    }
+
+    set success(value) {
+        this._success = value;
+
+        if (this.success.message) {
+            const p = this._parentNode.querySelector("p");
+            if (p.classList.contains("form-error")) {
+                p.classList.remove("form-error");
+            }
+            p.classList.add("form-success");
+            p.innerText = this.success.message;
+            p.style.whiteSpace = "nowrap";
+            p.style.display = "flex";
+            p.style.justifyContent = "center";
+
+            const usernameDiv = document.getElementById("username-div");
+            if (usernameDiv.classList.contains("input-btn-error")) {
+                usernameDiv.classList.remove("input-btn-error");
+            }
+            const emailDiv = document.getElementById("email-div");
+            if (emailDiv.classList.contains("input-btn-error")) {
+                emailDiv.classList.remove("input-btn-error");
+            }
+
+            setTimeout(() => {
+                p.innerText = ""
+            }, 3000);
+        }
     }
 
     defineCallback = async () => {
@@ -63,7 +134,7 @@ export default class Account extends AbstractView {
             usernameButton.addEventListener("click", this.buttonClickedCallback);
         }
 
-		const emailButton = this._parentNode.querySelector("#email-btn");
+        const emailButton = this._parentNode.querySelector("#email-btn");
         if (emailButton && !this._emailButton) {
             this._emailButton = true;
             emailButton.addEventListener("click", this.buttonClickedCallback);
@@ -71,8 +142,8 @@ export default class Account extends AbstractView {
 
         if (AbstractView.userInfo.username &&
             AbstractView.userInfo.email &&
-			!this._abstracttViewCallback) {
-			this._abstracttViewCallback = true;
+            !this._abstracttViewCallback) {
+            this._abstracttViewCallback = true;
             this._formData.username = AbstractView.userInfo.username;
             this._formData.email = AbstractView.userInfo.email;
             this.loadDOMChanges();
@@ -80,9 +151,9 @@ export default class Account extends AbstractView {
     }
 
     removeCallbacks = () => {
-		this._observer.disconnect();
+        this._observer.disconnect();
 
-		if (!this._parentNode) {
+        if (!this._parentNode) {
             return;
         }
 
@@ -90,85 +161,14 @@ export default class Account extends AbstractView {
             input.removeEventListener("input", this.inputCallback);
         });
 
-		const usernameButton = this._parentNode.querySelector("#username-btn");
+        const usernameButton = this._parentNode.querySelector("#username-btn");
         if (usernameButton) {
             usernameButton.removeEventListener("click", this.buttonClickedCallback);
         }
 
-		const emailButton = this._parentNode.querySelector("#email-btn");
+        const emailButton = this._parentNode.querySelector("#email-btn");
         if (emailButton) {
             emailButton.removeEventListener("click", this.buttonClickedCallback);
-        }
-    }
-
-    get errors() {
-        return this._errors;
-    }
-
-    set errors(value) {
-        this._errors = value;
-
-        if (this._errors.message) {
-            const p = this._parentNode.querySelector("p");
-            if (p.classList.contains("form-success")) {
-                p.classList.remove("form-success");
-            }
-            p.classList.add("form-error");
-            p.innerText = this._errors.message;
-			p.style.whiteSpace = "nowrap";
-			p.style.display = "flex";
-			p.style.justifyContent = "center";
-
-			const usernameDiv = document.getElementById("username-div");
-			const usernameInput = document.getElementById("username");
-			if (this._errors["username"]) {
-				usernameDiv.classList.add("input-btn-error");
-				this._formData["username"] = usernameInput.value;
-			} else if (usernameDiv.classList.contains("input-btn-error")) {
-				usernameDiv.classList.remove("input-btn-error");
-			}
-			
-			const emailDiv = document.getElementById("email-div");
-			const emailInput = document.getElementById("email");
-			if (this._errors["email"]) {
-				emailDiv.classList.add("input-btn-error");
-				this._formData["email"] = emailInput.value;
-			} else if (emailDiv.classList.contains("input-btn-error")) {
-				emailDiv.classList.remove("input-btn-error");
-			}
-        }
-    }
-
-    get success() {
-        return this._success;
-    }
-
-    set success(value) {
-        this._success = value;
-		
-        if (this.success.message) {
-            const p = this._parentNode.querySelector("p");
-            if (p.classList.contains("form-error")) {
-                p.classList.remove("form-error");
-            }
-            p.classList.add("form-success");
-            p.innerText = this.success.message;
-			p.style.whiteSpace = "nowrap";
-			p.style.display = "flex";
-			p.style.justifyContent = "center";
-
-			const usernameDiv = document.getElementById("username-div");
-			if (usernameDiv.classList.contains("input-btn-error")) {
-				usernameDiv.classList.remove("input-btn-error");
-			}
-			const emailDiv = document.getElementById("email-div");
-			if (emailDiv.classList.contains("input-btn-error")) {
-				emailDiv.classList.remove("input-btn-error");
-			}
-
-            setTimeout(() => {
-                p.innerText = ""
-            }, 3000);
         }
     }
 
@@ -202,18 +202,18 @@ export default class Account extends AbstractView {
                 this._insideRequest = false;
                 const p = this._parentNode.querySelector("p");
                 p.innerText = "";
-				const usernameDiv = document.getElementById("username-div");
-				if (usernameDiv.classList.contains("input-btn-error")) {
-					usernameDiv.classList.remove("input-btn-error");
-				}
-				const emailDiv = document.getElementById("email-div");
-				if (emailDiv.classList.contains("input-btn-error")) {
-					emailDiv.classList.remove("input-btn-error");
-				}
+                const usernameDiv = document.getElementById("username-div");
+                if (usernameDiv.classList.contains("input-btn-error")) {
+                    usernameDiv.classList.remove("input-btn-error");
+                }
+                const emailDiv = document.getElementById("email-div");
+                if (emailDiv.classList.contains("input-btn-error")) {
+                    emailDiv.classList.remove("input-btn-error");
+                }
                 return;
             }
 
-			const accessToken = await getToken();
+            const accessToken = await getToken();
             const headers = {
                 Authorization: `Bearer ${accessToken}`,
             };
@@ -232,7 +232,7 @@ export default class Account extends AbstractView {
                 avatarContainer.dispatchEvent(
                     new CustomEvent("avatar-container")
                 );
-                this.success = { message: "Changes saved" };
+                this.success = {message: "Changes saved"};
             } else {
                 newErrors = await handleResponse(response, this._formData);
                 this.errors = newErrors;
@@ -244,13 +244,13 @@ export default class Account extends AbstractView {
 
     loadDOMChanges() {
         const parentNode = document.getElementById("change-user-info");
-		if (parentNode) {
-			parentNode.outerHTML = this.loadChangeUserInfoContent();
-		}
+        if (parentNode) {
+            parentNode.outerHTML = this.loadChangeUserInfoContent();
+        }
     }
 
     loadChangeUserInfoContent() {
-		return `
+        return `
 			<div class="d-flex flex-column justify-content-start h-100" id="change-user-info">
 				<div class="d-flex flex-row justify-content-center">
 					<div class="d-flex flex-column align-items-center w-100">
@@ -305,10 +305,10 @@ export default class Account extends AbstractView {
     }
 
     getHtml() {
-		return `
+        return `
 			<div class="d-flex flex-column justify-content-center h-100" id="change-user-info">
 				<loading-icon size="5rem"></loading-icon>
 			</div>
 		`;
-	}
+    }
 }

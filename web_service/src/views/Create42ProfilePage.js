@@ -9,7 +9,7 @@ export default class Create42ProfilePage extends AbstractView {
     constructor() {
         super();
         this.setTitle("Create 42 Profile");
-		this._callback = false;
+        this._callback = false;
         this._insideRequest = false;
         this._inputCallback = false;
         this._avatarCallback = false;
@@ -17,8 +17,8 @@ export default class Create42ProfilePage extends AbstractView {
         this._removeCallback = false;
         this._enterCallback = false;
 
-		this._username = "";
-		this._avatar = null;
+        this._username = "";
+        this._avatar = null;
         this._errors = {};
 
         this._observer = new MutationObserver(this.defineCallback);
@@ -27,35 +27,64 @@ export default class Create42ProfilePage extends AbstractView {
             subtree: true,
         });
 
-		window.addEventListener(location.pathname, this.removeCallbacks);;
+        window.addEventListener(location.pathname, this.removeCallbacks);
+
     }
 
-	inputCallback = (event, input) => {
-		const value = event.target.value;
-		input.setAttribute("value", value);
-		this._username = value;
-	};
+    get errors() {
+        return this._errors;
+    }
 
-	avatarCallback = (event) => {
-		this._avatar = event.detail;
-	};
+    set errors(value) {
+        this._errors = value;
 
-	buttonClickedCallback = () => {
-		this.handleValidation();
-	};
+        if (this._errors.message) {
+            const p = this._parentNode.querySelector("p");
+            p.innerText = this._errors.message;
 
-	removeAvatarCallback = (event) => {
-		event.target.dispatchEvent(new CustomEvent("remove-avatar"));
-		this._avatar = null;
-		this._removeCallback = false;
-	}
+            const input = this._parentNode.querySelector("input");
+            if (this._errors.username) {
+                input.classList.add("input-error");
+                this._username = input.value;
+                setTimeout(() => {
+                    input.classList.remove("input-error");
+                }, 3000);
+            } else if (input.classList.contains("input-error")) {
+                input.classList.remove("input-error");
+            }
 
-	keydownCallback = (event) => {
-		if (event.key === "Enter") {
-			event.preventDefault();
-			this.handleValidation();
-		}
-	};
+            setTimeout(() => {
+                p.innerText = "";
+            }, 3000);
+        }
+    }
+
+    inputCallback = (event, input) => {
+        const value = event.target.value;
+        input.setAttribute("value", value);
+        this._username = value;
+    };
+
+    avatarCallback = (event) => {
+        this._avatar = event.detail;
+    };
+
+    buttonClickedCallback = () => {
+        this.handleValidation();
+    };
+
+    removeAvatarCallback = (event) => {
+        event.target.dispatchEvent(new CustomEvent("remove-avatar"));
+        this._avatar = null;
+        this._removeCallback = false;
+    }
+
+    keydownCallback = (event) => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            this.handleValidation();
+        }
+    };
 
     defineCallback = async () => {
         const parentNode = document.getElementById("create-42profile-page");
@@ -65,9 +94,9 @@ export default class Create42ProfilePage extends AbstractView {
             return;
         }
 
-		if (!this._callback) {
-			this._callback = true;
-			const userData = await getUserInfo();
+        if (!this._callback) {
+            this._callback = true;
+            const userData = await getUserInfo();
 
             if (userData) {
                 AbstractView.userInfo = {
@@ -78,8 +107,8 @@ export default class Create42ProfilePage extends AbstractView {
                 };
             }
 
-			this.loadDOMChanges();
-		}
+            this.loadDOMChanges();
+        }
 
         const inputList = this._parentNode.querySelectorAll("input");
         const input = inputList[inputList.length - 1];
@@ -88,7 +117,7 @@ export default class Create42ProfilePage extends AbstractView {
             input.addEventListener("input", (event) => this.inputCallback(event, input));
         }
 
-		const avatarBox = this._parentNode.querySelector("avatar-box");
+        const avatarBox = this._parentNode.querySelector("avatar-box");
         if (avatarBox && !this._avatarCallback) {
             this._avatarCallback = true;
             avatarBox.addEventListener("avatar-change", this.avatarCallback);
@@ -100,7 +129,7 @@ export default class Create42ProfilePage extends AbstractView {
             submitButton.addEventListener("buttonClicked", this.buttonClickedCallback);
         }
 
-		const removeButton = this._parentNode.querySelector("#remove-avatar");
+        const removeButton = this._parentNode.querySelector("#remove-avatar");
         if (removeButton && !this._removeCallback) {
             this._removeCallback = true;
             removeButton.addEventListener("click", this.removeAvatarCallback);
@@ -113,11 +142,11 @@ export default class Create42ProfilePage extends AbstractView {
     }
 
     removeCallbacks = () => {
-		this._observer.disconnect();
-		window.removeEventListener("keydown", this.keydownCallback);
-		window.removeEventListener(location.pathname, this.removeCallbacks);
+        this._observer.disconnect();
+        window.removeEventListener("keydown", this.keydownCallback);
+        window.removeEventListener(location.pathname, this.removeCallbacks);
 
-		if (!this._parentNode) {
+        if (!this._parentNode) {
             return;
         }
 
@@ -137,47 +166,19 @@ export default class Create42ProfilePage extends AbstractView {
             submitButton.removeEventListener("buttonClicked", this.buttonClickedCallback);
         }
 
-		const removeButton = this._parentNode.querySelector("#remove-avatar");
+        const removeButton = this._parentNode.querySelector("#remove-avatar");
         if (removeButton && !this._removeCallback) {
             this._removeCallback = true;
             removeButton.removeEventListener("click", this.removeAvatarCallback);
         }
     }
 
-    get errors() {
-        return this._errors;
-    }
-
-    set errors(value) {
-        this._errors = value;
-
-        if (this._errors.message) {
-            const p = this._parentNode.querySelector("p");
-            p.innerText = this._errors.message;
-
-            const input = this._parentNode.querySelector("input");
-            if (this._errors.username) {
-                input.classList.add("input-error");
-                this._username = input.value;
-				setTimeout(() => {
-					input.classList.remove("input-error");
-				}, 3000);
-            } else if (input.classList.contains("input-error")) {
-                input.classList.remove("input-error");
-            }
-
-			setTimeout(() => {
-				p.innerText = "";
-			}, 3000);
-        }
-    }
-
     async handleValidation() {
-		if (this._insideRequest) {
-			return ;
-		}
+        if (this._insideRequest) {
+            return;
+        }
 
-		this._insideRequest = true;
+        this._insideRequest = true;
         const usernamePattern = /^[a-zA-Z0-9@.+_-]+$/;
         let newErrors = {};
 
@@ -200,15 +201,15 @@ export default class Create42ProfilePage extends AbstractView {
         }
 
         if (!newErrors.message) {
-			const formDataToSend = new FormData();
+            const formDataToSend = new FormData();
             formDataToSend.append("username", await transitEncrypt(this._username));
 
             if (this._avatar) {
                 formDataToSend.append("avatar", this.avatar);
             }
 
-			const accessToken = await getToken();
-			const decodeToken = decode(accessToken);
+            const accessToken = await getToken();
+            const decodeToken = decode(accessToken);
             const headers = {
                 Authorization: `Bearer ${accessToken}`,
             };
@@ -222,28 +223,28 @@ export default class Create42ProfilePage extends AbstractView {
 
             if (response && response.ok) {
                 AbstractView.userInfo.username = this._username;
-				if (this._avatar) {
-					AbstractView.userInfo.avatar = this._avatar;
-				}
+                if (this._avatar) {
+                    AbstractView.userInfo.avatar = this._avatar;
+                }
 
-				this.removeCallbacks();
-				localStorage.setItem("previous_location", location.pathname);
-				navigateTo("/home");
+                this.removeCallbacks();
+                localStorage.setItem("previous_location", location.pathname);
+                navigateTo("/home");
             } else {
-				if (response && response.status === 409) {
-					newErrors.message = "This username already exists";
-				} else {
-					newErrors.message = "Error please try again later"
-				}
-                
-				this.errors = newErrors;
+                if (response && response.status === 409) {
+                    newErrors.message = "This username already exists";
+                } else {
+                    newErrors.message = "Error please try again later"
+                }
+
+                this.errors = newErrors;
             }
         }
 
-		this._insideRequest = false;
+        this._insideRequest = false;
     };
 
-	async loadDOMChanges() {
+    async loadDOMChanges() {
         const parentNode = document.getElementById("create-42profile-page");
         parentNode.innerHTML = this.loadCreat42ProfilePageContent();
     }
@@ -255,8 +256,8 @@ export default class Create42ProfilePage extends AbstractView {
 					<div class="d-flex flex-column justify-content-center">
 						<div class="mb-5">
 						${
-							AbstractView.userInfo.avatar
-								? `<img
+            AbstractView.userInfo.avatar
+                ? `<img
 										id="nav-bar-avatar"
 										class="white-border-lg"
 										src="${AbstractView.userInfo.avatar}"
@@ -265,8 +266,8 @@ export default class Create42ProfilePage extends AbstractView {
 										height="200"
 										style="border-radius: 50%"
 									/>`
-								: `<avatar-box></base-avatar>`
-						}
+                : `<avatar-box></base-avatar>`
+        }
 						</div>
 						<div class="position-relative">
 							<p class="form-error"></p>
@@ -294,8 +295,8 @@ export default class Create42ProfilePage extends AbstractView {
 		`;
     }
 
-	async getHtml() {
-		return `
+    async getHtml() {
+        return `
 			<div class="container-fluid" id="create-42profile-page">
 				<loading-icon template="center" size="5rem"></loading-icon>
 			</div>

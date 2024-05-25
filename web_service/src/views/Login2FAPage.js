@@ -14,8 +14,8 @@ export default class Login2FAPage extends AbstractView {
         this._inputCallback = false;
         this._clickCallback = false;
         this._enterCallback = false;
-		this._test2FA = false;
-		this._has2FA = false;
+        this._test2FA = false;
+        this._has2FA = false;
 
         this._errors = {};
         this._2FACode = null;
@@ -26,25 +26,53 @@ export default class Login2FAPage extends AbstractView {
             subtree: true,
         });
 
-		window.addEventListener(location.pathname, this.removeCallbacks);
+        window.addEventListener(location.pathname, this.removeCallbacks);
     }
 
-	inputCallback = (event) => {
-		const value = event.target.value;
-		event.target.setAttribute("value", value);
-		this._2FACode = value;
-	};
+    get errors() {
+        return this._errors;
+    }
 
-	buttonClickedCallback = () => {
-		this.handleValidation();
-	};
+    set errors(value) {
+        this._errors = value;
 
-	keydownCallback = (event) => {
-		if (event.key === "Enter") {
-			event.preventDefault();
-			this.handleValidation();
-		}
-	};
+        if (this.errors.message) {
+            const p = document.querySelector("p");
+            p.innerText = this.errors.message;
+
+            const input = document.querySelector("input");
+            if (this.errors.code) {
+                input.classList.add("input-error");
+                this._2FACode = input.value;
+                setTimeout(() => {
+                    input.classList.remove("input-error");
+                }, 3000);
+            } else if (input.classList.contains("input-error")) {
+                input.classList.remove("input-error");
+            }
+
+            setTimeout(() => {
+                p.innerHTML = "";
+            }, 3000);
+        }
+    }
+
+    inputCallback = (event) => {
+        const value = event.target.value;
+        event.target.setAttribute("value", value);
+        this._2FACode = value;
+    };
+
+    buttonClickedCallback = () => {
+        this.handleValidation();
+    };
+
+    keydownCallback = (event) => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            this.handleValidation();
+        }
+    };
 
     defineCallback = () => {
         const parentNode = document.getElementById("login-2FA-page");
@@ -57,13 +85,13 @@ export default class Login2FAPage extends AbstractView {
         const input = this._parentNode.querySelector("input");
         if (input && !this._inputCallback) {
             this._inputCallback = true;
-  			input.addEventListener("input", this.inputCallback);
+            input.addEventListener("input", this.inputCallback);
         }
 
         const submitButton = this._parentNode.querySelector("submit-button");
         if (submitButton && !this._clickCallback) {
             this._clickCallback = true;
-            submitButton.addEventListener("buttonClicked",  this.buttonClickedCallback);
+            submitButton.addEventListener("buttonClicked", this.buttonClickedCallback);
         }
 
         if (!this._enterCallback) {
@@ -73,13 +101,13 @@ export default class Login2FAPage extends AbstractView {
     }
 
     removeCallbacks = () => {
-		this._observer.disconnect();
-		window.removeEventListener("keydown", this.keydownCallback);
-		window.removeEventListener(location.pathname, this.removeCallbacks);
+        this._observer.disconnect();
+        window.removeEventListener("keydown", this.keydownCallback);
+        window.removeEventListener(location.pathname, this.removeCallbacks);
 
-		if (!this._parentNode) {
-			return ;
-		}
+        if (!this._parentNode) {
+            return;
+        }
 
         const input = this._parentNode.querySelector("input");
         if (input) {
@@ -95,34 +123,6 @@ export default class Login2FAPage extends AbstractView {
         }
     }
 
-    get errors() {
-        return this._errors;
-    }
-
-    set errors(value) {
-        this._errors = value;
-
-        if (this.errors.message) {
-            const p = document.querySelector("p");
-            p.innerText = this.errors.message;
-
-            const input = document.querySelector("input");
-			if (this.errors.code) {
-				input.classList.add("input-error");
-				this._2FACode = input.value;
-				setTimeout(() => {
-					input.classList.remove("input-error");
-				}, 3000);
-			} else if (input.classList.contains("input-error")) {
-				input.classList.remove("input-error");
-			}
-
-			setTimeout(() => {
-				p.innerHTML = "";
-			}, 3000);
-        }
-    }
-
     async handleValidation() {
         if (this._insideRequest) {
             return;
@@ -135,42 +135,42 @@ export default class Login2FAPage extends AbstractView {
         }
 
         if (!newErrors.message) {
-			const jsonResponse = await transitDecrypt(AbstractView.tokens);
-			const blob = new Blob([jsonResponse], {type : 'application/json'});
-			const newResponse = new Response(blob);
-			const jsonData = await newResponse.clone().json();
-			
-			if (!jsonData) {
-				navigateTo("/");
-				return ;
-			}
+            const jsonResponse = await transitDecrypt(AbstractView.tokens);
+            const blob = new Blob([jsonResponse], {type: 'application/json'});
+            const newResponse = new Response(blob);
+            const jsonData = await newResponse.clone().json();
 
-			const accessToken = jsonData["access_token"];
-			const decodeToken = decode(accessToken);
-			
-			const headers = {
-				Authorization: `Bearer ${accessToken}`,
-			};
-			
-			const response = await fetchData(
-				"/api/users/" + decodeToken["user_id"] + "/otp?code=" + this._2FACode,
-				"GET",
-				headers,
-				null
-			);
+            if (!jsonData) {
+                navigateTo("/");
+                return;
+            }
 
-			const responseJSON = await response.json()
-			if (response && response.ok && responseJSON['valid']) {
-				this.removeCallbacks();
-				await setToken(newResponse);
-				AbstractView.has2FA = 2;
-				navigateTo("/home");
+            const accessToken = jsonData["access_token"];
+            const decodeToken = decode(accessToken);
+
+            const headers = {
+                Authorization: `Bearer ${accessToken}`,
+            };
+
+            const response = await fetchData(
+                "/api/users/" + decodeToken["user_id"] + "/otp?code=" + this._2FACode,
+                "GET",
+                headers,
+                null
+            );
+
+            const responseJSON = await response.json()
+            if (response && response.ok && responseJSON['valid']) {
+                this.removeCallbacks();
+                await setToken(newResponse);
+                AbstractView.has2FA = 2;
+                navigateTo("/home");
             } else {
-				if (responseJSON['valid'] === false) {
-					newErrors = { message: "2FA code is invalid", code: 1 };
-				} else {
-					newErrors = { message: "failed to login with 2FA", code: 1 };
-				}
+                if (responseJSON['valid'] === false) {
+                    newErrors = {message: "2FA code is invalid", code: 1};
+                } else {
+                    newErrors = {message: "failed to login with 2FA", code: 1};
+                }
                 this.errors = newErrors;
             }
         }
@@ -179,10 +179,10 @@ export default class Login2FAPage extends AbstractView {
     }
 
     async getHtml() {
-		if (AbstractView.has2FA === null) {
-			navigateTo("/");
-			return ;
-		}
+        if (AbstractView.has2FA === null) {
+            navigateTo("/");
+            return;
+        }
 
         return `
 			<div class="container" id="login-2FA-page">

@@ -39,44 +39,44 @@ export function gameStartAnimation(game) {
                 6 * ScreenHeight / 9
             );
 
-			if (game.lobbySize == 1 || 
-				(game.mode === "multiplayer" && game.lobbySize == 2)) {
-				game.ctx.font = `bold ${0.025 * ScreenWidth}px Arial`;
-				game.ctx.fillStyle = "white";
-				game.ctx.textAlign = "center";
-				game.ctx.textBaseline = "middle";
-				game.ctx.fillText(
-					"use the arrow keys to move the player",
-					ScreenWidth / 2,
-					7 * ScreenHeight / 9
-				);
-			} else if (game.lobbySize == 2) {
-				game.ctx.font = `bold ${0.025 * ScreenWidth}px Arial`;
-				game.ctx.fillStyle = "white";
-				game.ctx.textAlign = "center";
-				game.ctx.textBaseline = "middle";
-				game.ctx.fillText(
-					"use the w and s keys",
-					2 * ScreenWidth / 6,
-					7 * ScreenHeight / 9
-				);
-				game.ctx.fillText(
-					"to move the player",
-					2 * ScreenWidth / 6,
-					7 * ScreenHeight / 9 + 0.025 * ScreenWidth
-				);
-				
-				game.ctx.fillText(
-					"use the arrow keys",
-					4 * ScreenWidth / 6,
-					7 * ScreenHeight / 9
-				);
-				game.ctx.fillText(
-					"to move the player",
-					4 * ScreenWidth / 6,
-					7 * ScreenHeight / 9 + 0.025 * ScreenWidth
-				);
-			}
+            if (game.lobbySize == 1 ||
+                (game.mode === "multiplayer" && game.lobbySize == 2)) {
+                game.ctx.font = `bold ${0.025 * ScreenWidth}px Arial`;
+                game.ctx.fillStyle = "white";
+                game.ctx.textAlign = "center";
+                game.ctx.textBaseline = "middle";
+                game.ctx.fillText(
+                    "use the arrow keys to move the player",
+                    ScreenWidth / 2,
+                    7 * ScreenHeight / 9
+                );
+            } else if (game.lobbySize == 2) {
+                game.ctx.font = `bold ${0.025 * ScreenWidth}px Arial`;
+                game.ctx.fillStyle = "white";
+                game.ctx.textAlign = "center";
+                game.ctx.textBaseline = "middle";
+                game.ctx.fillText(
+                    "use the w and s keys",
+                    2 * ScreenWidth / 6,
+                    7 * ScreenHeight / 9
+                );
+                game.ctx.fillText(
+                    "to move the player",
+                    2 * ScreenWidth / 6,
+                    7 * ScreenHeight / 9 + 0.025 * ScreenWidth
+                );
+
+                game.ctx.fillText(
+                    "use the arrow keys",
+                    4 * ScreenWidth / 6,
+                    7 * ScreenHeight / 9
+                );
+                game.ctx.fillText(
+                    "to move the player",
+                    4 * ScreenWidth / 6,
+                    7 * ScreenHeight / 9 + 0.025 * ScreenWidth
+                );
+            }
 
             if (elapsedTime < 5 && !game.over && location.pathname.startsWith("/home/pong/play")) {
                 window.requestAnimationFrame(animate);
@@ -86,13 +86,17 @@ export function gameStartAnimation(game) {
             }
         };
 
-		if (location.pathname.startsWith("/home/pong/play")) {
-			window.requestAnimationFrame(animate);
-		}
+        if (location.pathname.startsWith("/home/pong/play")) {
+            window.requestAnimationFrame(animate);
+        }
     });
 }
 
 export function gameConfettiAnimation(game) {
+    if (game.lost_connection) {
+        return;
+    }
+
     return new Promise((resolve) => {
         let confettiParticles = [];
 
@@ -113,10 +117,12 @@ export function gameConfettiAnimation(game) {
         };
 
         const drawWinnerName = (ctx) => {
-            ctx.fillStyle = "white";
-            ctx.font = "bold 50px Arial";
-            ctx.textAlign = "center";
-            ctx.fillText(game.winner + " wins", ctx.canvas.width / 2, ctx.canvas.height / 7 * 3);
+            if (game.winner) {
+                ctx.fillStyle = "white";
+                ctx.font = "bold 50px Arial";
+                ctx.textAlign = "center";
+                ctx.fillText(game.winner + " wins", ctx.canvas.width / 2, ctx.canvas.height / 7 * 3);
+            }
         };
 
         const animate = () => {
@@ -126,7 +132,7 @@ export function gameConfettiAnimation(game) {
             );
 
             game.clear();
-			game.ctx.globalAlpha = 0.4;
+            game.ctx.globalAlpha = 0.4;
             game.player1.draw(game.ctx);
             game.player2.draw(game.ctx);
 
@@ -137,7 +143,7 @@ export function gameConfettiAnimation(game) {
                 game.player4.draw(game.ctx);
             }
 
-			game.ctx.globalAlpha = 1;
+            game.ctx.globalAlpha = 1;
 
             confettiParticles.forEach((particle) => {
                 game.ctx.fillStyle = particle.color;
@@ -166,10 +172,10 @@ export function gameConfettiAnimation(game) {
             }
         };
 
-		if (location.pathname.startsWith("/home/pong/play")) {
-			addConfetti();
-			window.requestAnimationFrame(animate);
-		}
+        if (location.pathname.startsWith("/home/pong/play")) {
+            addConfetti();
+            window.requestAnimationFrame(animate);
+        }
     });
 }
 

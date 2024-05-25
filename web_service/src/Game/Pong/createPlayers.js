@@ -1,9 +1,9 @@
 import AbstractView from "../../views/AbstractView";
-import {Cpu, InvertedOpponent, InvertedPlayer, Opponent, Player} from "./Player";
-import {Ball} from "./Ball";
-import {Game} from "./Game";
-import {PaddleHeight, PaddleStartX, PaddleWidth, ScreenHeight, ScreenWidth} from "./variables";
-import {findTournamentMatch} from "../../views/Tournament";
+import { Cpu, InvertedOpponent, InvertedPlayer, Opponent, Player } from "./Player";
+import { Ball } from "./Ball";
+import { Game } from "./Game";
+import { PaddleHeight, PaddleStartX, PaddleWidth, ScreenHeight, ScreenWidth } from "./variables";
+import { findTournamentMatch } from "../../views/Tournament";
 
 export function createSinglePlayerGameObjects(ctx, lobbySize) {
     const player1 =
@@ -22,7 +22,7 @@ export function createSinglePlayerGameObjects(ctx, lobbySize) {
                 color: "red",
                 keyUp: "w",
                 keyDown: "s",
-                info: { id: -2, username: localStorage.getItem("player1") }
+                info: {id: -2, username: localStorage.getItem("player1")}
             });
 
     const player2 =
@@ -31,7 +31,7 @@ export function createSinglePlayerGameObjects(ctx, lobbySize) {
                 x: ScreenWidth - PaddleStartX - PaddleWidth,
                 y: ScreenHeight / 2 - PaddleHeight / 2,
                 color: "blue",
-				info: { id: -1, username: localStorage.getItem("player2") }
+                info: {id: -1, username: localStorage.getItem("player2")}
             })
             : new Player({
                 x: ScreenWidth - PaddleStartX - PaddleWidth,
@@ -272,8 +272,8 @@ export function createMultiPlayer4GameObjects(ctx, lobbySize) {
 
 export function createTournamentGameObjects(ctx, lobbySize) {
 	const match = findTournamentMatch();
-    
-	const player1 = new Player({
+
+    const player1 = new Player({
 		x: PaddleStartX,
 		y: ScreenHeight / 2 - PaddleHeight / 2,
 		color: "red",

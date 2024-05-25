@@ -1,5 +1,5 @@
 import AbstractView from "../../views/AbstractView";
-import {findTournamentMatch} from "../../views/Tournament";
+import { findTournamentMatch } from "../../views/Tournament";
 
 export class Display2Usernames extends AbstractView {
     constructor(view) {
@@ -21,8 +21,8 @@ export class Display2Usernames extends AbstractView {
             return `
 				<div class="d-flex flex-row justify-content-between" id="display-usernames">
 					${
-						AbstractView.userInfo.avatar
-							? `<div class="d-flex justify-content-center align-content-center ms-5 mb-2" id="player1-info">
+                AbstractView.userInfo.avatar
+                    ? `<div class="d-flex justify-content-center align-content-center ms-5 mb-2" id="player1-info">
 										<img
 											src=${AbstractView.userInfo.avatar}
 											alt="Avatar preview"
@@ -38,7 +38,7 @@ export class Display2Usernames extends AbstractView {
 											<h1 id="player1" style="font-size: 40px">0</h1>
 										</div>
 									</div>`
-							: `<div class="d-flex justify-content-center align-content-center ms-5" id="player1-info">
+                    : `<div class="d-flex justify-content-center align-content-center ms-5" id="player1-info">
 										<base-avatar-box 
 											size="50px"
 											template="red-border-sm"
@@ -50,7 +50,7 @@ export class Display2Usernames extends AbstractView {
 											<h1 id="player1" style="font-size: 40px">0</h1>
 										</div>
 									</div>`
-					}
+            }
 					<div class="d-flex justify-content-center align-content-center me-5 mb-2" id="player2-info">
 						<div class="username-text me-4 mt-1">
 							<h1 id="player2" style="font-size: 40px">0</h1>
@@ -89,8 +89,8 @@ export class Display2Usernames extends AbstractView {
 						</div>
 					</div>
 					${
-						AbstractView.userInfo.avatar
-							? `<div class="d-flex justify-content-center align-content-center me-5 mb-2" id="player2-info">
+                AbstractView.userInfo.avatar
+                    ? `<div class="d-flex justify-content-center align-content-center me-5 mb-2" id="player2-info">
 										<div class="username-text me-4 mt-1">
 											<h1 id="player2" style="font-size: 40px">0</h1>
 										</div>
@@ -106,7 +106,7 @@ export class Display2Usernames extends AbstractView {
 											style="border-radius: 50%"
 										/>
 									</div>`
-							: `<div class="d-flex justify-content-center align-content-center me-5" id="player2-info">
+                    : `<div class="d-flex justify-content-center align-content-center me-5" id="player2-info">
 										<div class="username-text me-4 mt-1">
 											<h1 id="player2" style="font-size: 40px">0</h1>
 										</div>
@@ -118,15 +118,15 @@ export class Display2Usernames extends AbstractView {
 											template="blue-border-sm"
 										></base-avatar-box>
 									</div>`
-					}
+            }
 				</div>
         	`;
         } else if (this._gameMode === "multiplayer" && this._lobbySize == 2) {
             return `
 				<div class="d-flex flex-row justify-content-between" id="display-usernames">
 					${
-						AbstractView.userData[0].avatar
-							? `<div class="d-flex justify-content-center align-content-center ms-5 mb-2" id="player1-info">
+                AbstractView.userData[0].avatar
+                    ? `<div class="d-flex justify-content-center align-content-center ms-5 mb-2" id="player1-info">
 										<img
 											src=${AbstractView.userData[0].avatar}
 											alt="Avatar preview"
@@ -142,7 +142,7 @@ export class Display2Usernames extends AbstractView {
 											<h1 id="player1" style="font-size: 40px">0</h1>
 										</div>
 									</div>`
-							: `<div class="d-flex justify-content-center align-content-center ms-5 mb-2" id="player1-info">
+                    : `<div class="d-flex justify-content-center align-content-center ms-5 mb-2" id="player1-info">
 										<base-avatar-box 
 											size="50px"
 											template="red-border-sm"
@@ -154,10 +154,10 @@ export class Display2Usernames extends AbstractView {
 											<h1 id="player1" style="font-size: 40px">0</h1>
 										</div>
 									</div>`
-					}
+            }
 					${
-						AbstractView.userData[1].avatar
-							? `<div class="d-flex justify-content-center align-content-center me-5 mb-2" id="player2-info">
+                AbstractView.userData[1].avatar
+                    ? `<div class="d-flex justify-content-center align-content-center me-5 mb-2" id="player2-info">
 										<div class="username-text me-4 mt-1">
 											<h1 id="player2" style="font-size: 40px">0</h1>
 										</div>
@@ -173,7 +173,7 @@ export class Display2Usernames extends AbstractView {
 											style="border-radius: 50%"
 										/>
 									</div>`
-							: `<div class="d-flex justify-content-center align-content-center me-5 mb-2" id="player2-info">
+                    : `<div class="d-flex justify-content-center align-content-center me-5 mb-2" id="player2-info">
 										<div class="username-text me-4 mt-1">
 											<h1 id="player2" style="font-size: 40px">0</h1>
 										</div>
@@ -185,11 +185,11 @@ export class Display2Usernames extends AbstractView {
 											template="blue-border-sm"
 										></base-avatar-box>
 									</div>`
-					}
+            }
 				</div>
         	`;
         } else if (this._gameMode === "tournament" && this._lobbySize == 2) {
-			const match = findTournamentMatch();
+            const match = findTournamentMatch();
 
             return `
 				<div class="d-flex flex-row justify-content-between" id="display-usernames">
@@ -255,8 +255,8 @@ export class DisplayUsername extends AbstractView {
         return `
 			<div class="d-flex flex-column justify-content-center align-items-center" id="display-username" style="transform: rotate(-90deg); width: 100px">
 			${
-				AbstractView.userData[0].avatar
-					? `<div class="d-flex align-content-center ms-5 mb-2" id="player1-info">
+            AbstractView.userData[0].avatar
+                ? `<div class="d-flex align-content-center ms-5 mb-2" id="player1-info">
 							<img
 								src=${AbstractView.userData[0].avatar}
 								alt="Avatar preview"
@@ -272,7 +272,7 @@ export class DisplayUsername extends AbstractView {
 								<h1 id="player1" style="font-size: 40px">0</h1>
 							</div>
 						</div>`
-					: `<div class="d-flex align-content-center ms-5" id="player1-info">
+                : `<div class="d-flex align-content-center ms-5" id="player1-info">
 							<base-avatar-box 
 								size="50px"
 								template="red-border-sm"
@@ -284,7 +284,7 @@ export class DisplayUsername extends AbstractView {
 								<h1 id="player1" style="font-size: 40px">0</h1>
 							</div>
 						</div>`
-			}
+        }
 			</div>
 		`;
     }
@@ -293,8 +293,8 @@ export class DisplayUsername extends AbstractView {
         return `
 			<div class="d-flex flex-column justify-content-center align-items-center" id="display-username" style="transform: rotate(90deg); width: 100px">
 			${
-				AbstractView.userData[1].avatar
-					? `<div class="d-flex align-content-center ms-5 mb-2" id="player2-info">
+            AbstractView.userData[1].avatar
+                ? `<div class="d-flex align-content-center ms-5 mb-2" id="player2-info">
 						<img
 							src=${AbstractView.userData[1].avatar}
 							alt="Avatar preview"
@@ -310,7 +310,7 @@ export class DisplayUsername extends AbstractView {
 							<h1 id="player2" style="font-size: 40px">0</h1>
 						</div>
 					</div>`
-					: `<div class="d-flex align-content-center ms-5" id="player2-info">
+                : `<div class="d-flex align-content-center ms-5" id="player2-info">
 						<base-avatar-box 
 							size="50px"
 							template="blue-border-sm"
@@ -322,7 +322,7 @@ export class DisplayUsername extends AbstractView {
 							<h1 id="player2" style="font-size: 40px">0</h1>
 						</div>
 					</div>`
-			}
+        }
 			</div>
 		`;
     }
@@ -331,8 +331,8 @@ export class DisplayUsername extends AbstractView {
         return `
 			<div class="d-flex flex-row justify-content-center" id="display-username">
 			${
-				AbstractView.userData[2].avatar
-					? `<div class="d-flex me-5" id="player3-info">
+            AbstractView.userData[2].avatar
+                ? `<div class="d-flex me-5" id="player3-info">
 							<img
 								src=${AbstractView.userData[2].avatar}
 								alt="Avatar preview"
@@ -348,7 +348,7 @@ export class DisplayUsername extends AbstractView {
 								<h1 id="player3" style="font-size: 40px">0</h1>
 							</div>
 						</div>`
-					: `<div class="d-flex me-5" id="player3-info">
+                : `<div class="d-flex me-5" id="player3-info">
 							<base-avatar-box 
 								size="50px"
 								template="green-border-sm"
@@ -360,7 +360,7 @@ export class DisplayUsername extends AbstractView {
 								<h1 id="player3" style="font-size: 40px">0</h1>
 							</div>
 						</div>`
-			}
+        }
 			</div>
 		`;
     }
@@ -369,8 +369,8 @@ export class DisplayUsername extends AbstractView {
         return `
 			<div class="d-flex flex-row justify-content-center mt-3 me-5" id="display-username">
 			${
-				AbstractView.userData[3].avatar
-					? `<div class="d-flex ms-5 mb-2" id="player4-info">
+            AbstractView.userData[3].avatar
+                ? `<div class="d-flex ms-5 mb-2" id="player4-info">
 							<img
 								src=${AbstractView.userData[3].avatar}
 								alt="Avatar preview"
@@ -386,7 +386,7 @@ export class DisplayUsername extends AbstractView {
 								<h1 id="player4" style="font-size: 40px">0</h1>
 							</div>
 						</div>`
-					: `<div class="d-flex ms-5 mb-2" id="player4-info">
+                : `<div class="d-flex ms-5 mb-2" id="player4-info">
 							<base-avatar-box 
 								size="50px"
 								template="yellow-border-sm"
@@ -398,7 +398,7 @@ export class DisplayUsername extends AbstractView {
 								<h1 id="player4" style="font-size: 40px">0</h1>
 							</div>
 						</div>`
-			}
+        }
 			</div>
 		`;
     }
