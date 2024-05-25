@@ -11,8 +11,6 @@ users play Pong with others. Must have a nice user interface and real-time multi
 
 > To Complete: More 7 major modules. 2 Minor modules are equal to an major
 
-> References: Ok :ok: - Not Ok :x:
-
 ### Our Modules
 
 |Group			|Module										|Majority|Modules	|Points |Confirmed	| 
@@ -43,8 +41,8 @@ users play Pong with others. Must have a nice user interface and real-time multi
 - [ ] `Mandatory` Is the game using a **single-page** application?
 - [ ] `Mandatory` Is possible to use **Back/buttons** on browser?
 - [ ] `Mandatory` Are All services launched with a **single command**?
-- [ ] `Mandatory` Are **runtime Docker's** files located in /sgoinfre? **⚠ ALERT POINT!**
-- [ ] `Mandatory` Not uses **bind mount volumes** between host and container if non-root UIDs are used in the container! **⚠ ALERT POINT!**
+- [ ] `Mandatory` Are **runtime Docker's** files located in /sgoinfre?
+- [ ] `Mandatory` Not uses **bind mount volumes** between host and container if non-root UIDs are used in the container!
 
 ### Game
 - [ ] `Mandatory` Is the game graphically similar to the original pong?
@@ -65,8 +63,8 @@ users play Pong with others. Must have a nice user interface and real-time multi
 ### Security
 - [ ] `Mandatory` Uses HTTPS?
 - [ ] `Mandatory` The backend also Use HTTPS? 
-- [ ] `Mandatory` Are The Credentials, API keys and environment vars on .env? **⚠ ALERT POINT!**
-- [ ] `Mandatory` Is the password stored hashed? **⚠ ALERT POINT!**
+- [ ] `Mandatory` Are The Credentials, API keys and environment vars on .env?
+- [ ] `Mandatory` Is the password stored hashed?
 - [ ] `Major Module` Is the **WAF/ModSecurity** protecting the App against attacks? [Go →](#modsecurity)
 - [ ] `Mandatory` Has protection against SQL Injection/XXS? [Go →](#modsecurity)
 - [ ] `Major Module` Are the sensitive App data encrypted and stored on the **HashiCorp Vault**? [Go →](#hashicorp-vault) 
@@ -115,6 +113,7 @@ users play Pong with others. Must have a nice user interface and real-time multi
 
 ### After All
 - [ ] `Mandatory` ⚠ User cannot see unhandled error or warnings ⚠!
+- [ ] `Mandatory` Aren't any console.log or console.warn on the code?
 
 ## Tests Scenarios and Cases
 
@@ -177,7 +176,7 @@ users play Pong with others. Must have a nice user interface and real-time multi
 
 ### Standart User Management
 - [ ] Can the user have a unique username to play the tournament?
-- [ ] Is the user's email and username unique?
+- [ ] Is the username unique?
 - [ ] Can the user a default profile avatar?
 - [ ] Can the user update his profile?
 - [ ] Can the user delete his profile?
