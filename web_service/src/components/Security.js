@@ -56,7 +56,6 @@ export default class Security extends AbstractView {
             const value = event.target.value;
             event.target.setAttribute("value", value);
             this._2FACode = value;
-			console.log("updated value:", this._2FACode);
         };
 
         this.buttonClickedCallback = (event) => {
@@ -93,25 +92,23 @@ export default class Security extends AbstractView {
 				const jsonData = await response.json();
 				this._qrcode = jsonData["url"];
 				this.updateModalBodyContent();
+				AbstractView.has2FA = 1;
 
 				const validate2FAButton = document.getElementById("validate-2FA");
 				if (validate2FAButton) {
 					validate2FAButton.addEventListener("click", this.validate2FACallback);
 				}
 				
-				const twofaInput = document.querySelector("input-2FA");
+				const twofaInput = document.getElementById("input-2FA");
 				if (twofaInput) {
 					twofaInput.addEventListener("input", this.twofaInputCallback);
 				}
-
-				AbstractView.has2FA = 1;
 			} else {
 				AbstractView.has2FA = 0;
 			}
 		}
 
 		this.validate2FACallback = async () => {
-			console.log(this._2FACode);
 			const newErrors = validate2FAForm(this._2FACode);
 			if (newErrors.message) {
 				const p = document.getElementById("p-2FA");
@@ -121,8 +118,7 @@ export default class Security extends AbstractView {
 				p.style.display = "flex";
 				p.style.justifyContent = "center";
 				p.innerText = newErrors.message;
-				setTimeout(() => { p.innerText = ""; }, 3000);
-				
+				setTimeout(() => { p.innerText = ""; }, 3000);	
 				return ;
 			}
 
@@ -144,7 +140,7 @@ export default class Security extends AbstractView {
 				if (jsonData["valid"] === true) {
 					AbstractView.has2FA = 2;
 					const modalElement = document.getElementById("2FAModal");
-					const backdrop = document.querySelector('.modal-backdrop');
+					const backdrop = document.querySelector(".modal-backdrop");
 					if (modalElement) {
 						bootstrap.Modal.getInstance(modalElement).hide();
 					}
