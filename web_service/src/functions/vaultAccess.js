@@ -32,12 +32,12 @@ export function decodeData(data) {
 export async function transitEncrypt(data) {
 	try {
 		await vaultConnect();
-		
+
 		const response = await vaultClient.write(
-			'transit/encrypt/transcendence', 
+			'transit/encrypt/transcendence',
 			{plaintext: encodeData(data)}
 		);
-		
+
 		return response.data.ciphertext;
 	} catch (error) {
 		return null;
@@ -47,12 +47,12 @@ export async function transitEncrypt(data) {
 export async function transitDecrypt(data) {
 	try {
 		await vaultConnect();
-		
+
 		const response = await vaultClient.write(
-			'transit/decrypt/transcendence', 
+			'transit/decrypt/transcendence',
 			{ciphertext: data}
 		);
-		
+
 		return decodeData(response.data.plaintext);
 	} catch (error) {
 		return null;

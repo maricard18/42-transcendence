@@ -12,20 +12,21 @@ export class Game {
         this.mode = mode;
         this.host_id = host_id;
         this.lobbySize = lobbySize;
-		this.dt = null;
+        this.dt = null;
         this.paused = true;
         this.over = false;
-		this.winner = null;
-		this.lastTouch = null;
-		this.player1Left = false;
-		this.player2Left = false;
-		this.player3Left = false;
-		this.player4Left = false;
+        this.winner = null;
+        this.lastTouch = null;
+        this.player1Left = false;
+        this.player2Left = false;
+        this.player3Left = false;
+        this.player4Left = false;
+        this.lost_connection = false;
     }
 
-	clear() {
-		this.ctx.clearRect(0, 0, ScreenWidth, ScreenHeight);
-	}
+    clear() {
+        this.ctx.clearRect(0, 0, ScreenWidth, ScreenHeight);
+    }
 
     drawScore(player, x) {
         this.ctx.font = `${0.05 * ScreenWidth}px Arial`;

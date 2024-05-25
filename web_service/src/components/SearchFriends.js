@@ -10,15 +10,15 @@ export default class SearchFriends extends AbstractView {
     constructor() {
         super();
         this._parentNode = null;
-		this._abstracttViewCallback = false;
+        this._abstracttViewCallback = false;
         this._insideRequest = false;
-		this._inputCallback = false;
-		this._clickCallback = false;
-		this._enterCallback = false;
-		this._loadDOM = false;
+        this._inputCallback = false;
+        this._clickCallback = false;
+        this._enterCallback = false;
+        this._loadDOM = false;
 
-		this._searchBar = "";
-		this._userList = null;
+        this._searchBar = "";
+        this._userList = null;
 
         this._errors = {};
         this._success = {};
@@ -29,25 +29,53 @@ export default class SearchFriends extends AbstractView {
             subtree: true,
         });
 
-		window.addEventListener(location.pathname, this.removeCallbacks);
+        window.addEventListener(location.pathname, this.removeCallbacks);
     }
 
-	inputCallback = (event) => {
-		const value = event.target.value;
-		event.target.setAttribute("value", value);
-		this._searchBar = value;
-	};
+    get errors() {
+        return this._errors;
+    }
 
-	buttonClickedCallback = () => {
-		this.handleValidation();
-	};
+    set errors(value) {
+        this._errors = value;
 
-	keydownCallback = (event) => {
-		if (event.key === "Enter") {
-			event.preventDefault();
-			this.handleValidation();
-		}
-	};
+        if (this._errors.message) {
+            const p = this._parentNode.querySelector("p");
+            p.innerText = this._errors.message;
+
+            const input = this._parentNode.querySelector("input");
+            if (this._errors.search) {
+                input.classList.add("input-error");
+                this._searchBar = input.value;
+                setTimeout(() => {
+                    input.classList.remove("input-error");
+                }, 3000);
+            } else if (input.classList.contains("input-error")) {
+                input.classList.remove("input-error");
+            }
+
+            setTimeout(() => {
+                p.innerText = "";
+            }, 3000);
+        }
+    }
+
+    inputCallback = (event) => {
+        const value = event.target.value;
+        event.target.setAttribute("value", value);
+        this._searchBar = value;
+    };
+
+    buttonClickedCallback = () => {
+        this.handleValidation();
+    };
+
+    keydownCallback = (event) => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            this.handleValidation();
+        }
+    };
 
     defineCallback = async () => {
         const parentNode = document.getElementById("search-friends");
@@ -57,7 +85,7 @@ export default class SearchFriends extends AbstractView {
             return;
         }
 
-		const input = this._parentNode.querySelector("input");
+        const input = this._parentNode.querySelector("input");
         if (input && !this._inputCallback) {
             this._inputCallback = true;
             input.addEventListener("input", this.inputCallback);
@@ -74,25 +102,25 @@ export default class SearchFriends extends AbstractView {
             window.addEventListener("keydown", this.keydownCallback);
         }
 
-		if (!this._loadDOM) {
-			this._loadDOM = true;
-			this.loadDOMChanges();
-		}
-	}
+        if (!this._loadDOM) {
+            this._loadDOM = true;
+            this.loadDOMChanges();
+        }
+    }
 
     removeCallbacks = () => {
-		this._observer.disconnect();
-		window.removeEventListener("keydown", this.keydownCallback);
-		window.removeEventListener(location.pathname, this.removeCallbacks);
+        this._observer.disconnect();
+        window.removeEventListener("keydown", this.keydownCallback);
+        window.removeEventListener(location.pathname, this.removeCallbacks);
 
-		if (!this._parentNode) {
+        if (!this._parentNode) {
             return;
         }
-		
-		const input = this._parentNode.querySelector("input");
-		if (input) {
-			input.removeEventListener("input", this.inputCallback);
-		}
+
+        const input = this._parentNode.querySelector("input");
+        if (input) {
+            input.removeEventListener("input", this.inputCallback);
+        }
 
         const submitButton = this._parentNode.querySelector("#search-button");
         if (submitButton) {
@@ -100,50 +128,22 @@ export default class SearchFriends extends AbstractView {
         }
     }
 
-	get errors() {
-        return this._errors;
-    }
-
-    set errors(value) {
-        this._errors = value;
-
-        if (this._errors.message) {
-            const p = this._parentNode.querySelector("p");
-            p.innerText = this._errors.message;
-
-            const input = this._parentNode.querySelector("input");
-			if (this._errors.search) {
-				input.classList.add("input-error");
-				this._searchBar = input.value;
-				setTimeout(() => {
-					input.classList.remove("input-error");
-				}, 3000);
-			} else if (input.classList.contains("input-error")) {
-				input.classList.remove("input-error");
-			}
-
-			setTimeout(() => {
-				p.innerText = "";
-			}, 3000);
-        }
-    }
-
-	async handleValidation() {
+    async handleValidation() {
         if (this._insideRequest) {
             return;
         }
 
-		if (!this._searchBar) {
-			this._insideRequest = false;
-			this._userList = null;
-			await this.loadDOMChanges();
-			return ;
-		}
+        if (!this._searchBar) {
+            this._insideRequest = false;
+            this._userList = null;
+            await this.loadDOMChanges();
+            return;
+        }
 
-		const usernamePattern = /^[a-zA-Z0-9@.+_-]+$/;
+        const usernamePattern = /^[a-zA-Z0-9@.+_-]+$/;
         let newErrors = {};
 
-		if (this._searchBar.length > 12) {
+        if (this._searchBar.length > 12) {
             newErrors.message = "Username can't have more than 12 characters";
             newErrors.search = 1;
             this.errors = newErrors;
@@ -153,199 +153,199 @@ export default class SearchFriends extends AbstractView {
             this._errors = newErrors;
         }
 
-		if (!newErrors.message) {
-			this._insideRequest = true;
-			const accessToken = await getToken();
-			const headers = {
-				Authorization: `Bearer ${accessToken}`,
-			};
-	
-			const response = await fetchData(
-				`/api/users?filter[username]=${this._searchBar}`,
-				"GET",
-				headers,
-				null
-			);
-	
-			if (response && response.ok) {
-				this._userList = await response.json();
-				await this.loadDOMChanges();
-			}
-		}
+        if (!newErrors.message) {
+            this._insideRequest = true;
+            const accessToken = await getToken();
+            const headers = {
+                Authorization: `Bearer ${accessToken}`,
+            };
+
+            const response = await fetchData(
+                `/api/users?filter[username]=${this._searchBar}`,
+                "GET",
+                headers,
+                null
+            );
+
+            if (response && response.ok) {
+                this._userList = await response.json();
+                await this.loadDOMChanges();
+            }
+        }
 
         this._insideRequest = false;
     }
 
-	async addEventListeners() {
-		if (!this._userList) {
-			return ;
-		}
+    async addEventListeners() {
+        if (!this._userList) {
+            return;
+        }
 
         for (let [index, user] of this._userList.entries()) {
             const avataraAndUsernameDiv = document.getElementById(`user-${user ? user.id : 0}`);
-			if (avataraAndUsernameDiv) {
-				avataraAndUsernameDiv.addEventListener("click", async () => await navigateTo(`/home/profile/${user ? user.id : 0}`));
-			}
+            if (avataraAndUsernameDiv) {
+                avataraAndUsernameDiv.addEventListener("click", async () => await navigateTo(`/home/profile/${user ? user.id : 0}`));
+            }
 
             const button = document.getElementById(`friend-btn-${user ? user.id : 0}`);
-			if (button) {
-				button.addEventListener("click", async () => await this.addFriend(user ? user.id : 0));
-			}
+            if (button) {
+                button.addEventListener("click", async () => await this.addFriend(user ? user.id : 0));
+            }
         }
     };
 
-	async loadAllUsers() {
-		const accessToken = await getToken();
-		const headers = {
-			Authorization: `Bearer ${accessToken}`,
-		};
+    async loadAllUsers() {
+        const accessToken = await getToken();
+        const headers = {
+            Authorization: `Bearer ${accessToken}`,
+        };
 
-		const response = await fetchData(
-			"/api/users?filter[is_active]=true",
-			"GET",
-			headers,
-			null
-		);
+        const response = await fetchData(
+            "/api/users?filter[is_active]=true",
+            "GET",
+            headers,
+            null
+        );
 
-		if (response && response.ok) {
-			return await response.json();
-		}
-	}
+        if (response && response.ok) {
+            return await response.json();
+        }
+    }
 
-	async addFriend(id) {
-		const formDataToSend = new FormData();
-		formDataToSend.append("user_id", AbstractView.userInfo.id);
-		formDataToSend.append("friend_id", id);
+    async addFriend(id) {
+        const formDataToSend = new FormData();
+        formDataToSend.append("user_id", AbstractView.userInfo.id);
+        formDataToSend.append("friend_id", id);
 
-		const accessToken = await getToken();
-		const headers = {
-			Authorization: `Bearer ${accessToken}`,
-		};
+        const accessToken = await getToken();
+        const headers = {
+            Authorization: `Bearer ${accessToken}`,
+        };
 
-		const response = await fetchData(
-			"/api/friendships",
-			"POST",
-			headers,
-			formDataToSend
-		);
+        const response = await fetchData(
+            "/api/friendships",
+            "POST",
+            headers,
+            formDataToSend
+        );
 
-		if (response && response.ok) {
-			const data = await response.json();
-			await getFriendship(data.id);
+        if (response && response.ok) {
+            const data = await response.json();
+            await getFriendship(data.id);
 
-			const message = {
-				message: "friendship.created",
-				friend_id: id
-			};
-			sendMessage(StatusWebsocket.ws, message);
+            const message = {
+                message: "friendship.created",
+                friend_id: id
+            };
+            sendMessage(StatusWebsocket.ws, message);
 
-			const myFriendList = document.getElementById("friend-list");
-			if (myFriendList) {
-				myFriendList.dispatchEvent( new CustomEvent("reload-friend-list") );
-			}
-		}
-	}
+            const myFriendList = document.getElementById("friend-list");
+            if (myFriendList) {
+                myFriendList.dispatchEvent(new CustomEvent("reload-friend-list"));
+            }
+        }
+    }
 
-	async loadDOMChanges() {
-		const parentNode = document.getElementById("user-list");
-		if (parentNode) {
-			parentNode.innerHTML = await this.loadSearchBarResult();
-			await this.addEventListeners();
-		}
-	}
+    async loadDOMChanges() {
+        const parentNode = document.getElementById("user-list");
+        if (parentNode) {
+            parentNode.innerHTML = await this.loadSearchBarResult();
+            await this.addEventListeners();
+        }
+    }
 
-	async loadSearchBarResult() {
-		let showAllUsers = false;
+    async loadSearchBarResult() {
+        let showAllUsers = false;
 
-		if (!this._userList) {
-			showAllUsers = true;
-			this._userList = await this.loadAllUsers();
-		}
-		
-		const parentDiv = document.createElement("div");
-		parentDiv.setAttribute("class", "mt-4");
+        if (!this._userList) {
+            showAllUsers = true;
+            this._userList = await this.loadAllUsers();
+        }
 
-		if (!showAllUsers && this._searchBar) {
-			const title = document.createElement("h3");
-			title.setAttribute("class", "d-flex justify-content-start ms-1");
-			title.setAttribute("style", "font-size: 25px; font-weight: bold");
-			if (this._userList.length) {
-				title.innerHTML = `Search results for&nbsp;<u>${this._searchBar}</u>`;
-			} else  {
-				title.innerHTML = `No search results for&nbsp;<u>${this._searchBar}</u>`;
-			}
-			parentDiv.appendChild(title);
-		}
+        const parentDiv = document.createElement("div");
+        parentDiv.setAttribute("class", "mt-4");
 
-		const div = document.createElement("div");
-		div.setAttribute("class", "mt-2");
-		div.id = "user-info-list";
-		div.style.maxHeight = "320px";
-		div.style.overflowY = "auto";
+        if (!showAllUsers && this._searchBar) {
+            const title = document.createElement("h3");
+            title.setAttribute("class", "d-flex justify-content-start ms-1");
+            title.setAttribute("style", "font-size: 25px; font-weight: bold");
+            if (this._userList.length) {
+                title.innerHTML = `Search results for&nbsp;<u>${this._searchBar}</u>`;
+            } else {
+                title.innerHTML = `No search results for&nbsp;<u>${this._searchBar}</u>`;
+            }
+            parentDiv.appendChild(title);
+        }
 
-		if (!this._userList) {
-			return "";
-		}
-		
-		for (let [index, user] of this._userList.entries()) {
-			if (user.id == AbstractView.userInfo.id) {
-				continue ;
-			}
+        const div = document.createElement("div");
+        div.setAttribute("class", "mt-2");
+        div.id = "user-info-list";
+        div.style.maxHeight = "320px";
+        div.style.overflowY = "auto";
 
-			const userDiv = document.createElement("div");
-			userDiv.setAttribute("class", "d-flex flex-row align-items-center user-info mt-3");
-			userDiv.id = `user-info-${index}`;
+        if (!this._userList) {
+            return "";
+        }
 
-			const avataraAndUsernameDiv = document.createElement("div");
-			avataraAndUsernameDiv.setAttribute("class", "d-flex flex-row align-items-center pointer");
-			avataraAndUsernameDiv.id = `user-${user.id}`;
-			
-			if (user.avatar) {
-				const img = document.createElement("img");
-            	img.setAttribute("class", "white-border-sm ms-3");
-            	img.setAttribute("alt", "Avatar preview");
-            	img.setAttribute("width", "40");
-            	img.setAttribute("height", "40");
-            	img.setAttribute("style", "border-radius: 50%");
-            	img.setAttribute("src", user.avatar.link);
-				avataraAndUsernameDiv.appendChild(img);
-			} else {
-				const avatar = document.createElement("base-avatar-box");
-				avatar.setAttribute("template", "ms-3");
-				avatar.setAttribute("size", "40");
-				avataraAndUsernameDiv.appendChild(avatar);
-			}
-			
-			const username = document.createElement("h3");
-			username.setAttribute("class", "ms-3 mt-2");
-			username.setAttribute("style", "font-size: 20px; font-weight: bold");
-			username.innerText = await transitDecrypt(user.username);
-			avataraAndUsernameDiv.appendChild(username);
-			userDiv.appendChild(avataraAndUsernameDiv);
+        for (let [index, user] of this._userList.entries()) {
+            if (user.id == AbstractView.userInfo.id) {
+                continue;
+            }
 
-			const buttonDiv = document.createElement("div");
-			buttonDiv.setAttribute("class", "d-flex justify-content-end");
-			buttonDiv.style.marginLeft = "auto";
-			
-			const button = document.createElement("button");
-			button.setAttribute("class", "btn btn-primary primary-button extra-btn-class me-3");
-			button.id = `friend-btn-${user.id}`;
-			button.style.width = "100px";
-			button.style.height = "35px";
-			button.textContent = "Add friend";
-			buttonDiv.appendChild(button);
-			userDiv.appendChild(buttonDiv);
+            const userDiv = document.createElement("div");
+            userDiv.setAttribute("class", "d-flex flex-row align-items-center user-info mt-3");
+            userDiv.id = `user-info-${index}`;
 
-			div.appendChild(userDiv);
-		}
+            const avataraAndUsernameDiv = document.createElement("div");
+            avataraAndUsernameDiv.setAttribute("class", "d-flex flex-row align-items-center pointer");
+            avataraAndUsernameDiv.id = `user-${user.id}`;
 
-		parentDiv.appendChild(div);
-	
-		return parentDiv.outerHTML;
-	}
+            if (user.avatar) {
+                const img = document.createElement("img");
+                img.setAttribute("class", "white-border-sm ms-3");
+                img.setAttribute("alt", "Avatar preview");
+                img.setAttribute("width", "40");
+                img.setAttribute("height", "40");
+                img.setAttribute("style", "border-radius: 50%");
+                img.setAttribute("src", user.avatar.link);
+                avataraAndUsernameDiv.appendChild(img);
+            } else {
+                const avatar = document.createElement("base-avatar-box");
+                avatar.setAttribute("template", "ms-3");
+                avatar.setAttribute("size", "40");
+                avataraAndUsernameDiv.appendChild(avatar);
+            }
+
+            const username = document.createElement("h3");
+            username.setAttribute("class", "ms-3 mt-2");
+            username.setAttribute("style", "font-size: 20px; font-weight: bold");
+            username.innerText = await transitDecrypt(user.username);
+            avataraAndUsernameDiv.appendChild(username);
+            userDiv.appendChild(avataraAndUsernameDiv);
+
+            const buttonDiv = document.createElement("div");
+            buttonDiv.setAttribute("class", "d-flex justify-content-end");
+            buttonDiv.style.marginLeft = "auto";
+
+            const button = document.createElement("button");
+            button.setAttribute("class", "btn btn-primary primary-button extra-btn-class me-3");
+            button.id = `friend-btn-${user.id}`;
+            button.style.width = "100px";
+            button.style.height = "35px";
+            button.textContent = "Add friend";
+            buttonDiv.appendChild(button);
+            userDiv.appendChild(buttonDiv);
+
+            div.appendChild(userDiv);
+        }
+
+        parentDiv.appendChild(div);
+
+        return parentDiv.outerHTML;
+    }
 
     async getHtml() {
-		return `
+        return `
 			<div class="d-flex flex-column justify-content-center" id="search-friends">
 				<div class="ms-2 position-relative">
 					<p class="form-error" style="top: 50px; text-align: left"></p>
@@ -359,5 +359,5 @@ export default class SearchFriends extends AbstractView {
 				<div>
 			</div>
 		`;
-	}
+    }
 }

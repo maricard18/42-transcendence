@@ -165,7 +165,7 @@ function checkForEqualUsername(user, formData) {
 			return true
 		}
 	}
-	
+
 	return false;
 }
 

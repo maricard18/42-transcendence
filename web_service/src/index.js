@@ -1,18 +1,17 @@
 import AbstractView from "./views/AbstractView";
-import {routes} from "./router";
-import {getToken} from "./functions/tokens";
-import {closeWebsocket, connectOnlineStatusWebsocket} from "./functions/websocket";
+import { routes } from "./router";
+import { getToken } from "./functions/tokens";
+import { closeWebsocket, connectOnlineStatusWebsocket } from "./functions/websocket";
 import "./functions/defineComponents";
 import "../static/css/index.css";
-import { LoadingIcon } from "./components/Icons";
 
 const router = async () => {
     const url = location.pathname;
     let matches = findMatch(url, routes);
 
-	if (matches === -1) {
-		return ;
-	}
+    if (matches === -1) {
+        return;
+    }
 
     if (hasWebSocket(matches)) {
         closeWebsocket();
@@ -22,9 +21,9 @@ const router = async () => {
         return;
     }
 
-	if (!AbstractView.statusWsCreated && url.startsWith("/home")) {
-		connectOnlineStatusWebsocket();
-	}
+    if (!AbstractView.statusWsCreated && url.startsWith("/home")) {
+        connectOnlineStatusWebsocket();
+    }
 
 
     var view = [];
@@ -54,7 +53,7 @@ const router = async () => {
 };
 
 function findMatch(url, routes, previousMatches = []) {
-	const regex = /^\d+$/;
+    const regex = /^\d+$/;
     let longestMatch = -1;
     let index = -1;
 
@@ -77,25 +76,25 @@ function findMatch(url, routes, previousMatches = []) {
         });
 
         if (matchedRoute.children) {
-			return findMatch(newUrl, matchedRoute.children, previousMatches);
+            return findMatch(newUrl, matchedRoute.children, previousMatches);
         } else {
-			if (previousMatches[previousMatches.length - 1].path === "/profile/" && regex.test(newUrl)) {
-				previousMatches[previousMatches.length - 1].path += newUrl;
-				return previousMatches;
-			}
+            if (previousMatches[previousMatches.length - 1].path === "/profile/" && regex.test(newUrl)) {
+                previousMatches[previousMatches.length - 1].path += newUrl;
+                return previousMatches;
+            }
 
-			if (newUrl.length > 0) {
-				navigateTo("/home");
-				return -1;
-			}
-            
-			return previousMatches;
+            if (newUrl.length > 0) {
+                navigateTo("/home");
+                return -1;
+            }
+
+            return previousMatches;
         }
     } else {
-		if (url.length > 0) {
-			navigateTo("/home");
-			return -1;
-		}
+        if (url.length > 0) {
+            navigateTo("/home");
+            return -1;
+        }
         if (previousMatches) {
             return previousMatches;
         }
@@ -117,8 +116,8 @@ async function hasPermission(matches) {
     } else {
         AbstractView.authed = false;
     }
-	
-	const previousLocation = localStorage.getItem("previous_location");
+
+    const previousLocation = localStorage.getItem("previous_location");
 
     if (baseUrl === "/home" && !AbstractView.authed) {
         navigateTo("/");
@@ -144,11 +143,11 @@ function hasWebSocket(matches) {
         fullUrl !== "/home/pong/play/multiplayer/4" &&
         fullUrl !== "/home/tic-tac-toe/play/multiplayer/2" &&
         (AbstractView.previousLocation === "/home/pong/multiplayer/waiting-room/2" ||
-		AbstractView.previousLocation === "/home/pong/multiplayer/waiting-room/4" ||
-		AbstractView.previousLocation === "/home/tic-tac-toe/multiplayer/waiting-room/2" ||
-		AbstractView.previousLocation === "/home/pong/play/multiplayer/2" ||
-		AbstractView.previousLocation === "/home/pong/play/multiplayer/4" ||
-		AbstractView.previousLocation === "/home/tic-tac-toe/play/multiplayer/2")) {
+            AbstractView.previousLocation === "/home/pong/multiplayer/waiting-room/4" ||
+            AbstractView.previousLocation === "/home/tic-tac-toe/multiplayer/waiting-room/2" ||
+            AbstractView.previousLocation === "/home/pong/play/multiplayer/2" ||
+            AbstractView.previousLocation === "/home/pong/play/multiplayer/4" ||
+            AbstractView.previousLocation === "/home/tic-tac-toe/play/multiplayer/2")) {
         return true;
     } else {
         return false;
@@ -156,52 +155,52 @@ function hasWebSocket(matches) {
 }
 
 function cleanData(location) {
-	if (!location) {
-		return ;
-	}
+    if (!location) {
+        return;
+    }
 
-	if (!location.startsWith("/home/pong/play") &&
-		!location.startsWith("/home/tic-tac-toe/play") &&
-		!location.startsWith("/home/pong/muliplayer/waiting-room") &&
-		!location.startsWith("/home/tic-tac-toe/muliplayer/waiting-room")) {
-		localStorage.removeItem("game_status");
-		localStorage.removeItem("player1");
-		localStorage.removeItem("player2");
-		localStorage.removeItem("player3");
-		localStorage.removeItem("player4");
-	}
+    if (!location.startsWith("/home/pong/play") &&
+        !location.startsWith("/home/tic-tac-toe/play") &&
+        !location.startsWith("/home/pong/muliplayer/waiting-room") &&
+        !location.startsWith("/home/tic-tac-toe/muliplayer/waiting-room")) {
+        localStorage.removeItem("game_status");
+        localStorage.removeItem("player1");
+        localStorage.removeItem("player2");
+        localStorage.removeItem("player3");
+        localStorage.removeItem("player4");
+    }
 
-	if (location !== "/home/pong/play/tournament/2" && 
-		location !== "/home/pong/tournament/matchmaking" &&
-		location !== "/home/tic-tac-toe/play/tournament/2" && 
-		location !== "/home/tic-tac-toe/tournament/matchmaking") {
-		cleanTournamentStorage();
-	}
+    if (location !== "/home/pong/play/tournament/2" &&
+        location !== "/home/pong/tournament/matchmaking" &&
+        location !== "/home/tic-tac-toe/play/tournament/2" &&
+        location !== "/home/tic-tac-toe/tournament/matchmaking") {
+        cleanTournamentStorage();
+    }
 
-	if (location !== "/home/settings" && 
-		location !== "/create-profile-42" &&
-		location !== "/login-42") {
-		localStorage.removeItem("previous_location");
-	}
+    if (location !== "/home/settings" &&
+        location !== "/create-profile-42" &&
+        location !== "/login-42") {
+        localStorage.removeItem("previous_location");
+    }
 }
 
 export function cleanTournamentStorage() {
-	localStorage.removeItem("tournament");
-	localStorage.removeItem("match1");
-	localStorage.removeItem("match2");
-	localStorage.removeItem("match3");
-	localStorage.removeItem("user1-name");
-	localStorage.removeItem("user2-name");
-	localStorage.removeItem("user3-name");
-	localStorage.removeItem("user4-name");
-	localStorage.removeItem("user1-image");
-	localStorage.removeItem("user2-image");
-	localStorage.removeItem("user3-image");
-	localStorage.removeItem("user4-image");
+    localStorage.removeItem("tournament");
+    localStorage.removeItem("match1");
+    localStorage.removeItem("match2");
+    localStorage.removeItem("match3");
+    localStorage.removeItem("user1-name");
+    localStorage.removeItem("user2-name");
+    localStorage.removeItem("user3-name");
+    localStorage.removeItem("user4-name");
+    localStorage.removeItem("user1-image");
+    localStorage.removeItem("user2-image");
+    localStorage.removeItem("user3-image");
+    localStorage.removeItem("user4-image");
 }
 
 export async function navigateTo(url) {
-	const event = new CustomEvent(location.pathname);
+    const event = new CustomEvent(location.pathname);
     window.dispatchEvent(event);
 
     history.pushState(null, "", url);
@@ -209,7 +208,7 @@ export async function navigateTo(url) {
 }
 
 window.addEventListener("popstate", async () => {
-	await router();
+    await router();
 });
 
 document.addEventListener("DOMContentLoaded", async () => {

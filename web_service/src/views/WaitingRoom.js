@@ -18,7 +18,7 @@ export default class WaitingRoom extends AbstractView {
         this._gameWsCreatedRender = false;
         this._lobbyFull = false;
 
-		const currentLocation = location.pathname;
+        const currentLocation = location.pathname;
         if (currentLocation.charAt(6) === "p") {
             this._game = "pong";
         } else {
@@ -54,7 +54,7 @@ export default class WaitingRoom extends AbstractView {
                 AbstractView.previousLocation = this._location;
             } catch (error) {
 
-			}
+            }
             this._loading = false;
             this.loadDOMChanges();
         };
@@ -105,19 +105,19 @@ export default class WaitingRoom extends AbstractView {
                 localStorage.setItem("game_status", "loading");
                 localStorage.setItem("previous_location", location.pathname);
                 AbstractView.gameOver = false;
-				this.removeCallbacks();
+                this.removeCallbacks();
 
-				if (this._game === "pong") {
-					navigateTo("/home/pong/play/multiplayer/" + this._lobbySize);
-				} else {
-					navigateTo("/home/tic-tac-toe/play/multiplayer/" + this._lobbySize);
-				}
+                if (this._game === "pong") {
+                    navigateTo("/home/pong/play/multiplayer/" + this._lobbySize);
+                } else {
+                    navigateTo("/home/tic-tac-toe/play/multiplayer/" + this._lobbySize);
+                }
             }
         }
     }
 
     async loadDOMChanges() {
-		const parentNode = document.getElementById("waiting-room");
+        const parentNode = document.getElementById("waiting-room");
         if (parentNode) {
             parentNode.innerHTML = this.loadWaitingRoomContent();
         }
@@ -186,7 +186,7 @@ class PlayerQueue extends AbstractView {
     }
 
     removeCallbacks = () => {
-		this._observer.disconnect();
+        this._observer.disconnect();
 
         this._parentNode.removeEventListener(
             "player-queue-callback",
@@ -231,10 +231,10 @@ class PlayerQueue extends AbstractView {
         return `
 			<div class="justify-content-start align-items-start mb-3" id="player-queue">
 				${!this._loading && AbstractView.userData
-					? AbstractView.userData.map((data, index) =>
-						data
-							? data.avatar
-								? (`<div class="d-flex flex-row justify-content-center align-items-center mb-2">
+            ? AbstractView.userData.map((data, index) =>
+                data
+                    ? data.avatar
+                        ? (`<div class="d-flex flex-row justify-content-center align-items-center mb-2">
 										<img
 											src=${data.avatar}
 											alt="Avatar preview"
@@ -248,30 +248,30 @@ class PlayerQueue extends AbstractView {
 										</div>
 										<div class="ms-2">
 											${Object.keys(AbstractView.userQueue).length == this._lobbySize
-												? (AbstractView.userReadyList[data.id]
-													? `<check-icon></check-icon>`
-													: `<close-icon></close-icon>`)
-												: ``
-											}
+                            ? (AbstractView.userReadyList[data.id]
+                                ? `<check-icon></check-icon>`
+                                : `<close-icon></close-icon>`)
+                            : ``
+                        }
 										</div>
 									</div>`)
-								: (`<div class="d-flex flex-row justify-content-center align-items-center mb-2">
+                        : (`<div class="d-flex flex-row justify-content-center align-items-center mb-2">
 										<base-avatar-box size="40px"></base-avatar-box>
 										<div class="username-text ms-3 mt-2">
 											<h5>${data.username}</h5>
 										</div>
 										<div class="ms-2">
 											${Object.keys(AbstractView.userQueue).length == this._lobbySize
-												? (AbstractView.userReadyList[data.id]
-													? `<check-icon></check-icon>`
-													: `<close-icon></close-icon>`)
-												: ``
-											}
+                            ? (AbstractView.userReadyList[data.id]
+                                ? `<check-icon></check-icon>`
+                                : `<close-icon></close-icon>`)
+                            : ``
+                        }
 										</div>
 									</div>`)
-							: ``)
-					: `<loading-icon size="3rem"></loading-icon>`
-				}
+                    : ``)
+            : `<loading-icon size="3rem"></loading-icon>`
+        }
 			</div>
 		`;
     }
@@ -313,8 +313,8 @@ class ReadyButton extends AbstractView {
                         [AbstractView.userInfo.id]: this._readyState,
                     },
                 };
-                
-				sendMessage(GameWebsocket.ws, message);
+
+                sendMessage(GameWebsocket.ws, message);
             }
         } else {
             return;
@@ -342,18 +342,18 @@ class ReadyButton extends AbstractView {
             };
 
             sendMessage(GameWebsocket.ws, message);
-            
-			const waitingRoomNode = document.getElementById("waiting-room");
-			if (waitingRoomNode) {
-				waitingRoomNode.dispatchEvent(new CustomEvent("waiting-room-callback"));
-			}
+
+            const waitingRoomNode = document.getElementById("waiting-room");
+            if (waitingRoomNode) {
+                waitingRoomNode.dispatchEvent(new CustomEvent("waiting-room-callback"));
+            }
 
             const playerQueueNode = document.getElementById("player-queue");
             if (playerQueueNode) {
-				playerQueueNode.dispatchEvent(new CustomEvent("player-queue-refresh"));
-			}
-            
-			this.loadDOMChanges();
+                playerQueueNode.dispatchEvent(new CustomEvent("player-queue-refresh"));
+            }
+
+            this.loadDOMChanges();
         };
 
         const button = this._parentNode.querySelector("button");
@@ -367,9 +367,9 @@ class ReadyButton extends AbstractView {
     }
 
     removeCallbacks = () => {
-		this._observer.disconnect();
+        this._observer.disconnect();
 
-		if (!this._parentNode) {
+        if (!this._parentNode) {
             return;
         }
 
@@ -384,10 +384,10 @@ class ReadyButton extends AbstractView {
 
     loadDOMChanges() {
         const parentNode = document.getElementById("ready-button");
-		if (parentNode) {
-			parentNode.innerHTML = this.loadReadyButton();
-			this._clickCallback = false;
-		}
+        if (parentNode) {
+            parentNode.innerHTML = this.loadReadyButton();
+            this._clickCallback = false;
+        }
     }
 
     loadReadyButton(disabled = false) {
@@ -418,7 +418,7 @@ class ReadyButton extends AbstractView {
 
 async function getUserData(value) {
     let jsonData;
-	let data = {
+    let data = {
         username: "loading",
         email: "loading",
         id: value,

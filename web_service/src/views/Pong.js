@@ -22,16 +22,16 @@ export default class Pong extends AbstractView {
         this._height;
         this._game;
 
-		if (this._gameMode === "single-player") {
-			if (this._lobbySize == 2) {
-				localStorage.setItem("player1", "Opponent");
-			} else {
-				localStorage.setItem("player2", "CPU");
-			}	
-			localStorage.setItem("game_status", "loading");
-		} else if (this._gameMode === "tournament") {
-			localStorage.setItem("game_status", "loading");
-		}
+        if (this._gameMode === "single-player") {
+            if (this._lobbySize == 2) {
+                localStorage.setItem("player1", "Opponent");
+            } else {
+                localStorage.setItem("player2", "CPU");
+            }
+            localStorage.setItem("game_status", "loading");
+        } else if (this._gameMode === "tournament") {
+            localStorage.setItem("game_status", "loading");
+        }
 
         this._observer = new MutationObserver(this.defineCallback);
         this._observer.observe(document.body, {
@@ -40,7 +40,7 @@ export default class Pong extends AbstractView {
         });
 
         if (this._gameMode === "single-player" || this._gameMode === "tournament" ||
-           (this._gameMode === "multiplayer" && this._lobbySize == 2)) {
+            (this._gameMode === "multiplayer" && this._lobbySize == 2)) {
             this._aspectRatio = this._aspectRatioRectangle;
         } else if (this._gameMode === "multiplayer" && this._lobbySize == 4) {
             this._aspectRatio = this._aspectRatioSquare;
@@ -63,6 +63,22 @@ export default class Pong extends AbstractView {
             }
             this._height = this._width / this._aspectRatio;
         }
+
+        window.addEventListener("offline", this.offline);
+        window.addEventListener("online", this.online);
+        window.addEventListener(location.pathname, this.removeCallbacks);
+    }
+
+    offline = () => {
+        if (this._game) {
+            this._game.lost_connection = true;
+        }
+    }
+
+    online = () => {
+        if (this._game) {
+            this._game.lost_connection = false;
+        }
     }
 
     defineCallback = async () => {
@@ -72,15 +88,21 @@ export default class Pong extends AbstractView {
             if (!this._gameRunning) {
                 this._gameRunning = true;
                 await this.startPongGame();
-				await this.gameOverScreen();
+                await this.gameOverScreen();
             }
         }
     }
 
+    removeCallbacks = () => {
+        window.removeEventListener("offline", this.offline);
+        window.removeEventListener("online", this.online);
+        window.removeEventListener(location.pathname, this.removeCallbacks);
+    }
+
     async startPongGame() {
         if (this._gameMode === "single-player" || this._gameMode === "tournament" ||
-           (this._gameMode === "multiplayer" && Object.values(AbstractView.userQueue).length == this._lobbySize)) {
-			const canvas = document.querySelector("canvas");
+            (this._gameMode === "multiplayer" && Object.values(AbstractView.userQueue).length == this._lobbySize)) {
+            const canvas = document.querySelector("canvas");
             this._game = createPongGameObject(
                 canvas,
                 this._gameMode,
@@ -90,39 +112,39 @@ export default class Pong extends AbstractView {
         }
     }
 
-	async gameOverScreen() {
-		const canvas = document.querySelector("canvas");
-		if (!canvas) {
-			return ;
-		}
-		
-		const ctx = canvas.getContext("2d");
-		const headlineSize = this._height * 0.12;
-		const paragraphSize = this._height * 0.03
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		ctx.fillStyle = "white";
-		ctx.font = `bold ${headlineSize}px Arial`;
-		ctx.textAlign = "center";
-		ctx.textBaseline = "middle";
-		ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 7 * 3);
-	
-		ctx.font = `bold ${paragraphSize}px Arial`;
-		ctx.fillText("Click anywhere on the canvas to leave this page", canvas.width / 2, canvas.height / 4 * 3);
-	
-		canvas.addEventListener("click", async () => {
-			if (this._gameMode === "tournament") {
-				this._observer.disconnect();
-				navigateTo("/home/pong/tournament/matchmaking");
-			} else {
-				localStorage.removeItem("game_status");
-				localStorage.removeItem("game_winner");
-				AbstractView.cleanGameData();
-				closeWebsocket();
-				this._observer.disconnect();
-				await navigateTo("/home");
-			}
-		});
-	}
+    async gameOverScreen() {
+        const canvas = document.querySelector("canvas");
+        if (!canvas) {
+            return;
+        }
+
+        const ctx = canvas.getContext("2d");
+        const headlineSize = this._height * 0.12;
+        const paragraphSize = this._height * 0.03
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "white";
+        ctx.font = `bold ${headlineSize}px Arial`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 7 * 3);
+
+        ctx.font = `bold ${paragraphSize}px Arial`;
+        ctx.fillText("Click anywhere on the canvas to leave this page", canvas.width / 2, canvas.height / 4 * 3);
+
+        canvas.addEventListener("click", async () => {
+            if (this._gameMode === "tournament") {
+                this._observer.disconnect();
+                navigateTo("/home/pong/tournament/matchmaking");
+            } else {
+                localStorage.removeItem("game_status");
+                localStorage.removeItem("game_winner");
+                AbstractView.cleanGameData();
+                closeWebsocket();
+                this._observer.disconnect();
+                await navigateTo("/home");
+            }
+        });
+    }
 
     loadPong() {
         return `
@@ -165,28 +187,28 @@ export default class Pong extends AbstractView {
     }
 
     async getHtml() {
-        if (this._gameMode === "multiplayer" && 
-		   (!localStorage.getItem("game_status") || !AbstractView.userData.length)) {
-			localStorage.removeItem("game_status");
-			localStorage.removeItem("game_winner");
-			AbstractView.cleanGameData();
-			closeWebsocket();
-			this._observer.disconnect();
-			await navigateTo("/home");
-			return ;
+        if (this._gameMode === "multiplayer" &&
+            (!localStorage.getItem("game_status") || !AbstractView.userData.length)) {
+            localStorage.removeItem("game_status");
+            localStorage.removeItem("game_winner");
+            AbstractView.cleanGameData();
+            closeWebsocket();
+            this._observer.disconnect();
+            await navigateTo("/home");
+            return;
         } else if (this._gameMode === "tournament") {
-			if (!localStorage.getItem("tournament")) {
-				localStorage.removeItem("game_status");
-				this._observer.disconnect();
-				await navigateTo("/home");
-				return ;
-			}
-			if (currentGameFinished()) {
-				this._observer.disconnect();
-				await navigateTo("/home/pong/tournament/matchmaking");
-				return ;
-			}
-		}
+            if (!localStorage.getItem("tournament")) {
+                localStorage.removeItem("game_status");
+                this._observer.disconnect();
+                await navigateTo("/home");
+                return;
+            }
+            if (currentGameFinished()) {
+                this._observer.disconnect();
+                await navigateTo("/home/pong/tournament/matchmaking");
+                return;
+            }
+        }
 
         if (this._lobbySize != 4) {
             return this.loadPong();
@@ -197,17 +219,17 @@ export default class Pong extends AbstractView {
 }
 
 function currentGameFinished() {
-	let match1 = JSON.parse(localStorage.getItem("match1"));
-	let match2 = JSON.parse(localStorage.getItem("match2"));
-	let match3 = JSON.parse(localStorage.getItem("match3"));
+    let match1 = JSON.parse(localStorage.getItem("match1"));
+    let match2 = JSON.parse(localStorage.getItem("match2"));
+    let match3 = JSON.parse(localStorage.getItem("match3"));
 
-	if (match1 && match1["status"] === "finished" && !match2) {
-		return true;
-	} else if (match2 && match2["status"] === "finished" && !match3) {
-		return true;
-	} else if (match3 && match3["status"] === "finished") {
-		return true;
-	}
+    if (match1 && match1["status"] === "finished" && !match2) {
+        return true;
+    } else if (match2 && match2["status"] === "finished" && !match3) {
+        return true;
+    } else if (match3 && match3["status"] === "finished") {
+        return true;
+    }
 
-	return false;
+    return false;
 }

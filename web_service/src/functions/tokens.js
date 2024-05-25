@@ -102,7 +102,7 @@ export function decode(accessToken) {
 export function logout() {
 	closeWebsocket();
 	closeStatusWebsocket();
-	cleanTournamentStorage(); 	
+    cleanTournamentStorage();
     Cookies.remove("access_token");
     Cookies.remove("refresh_token");
     AbstractView.cleanGameData();

@@ -43,9 +43,9 @@ export class Game1 extends AbstractView {
     }
 
     removeCallbacks() {
-		this._observer.disconnect();
-        
-		const img = document.getElementById("pong-img");
+        this._observer.disconnect();
+
+        const img = document.getElementById("pong-img");
         if (img) {
             img.removeEventListener("click", this.handleGameClick);
         }
@@ -133,9 +133,9 @@ export class Game2 extends AbstractView {
     }
 
     removeCallbacks() {
-		this._observer.disconnect();
-        
-		const img = document.getElementById("tic-tac-toe-img");
+        this._observer.disconnect();
+
+        const img = document.getElementById("tic-tac-toe-img");
         if (img) {
             img.removeEventListener("click", this.handleGameClick);
         }

@@ -42,7 +42,7 @@ class GameMiddleware(BaseMiddleware):
         user = scope["user"]
         game_id = scope["url_route"]["kwargs"]["game_id"]
         game_player_amount = scope["url_route"]["kwargs"]["player_amount"]
-        room_group_name = "game_%s_queue_%s" % (game_id, game_player_amount)
+        room_group_name = f"game_{game_id}_queue_{game_player_amount}"
         if user in self.queue.get(room_group_name, {}).keys():
             # Deny the connection
             denier = WebsocketDenier()

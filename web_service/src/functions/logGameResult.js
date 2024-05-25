@@ -16,7 +16,7 @@ export default async function logGameResult(game, mode, players) {
 		players: playersInfoMessage,
 		results: playersResultMessage
 	}
-            
+
 	const accessToken = await getToken();
 	const headers = {
 		"Content-Type": "application/json",

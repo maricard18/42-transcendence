@@ -15,8 +15,8 @@ export default class LoginPage extends AbstractView {
         this._inputCallback = false;
         this._clickCallback = false;
         this._enterCallback = false;
-		this._test2FA = false;
-		this._has2FA = false;
+        this._test2FA = false;
+        this._has2FA = false;
 
         this._errors = {};
         this._formData = {
@@ -29,27 +29,58 @@ export default class LoginPage extends AbstractView {
             childList: true,
             subtree: true,
         });
-	
-		window.addEventListener(location.pathname, this.removeCallbacks);
+
+        window.addEventListener(location.pathname, this.removeCallbacks);
     }
 
-	inputCallback = (event) => {
-		const id = event.target.getAttribute("id");
-		const value = event.target.value;
-		event.target.setAttribute("value", value);
-		this._formData[id] = value;
-	};
+    get errors() {
+        return this._errors;
+    }
 
-	buttonClickedCallback = () => {
-		this.handleValidation();
-	};
+    set errors(value) {
+        this._errors = value;
 
-	keydownCallback = (event) => {
-		if (event.key === "Enter") {
-			event.preventDefault();
-			this.handleValidation();
-		}
-	};
+        if (this._errors.message) {
+            const p = document.querySelector("p");
+            p.innerText = this._errors.message;
+
+            const inputList = document.querySelectorAll("input");
+            inputList.forEach((input) => {
+                const id = input.getAttribute("id");
+                if (this._errors[id]) {
+                    input.classList.add("input-error");
+                    this._formData[id] = input.value;
+                    setTimeout(() => {
+                        input.classList.remove("input-error");
+                    }, 3000);
+                } else if (input.classList.contains("input-error")) {
+                    input.classList.remove("input-error");
+                }
+            });
+
+            setTimeout(() => {
+                p.innerText = "";
+            }, 3000);
+        }
+    }
+
+    inputCallback = (event) => {
+        const id = event.target.getAttribute("id");
+        const value = event.target.value;
+        event.target.setAttribute("value", value);
+        this._formData[id] = value;
+    };
+
+    buttonClickedCallback = () => {
+        this.handleValidation();
+    };
+
+    keydownCallback = (event) => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            this.handleValidation();
+        }
+    };
 
     defineCallback = async () => {
         const parentNode = document.getElementById("login-page");
@@ -80,15 +111,15 @@ export default class LoginPage extends AbstractView {
     }
 
     removeCallbacks = () => {
-		this._observer.disconnect();
-		window.removeEventListener("keydown", this.keydownCallback);
-		window.removeEventListener(location.pathname, this.removeCallbacks);
+        this._observer.disconnect();
+        window.removeEventListener("keydown", this.keydownCallback);
+        window.removeEventListener(location.pathname, this.removeCallbacks);
 
-		if (!this._parentNode) {
+        if (!this._parentNode) {
             return;
         }
-        
-		const inputList = this._parentNode.querySelectorAll("input");
+
+        const inputList = this._parentNode.querySelectorAll("input");
         if (inputList) {
             this._parentNode.querySelectorAll("input").forEach((input) => {
                 input.removeEventListener("input", this.inputCallback);
@@ -100,37 +131,6 @@ export default class LoginPage extends AbstractView {
             submitButton.removeEventListener("buttonClicked", this.buttonClickedCallback);
         }
 
-    }
-
-    get errors() {
-        return this._errors;
-    }
-
-    set errors(value) {
-        this._errors = value;
-
-        if (this._errors.message) {
-            const p = document.querySelector("p");
-            p.innerText = this._errors.message;
-
-            const inputList = document.querySelectorAll("input");
-            inputList.forEach((input) => {
-                const id = input.getAttribute("id");
-                if (this._errors[id]) {
-                    input.classList.add("input-error");
-                    this._formData[id] = input.value;
-					setTimeout(() => {
-						input.classList.remove("input-error");
-					}, 3000);
-                } else if (input.classList.contains("input-error")) {
-                    input.classList.remove("input-error");
-                }
-            });
-
-			setTimeout(() => {
-				p.innerText = "";
-			}, 3000);
-        }
     }
 
     async handleValidation() {
@@ -158,18 +158,18 @@ export default class LoginPage extends AbstractView {
             );
 
             if (response && response.ok) {
-				await checkFor2FA(response.clone());
-				this.removeCallbacks();
-				if (AbstractView.has2FA === 2) {
-					const responseBody = await response.clone().json(); 
-        			AbstractView.tokens = await transitEncrypt(JSON.stringify(responseBody));
-					navigateTo("/login-2FA");
-				} else {
-					await setToken(response);
-					navigateTo("/home");
-				}
-				
-				return ;
+                await checkFor2FA(response.clone());
+                this.removeCallbacks();
+                if (AbstractView.has2FA === 2) {
+                    const responseBody = await response.clone().json();
+                    AbstractView.tokens = await transitEncrypt(JSON.stringify(responseBody));
+                    navigateTo("/login-2FA");
+                } else {
+                    await setToken(response);
+                    navigateTo("/home");
+                }
+
+                return;
             } else {
                 newErrors = await handleResponse(response, this._formData);
                 this.errors = newErrors;
@@ -224,30 +224,30 @@ export default class LoginPage extends AbstractView {
 }
 
 async function checkFor2FA(clone) {
-	const jsonData = await clone.json();
+    const jsonData = await clone.json();
     const accessToken = jsonData["access_token"];
-	const decodeToken = decode(accessToken);
-	const headers = {
-		Authorization: `Bearer ${accessToken}`,
-	};
+    const decodeToken = decode(accessToken);
+    const headers = {
+        Authorization: `Bearer ${accessToken}`,
+    };
 
-	const response = await fetchData(
-		"/api/users/" + decodeToken["user_id"] + "/otp",
-		"GET",
-		headers,
-		null
-	);
+    const response = await fetchData(
+        "/api/users/" + decodeToken["user_id"] + "/otp",
+        "GET",
+        headers,
+        null
+    );
 
-	if (response && response.ok) {
-		const jsonData = await response.json();
-		if (jsonData["active"] === true) {
-			AbstractView.has2FA = 2;
-		} else if (jsonData["active"] === false) {
-			AbstractView.has2FA = 1;
-		}
+    if (response && response.ok) {
+        const jsonData = await response.json();
+        if (jsonData["active"] === true) {
+            AbstractView.has2FA = 2;
+        } else if (jsonData["active"] === false) {
+            AbstractView.has2FA = 1;
+        }
 
-		return ;
-	}
+        return;
+    }
 
-	AbstractView.has2FA = 0;
+    AbstractView.has2FA = 0;
 }

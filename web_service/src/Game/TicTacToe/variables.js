@@ -8,6 +8,6 @@ export var Linewidth = 10;
 
 export function updateVariables(canvas) {
     ScreenSize = canvas.width;
-	ScreenMargin = ScreenSize * ScreenMarginScalar;
-	BoxMargin = ScreenSize * BoxMarginScalar;
+    ScreenMargin = ScreenSize * ScreenMarginScalar;
+    BoxMargin = ScreenSize * BoxMarginScalar;
 }

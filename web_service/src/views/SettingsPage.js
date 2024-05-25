@@ -24,82 +24,82 @@ export default class SettingsPage extends AbstractView {
             subtree: true,
         });
 
-		window.addEventListener(location.pathname, this.removeCallbacks);
+        window.addEventListener(location.pathname, this.removeCallbacks);
     }
 
-	avatarCallback = (event) => {
-		if (!event.detail) {
-			const p = this._parentNode.querySelector("p");
+    avatarCallback = (event) => {
+        if (!event.detail) {
+            const p = this._parentNode.querySelector("p");
 
-			if (p.classList.contains("form-success")) {
-				p.classList.remove("form-success");
-			}
-			p.classList.add("form-error");
-			p.innerText = "Avatar upload failed";
-			setTimeout(() => {
-				p.innerText = "";
-			}, 3000);
-			return;
-		}
+            if (p.classList.contains("form-success")) {
+                p.classList.remove("form-success");
+            }
+            p.classList.add("form-error");
+            p.innerText = "Avatar upload failed";
+            setTimeout(() => {
+                p.innerText = "";
+            }, 3000);
+            return;
+        }
 
-		this._avatar = event.detail;
-		this.changeAvatar();
-	};
+        this._avatar = event.detail;
+        this.changeAvatar();
+    };
 
-	linkButtonCallback = () => {
-		localStorage.setItem("previous_location", location.pathname);
-	}
+    linkButtonCallback = () => {
+        localStorage.setItem("previous_location", location.pathname);
+    }
 
-	deleteAccountCallback = async () => {
-		const accessToken = await getToken();
-		const headers = {
-			Authorization: `Bearer ${accessToken}`,
-		};
+    deleteAccountCallback = async () => {
+        const accessToken = await getToken();
+        const headers = {
+            Authorization: `Bearer ${accessToken}`,
+        };
 
-		const response = await fetchData(
-			"/api/users/" + AbstractView.userInfo.id,
-			"DELETE",
-			headers,
-			null
-		);
+        const response = await fetchData(
+            "/api/users/" + AbstractView.userInfo.id,
+            "DELETE",
+            headers,
+            null
+        );
 
-		if (response && response.ok) {
-			const modalElement = document.getElementById("DeleteUserModal");
-			bootstrap.Modal.getInstance(modalElement).hide();
-			document.querySelector('.modal-backdrop').remove();
-			this._observer.disconnect();
-			logout();
-			navigateTo("/");
-		}
-	};
+        if (response && response.ok) {
+            const modalElement = document.getElementById("DeleteUserModal");
+            bootstrap.Modal.getInstance(modalElement).hide();
+            document.querySelector('.modal-backdrop').remove();
+            this._observer.disconnect();
+            logout();
+            navigateTo("/");
+        }
+    };
 
-	removeAvatarCallback = async (event) => {
-		const formDataToSend = new FormData();
-		formDataToSend.append("avatar", "");
+    removeAvatarCallback = async (event) => {
+        const formDataToSend = new FormData();
+        formDataToSend.append("avatar", "");
 
-		const accessToken = await getToken();
-		const headers = {
-			Authorization: `Bearer ${accessToken}`,
-		};
+        const accessToken = await getToken();
+        const headers = {
+            Authorization: `Bearer ${accessToken}`,
+        };
 
-		const response = await fetchData(
-			"/api/users/" + AbstractView.userInfo.id,
-			"PUT",
-			headers,
-			formDataToSend
-		);
+        const response = await fetchData(
+            "/api/users/" + AbstractView.userInfo.id,
+            "PUT",
+            headers,
+            formDataToSend
+        );
 
-		if (response && response.ok) {
-			AbstractView.userInfo.avatar = null;
-			event.target.dispatchEvent(new CustomEvent("remove-avatar"));
-			const avatarContainer = document.getElementById("avatar-container");
+        if (response && response.ok) {
+            AbstractView.userInfo.avatar = null;
+            event.target.dispatchEvent(new CustomEvent("remove-avatar"));
+            const avatarContainer = document.getElementById("avatar-container");
             if (avatarContainer) {
-				avatarContainer.dispatchEvent(new CustomEvent("avatar-container"));
-			}
+                avatarContainer.dispatchEvent(new CustomEvent("avatar-container"));
+            }
 
-			this._clickCallback = false;
-		}
-	}
+            this._clickCallback = false;
+        }
+    }
 
     defineCallback = () => {
         const parentNode = document.getElementById("profile-page");
@@ -122,26 +122,26 @@ export default class SettingsPage extends AbstractView {
             linkButton.addEventListener("click", this.linkButtonCallback);
         }
 
-		const deleteAccountButton = this._parentNode.querySelector("#delete-account-button");
-		if (deleteAccountButton && !this._deleteCallback) {
-			this._deleteCallback = true;
-			deleteAccountButton.addEventListener("click", this.deleteAccountCallback);
-		}
+        const deleteAccountButton = this._parentNode.querySelector("#delete-account-button");
+        if (deleteAccountButton && !this._deleteCallback) {
+            this._deleteCallback = true;
+            deleteAccountButton.addEventListener("click", this.deleteAccountCallback);
+        }
 
-		const deleteAvatarButton = this._parentNode.querySelector("#remove-avatar");
-		if (deleteAvatarButton && !this._clickCallback) {
-			this._clickCallback = true;
-			deleteAvatarButton.addEventListener("click", this.removeAvatarCallback);
-		}
+        const deleteAvatarButton = this._parentNode.querySelector("#remove-avatar");
+        if (deleteAvatarButton && !this._clickCallback) {
+            this._clickCallback = true;
+            deleteAvatarButton.addEventListener("click", this.removeAvatarCallback);
+        }
     }
 
     removeCallbacks = () => {
-		this._observer.disconnect();
-		window.removeEventListener(location.pathname, this.removeCallbacks);
+        this._observer.disconnect();
+        window.removeEventListener(location.pathname, this.removeCallbacks);
 
-		if (!this._parentNode) {
-			return ;
-		}
+        if (!this._parentNode) {
+            return;
+        }
 
         const avatarBox = this._parentNode.querySelector("avatar-box");
         if (avatarBox) {
@@ -189,38 +189,38 @@ export default class SettingsPage extends AbstractView {
 
             if (response && response.ok) {
                 AbstractView.userInfo.avatar = URL.createObjectURL(this._avatar);
-                
-				const avatarContainer = document.getElementById("avatar-container");
+
+                const avatarContainer = document.getElementById("avatar-container");
                 avatarContainer.dispatchEvent(new CustomEvent("avatar-container"));
-                
-				const p = this._parentNode.querySelector("p");
-                
-				if (p.classList.contains("form-error")) {
+
+                const p = this._parentNode.querySelector("p");
+
+                if (p.classList.contains("form-error")) {
                     p.classList.remove("form-error");
                 }
-                
-				p.classList.add("form-success");
+
+                p.classList.add("form-success");
                 p.innerText = "Changes saved";
-                
-				setTimeout(() => {
+
+                setTimeout(() => {
                     p.innerText = "";
                 }, 3000);
             } else {
-				if (response && response.status === 413) {
-					const p = this._parentNode.querySelector("p");
-					
-					if (p.classList.contains("form-success")) {
-						p.classList.remove("form-success");
-					}
-					
-					p.classList.add("form-error");
-					p.innerText = "Image too large";
-					
-					setTimeout(() => {
-						p.innerText = "";
-					}, 3000);
-				}
-			}
+                if (response && response.status === 413) {
+                    const p = this._parentNode.querySelector("p");
+
+                    if (p.classList.contains("form-success")) {
+                        p.classList.remove("form-success");
+                    }
+
+                    p.classList.add("form-error");
+                    p.innerText = "Image too large";
+
+                    setTimeout(() => {
+                        p.innerText = "";
+                    }, 3000);
+                }
+            }
         }
 
         this._insideRequest = false;

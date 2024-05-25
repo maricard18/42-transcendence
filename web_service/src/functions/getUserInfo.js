@@ -12,7 +12,7 @@ export default async function getUserInfo(token = null, id = null) {
 			accessToken = token;
 		}
     } catch (error) {
-        return ;
+        return;
     }
 
     try {
@@ -23,7 +23,7 @@ export default async function getUserInfo(token = null, id = null) {
 			user_id = id;
 		}
     } catch (error) {
-        return ;
+        return;
     }
 
     const headers = {
@@ -37,13 +37,13 @@ export default async function getUserInfo(token = null, id = null) {
     );
 
     if (response && !response.ok) {
-        return ;
+        return;
     }
 
     try {
         jsonData = await response.json();
     } catch (error) {
-        return ;
+        return;
     }
 
     const data = {

@@ -30,15 +30,15 @@ export function gameStartAnimation(game) {
                 6 * ScreenSize / 9
             );
 
-			game.ctx.font = `bold ${0.025 * ScreenSize}px Arial`;
-			game.ctx.fillStyle = "white";
-			game.ctx.textAlign = "center";
-			game.ctx.textBaseline = "middle";
-			game.ctx.fillText(
-				"click in the board to place your simbol",
-				ScreenSize / 2,
-				7 * ScreenSize / 9
-			);
+            game.ctx.font = `bold ${0.025 * ScreenSize}px Arial`;
+            game.ctx.fillStyle = "white";
+            game.ctx.textAlign = "center";
+            game.ctx.textBaseline = "middle";
+            game.ctx.fillText(
+                "click in the board to place your simbol",
+                ScreenSize / 2,
+                7 * ScreenSize / 9
+            );
 
             if (elapsedTime < 5 && !game.over) {
                 window.requestAnimationFrame(animate);
@@ -53,6 +53,10 @@ export function gameStartAnimation(game) {
 }
 
 export function gameConfettiAnimation(game) {
+    if (game.lost_connection) {
+        return;
+    }
+
     return new Promise((resolve) => {
         let confettiParticles = [];
 
@@ -73,10 +77,12 @@ export function gameConfettiAnimation(game) {
         };
 
         const drawWinnerName = (ctx) => {
-            ctx.fillStyle = "white";
-            ctx.font = "bold 50px Arial";
-            ctx.textAlign = "center";
-            ctx.fillText(game.winner + " wins", ctx.canvas.width / 2, ctx.canvas.height / 7 * 3);
+            if (game.winner) {
+                ctx.fillStyle = "white";
+                ctx.font = "bold 50px Arial";
+                ctx.textAlign = "center";
+                ctx.fillText(game.winner + " wins", ctx.canvas.width / 2, ctx.canvas.height / 7 * 3);
+            }
         };
 
         const animate = () => {
@@ -86,11 +92,11 @@ export function gameConfettiAnimation(game) {
             );
 
             game.clear();
-			game.ctx.globalAlpha = 0.4;
-			game.drawBoard();
-			game.player1.draw(game.ctx, game.size);
-			game.player2.draw(game.ctx, game.size);
-			game.ctx.globalAlpha = 1.0;
+            game.ctx.globalAlpha = 0.4;
+            game.drawBoard();
+            game.player1.draw(game.ctx, game.size);
+            game.player2.draw(game.ctx, game.size);
+            game.ctx.globalAlpha = 1.0;
 
             confettiParticles.forEach((particle) => {
                 game.ctx.fillStyle = particle.color;

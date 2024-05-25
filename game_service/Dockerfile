@@ -8,6 +8,11 @@ RUN chmod o+rw -R /run/daphne/
 COPY ./requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt --target /site-packages/
 
+WORKDIR /app/
+COPY . .
+
+RUN chmod o+rw /app/media
+
 # SECOND STAGE -- DEV
 FROM python:3.11-slim as dev
 LABEL authors="bsilva-c"
@@ -38,9 +43,9 @@ COPY --from=build /site-packages/ /site-packages/
 COPY --from=build --chown=nonroot:nonroot /run/daphne/ /run/daphne/
 
 WORKDIR /app/
-COPY . .
+COPY --from=build --chown=nonroot:nonroot /app/ .
 
-CMD ["/site-packages/bin/daphne", "-u", "/run/daphne/daphne.sock", "game_service.asgi:application"]
+CMD ["/site-packages/bin/daphne", "-u", "/run/daphne/daphne.sock", "--ping-interval", "1", "--ping-timeout", "5", "game_service.asgi:application"]
 
 # SECOND STAGE -- TOOLS
 FROM python:3.11-slim as tools
