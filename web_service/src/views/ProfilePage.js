@@ -359,9 +359,10 @@ export default class ProfilePage extends AbstractView {
     loadProfilePageInfo() {
         this.getPlayerRecord();
 		this._friendship = null;
+		let winPercentage = 0;
 
 		if (this._matchHistory) {
-			let winPercentage = this._winRecord / this._matchHistory.length * 100;
+			winPercentage = this._winRecord / this._matchHistory.length * 100;
 	
 			if (!winPercentage) {
 				winPercentage = 0;
