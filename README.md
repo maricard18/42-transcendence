@@ -65,6 +65,21 @@ Run the command `make help` to list all the possible options.
     ```sh
     make fclean
     ```
+## Secrets folder structure
+
+```
+secrets/
+├── auth_service/
+│ └── postgres-host
+├── game_service/
+│ └── postgres-host
+├── friendship_service/
+│ └── postgres-host
+├── grafana/
+│ └── grafana-username
+│ └── grafana-password
+├── sso-42-client-secret
+```
 
 ---
 > Feel free to ask me any questions through Slack (**maricard**). <br>
